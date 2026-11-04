@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Sparkles, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Sparkles, ChevronDown, ChevronUp, AlertCircle, ArrowLeft } from 'lucide-react';
 import './LoginView.css';
 
 export const LoginView: React.FC = () => {
@@ -34,7 +34,7 @@ export const LoginView: React.FC = () => {
 
     try {
       await login(email, password);
-      navigate('/');
+      navigate('/app');
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
@@ -179,32 +179,38 @@ export const LoginView: React.FC = () => {
       </div>
 
       {/* ------------------------------------------------------------------
-          Header: Brand Logo & Title (Outside Card)
+          Header: Brand Logo & Title (Click to return to Landing Page)
          ------------------------------------------------------------------ */}
       <header className="scholarly-header">
-        <svg className="brand-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Top Petal - Yellow */}
-          <path
-            d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z"
-            fill="#FBBF24"
-          />
-          {/* Right Petal - Green */}
-          <path
-            d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z"
-            fill="#4ADE80"
-          />
-          {/* Bottom Petal - Sky Blue */}
-          <path
-            d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z"
-            fill="#38BDF8"
-          />
-          {/* Left Petal - Magenta / Pink */}
-          <path
-            d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z"
-            fill="#F472B6"
-          />
-        </svg>
-        <span className="brand-name-text">Scholarly</span>
+        <Link
+          to="/"
+          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}
+          title="Kembali ke Web Sekolah"
+        >
+          <svg className="brand-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Top Petal - Yellow */}
+            <path
+              d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z"
+              fill="#FBBF24"
+            />
+            {/* Right Petal - Green */}
+            <path
+              d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z"
+              fill="#4ADE80"
+            />
+            {/* Bottom Petal - Sky Blue */}
+            <path
+              d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z"
+              fill="#38BDF8"
+            />
+            {/* Left Petal - Magenta / Pink */}
+            <path
+              d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z"
+              fill="#F472B6"
+            />
+          </svg>
+          <span className="brand-name-text">Scholarly</span>
+        </Link>
       </header>
 
       {/* ------------------------------------------------------------------
@@ -273,7 +279,6 @@ export const LoginView: React.FC = () => {
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   tabIndex={-1}
                 >
-                  {/* Playful Eye SVG matching the screenshot style */}
                   {showPassword ? (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
@@ -317,7 +322,7 @@ export const LoginView: React.FC = () => {
             </a>
           </div>
 
-          {/* Discreet Collapsible Demo Roles Pill for Easy Testing */}
+          {/* Discreet Collapsible Demo Roles Panel for Easy Testing */}
           <div className="scholarly-demo-drawer">
             <button
               type="button"
@@ -346,6 +351,25 @@ export const LoginView: React.FC = () => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Back Link to Landing Page */}
+        <div style={{ marginTop: '16px' }}>
+          <Link
+            to="/"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '12.5px',
+              color: '#64748b',
+              textDecoration: 'none',
+              fontWeight: 500,
+            }}
+          >
+            <ArrowLeft size={14} />
+            <span>Kembali ke Halaman Web Promosi Sekolah</span>
+          </Link>
         </div>
       </main>
 

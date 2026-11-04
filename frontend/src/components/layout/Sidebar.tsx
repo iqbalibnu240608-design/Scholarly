@@ -18,56 +18,57 @@ export const Sidebar: React.FC = () => {
 
   const navigationItems = [
     {
-      to: '/',
+      to: '/app',
       label: 'Dashboard Utama',
       icon: LayoutDashboard,
       badge: 'Semua',
       role: 'all',
+      end: true,
     },
     {
-      to: '/siswa',
+      to: '/app/siswa',
       label: 'Portal Siswa',
       icon: GraduationCap,
       badge: 'Siswa',
       role: 'siswa',
     },
     {
-      to: '/guru',
+      to: '/app/guru',
       label: 'Portal Guru',
       icon: BookOpen,
       badge: 'Guru',
       role: 'guru',
     },
     {
-      to: '/kepsek',
+      to: '/app/kepsek',
       label: 'Portal Kepsek',
       icon: Award,
       badge: 'Kepsek',
       role: 'kepsek',
     },
     {
-      to: '/petugas',
+      to: '/app/petugas',
       label: 'Portal TU & Petugas',
       icon: FileSpreadsheet,
       badge: 'Petugas',
       role: 'petugas',
     },
     {
-      to: '/kopsis',
+      to: '/app/kopsis',
       label: 'Portal Koperasi (Kopsis)',
       icon: ShoppingBag,
       badge: 'Kopsis',
       role: 'kopsis',
     },
     {
-      to: '/kantin',
+      to: '/app/kantin',
       label: 'Portal Kantin Sekolah',
       icon: UtensilsCrossed,
       badge: 'Kantin',
       role: 'kantin',
     },
     {
-      to: '/admin',
+      to: '/app/admin',
       label: 'Manajemen Sistem & Role',
       icon: Settings,
       badge: 'Admin',
@@ -96,6 +97,7 @@ export const Sidebar: React.FC = () => {
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.end}
               className={({ isActive }) =>
                 `nav-item ${isActive ? 'nav-item-active' : ''} ${
                   isCurrentActiveRole ? 'nav-item-highlight' : ''

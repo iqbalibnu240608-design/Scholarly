@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/layout/Layout';
+import { LandingPageView } from './views/LandingPageView';
 import { LoginView } from './views/LoginView';
 import { OverviewView } from './views/OverviewView';
 import { SiswaView } from './views/SiswaView';
@@ -37,11 +38,15 @@ export const App: React.FC = () => {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Public Landing Page (School Promotion & Competition Showcase) */}
+          <Route path="/" element={<LandingPageView />} />
+
+          {/* Scholarly 16:9 Login Page */}
           <Route path="/login" element={<LoginView />} />
 
-          {/* Protected Routes inside App Layout */}
+          {/* Protected School Ecosystem Dashboard Routes */}
           <Route
-            path="/"
+            path="/app"
             element={
               <ProtectedRoute>
                 <Layout />
@@ -58,6 +63,17 @@ export const App: React.FC = () => {
             <Route path="admin" element={<AdminView />} />
           </Route>
 
+          {/* Helpful Aliases for Direct Navigation */}
+          <Route path="/dashboard" element={<Navigate to="/app" replace />} />
+          <Route path="/siswa" element={<Navigate to="/app/siswa" replace />} />
+          <Route path="/guru" element={<Navigate to="/app/guru" replace />} />
+          <Route path="/kepsek" element={<Navigate to="/app/kepsek" replace />} />
+          <Route path="/petugas" element={<Navigate to="/app/petugas" replace />} />
+          <Route path="/kopsis" element={<Navigate to="/app/kopsis" replace />} />
+          <Route path="/kantin" element={<Navigate to="/app/kantin" replace />} />
+          <Route path="/admin" element={<Navigate to="/app/admin" replace />} />
+
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

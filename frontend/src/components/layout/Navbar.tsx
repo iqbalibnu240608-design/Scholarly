@@ -1,7 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLE_LABELS, ROLE_BADGE_COLORS } from '../../types/auth';
-import { LogOut, User as UserIcon, Shield, Sparkles } from 'lucide-react';
+import { LogOut, User as UserIcon, Shield, Sparkles, Globe } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, activeRole, switchRolePreview, logout } = useAuth();
@@ -12,18 +13,41 @@ export const Navbar: React.FC = () => {
   return (
     <header className="top-navbar">
       <div className="navbar-brand">
-        <div className="brand-logo">🏫</div>
-        <div>
-          <h1 className="brand-title">EKOSISTEM SEKOLAH</h1>
-          <span className="brand-subtitle">Platform Terpadu Manajemen Civitas Akademika</span>
-        </div>
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="brand-logo">🏫</div>
+          <div>
+            <h1 className="brand-title">EKOSISTEM SEKOLAH</h1>
+            <span className="brand-subtitle">Platform Terpadu Manajemen Civitas Akademika</span>
+          </div>
+        </Link>
       </div>
 
       <div className="navbar-actions">
+        {/* Quick Link to Public Landing Page */}
+        <Link
+          to="/"
+          className="badge-pill"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            textDecoration: 'none',
+            padding: '6px 12px',
+            background: '#eff6ff',
+            color: '#1d63ff',
+            border: '1px solid #dbeafe',
+            fontWeight: 600,
+          }}
+          title="Buka Halaman Promosi Sekolah"
+        >
+          <Globe size={14} />
+          <span>Web Sekolah</span>
+        </Link>
+
         {/* Role Preview Switcher Tool */}
         <div className="role-switcher-container">
           <span className="switcher-label">
-            <Sparkles size={14} /> Preview Akses Sebagai:
+            <Sparkles size={14} /> Preview Akses:
           </span>
           <select
             className="role-select"

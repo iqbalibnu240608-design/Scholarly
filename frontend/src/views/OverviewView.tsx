@@ -141,7 +141,7 @@ export const OverviewView: React.FC = () => {
             <span className="badge-pill">Semua Akses</span>
           </div>
           <div className="portal-links-grid">
-            <Link to="/siswa" className="portal-tile">
+            <Link to="/app/siswa" className="portal-tile">
               <span className="portal-icon">🎓</span>
               <div>
                 <h4>Portal Siswa</h4>
@@ -150,7 +150,7 @@ export const OverviewView: React.FC = () => {
               <ArrowRight size={16} className="tile-arrow" />
             </Link>
 
-            <Link to="/guru" className="portal-tile">
+            <Link to="/app/guru" className="portal-tile">
               <span className="portal-icon">👨‍🏫</span>
               <div>
                 <h4>Portal Guru</h4>
@@ -159,7 +159,7 @@ export const OverviewView: React.FC = () => {
               <ArrowRight size={16} className="tile-arrow" />
             </Link>
 
-            <Link to="/kepsek" className="portal-tile">
+            <Link to="/app/kepsek" className="portal-tile">
               <span className="portal-icon">🏫</span>
               <div>
                 <h4>Portal Kepala Sekolah</h4>
@@ -168,7 +168,7 @@ export const OverviewView: React.FC = () => {
               <ArrowRight size={16} className="tile-arrow" />
             </Link>
 
-            <Link to="/petugas" className="portal-tile">
+            <Link to="/app/petugas" className="portal-tile">
               <span className="portal-icon">📋</span>
               <div>
                 <h4>Portal Petugas TU</h4>
@@ -177,7 +177,7 @@ export const OverviewView: React.FC = () => {
               <ArrowRight size={16} className="tile-arrow" />
             </Link>
 
-            <Link to="/kopsis" className="portal-tile">
+            <Link to="/app/kopsis" className="portal-tile">
               <span className="portal-icon">🛒</span>
               <div>
                 <h4>Portal Kopsis</h4>
@@ -186,7 +186,7 @@ export const OverviewView: React.FC = () => {
               <ArrowRight size={16} className="tile-arrow" />
             </Link>
 
-            <Link to="/kantin" className="portal-tile">
+            <Link to="/app/kantin" className="portal-tile">
               <span className="portal-icon">🍜</span>
               <div>
                 <h4>Portal Kantin</h4>
