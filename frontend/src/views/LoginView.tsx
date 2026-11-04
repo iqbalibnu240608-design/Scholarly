@@ -8,23 +8,27 @@ export const LoginView: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState<string>('Leila57@gmail.com');
+  // Default to Siswa Ahmad Pratama (NISN)
+  const [identifier, setIdentifier] = useState<string>('0061234567');
   const [password, setPassword] = useState<string>('password123');
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [emailFocused, setEmailFocused] = useState<boolean>(false);
+  const [inputFocused, setInputFocused] = useState<boolean>(false);
   const [passwordFocused, setPasswordFocused] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showDemoRoles, setShowDemoRoles] = useState<boolean>(false);
 
   const demoAccounts = [
-    { label: 'Siswa', email: 'siswa@sekolah.test', icon: '🎓' },
-    { label: 'Guru', email: 'guru@sekolah.test', icon: '👨‍🏫' },
-    { label: 'Kepsek', email: 'kepsek@sekolah.test', icon: '🏫' },
-    { label: 'Petugas TU', email: 'petugas@sekolah.test', icon: '📋' },
-    { label: 'Kopsis', email: 'kopsis@sekolah.test', icon: '🛒' },
-    { label: 'Kantin', email: 'kantin@sekolah.test', icon: '🍜' },
-    { label: 'Admin', email: 'admin@sekolah.test', icon: '⚙️' },
+    { label: 'Siswa 1 (NISN: 0061234567)', id: '0061234567', pwd: 'password123', icon: '🎓' },
+    { label: 'Siswa 2 (NISN: 0089876543)', id: '0089876543', pwd: 'password123', icon: '🎓' },
+    { label: 'Admin IT (ID: admin)', id: 'admin', pwd: 'admin123', icon: '⚙️' },
+    { label: 'Guru (NIP: 19850315...)', id: '198503152010011002', pwd: 'password123', icon: '👨‍🏫' },
+    { label: 'Kepsek (NIP: 19700101...)', id: '197001011995031001', pwd: 'password123', icon: '🏫' },
+    { label: 'Petugas TU', id: '199008202015022003', pwd: 'password123', icon: '📋' },
+    { label: 'Kopsis', id: 'KOP-2026', pwd: 'password123', icon: '🛒' },
+    { label: 'Kantin', id: 'KTN-01', pwd: 'password123', icon: '🍜' },
+    { label: 'Satpam Gerbang', id: 'SEC-01', pwd: 'password123', icon: '🛡️' },
+    { label: 'Perpustakaan', id: 'LIB-01', pwd: 'password123', icon: '📚' },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,21 +37,21 @@ export const LoginView: React.FC = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(identifier, password);
       navigate('/app');
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          'Email atau kata sandi tidak valid. Pastikan server backend dan MySQL aktif.'
+          'Kredensial atau kata sandi tidak valid. Pastikan server backend dan MySQL aktif.'
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectDemoAccount = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword('password123');
+  const handleSelectDemoAccount = (accId: string, accPwd?: string) => {
+    setIdentifier(accId);
+    setPassword(accPwd || 'password123');
   };
 
   return (
@@ -69,7 +73,6 @@ export const LoginView: React.FC = () => {
         {/* Left Planet with Blue Orbit Ring */}
         <div className="decor-item decor-planet-left">
           <svg viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Back half of tilted blue ring */}
             <path
               d="M 28 85 C 10 105, 30 145, 110 135 C 170 127, 212 95, 195 72"
               stroke="#1D63FF"
@@ -78,21 +81,9 @@ export const LoginView: React.FC = () => {
               fill="none"
               opacity="0.35"
             />
-            {/* Planet Body */}
-            <defs>
-              <radialGradient id="planetGrad" cx="38%" cy="32%" r="68%">
-                <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="60%" stopColor="#F1F5F9" />
-                <stop offset="100%" stopColor="#CBD5E1" />
-              </radialGradient>
-              <filter id="planetShadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#94A3B8" floodOpacity="0.2" />
-              </filter>
-            </defs>
-            <circle cx="110" cy="100" r="50" fill="url(#planetGrad)" filter="url(#planetShadow)" />
-            {/* Front half of tilted blue ring */}
+            <circle cx="110" cy="110" r="50" fill="#E2E8F0" />
             <path
-              d="M 195 72 C 180 50, 120 70, 50 92 C 18 102, 10 115, 28 126 C 42 135, 75 138, 120 132 C 185 122, 215 95, 195 72 Z"
+              d="M 28 85 C 50 65, 120 50, 195 72"
               stroke="#1D63FF"
               strokeWidth="4"
               strokeLinecap="round"
@@ -101,69 +92,19 @@ export const LoginView: React.FC = () => {
           </svg>
         </div>
 
-        {/* Bottom-Left Starburst */}
-        <div className="decor-item decor-star-bottom-left">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M100 10 L120 75 L185 50 L145 105 L190 160 L125 140 L100 190 L75 140 L10 160 L55 105 L15 50 L80 75 Z"
-              fill="#F1F5F9"
+        {/* Top-Right Big Soft Saturn */}
+        <div className="decor-item decor-planet-top-right">
+          <svg viewBox="0 0 260 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse
+              cx="130"
+              cy="130"
+              rx="110"
+              ry="42"
+              transform="rotate(-25 130 130)"
+              stroke="#E2E8F0"
+              strokeWidth="5"
             />
-          </svg>
-        </div>
-
-        {/* Top-Right Sunburst with Fine Rays */}
-        <div className="decor-item decor-sunburst-top-right">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {Array.from({ length: 24 }).map((_, i) => (
-              <line
-                key={i}
-                x1="100"
-                y1="100"
-                x2={100 + 90 * Math.cos((i * 15 * Math.PI) / 180)}
-                y2={100 + 90 * Math.sin((i * 15 * Math.PI) / 180)}
-                stroke="#F1F5F9"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            ))}
-          </svg>
-        </div>
-
-        {/* Upper-Right Lime Sparkle Star */}
-        <div className="decor-item decor-lime-sparkle-right">
-          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M50 0 C50 32, 68 50, 100 50 C68 50, 50 68, 50 100 C50 68, 32 50, 0 50 C32 50, 50 32, 50 0 Z"
-              fill="#84CC16"
-            />
-          </svg>
-        </div>
-
-        {/* Mid-Right Curved Pencil */}
-        <div className="decor-item decor-pencil-right">
-          <svg viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="pencilBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="60%" stopColor="#F1F5F9" />
-                <stop offset="100%" stopColor="#E2E8F0" />
-              </linearGradient>
-            </defs>
-            {/* Curved Pencil Arc */}
-            <path
-              d="M 25 105 C 50 120, 105 135, 145 105 C 185 75, 195 25, 160 10 C 130 -2, 100 30, 120 70 C 135 100, 180 115, 215 110"
-              stroke="url(#pencilBodyGrad)"
-              strokeWidth="26"
-              strokeLinecap="round"
-              fill="none"
-              opacity="0.95"
-            />
-            {/* Pencil Tip (Graphite & Wood) */}
-            <path d="M 22 96 L 2 108 L 26 118 Z" fill="#1E293B" />
-            <path d="M 26 96 L 22 96 L 26 118 L 36 116 Z" fill="#FDE047" opacity="0.8" />
-            {/* Pink Eraser at Tail */}
-            <circle cx="215" cy="110" r="14" fill="#F472B6" />
-            <circle cx="205" cy="112" r="13" fill="#CBD5E1" opacity="0.6" />
+            <circle cx="130" cy="130" r="62" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="2" />
           </svg>
         </div>
 
@@ -188,22 +129,18 @@ export const LoginView: React.FC = () => {
           title="Kembali ke Web Sekolah"
         >
           <svg className="brand-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Top Petal - Yellow */}
             <path
               d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z"
               fill="#FBBF24"
             />
-            {/* Right Petal - Green */}
             <path
               d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z"
               fill="#4ADE80"
             />
-            {/* Bottom Petal - Sky Blue */}
             <path
               d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z"
               fill="#38BDF8"
             />
-            {/* Left Petal - Magenta / Pink */}
             <path
               d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z"
               fill="#F472B6"
@@ -221,7 +158,7 @@ export const LoginView: React.FC = () => {
           <div className="steelschool-card-header">
             <h1 className="steelschool-card-title">Sign in</h1>
             <p className="steelschool-card-subtitle">
-              Enter details to get sign in to your account.
+              Masuk dengan <strong>NISN</strong> (Siswa) atau <strong>ID / Email</strong> (Staf & Admin).
             </p>
           </div>
 
@@ -233,23 +170,23 @@ export const LoginView: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} className="steelschool-form">
-            {/* Input Email with Outlined Floating Label Style */}
-            <div className={`steelschool-field-group ${emailFocused || email ? 'is-focused' : ''}`}>
-              <label className="steelschool-field-label" htmlFor="email-input">
-                Email
+            {/* Input Identifier (NISN / NIP / Username / Email) */}
+            <div className={`steelschool-field-group ${inputFocused || identifier ? 'is-focused' : ''}`}>
+              <label className="steelschool-field-label" htmlFor="identifier-input">
+                NISN / ID Akun / Email
               </label>
               <div className="steelschool-input-wrapper">
                 <input
-                  id="email-input"
-                  type="email"
+                  id="identifier-input"
+                  type="text"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onFocus={() => setEmailFocused(true)}
-                  onBlur={() => setEmailFocused(false)}
-                  placeholder="name@example.com"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  onFocus={() => setInputFocused(true)}
+                  onBlur={() => setInputFocused(false)}
+                  placeholder="Contoh: 0061234567 atau admin"
                   className="steelschool-input"
-                  autoComplete="email"
+                  autoComplete="username"
                 />
               </div>
             </div>
@@ -257,7 +194,7 @@ export const LoginView: React.FC = () => {
             {/* Input Password with Outlined Style & Eye Toggle */}
             <div className={`steelschool-field-group ${passwordFocused || password ? 'is-focused' : ''}`}>
               <label className="steelschool-field-label" htmlFor="password-input">
-                Password
+                Password (dari Admin)
               </label>
               <div className="steelschool-input-wrapper">
                 <input
@@ -268,7 +205,7 @@ export const LoginView: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
-                  placeholder="Password"
+                  placeholder="Password yang diberikan admin"
                   className="steelschool-input"
                   autoComplete="current-password"
                 />
@@ -304,7 +241,7 @@ export const LoginView: React.FC = () => {
               disabled={loading}
               className="steelschool-btn-submit"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Memverifikasi...' : 'Masuk ke Sistem'}
             </button>
           </form>
 
@@ -314,11 +251,11 @@ export const LoginView: React.FC = () => {
               href="#forgot-password"
               onClick={(e) => {
                 e.preventDefault();
-                alert('Silakan hubungi administrator sekolah untuk mengatur ulang kata sandi Anda.');
+                alert('Silakan hubungi administrator sekolah untuk reset atau meminta kata sandi Anda.');
               }}
               className="steelschool-forgot-link"
             >
-              Forgot password?
+              Lupa kata sandi? Hubungi Admin
             </a>
           </div>
 
@@ -330,7 +267,7 @@ export const LoginView: React.FC = () => {
               onClick={() => setShowDemoRoles(!showDemoRoles)}
             >
               <Sparkles size={14} className="text-amber-500" />
-              <span>Akun Demo Role Sekolah</span>
+              <span>Pilihan Akun Demo (Siswa via NISN, Admin, Staf)</span>
               {showDemoRoles ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
 
@@ -338,11 +275,11 @@ export const LoginView: React.FC = () => {
               <div className="steelschool-demo-pills-grid">
                 {demoAccounts.map((acc) => (
                   <button
-                    key={acc.email}
+                    key={acc.id}
                     type="button"
                     className="steelschool-role-pill"
-                    onClick={() => handleSelectDemoAccount(acc.email)}
-                    title={`Isi otomatis ${acc.label} (${acc.email})`}
+                    onClick={() => handleSelectDemoAccount(acc.id, acc.pwd)}
+                    title={`Isi otomatis ${acc.label}`}
                   >
                     <span>{acc.icon}</span>
                     <span>{acc.label}</span>
@@ -380,9 +317,9 @@ export const LoginView: React.FC = () => {
         <p className="steelschool-footer-text">
           <span>&copy;SteelSchool 2026</span>
           <span className="footer-bullet">&middot;</span>
-          <a href="#privacy" className="footer-link">Privacy Policy</a>
+          <a href="#privacy" className="footer-link">Kebijakan Privasi</a>
           <span className="footer-bullet">&middot;</span>
-          <a href="#terms" className="footer-link">Terms of Service</a>
+          <a href="#terms" className="footer-link">Syarat & Ketentuan</a>
         </p>
       </footer>
     </div>

@@ -60,6 +60,11 @@ class DatabaseSeeder extends Seeder
                 'description' => 'Peminjaman dan katalog buku perpustakaan.',
             ],
             [
+                'name' => 'security',
+                'display_name' => 'Petugas Keamanan / Satpam',
+                'description' => 'Presensi gerbang utama, verifikasi kartu RFID/NIS, dan izin dispensasi keluar.',
+            ],
+            [
                 'name' => 'bk',
                 'display_name' => 'Guru Bimbingan Konseling',
                 'description' => 'Konseling siswa, poin pelanggaran, dan catatan prestasi.',
@@ -103,19 +108,24 @@ class DatabaseSeeder extends Seeder
             // Modul Kantin
             ['name' => 'manage_canteen_menu', 'display_name' => 'Kelola Menu Kantin', 'module' => 'kantin'],
             ['name' => 'process_canteen_orders', 'display_name' => 'Proses Pesanan Kantin', 'module' => 'kantin'],
+
+            // Modul Keamanan
+            ['name' => 'manage_gate_attendance', 'display_name' => 'Presensi Gerbang & RFID', 'module' => 'security'],
+            ['name' => 'verify_exit_permit', 'display_name' => 'Verifikasi Dispensasi Keluar', 'module' => 'security'],
         ];
 
         foreach ($permissionsData as $perm) {
             Permission::updateOrCreate(['name' => $perm['name']], $perm);
         }
 
-        // 3. Demo Users for Every Role (All password: password123)
+        // 3. Demo Users for Every Role (Support Login via NISN & Password dari Admin)
         $usersData = [
             [
                 'name' => 'Super Administrator',
                 'email' => 'admin@sekolah.test',
                 'role_name' => 'admin',
-                'identifier_number' => 'ADM-001',
+                'identifier_number' => 'admin', // Admin bisa login dengan NISN/ID: "admin"
+                'password' => 'admin123',
                 'phone' => '081234567890',
                 'gender' => 'L',
             ],
@@ -123,7 +133,8 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Dr. H. Soekarno, M.Pd',
                 'email' => 'kepsek@sekolah.test',
                 'role_name' => 'kepsek',
-                'identifier_number' => '197001011995031001',
+                'identifier_number' => '197001011995031001', // NIP
+                'password' => 'password123',
                 'phone' => '081234567891',
                 'gender' => 'L',
             ],
@@ -131,7 +142,8 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Budi Santoso, S.Pd',
                 'email' => 'guru@sekolah.test',
                 'role_name' => 'guru',
-                'identifier_number' => '198503152010011002',
+                'identifier_number' => '198503152010011002', // NIP
+                'password' => 'password123',
                 'phone' => '081234567892',
                 'gender' => 'L',
             ],
@@ -139,15 +151,26 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Ahmad Pratama',
                 'email' => 'siswa@sekolah.test',
                 'role_name' => 'siswa',
-                'identifier_number' => '0061234567', // NISN
+                'identifier_number' => '0061234567', // NISN Siswa 1
+                'password' => 'password123',
                 'phone' => '081234567893',
                 'gender' => 'L',
+            ],
+            [
+                'name' => 'Siti Rahmawati',
+                'email' => 'rahma@sekolah.test',
+                'role_name' => 'siswa',
+                'identifier_number' => '0089876543', // NISN Siswa 2
+                'password' => 'password123',
+                'phone' => '081234567899',
+                'gender' => 'P',
             ],
             [
                 'name' => 'Siti Aminah, S.AP',
                 'email' => 'petugas@sekolah.test',
                 'role_name' => 'petugas',
-                'identifier_number' => '199008202015022003',
+                'identifier_number' => '199008202015022003', // NIP TU
+                'password' => 'password123',
                 'phone' => '081234567894',
                 'gender' => 'P',
             ],
@@ -156,15 +179,35 @@ class DatabaseSeeder extends Seeder
                 'email' => 'kopsis@sekolah.test',
                 'role_name' => 'kopsis',
                 'identifier_number' => 'KOP-2026',
+                'password' => 'password123',
                 'phone' => '081234567895',
                 'gender' => 'L',
             ],
             [
-                'name' => 'Ibu Titin (Kantin Stand 1)',
+                'name' => 'Ibu Titin (Kantin)',
                 'email' => 'kantin@sekolah.test',
                 'role_name' => 'kantin',
                 'identifier_number' => 'KTN-01',
+                'password' => 'password123',
                 'phone' => '081234567896',
+                'gender' => 'P',
+            ],
+            [
+                'name' => 'Joko Widodo (Satpam Gerbang)',
+                'email' => 'satpam@sekolah.test',
+                'role_name' => 'security',
+                'identifier_number' => 'SEC-01',
+                'password' => 'password123',
+                'phone' => '081234567897',
+                'gender' => 'L',
+            ],
+            [
+                'name' => 'Dewi Lestari (Perpus)',
+                'email' => 'perpus@sekolah.test',
+                'role_name' => 'perpustakaan',
+                'identifier_number' => 'LIB-01',
+                'password' => 'password123',
+                'phone' => '081234567898',
                 'gender' => 'P',
             ],
         ];
@@ -172,10 +215,11 @@ class DatabaseSeeder extends Seeder
         foreach ($usersData as $u) {
             $role = $roles[$u['role_name']] ?? null;
             User::updateOrCreate(
-                ['email' => $u['email']],
+                ['identifier_number' => $u['identifier_number']],
                 [
                     'name' => $u['name'],
-                    'password' => Hash::make('password123'),
+                    'email' => $u['email'] ?? null,
+                    'password' => Hash::make($u['password']),
                     'role_id' => $role?->id,
                     'role_name' => $u['role_name'],
                     'identifier_number' => $u['identifier_number'],

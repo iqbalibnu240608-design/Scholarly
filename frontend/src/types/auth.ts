@@ -7,6 +7,7 @@ export type RoleName =
   | 'kopsis'
   | 'kantin'
   | 'perpustakaan'
+  | 'security'
   | 'bk'
   | string;
 
@@ -20,10 +21,12 @@ export interface RoleInfo {
 export interface User {
   id: number;
   name: string;
-  email: string;
+  email?: string | null;
+  nisn?: string | null;
   role: RoleName;
   role_display?: string;
   identifier_number?: string | null;
+  status?: 'active' | 'inactive';
   phone?: string | null;
   gender?: 'L' | 'P' | null;
   avatar?: string | null;
@@ -46,6 +49,7 @@ export const ROLE_LABELS: Record<string, string> = {
   kopsis: 'Pengelola Koperasi Siswa',
   kantin: 'Pengelola Kantin Sekolah',
   perpustakaan: 'Petugas Perpustakaan',
+  security: 'Petugas Keamanan / Satpam',
   bk: 'Bimbingan Konseling',
 };
 
@@ -57,4 +61,6 @@ export const ROLE_BADGE_COLORS: Record<string, { bg: string; text: string; borde
   petugas: { bg: '#f3e8ff', text: '#6b21a8', border: '#d8b4fe' },
   kopsis: { bg: '#ffedd5', text: '#9a3412', border: '#fdba74' },
   kantin: { bg: '#cffafe', text: '#155e75', border: '#67e8f9' },
+  perpustakaan: { bg: '#fef9c3', text: '#854d0e', border: '#fde047' },
+  security: { bg: '#e2e8f0', text: '#334155', border: '#cbd5e1' },
 };

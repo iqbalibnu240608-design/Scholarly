@@ -7,7 +7,7 @@ import { LogOut, User as UserIcon, Shield, Sparkles, Globe } from 'lucide-react'
 export const Navbar: React.FC = () => {
   const { user, activeRole, switchRolePreview, logout } = useAuth();
 
-  const allRoles = ['admin', 'kepsek', 'guru', 'siswa', 'petugas', 'kopsis', 'kantin'];
+  const allRoles = ['admin', 'kepsek', 'guru', 'siswa', 'petugas', 'kopsis', 'kantin', 'security', 'perpustakaan'];
   const badgeStyle = ROLE_BADGE_COLORS[activeRole] || { bg: '#f1f5f9', text: '#334155', border: '#cbd5e1' };
 
   return (

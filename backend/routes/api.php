@@ -55,4 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Admin Endpoints
     Route::get('/school/admin', [SchoolEcosystemController::class, 'getAdminData']);
     Route::post('/admin/assign-role', [RoleController::class, 'assignRole']);
+    Route::post('/admin/users', [SchoolEcosystemController::class, 'createUser']);
+    Route::post('/admin/users/{id}/toggle-status', [SchoolEcosystemController::class, 'toggleUserStatus']);
+    Route::post('/admin/users/{id}/reset-password', [SchoolEcosystemController::class, 'resetUserPassword']);
 });

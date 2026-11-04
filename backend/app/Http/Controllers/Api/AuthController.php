@@ -13,23 +13,53 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
-     * User Login
+     * User Login (Mendukung Login via NISN untuk Siswa, serta NIP/Email/Username untuk Staf/Admin)
      */
     public function login(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'email' => 'required|email',
+            'identifier' => 'nullable|string',
+            'nisn' => 'nullable|string',
+            'email' => 'nullable|string',
             'password' => 'required|string',
         ]);
 
-        $user = User::with('role.permissions')->where('email', $validated['email'])->first();
+        // Prioritas pencarian: nisn -> identifier -> email
+        $loginId = trim((string)($validated['nisn'] ?? $validated['identifier'] ?? $validated['email'] ?? ''));
 
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Kredensial yang diberikan tidak cocok dengan data kami.'],
-            ]);
+        if (empty($loginId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NISN, Email, atau Nomor Identitas wajib diisi.',
+            ], 422);
         }
 
+        // Cari user berdasarkan NISN (identifier_number), email, atau nama/username
+        $user = User::with('role.permissions')
+            ->where(function ($query) use ($loginId) {
+                $query->where('identifier_number', $loginId)
+                      ->orWhere('email', $loginId)
+                      ->orWhere('name', $loginId);
+            })
+            ->first();
+
+        // 1. Verifikasi Keberadaan Pengguna (Sesuai Flowchart: Server Cari User di DB)
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kredensial tidak sesuai dengan data kami. Silakan periksa kembali NISN/Username Anda.',
+            ], 401);
+        }
+
+        // 2. Verifikasi Password Bcrypt (Sesuai Flowchart: Verifikasi Password Bcrypt Hash)
+        if (!Hash::check($validated['password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kata sandi tidak valid. Silakan coba lagi atau hubungi admin.',
+            ], 401);
+        }
+
+        // 3. Verifikasi Status Akun (Sesuai Flowchart: Cek Status Akun is_active)
         if ($user->status !== 'active') {
             return response()->json([
                 'success' => false,
@@ -37,9 +67,13 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Delete old tokens if desired or create a new token
+        // 4. Hapus Token Lama Pengguna (Sesuai Flowchart: Hapus Token Lama User)
+        $user->tokens()->delete();
+
+        // 5. Generate Token Baru Sanctum (Sesuai Flowchart: Generate Laravel Sanctum Token Baru)
         $token = $user->createToken('auth-token')->plainTextToken;
 
+        // 6. Response Payload Lengkap (Sesuai Flowchart: Bangun Payload Response)
         return response()->json([
             'success' => true,
             'message' => 'Login berhasil.',
@@ -47,10 +81,12 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
+                'nisn' => $user->identifier_number,
+                'identifier_number' => $user->identifier_number,
                 'email' => $user->email,
                 'role' => $user->role_name,
                 'role_display' => $user->role?->display_name ?? ucfirst($user->role_name),
-                'identifier_number' => $user->identifier_number,
+                'status' => $user->status,
                 'phone' => $user->phone,
                 'gender' => $user->gender,
                 'avatar' => $user->avatar,

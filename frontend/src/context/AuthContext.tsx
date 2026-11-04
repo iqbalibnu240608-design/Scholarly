@@ -7,7 +7,7 @@ interface AuthContextType {
   token: string | null;
   activeRole: RoleName;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   switchRolePreview: (role: RoleName) => void;
   resetRoleToActual: () => void;
@@ -53,10 +53,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (identifier: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await apiClient.post('/login', { email, password });
+      // Mengirimkan identifier (bisa berupa NISN siswa, Username admin, atau Email)
+      const response = await apiClient.post('/login', {
+        identifier,
+        nisn: identifier,
+        email: identifier,
+        password,
+      });
       const { token: receivedToken, user: receivedUser } = response.data;
 
       localStorage.setItem('school_auth_token', receivedToken);

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('role_id')->nullable()->after('email')->constrained('roles')->nullOnDelete();
             $table->string('role_name')->default('siswa')->after('role_id')->index();
-            $table->string('identifier_number')->nullable()->after('role_name'); // NISN / NIP / ID Karyawan
+            $table->string('identifier_number')->nullable()->unique()->after('role_name'); // NISN / NIP / ID Karyawan
             $table->string('phone')->nullable()->after('identifier_number');
             $table->enum('gender', ['L', 'P'])->nullable()->after('phone');
             $table->string('avatar')->nullable()->after('gender');

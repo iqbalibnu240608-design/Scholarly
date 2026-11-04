@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class SchoolEcosystemController extends Controller
 {
@@ -303,6 +304,85 @@ class SchoolEcosystemController extends Controller
                 'role_distribution' => $roles,
                 'recent_users' => $users,
             ],
+        ]);
+    }
+
+    /**
+     * Admin: Buat Pengguna Baru (Misal: Siswa dengan NISN & Password dari Admin)
+     */
+    public function createUser(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'identifier_number' => 'required|string|max:50|unique:users,identifier_number', // NISN atau NIP
+            'password' => 'required|string|min:4',
+            'role_name' => 'required|string|exists:roles,name',
+            'email' => 'nullable|email|max:255|unique:users,email',
+            'phone' => 'nullable|string|max:20',
+            'gender' => 'nullable|in:L,P',
+        ]);
+
+        $role = Role::where('name', $validated['role_name'])->first();
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'identifier_number' => $validated['identifier_number'],
+            'email' => $validated['email'] ?? null,
+            'password' => Hash::make($validated['password']),
+            'role_id' => $role?->id,
+            'role_name' => $validated['role_name'],
+            'phone' => $validated['phone'] ?? null,
+            'gender' => $validated['gender'] ?? 'L',
+            'status' => 'active',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Akun {$user->name} (NISN: {$user->identifier_number}) berhasil dibuat dengan role {$role?->display_name}.",
+            'user' => $user->load('role'),
+        ], 201);
+    }
+
+    /**
+     * Admin: Toggle Status Akun (Aktif / Nonaktif)
+     */
+    public function toggleUserStatus(Request $request, $id): JsonResponse
+    {
+        $user = User::findOrFail($id);
+        $user->status = ($user->status === 'active') ? 'inactive' : 'active';
+        $user->save();
+
+        if ($user->status === 'inactive') {
+            // Cabut semua token sesi jika akun dinonaktifkan
+            $user->tokens()->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Status akun {$user->name} berhasil diubah menjadi: {$user->status}.",
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Admin: Reset Kata Sandi Pengguna (Password ditentukan oleh Admin)
+     */
+    public function resetUserPassword(Request $request, $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'password' => 'required|string|min:4',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->password = Hash::make($validated['password']);
+        $user->save();
+
+        // Cabut token lama agar wajib login ulang dengan password baru
+        $user->tokens()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Kata sandi untuk {$user->name} (NISN: {$user->identifier_number}) berhasil diperbarui.",
         ]);
     }
 }
