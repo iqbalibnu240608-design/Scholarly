@@ -201,8 +201,8 @@ class DatabaseSeeder extends Seeder
         // 5. Initial Announcements
         $announcements = [
             [
-                'title' => 'Selamat Datang di Portal Terpadu Ekosistem Sekolah',
-                'content' => 'Portal ekosistem sekolah kini telah aktif untuk menghubungkan seluruh civitas akademika: Siswa, Guru, TU, Kepala Sekolah, Kopsis, dan Kantin.',
+                'title' => 'Selamat Datang di Portal Terpadu SteelSchool',
+                'content' => 'Portal ekosistem sekolah SteelSchool kini telah aktif untuk menghubungkan seluruh civitas akademika: Siswa, Guru, TU, Kepala Sekolah, Kopsis, dan Kantin.',
                 'target_role' => 'all',
                 'is_published' => true,
             ],

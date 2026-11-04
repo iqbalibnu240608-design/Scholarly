@@ -1,7 +1,7 @@
 @echo off
-title Ekosistem Sekolah - Full Stack Runner
+title SteelSchool - Full Stack Runner
 echo ===================================================
-echo     EKOSISTEM SEKOLAH FULL STACK DEV RUNNER
+echo        STEELSCHOOL FULL STACK DEV RUNNER
 echo ===================================================
 echo.
 echo Pastikan Laragon / MySQL Anda sudah berjalan (Start All).

@@ -57,7 +57,7 @@ export const OverviewView: React.FC = () => {
       {/* Banner Selamat Datang */}
       <section className="welcome-banner">
         <div className="welcome-text">
-          <h2>Selamat Datang di Ekosistem Sekolah 🎓</h2>
+          <h2>Selamat Datang di SteelSchool 🎓</h2>
           <p>
             Anda sedang melihat sistem dari sudut pandang{' '}
             <strong className="capitalize text-indigo-700">Role: {activeRole}</strong> (Akun Asli:{' '}

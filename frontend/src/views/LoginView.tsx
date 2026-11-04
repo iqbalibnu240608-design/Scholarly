@@ -51,7 +51,7 @@ export const LoginView: React.FC = () => {
   };
 
   return (
-    <div className="scholarly-login-viewport">
+    <div className="SteelSchool-login-viewport">
       {/* ------------------------------------------------------------------
           Floating Decorative SVG Elements in Background (16:9 Desktop)
          ------------------------------------------------------------------ */}
@@ -181,7 +181,7 @@ export const LoginView: React.FC = () => {
       {/* ------------------------------------------------------------------
           Header: Brand Logo & Title (Click to return to Landing Page)
          ------------------------------------------------------------------ */}
-      <header className="scholarly-header">
+      <header className="SteelSchool-header">
         <Link
           to="/"
           style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}
@@ -209,36 +209,36 @@ export const LoginView: React.FC = () => {
               fill="#F472B6"
             />
           </svg>
-          <span className="brand-name-text">Scholarly</span>
+          <span className="brand-name-text">SteelSchool</span>
         </Link>
       </header>
 
       {/* ------------------------------------------------------------------
           Login Card (Centered on Desktop)
          ------------------------------------------------------------------ */}
-      <main className="scholarly-main-content">
-        <div className="scholarly-card">
-          <div className="scholarly-card-header">
-            <h1 className="scholarly-card-title">Sign in</h1>
-            <p className="scholarly-card-subtitle">
+      <main className="SteelSchool-main-content">
+        <div className="SteelSchool-card">
+          <div className="SteelSchool-card-header">
+            <h1 className="SteelSchool-card-title">Sign in</h1>
+            <p className="SteelSchool-card-subtitle">
               Enter details to get sign in to your account.
             </p>
           </div>
 
           {error && (
-            <div className="scholarly-alert-error" role="alert">
+            <div className="SteelSchool-alert-error" role="alert">
               <AlertCircle size={16} />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="scholarly-form">
+          <form onSubmit={handleSubmit} className="SteelSchool-form">
             {/* Input Email with Outlined Floating Label Style */}
-            <div className={`scholarly-field-group ${emailFocused || email ? 'is-focused' : ''}`}>
-              <label className="scholarly-field-label" htmlFor="email-input">
+            <div className={`SteelSchool-field-group ${emailFocused || email ? 'is-focused' : ''}`}>
+              <label className="SteelSchool-field-label" htmlFor="email-input">
                 Email
               </label>
-              <div className="scholarly-input-wrapper">
+              <div className="SteelSchool-input-wrapper">
                 <input
                   id="email-input"
                   type="email"
@@ -248,18 +248,18 @@ export const LoginView: React.FC = () => {
                   onFocus={() => setEmailFocused(true)}
                   onBlur={() => setEmailFocused(false)}
                   placeholder="name@example.com"
-                  className="scholarly-input"
+                  className="SteelSchool-input"
                   autoComplete="email"
                 />
               </div>
             </div>
 
             {/* Input Password with Outlined Style & Eye Toggle */}
-            <div className={`scholarly-field-group ${passwordFocused || password ? 'is-focused' : ''}`}>
-              <label className="scholarly-field-label" htmlFor="password-input">
+            <div className={`SteelSchool-field-group ${passwordFocused || password ? 'is-focused' : ''}`}>
+              <label className="SteelSchool-field-label" htmlFor="password-input">
                 Password
               </label>
-              <div className="scholarly-input-wrapper">
+              <div className="SteelSchool-input-wrapper">
                 <input
                   id="password-input"
                   type={showPassword ? 'text' : 'password'}
@@ -269,12 +269,12 @@ export const LoginView: React.FC = () => {
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
                   placeholder="Password"
-                  className="scholarly-input"
+                  className="SteelSchool-input"
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
-                  className="scholarly-password-toggle"
+                  className="SteelSchool-password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   tabIndex={-1}
@@ -302,31 +302,31 @@ export const LoginView: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="scholarly-btn-submit"
+              className="SteelSchool-btn-submit"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
           {/* Forgot Password Link */}
-          <div className="scholarly-forgot-link-wrapper">
+          <div className="SteelSchool-forgot-link-wrapper">
             <a
               href="#forgot-password"
               onClick={(e) => {
                 e.preventDefault();
                 alert('Silakan hubungi administrator sekolah untuk mengatur ulang kata sandi Anda.');
               }}
-              className="scholarly-forgot-link"
+              className="SteelSchool-forgot-link"
             >
               Forgot password?
             </a>
           </div>
 
           {/* Discreet Collapsible Demo Roles Panel for Easy Testing */}
-          <div className="scholarly-demo-drawer">
+          <div className="SteelSchool-demo-drawer">
             <button
               type="button"
-              className="scholarly-demo-toggle-btn"
+              className="SteelSchool-demo-toggle-btn"
               onClick={() => setShowDemoRoles(!showDemoRoles)}
             >
               <Sparkles size={14} className="text-amber-500" />
@@ -335,12 +335,12 @@ export const LoginView: React.FC = () => {
             </button>
 
             {showDemoRoles && (
-              <div className="scholarly-demo-pills-grid">
+              <div className="SteelSchool-demo-pills-grid">
                 {demoAccounts.map((acc) => (
                   <button
                     key={acc.email}
                     type="button"
-                    className="scholarly-role-pill"
+                    className="SteelSchool-role-pill"
                     onClick={() => handleSelectDemoAccount(acc.email)}
                     title={`Isi otomatis ${acc.label} (${acc.email})`}
                   >
@@ -376,9 +376,9 @@ export const LoginView: React.FC = () => {
       {/* ------------------------------------------------------------------
           Footer: Copyright & Policy Links
          ------------------------------------------------------------------ */}
-      <footer className="scholarly-footer">
-        <p className="scholarly-footer-text">
-          <span>&copy;Scholarly 2026</span>
+      <footer className="SteelSchool-footer">
+        <p className="SteelSchool-footer-text">
+          <span>&copy;SteelSchool 2026</span>
           <span className="footer-bullet">&middot;</span>
           <a href="#privacy" className="footer-link">Privacy Policy</a>
           <span className="footer-bullet">&middot;</span>

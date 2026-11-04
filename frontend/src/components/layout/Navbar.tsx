@@ -16,8 +16,8 @@ export const Navbar: React.FC = () => {
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div className="brand-logo">🏫</div>
           <div>
-            <h1 className="brand-title">EKOSISTEM SEKOLAH</h1>
-            <span className="brand-subtitle">Platform Terpadu Manajemen Civitas Akademika</span>
+            <h1 className="brand-title">SteelSchool</h1>
+            <span className="brand-subtitle">Platform Ekosistem Sekolah Terpadu</span>
           </div>
         </Link>
       </div>
@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
             border: '1px solid #dbeafe',
             fontWeight: 600,
           }}
-          title="Buka Halaman Promosi Sekolah"
+          title="Buka Halaman Promosi SteelSchool"
         >
           <Globe size={14} />
           <span>Web Sekolah</span>

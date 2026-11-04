@@ -1,6 +1,8 @@
-# 🏫 Ekosistem Sekolah - Full Stack Application Setup
+# 🏫 SteelSchool - Ekosistem Sekolah Terpadu
 
-Setup arsitektur dan sistem full-stack untuk **Ekosistem Sekolah**, menghubungkan seluruh civitas akademika (Siswa, Guru, Petugas TU, Koperasi Siswa / Kopsis, Kepala Sekolah / Kepsek, dan Kantin Sekolah).
+Platform Ekosistem Sekolah Terpadu modern dan berdaya saing tinggi yang menghubungkan seluruh civitas akademika: **Siswa**, **Guru**, **Petugas TU**, **Koperasi Siswa (Kopsis)**, **Kepala Sekolah (Kepsek)**, dan **Kantin Sekolah**.
+
+Dibangun dengan arsitektur bersih, desain antarmuka modern (Blue & White palette), pengalaman pengguna tanpa _cognitive overload_ (Zero TMI), dan fitur **Role Switcher** instan untuk kebutuhan pengujian maupun kompetisi.
 
 ---
 
@@ -16,7 +18,7 @@ Setup arsitektur dan sistem full-stack untuk **Ekosistem Sekolah**, menghubungka
 
 ```
 C:\laragon\www\ekosistem-sekolah\
-├── backend\                           # Aplikasi Backend Laravel 12
+├── backend\                           # Aplikasi Backend Laravel 12 (SteelSchool API)
 │   ├── app\
 │   │   ├── Http\
 │   │   │   ├── Controllers\Api\       # AuthController, RoleController, SchoolEcosystemController
@@ -25,16 +27,18 @@ C:\laragon\www\ekosistem-sekolah\
 │   ├── database\
 │   │   ├── migrations\                # Migrations untuk roles, permissions, users, classes, kopsis, kantin
 │   │   └── seeders\DatabaseSeeder.php # Seeder akun demo semua role, data rombel, kopsis & kantin
-│   ├── routes\api.php                 # Rute RESTful API sistem sekolah
+│   ├── routes\api.php                 # Rute RESTful API SteelSchool
 │   └── run-backend.bat                # Shortcut jalankan backend (port 8000)
 │
-├── frontend\                          # Aplikasi Frontend React Vite TSX
+├── frontend\                          # Aplikasi Frontend React 19 Vite TSX (SteelSchool Web)
 │   ├── src\
 │   │   ├── api\client.ts              # Axios HTTP client dengan Bearer token interceptor
 │   │   ├── context\AuthContext.tsx    # State autentikasi & Role Preview Switcher
 │   │   ├── types\auth.ts              # Interface User, RoleName, badge styling
-│   │   ├── components\layout\         # Navbar, Sidebar (role navigation), Layout
-│   │   ├── views\                     # Modul per role:
+│   │   ├── components\layout\         # Navbar (Brand SteelSchool & Role Switcher), Sidebar
+│   │   ├── views\                     # Modul Tampilan:
+│   │   │   ├── LandingPageView.tsx    # Landing Page Promosi Sekolah & Showcase Ekosistem
+│   │   │   ├── LoginView.tsx          # 16:9 Desktop Playful Login Page (Mockup-grade)
 │   │   │   ├── OverviewView.tsx       # Ringkasan sistem & pengumuman
 │   │   │   ├── SiswaView.tsx          # Jadwal, nilai, absensi, saldo digital
 │   │   │   ├── GuruView.tsx           # Jadwal mengajar, absensi, input nilai
@@ -42,13 +46,12 @@ C:\laragon\www\ekosistem-sekolah\
 │   │   │   ├── PetugasView.tsx        # Buku induk, SPP, administrasi TU
 │   │   │   ├── KopsisView.tsx         # Kasir POS, stok barang ATK/seragam
 │   │   │   ├── KantinView.tsx         # Menu makanan sehat & antrean pesanan
-│   │   │   ├── AdminView.tsx          # Manajemen user & ganti role real-time
-│   │   │   └── LoginView.tsx          # Login dengan tombol 1-Click Demo untuk semua role
+│   │   │   └── AdminView.tsx          # Manajemen user & role assignment real-time
 │   │   └── App.tsx                    # Routing & protected routes
 │   └── run-frontend.bat               # Shortcut jalankan frontend (port 5173)
 │
 ├── run-dev.bat                        # 1-Click Runner: jalankan backend & frontend bersamaan
-└── README.md                          # Dokumentasi lengkap setup ini
+└── README.md                          # Dokumentasi lengkap SteelSchool
 ```
 
 ---
@@ -67,7 +70,7 @@ Semua akun menggunakan kata sandi default: **`password123`**
 | **Kopsis** | Rudi Hermawan | `kopsis@sekolah.test` | POS kasir koperasi, stok seragam & ATK |
 | **Kantin** | Ibu Titin | `kantin@sekolah.test` | Menu makanan/minuman, pesanan siswa, omset |
 
-> *Tip: Pada halaman login di frontend (`http://localhost:5173/login`), terdapat tombol cepat (1-Click Demo Login) untuk setiap role di atas sehingga tidak perlu mengetik manual saat pengujian.*
+> *Tip: Pada halaman login SteelSchool (`http://localhost:5173/login`), terdapat tombol cepat (1-Click Demo Login) untuk setiap role di atas sehingga penguji tidak perlu mengetik kredensial secara manual.*
 
 ---
 
@@ -75,9 +78,8 @@ Semua akun menggunakan kata sandi default: **`password123`**
 
 ### 1. Pastikan MySQL di Laragon Sudah Berjalan
 - Buka aplikasi **Laragon** di komputer Anda.
-- Klik tombol **"Start All"** (memastikan MySQL aktif di port 3306 dan Apache/Nginx aktif).
-- Cek phpMyAdmin di browser: [http://localhost/phpmyadmin](http://localhost/phpmyadmin).
-  - Database **`ekosistem_sekolah`** sudah dibuat dan ter-seeder.
+- Klik tombol **"Start All"** (memastikan MySQL aktif di port 3306).
+- Database **`ekosistem_sekolah`** sudah dibuat dan ter-seeder.
 
 ### 2. Jalankan Server Development (Frontend + Backend)
 Cukup **klik ganda (double click)** file:
@@ -86,32 +88,37 @@ C:\laragon\www\ekosistem-sekolah\run-dev.bat
 ```
 Atau jalankan manual melalui terminal:
 
-**Terminal 1 (Backend):**
+**Terminal 1 (Backend API):**
 ```powershell
 cd C:\laragon\www\ekosistem-sekolah\backend
 php artisan serve --port=8000
 ```
 Backend API aktif di: `http://localhost:8000/api`
 
-**Terminal 2 (Frontend):**
+**Terminal 2 (Frontend Web):**
 ```powershell
 cd C:\laragon\www\ekosistem-sekolah\frontend
 npm run dev
 ```
-Frontend Web aktif di: `http://localhost:5173`
+Frontend Web aktif di: `http://localhost:5173` (Landing Page) & `http://localhost:5173/login` (Login Page).
 
 ---
 
-## 🔄 Fitur Khusus: Role Preview Switcher
-Sesuai dengan instruksi Anda bahwa saat ini tahap fokus pada **arsitektur sistem** dan **semua role & semua akses terbuka**:
-- Pengguna yang masuk dapat melihat modul seluruh role via Sidebar.
-- Di bagian atas navbar terdapat dropdown **"Preview Akses Sebagai"** untuk beralih perspektif secara real-time antar role tanpa perlu logout.
-- Pada halaman **Portal Admin**, terdapat tabel pengguna di mana admin dapat mengubah role pengguna mana pun secara langsung (tersimpan ke database MySQL).
+## 🌟 Fitur Unggulan SteelSchool
 
----
+1. **Competition-Grade Landing Page (`/`)**:
+   - Hero Section dengan CTA ganda ("Eksplorasi Ekosistem" & "Masuk ke Portal").
+   - 4-Stat Metric Strip (1.200+ Siswa, 98.4% Kelulusan, Akreditasi A Unggul, 100% Paperless).
+   - Interactive 6-in-1 Role Ecosystem Showcase dengan live preview widget interaktif.
+   - 3 Program Unggulan (Kurikulum Merdeka Plus, Digital Smart Campus, Pembinaan Karakter & Prestasi).
+   - Dynamic CTA Banner & Modern Clean Footer.
 
-## 🗄️ Menambah Role Baru (Ekstensibilitas)
-Untuk menambahkan role baru (misal `satpam`, `perpustakaan`, `bk`, `wali_murid`):
-1. Tambahkan baris di database seeder `backend/database/seeders/DatabaseSeeder.php` pada array `$rolesData`.
-2. Role otomatis memiliki entri di tabel `roles` MySQL dan relasi ke `users`.
-3. Middleware `CheckRole` di backend siap menerima role apa pun: `Route::middleware('role:nama_role')->...`.
+2. **16:9 Playful Desktop Login Page (`/login`)**:
+   - Background `#F8FAFC` dengan ornamen SVG mengambang (Saturn planet, curved pencil with eraser, lime sparkles, sunbursts).
+   - Centered card dengan shadow halus (`shadow-xl shadow-slate-200/60`).
+   - Floating label inputs, show/hide password toggle, vibrant blue CTA button (`#1D63FF`).
+   - Collapsible **1-Click Demo Quick Login** untuk semua 7 role.
+
+3. **Role Preview Switcher**:
+   - Menguji dan mendemokan seluruh role secara langsung dari navbar atas tanpa perlu bolak-balik logout.
+   - Portal Admin untuk simulasi penggantian role user secara real-time tersimpan ke MySQL.

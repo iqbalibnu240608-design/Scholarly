@@ -169,7 +169,7 @@ export const LandingPageView: React.FC = () => {
               <path d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z" fill="#F472B6" />
             </svg>
             <div className="lp-brand-text">
-              <span className="lp-brand-name">Scholarly</span>
+              <span className="lp-brand-name">SteelSchool</span>
               <span className="lp-brand-tagline">Ekosistem Sekolah Terpadu</span>
             </div>
           </Link>
@@ -678,7 +678,7 @@ export const LandingPageView: React.FC = () => {
                   <path d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z" fill="#F472B6" />
                 </svg>
                 <div className="lp-brand-text">
-                  <span className="lp-brand-name">Scholarly</span>
+                  <span className="lp-brand-name">SteelSchool</span>
                   <span className="lp-brand-tagline">Ekosistem Sekolah Terpadu</span>
                 </div>
               </div>
@@ -715,14 +715,14 @@ export const LandingPageView: React.FC = () => {
               <ul className="lp-footer-links">
                 <li><span>📍 Jl. Pendidikan No. 45, Indonesia</span></li>
                 <li><span>📞 (021) 8876-2026</span></li>
-                <li><span>✉️ info@scholarly-sekolah.sch.id</span></li>
+                <li><span>✉️ info@SteelSchool-sekolah.sch.id</span></li>
                 <li><span>🕒 Senin - Jumat, 07:00 - 16:00</span></li>
               </ul>
             </div>
           </div>
 
           <div className="lp-footer-bottom">
-            <span>&copy; {new Date().getFullYear()} Scholarly Ekosistem Sekolah Terpadu. All rights reserved.</span>
+            <span>&copy; {new Date().getFullYear()} SteelSchool Ekosistem Sekolah Terpadu. All rights reserved.</span>
             <span>Dirancang khusus untuk Kompetisi Inovasi Teknologi Pendidikan 2026</span>
           </div>
         </div>
