@@ -1,0 +1,456 @@
+/* ==========================================================================
+   Scholarly Playful 16:9 Desktop Login Page Styles
+   ========================================================================== */
+
+.scholarly-login-viewport {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 24px 24px;
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   Floating Decorative Background SVG Elements (16:9 / Desktop)
+   -------------------------------------------------------------------------- */
+.bg-decorations-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.decor-item {
+  position: absolute;
+  user-select: none;
+}
+
+/* Left side elements */
+.decor-star-top-left {
+  top: 6%;
+  left: 2%;
+  width: 160px;
+  height: 160px;
+  opacity: 0.85;
+}
+
+.decor-planet-left {
+  top: 38%;
+  left: 3.5%;
+  width: 150px;
+  height: 150px;
+  filter: drop-shadow(0 4px 12px rgba(148, 163, 184, 0.15));
+}
+
+.decor-star-bottom-left {
+  bottom: 4%;
+  left: 2%;
+  width: 170px;
+  height: 170px;
+  opacity: 0.85;
+}
+
+/* Right side elements */
+.decor-sunburst-top-right {
+  top: 4%;
+  right: 2%;
+  width: 180px;
+  height: 180px;
+  opacity: 0.8;
+}
+
+.decor-lime-sparkle-right {
+  top: 24%;
+  right: 17%;
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 2px 8px rgba(132, 204, 22, 0.3));
+}
+
+.decor-pencil-right {
+  top: 42%;
+  right: 3%;
+  width: 210px;
+  height: 160px;
+  filter: drop-shadow(0 8px 16px rgba(100, 116, 139, 0.12));
+}
+
+.decor-star-bottom-right {
+  bottom: 0%;
+  right: 2%;
+  width: 180px;
+  height: 180px;
+  opacity: 0.85;
+}
+
+/* Responsive hiding on very small screens, desktop 16:9 prioritizes full display */
+@media (max-width: 1024px) {
+  .decor-planet-left {
+    left: -20px;
+    transform: scale(0.8);
+  }
+  .decor-pencil-right {
+    right: -20px;
+    transform: scale(0.8);
+  }
+  .decor-lime-sparkle-right {
+    right: 10%;
+  }
+}
+
+@media (max-width: 768px) {
+  .decor-item {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Header: Brand Logo & Title (Outside Card)
+   -------------------------------------------------------------------------- */
+.scholarly-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.brand-logo-svg {
+  width: 28px;
+  height: 28px;
+}
+
+.brand-name-text {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.025em;
+}
+
+/* --------------------------------------------------------------------------
+   Main Content Area & Centered Login Card
+   -------------------------------------------------------------------------- */
+.scholarly-main-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 440px;
+  margin: auto 0;
+}
+
+.scholarly-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 44px 40px 36px;
+  box-shadow: 0 20px 45px -12px rgba(148, 163, 184, 0.25), 0 1px 3px 0 rgba(226, 232, 240, 0.6);
+  border: 1px solid rgba(241, 245, 249, 0.9);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.scholarly-card-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.scholarly-card-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.scholarly-card-subtitle {
+  font-size: 13.5px;
+  color: #94a3b8;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   Form Fields (Clean Outlined Floating-label Style)
+   -------------------------------------------------------------------------- */
+.scholarly-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scholarly-field-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px 16px;
+  transition: all 0.2s ease-in-out;
+}
+
+.scholarly-field-group:hover {
+  border-color: #cbd5e1;
+}
+
+.scholarly-field-group.is-focused {
+  border-color: #1d63ff;
+  box-shadow: 0 0 0 4px rgba(29, 99, 255, 0.1);
+}
+
+.scholarly-field-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: 0.01em;
+  margin-bottom: 2px;
+  transition: color 0.2s;
+}
+
+.scholarly-field-group.is-focused .scholarly-field-label {
+  color: #1d63ff;
+}
+
+.scholarly-input-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.scholarly-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14.5px;
+  color: #1e293b;
+  font-weight: 500;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+}
+
+.scholarly-input::placeholder {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+/* Password Eye Toggle Button */
+.scholarly-password-toggle {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.15s, transform 0.1s;
+}
+
+.scholarly-password-toggle:hover {
+  color: #1d63ff;
+}
+
+.scholarly-password-toggle:active {
+  transform: scale(0.92);
+}
+
+/* --------------------------------------------------------------------------
+   Submit Button & Forgot Password Link
+   -------------------------------------------------------------------------- */
+.scholarly-btn-submit {
+  width: 100%;
+  height: 48px;
+  background-color: #1d63ff;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  box-shadow: 0 10px 22px -4px rgba(29, 99, 255, 0.42);
+  transition: all 0.2s ease;
+}
+
+.scholarly-btn-submit:hover:not(:disabled) {
+  background-color: #1555e3;
+  box-shadow: 0 12px 26px -3px rgba(29, 99, 255, 0.52);
+  transform: translateY(-1px);
+}
+
+.scholarly-btn-submit:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 6px 14px -2px rgba(29, 99, 255, 0.35);
+}
+
+.scholarly-btn-submit:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.scholarly-forgot-link-wrapper {
+  text-align: center;
+  margin-top: 18px;
+}
+
+.scholarly-forgot-link {
+  color: #1d63ff;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s, text-decoration 0.15s;
+}
+
+.scholarly-forgot-link:hover {
+  color: #124cc9;
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Error & Notification Alert
+   -------------------------------------------------------------------------- */
+.scholarly-alert-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Collapsible Demo Roles Panel (Discreet & Non-Intrusive)
+   -------------------------------------------------------------------------- */
+.scholarly-demo-drawer {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.scholarly-demo-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 auto;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  transition: all 0.2s;
+}
+
+.scholarly-demo-toggle-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.scholarly-demo-pills-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.scholarly-role-pill {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s;
+}
+
+.scholarly-role-pill:hover {
+  border-color: #1d63ff;
+  color: #1d63ff;
+  background: #eff6ff;
+  transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Footer: Copyright & Legal Links
+   -------------------------------------------------------------------------- */
+.scholarly-footer {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.scholarly-footer-text {
+  font-size: 13px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: #64748b;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footer-link:hover {
+  color: #1d63ff;
+}
+
+.footer-bullet {
+  color: #cbd5e1;
+  font-size: 14px;
+}

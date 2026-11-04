@@ -1,0 +1,124 @@
+### Ekosistem Sekolah - API Request Tests
+@baseUrl = http://localhost:8000/api
+
+### 1. Health Check
+GET {{baseUrl}}/health
+Accept: application/json
+
+### 2. Login as Siswa
+# @name loginSiswa
+POST {{baseUrl}}/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "siswa@sekolah.test",
+  "password": "password123"
+}
+
+### 3. Login as Admin
+# @name loginAdmin
+POST {{baseUrl}}/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "admin@sekolah.test",
+  "password": "password123"
+}
+
+@authToken = {{loginAdmin.response.body.token}}
+
+### 4. Get Current Profile (Me)
+GET {{baseUrl}}/me
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 5. Get List of Roles & Permissions
+GET {{baseUrl}}/roles
+Accept: application/json
+
+### 6. Get School Overview & Announcements
+GET {{baseUrl}}/school/overview
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 7. Create Announcement
+POST {{baseUrl}}/school/announcements
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Ujian Akhir Semester Ganjil 2026",
+  "content": "Seluruh peserta didik diimbau mempersiapkan perangkat dan kartu ujian.",
+  "target_role": "all"
+}
+
+### 8. Get Siswa Portal Data
+GET {{baseUrl}}/school/siswa
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 9. Get Guru Portal Data
+GET {{baseUrl}}/school/guru
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 10. Get Kepsek Portal Data
+GET {{baseUrl}}/school/kepsek
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 11. Get Petugas TU Portal Data
+GET {{baseUrl}}/school/petugas
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 12. Get Kopsis Catalog & Sales
+GET {{baseUrl}}/school/kopsis
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 13. Add Product to Kopsis
+POST {{baseUrl}}/school/kopsis/products
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sku": "ATK-099",
+  "name": "Buku Gambar A3",
+  "category": "Alat Tulis",
+  "price": 8500,
+  "stock": 50
+}
+
+### 14. Get Kantin Menus & Orders
+GET {{baseUrl}}/school/kantin
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 15. Add Kantin Menu
+POST {{baseUrl}}/school/kantin/menus
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Soto Ayam Lamongan",
+  "category": "Makanan",
+  "price": 15000,
+  "stall_name": "Stand 5 Bu Siti"
+}
+
+### 16. Admin Assign Role to User
+POST {{baseUrl}}/admin/assign-role
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "user_id": 4,
+  "role_name": "guru"
+}
