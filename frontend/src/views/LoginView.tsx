@@ -51,7 +51,7 @@ export const LoginView: React.FC = () => {
   };
 
   return (
-    <div className="SteelSchool-login-viewport">
+    <div className="steelschool-login-viewport">
       {/* ------------------------------------------------------------------
           Floating Decorative SVG Elements in Background (16:9 Desktop)
          ------------------------------------------------------------------ */}
@@ -181,7 +181,7 @@ export const LoginView: React.FC = () => {
       {/* ------------------------------------------------------------------
           Header: Brand Logo & Title (Click to return to Landing Page)
          ------------------------------------------------------------------ */}
-      <header className="SteelSchool-header">
+      <header className="steelschool-header">
         <Link
           to="/"
           style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}
@@ -216,29 +216,29 @@ export const LoginView: React.FC = () => {
       {/* ------------------------------------------------------------------
           Login Card (Centered on Desktop)
          ------------------------------------------------------------------ */}
-      <main className="SteelSchool-main-content">
-        <div className="SteelSchool-card">
-          <div className="SteelSchool-card-header">
-            <h1 className="SteelSchool-card-title">Sign in</h1>
-            <p className="SteelSchool-card-subtitle">
+      <main className="steelschool-main-content">
+        <div className="steelschool-card">
+          <div className="steelschool-card-header">
+            <h1 className="steelschool-card-title">Sign in</h1>
+            <p className="steelschool-card-subtitle">
               Enter details to get sign in to your account.
             </p>
           </div>
 
           {error && (
-            <div className="SteelSchool-alert-error" role="alert">
+            <div className="steelschool-alert-error" role="alert">
               <AlertCircle size={16} />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="SteelSchool-form">
+          <form onSubmit={handleSubmit} className="steelschool-form">
             {/* Input Email with Outlined Floating Label Style */}
-            <div className={`SteelSchool-field-group ${emailFocused || email ? 'is-focused' : ''}`}>
-              <label className="SteelSchool-field-label" htmlFor="email-input">
+            <div className={`steelschool-field-group ${emailFocused || email ? 'is-focused' : ''}`}>
+              <label className="steelschool-field-label" htmlFor="email-input">
                 Email
               </label>
-              <div className="SteelSchool-input-wrapper">
+              <div className="steelschool-input-wrapper">
                 <input
                   id="email-input"
                   type="email"
@@ -248,18 +248,18 @@ export const LoginView: React.FC = () => {
                   onFocus={() => setEmailFocused(true)}
                   onBlur={() => setEmailFocused(false)}
                   placeholder="name@example.com"
-                  className="SteelSchool-input"
+                  className="steelschool-input"
                   autoComplete="email"
                 />
               </div>
             </div>
 
             {/* Input Password with Outlined Style & Eye Toggle */}
-            <div className={`SteelSchool-field-group ${passwordFocused || password ? 'is-focused' : ''}`}>
-              <label className="SteelSchool-field-label" htmlFor="password-input">
+            <div className={`steelschool-field-group ${passwordFocused || password ? 'is-focused' : ''}`}>
+              <label className="steelschool-field-label" htmlFor="password-input">
                 Password
               </label>
-              <div className="SteelSchool-input-wrapper">
+              <div className="steelschool-input-wrapper">
                 <input
                   id="password-input"
                   type={showPassword ? 'text' : 'password'}
@@ -269,12 +269,12 @@ export const LoginView: React.FC = () => {
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
                   placeholder="Password"
-                  className="SteelSchool-input"
+                  className="steelschool-input"
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
-                  className="SteelSchool-password-toggle"
+                  className="steelschool-password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   tabIndex={-1}
@@ -302,31 +302,31 @@ export const LoginView: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="SteelSchool-btn-submit"
+              className="steelschool-btn-submit"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
           {/* Forgot Password Link */}
-          <div className="SteelSchool-forgot-link-wrapper">
+          <div className="steelschool-forgot-link-wrapper">
             <a
               href="#forgot-password"
               onClick={(e) => {
                 e.preventDefault();
                 alert('Silakan hubungi administrator sekolah untuk mengatur ulang kata sandi Anda.');
               }}
-              className="SteelSchool-forgot-link"
+              className="steelschool-forgot-link"
             >
               Forgot password?
             </a>
           </div>
 
           {/* Discreet Collapsible Demo Roles Panel for Easy Testing */}
-          <div className="SteelSchool-demo-drawer">
+          <div className="steelschool-demo-drawer">
             <button
               type="button"
-              className="SteelSchool-demo-toggle-btn"
+              className="steelschool-demo-toggle-btn"
               onClick={() => setShowDemoRoles(!showDemoRoles)}
             >
               <Sparkles size={14} className="text-amber-500" />
@@ -335,12 +335,12 @@ export const LoginView: React.FC = () => {
             </button>
 
             {showDemoRoles && (
-              <div className="SteelSchool-demo-pills-grid">
+              <div className="steelschool-demo-pills-grid">
                 {demoAccounts.map((acc) => (
                   <button
                     key={acc.email}
                     type="button"
-                    className="SteelSchool-role-pill"
+                    className="steelschool-role-pill"
                     onClick={() => handleSelectDemoAccount(acc.email)}
                     title={`Isi otomatis ${acc.label} (${acc.email})`}
                   >
@@ -376,8 +376,8 @@ export const LoginView: React.FC = () => {
       {/* ------------------------------------------------------------------
           Footer: Copyright & Policy Links
          ------------------------------------------------------------------ */}
-      <footer className="SteelSchool-footer">
-        <p className="SteelSchool-footer-text">
+      <footer className="steelschool-footer">
+        <p className="steelschool-footer-text">
           <span>&copy;SteelSchool 2026</span>
           <span className="footer-bullet">&middot;</span>
           <a href="#privacy" className="footer-link">Privacy Policy</a>

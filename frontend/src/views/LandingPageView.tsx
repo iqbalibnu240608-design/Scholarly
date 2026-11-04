@@ -715,7 +715,7 @@ export const LandingPageView: React.FC = () => {
               <ul className="lp-footer-links">
                 <li><span>📍 Jl. Pendidikan No. 45, Indonesia</span></li>
                 <li><span>📞 (021) 8876-2026</span></li>
-                <li><span>✉️ info@SteelSchool-sekolah.sch.id</span></li>
+                <li><span>✉️ info@steelschool.sch.id</span></li>
                 <li><span>🕒 Senin - Jumat, 07:00 - 16:00</span></li>
               </ul>
             </div>
