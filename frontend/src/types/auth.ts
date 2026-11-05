@@ -83,9 +83,9 @@ export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
   '/app/siswa': ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'bk'],
   '/app/guru': ['admin', 'guru', 'kepsek'],
   '/app/kepsek': ['admin', 'kepsek'],
-  '/app/petugas': ['admin', 'petugas'],
-  '/app/kopsis': ['admin', 'kopsis'],
-  '/app/kantin': ['admin', 'kantin'],
+  '/app/petugas': ['admin', 'petugas', 'siswa'],
+  '/app/kopsis': ['admin', 'kopsis', 'siswa', 'guru'],
+  '/app/kantin': ['admin', 'kantin', 'siswa', 'guru'],
   '/app/security': ['admin', 'security'],
   '/app/admin': ['admin'],
 };

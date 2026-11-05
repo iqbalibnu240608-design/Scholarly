@@ -57,6 +57,7 @@ export const App: React.FC = () => {
           >
             <Route index element={<OverviewView />} />
             
+            {/* Portal Siswa (Akademik & Presensi) */}
             <Route
               path="siswa"
               element={
@@ -66,6 +67,7 @@ export const App: React.FC = () => {
               }
             />
 
+            {/* Portal Guru (Evaluasi Nilai & Jurnal) */}
             <Route
               path="guru"
               element={
@@ -75,6 +77,7 @@ export const App: React.FC = () => {
               }
             />
 
+            {/* Portal Kepsek (Monitoring Eksekutif) */}
             <Route
               path="kepsek"
               element={
@@ -84,33 +87,37 @@ export const App: React.FC = () => {
               }
             />
 
+            {/* Layanan TU & SPP: Staff mengelola buku induk/verifikasi, Siswa membayar SPP mandiri */}
             <Route
               path="petugas"
               element={
-                <RoleProtectedRoute allowedRoles={['petugas']}>
+                <RoleProtectedRoute allowedRoles={['petugas', 'siswa']}>
                   <PetugasView />
                 </RoleProtectedRoute>
               }
             />
 
+            {/* Koperasi Siswa: Staff mengelola kasir & inventaris, Siswa & Guru berbelanja ATK/seragam */}
             <Route
               path="kopsis"
               element={
-                <RoleProtectedRoute allowedRoles={['kopsis']}>
+                <RoleProtectedRoute allowedRoles={['kopsis', 'siswa', 'guru']}>
                   <KopsisView />
                 </RoleProtectedRoute>
               }
             />
 
+            {/* Kantin Sekolah: Staff kasir & stand makanan, Siswa & Guru memesan makanan online */}
             <Route
               path="kantin"
               element={
-                <RoleProtectedRoute allowedRoles={['kantin']}>
+                <RoleProtectedRoute allowedRoles={['kantin', 'siswa', 'guru']}>
                   <KantinView />
                 </RoleProtectedRoute>
               }
             />
 
+            {/* Gate Keamanan & Presensi Satpam (Khusus Satpam) */}
             <Route
               path="security"
               element={
@@ -120,6 +127,7 @@ export const App: React.FC = () => {
               }
             />
 
+            {/* Manajemen Sistem & Konfigurasi Role (Khusus Admin) */}
             <Route
               path="admin"
               element={

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../api/client';
 import {
   DollarSign,
@@ -8,7 +9,10 @@ import {
   X,
   CreditCard,
   Banknote,
-  Receipt
+  Receipt,
+  Wallet,
+  Sparkles,
+  ShoppingBag,
 } from 'lucide-react';
 import './EcosystemModals.css';
 
@@ -54,11 +58,27 @@ interface KopsisData {
 }
 
 export const KopsisView: React.FC = () => {
+  const { user, activeRole } = useAuth();
+  const isCustomerView = activeRole === 'siswa' || activeRole === 'guru';
+
   const [data, setData] = useState<KopsisData | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<RecentTransaction[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Modal State: Tambah Barang
+  // Student Wallet State
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [showTopupModal, setShowTopupModal] = useState<boolean>(false);
+  const [topupAmount, setTopupAmount] = useState<number>(50000);
+  const [topupSubmitting, setTopupSubmitting] = useState<boolean>(false);
+
+  // Cart & Ordering State
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
+  const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
+  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash'>('wallet');
+  const [processingOrder, setProcessingOrder] = useState<boolean>(false);
+
+  // Modal State: Tambah Barang (Staff/Admin)
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [sku, setSku] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -66,12 +86,11 @@ export const KopsisView: React.FC = () => {
   const [price, setPrice] = useState<string>('');
   const [stock, setStock] = useState<string>('');
 
-  // Modal State: Kasir POS Koperasi
+  // Modal State: Kasir POS Koperasi (Staff/Admin)
   const [showPOSModal, setShowPOSModal] = useState<boolean>(false);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [studentNisn, setStudentNisn] = useState<string>('0061234567');
-  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash'>('wallet');
-  const [processingOrder, setProcessingOrder] = useState<boolean>(false);
+
+  // Modal State: Konfirmasi Checkout Siswa
+  const [showStudentCheckoutModal, setShowStudentCheckoutModal] = useState<boolean>(false);
 
   // Feedback State
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -80,6 +99,7 @@ export const KopsisView: React.FC = () => {
     total: number;
     customer: string;
     method: string;
+    items?: string;
   } | null>(null);
 
   const fetchKopsisData = async () => {
@@ -97,56 +117,39 @@ export const KopsisView: React.FC = () => {
       const kopsisTrx = (res.data.transactions || []).filter(
         (t: any) => t.type === 'purchase_kopsis'
       );
-      setRecentTransactions(kopsisTrx.slice(0, 5));
+      setRecentTransactions(kopsisTrx.slice(0, 6));
     } catch (err) {
       console.error('Error fetching transactions', err);
     }
   };
 
-  const initData = async () => {
-    setLoading(true);
-    await Promise.all([fetchKopsisData(), fetchRecentTransactions()]);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    initData();
+  const fetchWalletBalance = useCallback(async () => {
+    try {
+      const res = await apiClient.get('/wallet/balance');
+      if (res.data?.wallet) {
+        setWalletBalance(Number(res.data.wallet.balance_kopsis) || 0);
+      }
+    } catch (err) {
+      console.error('Error fetching wallet balance', err);
+    }
   }, []);
 
-  const handleCreateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await apiClient.post('/school/kopsis/products', {
-        sku: sku || `ATK-${Date.now().toString().slice(-4)}`,
-        name,
-        category,
-        price: Number(price),
-        stock: Number(stock),
-      });
-      setSuccessMsg(res.data.message);
-      setTimeout(() => setSuccessMsg(null), 3500);
-      setShowAddModal(false);
-      setName('');
-      setSku('');
-      setPrice('');
-      setStock('');
-      await fetchKopsisData();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menyimpan produk.');
-    }
-  };
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await Promise.all([fetchKopsisData(), fetchRecentTransactions(), fetchWalletBalance()]);
+      setLoading(false);
+    };
+    init();
+  }, [fetchWalletBalance]);
 
+  // Cart Handlers
   const addToCart = (product: KopsisProduct) => {
-    if (product.stock <= 0) {
-      alert(`Stok produk "${product.name}" sedang habis!`);
-      return;
-    }
-
     setCart((prev) => {
       const existing = prev.find((item) => item.product_id === product.id);
       if (existing) {
         if (existing.quantity >= product.stock) {
-          alert(`Jumlah melebihi batas stok tersedia (${product.stock} unit).`);
+          alert(`Maksimal pembelian untuk ${product.name} adalah ${product.stock} item.`);
           return prev;
         }
         return prev.map((item) =>
@@ -166,14 +169,14 @@ export const KopsisView: React.FC = () => {
     });
   };
 
-  const updateCartQty = (productId: number, delta: number) => {
+  const updateQuantity = (productId: number, delta: number) => {
     setCart((prev) =>
       prev
         .map((item) => {
           if (item.product_id === productId) {
             const newQty = item.quantity + delta;
             if (newQty > item.stock) {
-              alert(`Jumlah melebihi stok yang tersedia (${item.stock} unit).`);
+              alert(`Stok hanya tersedia ${item.stock} item.`);
               return item;
             }
             return newQty > 0 ? { ...item, quantity: newQty } : null;
@@ -184,365 +187,441 @@ export const KopsisView: React.FC = () => {
     );
   };
 
-  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const clearCart = () => setCart([]);
+  const cartTotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const cartTotalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  const handleCheckout = async (e: React.FormEvent) => {
+  // Top Up Handler
+  const handleTopup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (cart.length === 0) {
-      alert('Keranjang belanja masih kosong! Silakan pilih produk ATK/Seragam.');
-      return;
+    setTopupSubmitting(true);
+    try {
+      const targetNisn = user?.identifier_number || '0061234567';
+      await apiClient.post('/wallet/topup', {
+        identifier_number: targetNisn,
+        amount: topupAmount,
+        target_wallet: 'kopsis',
+        notes: 'Top-up mandiri via simulasi e-wallet kopsis siswa',
+      });
+      await fetchWalletBalance();
+      setShowTopupModal(false);
+      setSuccessMsg(`Top-up sebesar Rp ${topupAmount.toLocaleString('id-ID')} berhasil ditambahkan ke Saldo Kopsis!`);
+      setTimeout(() => setSuccessMsg(null), 4000);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Gagal melakukan top-up');
+    } finally {
+      setTopupSubmitting(false);
     }
+  };
 
+  // Checkout Handler (Siswa & Staff)
+  const handleCheckout = async (isStudentSelfOrder: boolean = false) => {
+    if (cart.length === 0) return;
     setProcessingOrder(true);
     try {
+      const payloadNisn = isStudentSelfOrder
+        ? user?.identifier_number || '0061234567'
+        : studentNisn;
+
       const res = await apiClient.post('/kopsis/checkout', {
-        items: cart.map((c) => ({ product_id: c.product_id, quantity: c.quantity })),
-        payment_method: paymentMethod,
-        student_identifier: paymentMethod === 'wallet' ? studentNisn : undefined,
+        items: cart.map((i) => ({ product_id: i.product_id, quantity: i.quantity })),
+        payment_method: isStudentSelfOrder ? 'wallet' : paymentMethod,
+        student_identifier: payloadNisn,
       });
 
       setLastReceipt({
         reference_no: res.data.reference_no,
         total: res.data.total_amount,
         customer: res.data.customer,
-        method: paymentMethod === 'wallet' ? 'Saldo Dompet Kopsis Siswa' : 'Tunai (Cash)',
+        method: isStudentSelfOrder ? 'Saldo Kopsis (Cashless)' : paymentMethod === 'wallet' ? 'Saldo E-Wallet' : 'Tunai',
+        items: cart.map((i) => `${i.name} (x${i.quantity})`).join(', '),
       });
 
-      setSuccessMsg(res.data.message);
-      setShowPOSModal(false);
-      setCart([]);
+      setSuccessMsg(
+        isStudentSelfOrder
+          ? `Pembelian Koperasi berhasil! Silakan ambil barang di loket Kopsis dengan menyebutkan kode ${res.data.reference_no}.`
+          : `Transaksi kasir kopsis berhasil diselesaikan untuk ${res.data.customer}.`
+      );
 
-      await Promise.all([fetchKopsisData(), fetchRecentTransactions()]);
+      clearCart();
+      setShowPOSModal(false);
+      setShowStudentCheckoutModal(false);
+      await Promise.all([fetchKopsisData(), fetchRecentTransactions(), fetchWalletBalance()]);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal memproses transaksi kasir.');
+      alert(err.response?.data?.message || 'Gagal memproses transaksi kopsis.');
     } finally {
       setProcessingOrder(false);
     }
   };
 
-  if (loading) return <div className="loading-container">Memuat modul Kopsis...</div>;
+  // Tambah Barang Baru (Staff/Admin)
+  const handleCreateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await apiClient.post('/school/kopsis/products', {
+        sku,
+        name,
+        category,
+        price: Number(price),
+        stock: Number(stock),
+      });
+      setShowAddModal(false);
+      setSku('');
+      setName('');
+      setPrice('');
+      setStock('');
+      setSuccessMsg(`Produk "${name}" berhasil ditambahkan ke inventaris.`);
+      await fetchKopsisData();
+      setTimeout(() => setSuccessMsg(null), 3000);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Gagal menambahkan produk');
+    }
+  };
+
+  // Filter produk berdasarkan kategori
+  const filteredProducts = (data?.produk_populer || []).filter((p) => {
+    if (selectedCategory === 'Semua') return true;
+    return p.category.toLowerCase().includes(selectedCategory.toLowerCase());
+  });
+
+  if (loading) return <div className="loading-container">Memuat modul Koperasi Siswa...</div>;
 
   return (
     <div className="view-container">
-      {/* Header Halaman */}
-      <div className="view-header">
-        <div>
-          <h2>🛒 Portal Koperasi Siswa (Kopsis)</h2>
-          <p>Sistem Point of Sale (POS) kasir koperasi, manajemen inventaris ATK & seragam, dan riwayat transaksi.</p>
-        </div>
-        <div className="header-meta">
-          <span className="badge-status-paid">Kasir: {data?.kasir_status}</span>
-        </div>
-      </div>
-
-      {/* Alert Notifikasi Sukses */}
-      {successMsg && (
-        <div className="p-3 mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg flex items-center gap-2">
-          <span>✅ {successMsg}</span>
-        </div>
-      )}
-
-      {/* Alert Resi Transaksi Terakhir */}
+      {/* Alert Struk Pembelian */}
       {lastReceipt && (
         <div className="receipt-alert-box">
           <Receipt size={24} className="receipt-alert-icon" />
           <div className="receipt-alert-content">
             <div className="receipt-alert-title">
-              ✅ Transaksi Berhasil! No. Transaksi: <code>{lastReceipt.reference_no}</code>
+              ✅ Bukti Belanja Koperasi: {lastReceipt.reference_no}
             </div>
             <div className="receipt-alert-desc">
-              Pelanggan: <strong>{lastReceipt.customer}</strong> • Total Belanja: <strong>Rp {lastReceipt.total.toLocaleString('id-ID')}</strong> ({lastReceipt.method})
+              Total Pembayaran: <strong>Rp {Number(lastReceipt.total).toLocaleString('id-ID')}</strong> ({lastReceipt.method}) • Pembeli: {lastReceipt.customer}
+              {lastReceipt.items && <div className="mt-1 text-xs">Item: {lastReceipt.items}</div>}
+              {isCustomerView && (
+                <div className="mt-1 font-semibold text-emerald-800">
+                  📦 Silakan ambil barang Anda di etalase Kopsis sekolah!
+                </div>
+              )}
             </div>
           </div>
-          <button onClick={() => setLastReceipt(null)} className="text-slate-400 hover:text-slate-600">
-            <X size={18} />
+          <button onClick={() => setLastReceipt(null)} className="btn-close-modal">
+            <X size={16} />
           </button>
         </div>
       )}
 
-      {/* Kartu Ringkasan Metrik */}
-      <div className="grid-cards-3">
-        <div className="feature-card">
-          <div className="card-top-icon text-amber-600">
-            <DollarSign size={22} />
-          </div>
-          <h4>Omset Penjualan Hari Ini</h4>
-          <div className="amount-display text-amber-700">
-            Rp {(data?.transaksi_hari_ini.total_omset ?? 0).toLocaleString('id-ID')}
-          </div>
-          <p className="card-subtext">{data?.transaksi_hari_ini.total_transaksi} Transaksi Berhasil</p>
+      {successMsg && !lastReceipt && (
+        <div className="feedback-alert mb-4">
+          <PackageCheck size={18} />
+          <span>{successMsg}</span>
         </div>
+      )}
 
-        <div className="feature-card">
-          <div className="card-top-icon text-indigo-600">
-            <PackageCheck size={22} />
-          </div>
-          <h4>Metode Pembayaran</h4>
-          <div className="amount-display text-indigo-700">
-            {data?.transaksi_hari_ini.pembayaran_digital} Digital
-          </div>
-          <p className="card-subtext">Tunai: {data?.transaksi_hari_ini.pembayaran_tunai} (Cashless Terintegrasi)</p>
-        </div>
-
-        <div className="feature-card">
-          <div className="card-top-icon text-emerald-600">
-            <PackageCheck size={22} />
-          </div>
-          <h4>Total Item Produk</h4>
-          <div className="amount-display text-emerald-700">
-            {data?.produk_populer.length} Macam
-          </div>
-          <p className="card-subtext">Stok otomatis berkurang saat transaksi</p>
-        </div>
-      </div>
-
-      {/* Tabel Katalog Produk Kopsis dengan Action Buttons di dalam Header Panel */}
-      <div className="overview-card mt-6">
-        <div className="card-header">
-          <h3>
-            <PackageCheck size={18} className="inline mr-2 text-indigo-600" />
-            Katalog Produk Koperasi Siswa (MySQL Table: `kopsis_products`)
-          </h3>
-          <div className="card-header-actions">
-            <button
-              onClick={() => setShowPOSModal(true)}
-              className="btn-success-action"
-            >
-              <ShoppingCart size={15} /> Buka Kasir Koperasi / Transaksi Baru
-            </button>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="btn-secondary-action"
-            >
-              <PlusCircle size={15} /> Tambah Barang Baru
-            </button>
-          </div>
-        </div>
-
-        <div className="table-responsive">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>SKU</th>
-                <th>Nama Produk</th>
-                <th>Kategori</th>
-                <th>Harga Jual</th>
-                <th>Sisa Stok</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.produk_populer.map((prod) => (
-                <tr key={prod.id}>
-                  <td><code>{prod.sku}</code></td>
-                  <td><strong>{prod.name}</strong></td>
-                  <td><span className="badge-pill">{prod.category}</span></td>
-                  <td>Rp {Number(prod.price).toLocaleString('id-ID')}</td>
-                  <td><strong>{prod.stock}</strong> unit</td>
-                  <td>
-                    <span className={prod.stock > 10 ? 'text-emerald-600 font-medium' : prod.stock > 0 ? 'text-amber-600 font-medium' : 'text-red-600 font-bold'}>
-                      {prod.stock > 10 ? 'Tersedia' : prod.stock > 0 ? 'Stok Menipis' : 'Habis'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Modal 1: Kasir POS Kopsis */}
-      {showPOSModal && (
-        <div className="eco-modal-backdrop">
-          <div className="eco-modal-card">
-            <div className="eco-modal-header">
+      {/* ============================================================== */}
+      {/* TAMPILAN 1: CUSTOMER VIEW (UNTUK SISWA & GURU)                 */}
+      {/* ============================================================== */}
+      {isCustomerView ? (
+        <>
+          {/* Hero Saldo Banner */}
+          <div className="wallet-hero-banner">
+            <div className="wallet-hero-left">
               <h3>
-                <ShoppingCart size={18} className="text-emerald-600" />
-                Terminal Kasir Koperasi Siswa (Kopsis)
+                <ShoppingBag size={20} className="text-orange-400" />
+                Katalog Koperasi Siswa (Kopsis Digital)
               </h3>
-              <button onClick={() => setShowPOSModal(false)} className="text-slate-400 hover:text-slate-600">
-                <X size={20} />
-              </button>
+              <p>
+                Beli buku, alat tulis, seragam, dan perlengkapan sekolah praktis menggunakan Saldo Kopsis.
+              </p>
             </div>
-
-            <form onSubmit={handleCheckout} className="eco-modal-form">
-              <div className="eco-modal-body">
-                {/* 1. Pilih Item Produk */}
+            <div className="flex items-center gap-3">
+              <div className="wallet-balance-box">
+                <Wallet size={20} className="text-amber-300" />
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-2">
-                    1. Klik Barang yang Dibeli Siswa:
-                  </label>
-                  <div className="pos-items-grid">
-                    {data?.produk_populer.map((prod) => (
-                      <div
-                        key={prod.id}
-                        onClick={() => addToCart(prod)}
-                        className={`pos-item-card ${prod.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title={prod.stock > 0 ? 'Klik untuk tambah ke keranjang' : 'Stok habis'}
-                      >
-                        <div className="pos-item-title">{prod.name}</div>
-                        <div className="pos-item-stock">SKU: {prod.sku} • Stok: {prod.stock}</div>
-                        <div className="flex justify-between items-center mt-2">
-                          <span className="pos-item-price">Rp {Number(prod.price).toLocaleString('id-ID')}</span>
-                          <span className="text-xs text-indigo-600 font-bold">+ Pilih</span>
-                        </div>
-                      </div>
-                    ))}
+                  <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>
+                    Saldo Kopsis Anda
+                  </div>
+                  <div className="wallet-amount-val" style={{ color: '#fb923c' }}>
+                    Rp {walletBalance.toLocaleString('id-ID')}
                   </div>
                 </div>
+              </div>
+              <button
+                onClick={() => setShowTopupModal(true)}
+                className="btn-success-action"
+                style={{ padding: '10px 16px', fontSize: '13px' }}
+              >
+                <PlusCircle size={16} /> Isi Saldo
+              </button>
+            </div>
+          </div>
 
-                {/* 2. Keranjang Belanja */}
-                <div className="pos-cart-box">
-                  <div className="pos-cart-header">
-                    <span>🛒 Keranjang Belanja ({cart.length} Jenis Item)</span>
-                    {cart.length > 0 && (
+          {/* Kategori Filter Tabs */}
+          <div className="catalog-tabs">
+            {['Semua', 'Alat Tulis', 'Seragam', 'Buku'].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`catalog-tab-btn ${selectedCategory === cat ? 'active' : ''}`}
+              >
+                {cat === 'Alat Tulis' ? '✏️ Alat Tulis' : cat === 'Seragam' ? '👕 Seragam' : cat === 'Buku' ? '📚 Buku & Modul' : '🛍️ Semua Produk'}
+              </button>
+            ))}
+          </div>
+
+          {/* Grid Katalog Produk Kopsis */}
+          <div className="catalog-grid">
+            {filteredProducts.map((prod) => {
+              const inCart = cart.find((i) => i.product_id === prod.id);
+              const isOutOfStock = prod.stock <= 0;
+
+              return (
+                <div key={prod.id} className="catalog-item-card">
+                  <div>
+                    <span className="catalog-item-badge">{prod.category}</span>
+                    <h4 className="catalog-item-name">{prod.name}</h4>
+                    <p className="catalog-item-meta">
+                      SKU: <code className="text-xs">{prod.sku}</code> •{' '}
+                      <span className={isOutOfStock ? 'text-red-500 font-semibold' : 'text-slate-600'}>
+                        Stok: {prod.stock} unit
+                      </span>
+                    </p>
+                  </div>
+
+                  <div className="catalog-item-bottom">
+                    <div className="catalog-item-price">
+                      Rp {Number(prod.price).toLocaleString('id-ID')}
+                    </div>
+
+                    {inCart ? (
+                      <div className="pos-qty-controls">
+                        <button onClick={() => updateQuantity(prod.id, -1)} className="pos-qty-btn">
+                          -
+                        </button>
+                        <span className="font-bold text-xs">{inCart.quantity}</span>
+                        <button onClick={() => updateQuantity(prod.id, 1)} className="pos-qty-btn">
+                          +
+                        </button>
+                      </div>
+                    ) : (
                       <button
-                        type="button"
-                        onClick={() => setCart([])}
-                        className="text-xs text-red-500 hover:underline cursor-pointer"
+                        onClick={() => addToCart(prod)}
+                        disabled={isOutOfStock}
+                        className="btn-primary-action"
+                        style={{ padding: '6px 12px', fontSize: '12px' }}
                       >
-                        Kosongkan
+                        <PlusCircle size={14} /> Beli
                       </button>
                     )}
                   </div>
-
-                  {cart.length === 0 ? (
-                    <div className="text-center py-4 text-xs text-slate-400">
-                      Belum ada barang yang dipilih. Klik produk di atas untuk menambahkan.
-                    </div>
-                  ) : (
-                    <table className="pos-cart-table">
-                      <thead>
-                        <tr>
-                          <th>Barang</th>
-                          <th>Harga</th>
-                          <th>Jumlah</th>
-                          <th style={{ textAlign: 'right' }}>Subtotal</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {cart.map((item) => (
-                          <tr key={item.product_id}>
-                            <td><strong>{item.name}</strong></td>
-                            <td>Rp {item.price.toLocaleString('id-ID')}</td>
-                            <td>
-                              <div className="pos-qty-controls">
-                                <button
-                                  type="button"
-                                  onClick={() => updateCartQty(item.product_id, -1)}
-                                  className="pos-qty-btn"
-                                >
-                                  -
-                                </button>
-                                <span className="font-bold text-xs">{item.quantity}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => updateCartQty(item.product_id, 1)}
-                                  className="pos-qty-btn"
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </td>
-                            <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
-                              Rp {(item.price * item.quantity).toLocaleString('id-ID')}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-
-                  <div className="pos-total-row">
-                    <span>Total Belanja:</span>
-                    <span className="text-emerald-700 font-extrabold text-base">
-                      Rp {cartTotal.toLocaleString('id-ID')}
-                    </span>
-                  </div>
                 </div>
+              );
+            })}
+          </div>
 
-                {/* 3. Metode Pembayaran & Identitas Siswa */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Metode Pembayaran:
-                    </label>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('wallet')}
-                        className={`flex-1 p-2 rounded border text-xs font-bold flex items-center justify-center gap-1 cursor-pointer ${
-                          paymentMethod === 'wallet'
-                            ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
-                            : 'bg-white border-slate-200 text-slate-600'
-                        }`}
-                      >
-                        <CreditCard size={14} /> Saldo E-Wallet Kopsis
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('cash')}
-                        className={`flex-1 p-2 rounded border text-xs font-bold flex items-center justify-center gap-1 cursor-pointer ${
-                          paymentMethod === 'cash'
-                            ? 'bg-amber-50 border-amber-500 text-amber-700'
-                            : 'bg-white border-slate-200 text-slate-600'
-                        }`}
-                      >
-                        <Banknote size={14} /> Tunai (Cash)
-                      </button>
-                    </div>
+          {/* Sticky Floating Cart Summary Bar */}
+          {cart.length > 0 && (
+            <div className="cart-floating-bar">
+              <div className="cart-floating-info">
+                <div className="cart-count-badge" style={{ backgroundColor: '#ea580c' }}>
+                  {cartTotalQty}
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Total Belanja Kopsis:</div>
+                  <div className="cart-total-text" style={{ color: '#fed7aa' }}>
+                    Rp {cartTotal.toLocaleString('id-ID')}
                   </div>
-
-                  {paymentMethod === 'wallet' && (
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 block mb-1">
-                        Nomor Identitas (NISN Siswa):
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Contoh: 0061234567"
-                        value={studentNisn}
-                        onChange={(e) => setStudentNisn(e.target.value)}
-                        className="w-full p-2 border rounded text-xs bg-white"
-                      />
-                      <div className="quick-preset-container">
-                        <span className="text-[11px] text-slate-500">Pilih Siswa:</span>
-                        <button
-                          type="button"
-                          onClick={() => setStudentNisn('0061234567')}
-                          className={`quick-preset-btn ${studentNisn === '0061234567' ? 'active' : ''}`}
-                        >
-                          Ahmad (0061234567)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setStudentNisn('0089876543')}
-                          className={`quick-preset-btn ${studentNisn === '0089876543' ? 'active' : ''}`}
-                        >
-                          Siti (0089876543)
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
 
-              <div className="eco-modal-footer">
+              <div className="flex items-center gap-3">
                 <button
-                  type="button"
-                  onClick={() => setShowPOSModal(false)}
+                  onClick={clearCart}
                   className="btn-secondary-action"
+                  style={{ background: '#334155', color: '#ffffff', borderColor: '#475569', padding: '8px 14px' }}
                 >
                   Batal
                 </button>
                 <button
-                  type="submit"
-                  disabled={processingOrder || cart.length === 0}
+                  onClick={() => setShowStudentCheckoutModal(true)}
                   className="btn-success-action"
-                  style={{ opacity: processingOrder || cart.length === 0 ? 0.6 : 1 }}
+                  style={{ padding: '8px 20px', fontSize: '13px' }}
                 >
-                  {processingOrder ? 'Memproses Transaksi...' : `Bayar Rp ${cartTotal.toLocaleString('id-ID')}`}
+                  <ShoppingCart size={16} /> Bayar Sekarang (Rp {cartTotal.toLocaleString('id-ID')})
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Riwayat Belanja Kopsis Siswa */}
+          <div className="overview-card mt-6">
+            <div className="card-header">
+              <h3>
+                <Sparkles size={18} className="inline mr-2 text-orange-500" />
+                Riwayat Pembelian Kopsis Saya
+              </h3>
+              <span className="badge-pill">Terkini</span>
+            </div>
+            <div className="table-responsive">
+              {recentTransactions.length === 0 ? (
+                <div className="p-4 text-center text-sm text-slate-500">
+                  Belum ada transaksi belanja di Kopsis.
+                </div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Kode Transaksi</th>
+                      <th>Deskripsi Barang</th>
+                      <th>Total Belanja</th>
+                      <th>Metode</th>
+                      <th>Waktu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentTransactions.map((trx) => (
+                      <tr key={trx.id}>
+                        <td><strong className="text-orange-600">{trx.reference_no}</strong></td>
+                        <td>{trx.description}</td>
+                        <td><strong>Rp {Number(trx.amount).toLocaleString('id-ID')}</strong></td>
+                        <td>
+                          <span className="badge-pill text-xs">
+                            {trx.payment_method === 'wallet' ? 'Saldo E-Wallet' : 'Tunai'}
+                          </span>
+                        </td>
+                        <td className="text-xs text-slate-500">
+                          {new Date(trx.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        /* ============================================================== */
+        /* TAMPILAN 2: STAFF KOPSIS & ADMIN DASHBOARD                     */
+        /* ============================================================== */
+        <>
+          <div className="view-header">
+            <div>
+              <h2>🛒 Portal Koperasi Siswa (Kopsis)</h2>
+              <p>Kelola inventaris seragam, alat tulis sekolah, dan operasional kasir harian.</p>
+            </div>
+            <div className="card-header-actions">
+              <button onClick={() => setShowAddModal(true)} className="btn-secondary-action">
+                <PlusCircle size={16} /> Tambah Barang Baru
+              </button>
+              <button onClick={() => setShowPOSModal(true)} className="btn-primary-action">
+                <ShoppingCart size={16} /> Buka Kasir POS Koperasi
+              </button>
+            </div>
+          </div>
+
+          {/* Metric Cards Kopsis */}
+          <div className="grid-cards-3">
+            <div className="feature-card highlight-card">
+              <div className="card-top-icon text-orange-600"><DollarSign size={22} /></div>
+              <h4>Total Omset Kasir Hari Ini</h4>
+              <div className="amount-display">
+                Rp {(data?.transaksi_hari_ini.total_omset ?? 0).toLocaleString('id-ID')}
+              </div>
+              <p className="card-subtext">Dari {data?.transaksi_hari_ini.total_transaksi ?? 0} total transaksi belanja</p>
+            </div>
+
+            <div className="feature-card">
+              <div className="card-top-icon text-indigo-600"><PackageCheck size={22} /></div>
+              <h4>Pembayaran Non-Tunai</h4>
+              <div className="amount-display">{data?.transaksi_hari_ini.pembayaran_digital}</div>
+              <p className="card-subtext">Menggunakan kartu NISN / Saldo E-Wallet Kopsis</p>
+            </div>
+
+            <div className="feature-card">
+              <div className="card-top-icon text-emerald-600"><ShoppingCart size={22} /></div>
+              <h4>Status Layanan Kasir</h4>
+              <div className="badge-status-paid">{data?.kasir_status}</div>
+              <p className="card-subtext">Koneksi database inventaris realtime aktif</p>
+            </div>
+          </div>
+
+          {/* Tabel Inventaris Produk Kopsis */}
+          <div className="overview-card mt-6">
+            <div className="card-header">
+              <h3>Inventaris Produk & Stok Koperasi</h3>
+              <span className="badge-pill">{data?.produk_populer.length || 0} Barang Terdaftar</span>
+            </div>
+            <div className="table-responsive">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>SKU / Barcode</th>
+                    <th>Nama Barang</th>
+                    <th>Kategori</th>
+                    <th>Harga Satuan</th>
+                    <th>Stok Tersedia</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.produk_populer.map((prod) => (
+                    <tr key={prod.id}>
+                      <td><code>{prod.sku}</code></td>
+                      <td><strong>{prod.name}</strong></td>
+                      <td><span className="badge-pill text-xs">{prod.category}</span></td>
+                      <td>Rp {Number(prod.price).toLocaleString('id-ID')}</td>
+                      <td>
+                        <span className={`badge-pill text-xs ${prod.stock > 10 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                          {prod.stock} unit
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: TOP-UP SALDO KOPSIS SISWA                               */}
+      {/* ============================================================== */}
+      {showTopupModal && (
+        <div className="eco-modal-backdrop" onClick={() => setShowTopupModal(false)}>
+          <div className="eco-modal-card" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header">
+              <h3><Wallet size={18} className="text-orange-500" /> Isi Saldo Kopsis</h3>
+              <button onClick={() => setShowTopupModal(false)} className="btn-close-modal"><X size={18} /></button>
+            </div>
+            <form onSubmit={handleTopup} className="eco-modal-form">
+              <div className="eco-modal-body">
+                <p className="text-xs text-slate-600">
+                  Pilih nominal saldo yang ingin Anda tambahkan ke Saldo E-Wallet Koperasi Siswa:
+                </p>
+                <div className="topup-grid">
+                  {[20000, 50000, 100000, 150000, 200000, 300000].map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setTopupAmount(amt)}
+                      className={`topup-btn ${topupAmount === amt ? 'selected' : ''}`}
+                    >
+                      Rp {amt.toLocaleString('id-ID')}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-4 p-3 bg-orange-50 rounded text-xs text-orange-800 border border-orange-200">
+                  💡 Saldo ini langsung dapat dipakai untuk checkout perlengkapan ATK & seragam tanpa uang tunai.
+                </div>
+              </div>
+              <div className="eco-modal-footer">
+                <button type="button" onClick={() => setShowTopupModal(false)} className="btn-secondary-action">
+                  Batal
+                </button>
+                <button type="submit" disabled={topupSubmitting} className="btn-success-action">
+                  {topupSubmitting ? 'Memproses...' : `Konfirmasi Top Up Rp ${topupAmount.toLocaleString('id-ID')}`}
                 </button>
               </div>
             </form>
@@ -550,158 +629,263 @@ export const KopsisView: React.FC = () => {
         </div>
       )}
 
-      {/* Modal 2: Tambah Barang Baru */}
-      {showAddModal && (
-        <div className="eco-modal-backdrop">
-          <div className="eco-modal-card" style={{ maxWidth: '520px' }}>
+      {/* ============================================================== */}
+      {/* MODAL: KONFIRMASI CHECKOUT SISWA KOPSIS                        */}
+      {/* ============================================================== */}
+      {showStudentCheckoutModal && (
+        <div className="eco-modal-backdrop" onClick={() => setShowStudentCheckoutModal(false)}>
+          <div className="eco-modal-card" style={{ maxWidth: '480px' }} onClick={(e) => e.stopPropagation()}>
             <div className="eco-modal-header">
-              <h3>
-                <PlusCircle size={18} className="text-indigo-600" />
-                Tambah Produk Baru ke Kopsis
-              </h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
-                <X size={20} />
+              <h3><ShoppingCart size={18} className="text-orange-600" /> Konfirmasi Pembelian Kopsis</h3>
+              <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-close-modal"><X size={18} /></button>
+            </div>
+            <div className="eco-modal-body">
+              <div className="p-3 bg-slate-50 rounded border border-slate-200">
+                <div className="text-xs text-slate-500 font-semibold mb-2 uppercase">Rincian Barang:</div>
+                {cart.map((item) => (
+                  <div key={item.product_id} className="flex justify-between text-xs py-1 border-b border-slate-200">
+                    <span>{item.name} x{item.quantity}</span>
+                    <strong>Rp {(item.price * item.quantity).toLocaleString('id-ID')}</strong>
+                  </div>
+                ))}
+                <div className="flex justify-between text-sm font-bold pt-2 mt-1">
+                  <span>Total Belanja:</span>
+                  <span className="text-orange-600">Rp {cartTotal.toLocaleString('id-ID')}</span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded border border-slate-200 text-xs">
+                <div className="flex justify-between">
+                  <span>Saldo Kopsis Anda:</span>
+                  <strong>Rp {walletBalance.toLocaleString('id-ID')}</strong>
+                </div>
+                <div className="flex justify-between mt-1">
+                  <span>Sisa Saldo Setelah Belanja:</span>
+                  <strong className={walletBalance >= cartTotal ? 'text-emerald-600' : 'text-red-500'}>
+                    Rp {(walletBalance - cartTotal).toLocaleString('id-ID')}
+                  </strong>
+                </div>
+              </div>
+
+              {walletBalance < cartTotal && (
+                <div className="p-3 bg-red-50 text-red-700 rounded text-xs border border-red-200">
+                  ⚠️ Saldo Kopsis Anda tidak mencukupi. Silakan lakukan Top Up terlebih dahulu sebelum membeli.
+                </div>
+              )}
+            </div>
+            <div className="eco-modal-footer">
+              <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-secondary-action">
+                Batal
               </button>
+              {walletBalance < cartTotal ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowStudentCheckoutModal(false);
+                    setShowTopupModal(true);
+                  }}
+                  className="btn-primary-action"
+                >
+                  Isi Saldo Sekarang
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleCheckout(true)}
+                  disabled={processingOrder}
+                  className="btn-success-action"
+                >
+                  {processingOrder ? 'Memproses...' : 'Bayar via Saldo Kopsis'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: KASIR POS KOPSIS (STAFF/ADMIN)                          */}
+      {/* ============================================================== */}
+      {showPOSModal && (
+        <div className="eco-modal-backdrop" onClick={() => setShowPOSModal(false)}>
+          <div className="eco-modal-card" style={{ maxWidth: '640px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header">
+              <h3><ShoppingCart size={18} className="text-indigo-600" /> Kasir POS Koperasi Siswa</h3>
+              <button onClick={() => setShowPOSModal(false)} className="btn-close-modal"><X size={18} /></button>
+            </div>
+            <div className="eco-modal-body">
+              <div className="eco-form-group">
+                <label className="eco-form-label">Identitas Pembeli (NISN Siswa)</label>
+                <input
+                  type="text"
+                  value={studentNisn}
+                  onChange={(e) => setStudentNisn(e.target.value)}
+                  placeholder="Masukkan NISN Siswa..."
+                  className="eco-form-input"
+                />
+              </div>
+
+              <div className="eco-form-group">
+                <label className="eco-form-label">Pilih Barang untuk Ditambahkan</label>
+                <div className="catalog-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
+                  {data?.produk_populer.map((prod) => (
+                    <button
+                      key={prod.id}
+                      type="button"
+                      onClick={() => addToCart(prod)}
+                      className="p-2 border rounded text-left hover:bg-slate-50 transition"
+                    >
+                      <div className="font-bold text-xs">{prod.name}</div>
+                      <div className="text-xs text-orange-600 font-semibold">Rp {Number(prod.price).toLocaleString('id-ID')}</div>
+                      <div className="text-xs text-slate-500">Stok: {prod.stock}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {cart.length > 0 && (
+                <div className="p-3 bg-slate-50 rounded border border-slate-200">
+                  <table className="pos-cart-table">
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cart.map((item) => (
+                        <tr key={item.product_id}>
+                          <td>{item.name}</td>
+                          <td>
+                            <div className="pos-qty-controls">
+                              <button onClick={() => updateQuantity(item.product_id, -1)} className="pos-qty-btn">-</button>
+                              <span>{item.quantity}</span>
+                              <button onClick={() => updateQuantity(item.product_id, 1)} className="pos-qty-btn">+</button>
+                            </div>
+                          </td>
+                          <td><strong>Rp {(item.price * item.quantity).toLocaleString('id-ID')}</strong></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="pos-total-row">
+                    <span>Total Pembayaran:</span>
+                    <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="eco-form-group">
+                <label className="eco-form-label">Metode Pembayaran</label>
+                <div className="payment-method-selector">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('wallet')}
+                    className={`payment-method-btn ${paymentMethod === 'wallet' ? 'selected' : ''}`}
+                  >
+                    <CreditCard size={16} /> Saldo E-Wallet
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('cash')}
+                    className={`payment-method-btn ${paymentMethod === 'cash' ? 'selected' : ''}`}
+                  >
+                    <Banknote size={16} /> Tunai (Cash)
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="eco-modal-footer">
+              <button onClick={() => setShowPOSModal(false)} className="btn-secondary-action">Batal</button>
+              <button
+                onClick={() => handleCheckout(false)}
+                disabled={processingOrder || cart.length === 0}
+                className="btn-success-action"
+              >
+                {processingOrder ? 'Memproses...' : `Selesaikan Transaksi (Rp ${cartTotal.toLocaleString('id-ID')})`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: TAMBAH BARANG BARU (STAFF/ADMIN)                        */}
+      {/* ============================================================== */}
+      {showAddModal && (
+        <div className="eco-modal-backdrop" onClick={() => setShowAddModal(false)}>
+          <div className="eco-modal-card" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header">
+              <h3><PlusCircle size={18} className="text-orange-600" /> Tambah Barang Kopsis</h3>
+              <button onClick={() => setShowAddModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
             <form onSubmit={handleCreateProduct} className="eco-modal-form">
               <div className="eco-modal-body">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Nama Produk *</label>
+                <div className="eco-form-group">
+                  <label className="eco-form-label">Kode SKU / Barcode</label>
                   <input
                     type="text"
+                    value={sku}
+                    onChange={(e) => setSku(e.target.value)}
+                    placeholder="Contoh: ATK-009"
                     required
-                    placeholder="Contoh: Pensil 2B Faber Castell"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full p-2 border rounded text-xs bg-white"
+                    className="eco-form-input"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Kode SKU</label>
-                    <input
-                      type="text"
-                      placeholder="Contoh: ATK-015"
-                      value={sku}
-                      onChange={(e) => setSku(e.target.value)}
-                      className="w-full p-2 border rounded text-xs bg-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Kategori</label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full p-2 border rounded text-xs bg-white"
-                    >
-                      <option value="Alat Tulis">Alat Tulis</option>
-                      <option value="Seragam">Seragam</option>
-                      <option value="Buku">Buku & Modul</option>
-                      <option value="Makanan">Makanan Ringan</option>
-                    </select>
-                  </div>
+                <div className="eco-form-group">
+                  <label className="eco-form-label">Nama Barang</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Contoh: Buku Tulis Campus 58 Lembar"
+                    required
+                    className="eco-form-input"
+                  />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Harga Satuan (Rp) *</label>
-                    <input
-                      type="number"
-                      required
-                      placeholder="Contoh: 4500"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      className="w-full p-2 border rounded text-xs bg-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Jumlah Stok Awal *</label>
-                    <input
-                      type="number"
-                      required
-                      placeholder="Contoh: 100"
-                      value={stock}
-                      onChange={(e) => setStock(e.target.value)}
-                      className="w-full p-2 border rounded text-xs bg-white"
-                    />
-                  </div>
+                <div className="eco-form-group">
+                  <label className="eco-form-label">Kategori</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="eco-form-input"
+                  >
+                    <option value="Alat Tulis">Alat Tulis</option>
+                    <option value="Seragam">Seragam</option>
+                    <option value="Buku">Buku</option>
+                  </select>
+                </div>
+                <div className="eco-form-group">
+                  <label className="eco-form-label">Harga Satuan (Rp)</label>
+                  <input
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="Contoh: 6500"
+                    required
+                    className="eco-form-input"
+                  />
+                </div>
+                <div className="eco-form-group">
+                  <label className="eco-form-label">Jumlah Stok</label>
+                  <input
+                    type="number"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    placeholder="Contoh: 100"
+                    required
+                    className="eco-form-input"
+                  />
                 </div>
               </div>
               <div className="eco-modal-footer">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="btn-secondary-action"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary-action"
-                >
-                  Simpan Produk
-                </button>
+                <button type="button" onClick={() => setShowAddModal(false)} className="btn-secondary-action">Batal</button>
+                <button type="submit" className="btn-primary-action">Simpan Barang</button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      {/* Tabel Riwayat Transaksi Kopsis Terkini */}
-      <div className="overview-card mt-6">
-        <div className="card-header">
-          <h3>
-            <Receipt size={18} className="inline mr-2 text-emerald-600" />
-            Riwayat Transaksi Kasir Kopsis (MySQL: `transactions`)
-          </h3>
-          <span className="badge-pill bg-emerald-50 text-emerald-700">Tersinkronisasi Kasir</span>
-        </div>
-
-        <div className="table-responsive">
-          {recentTransactions.length === 0 ? (
-            <div className="p-4 text-center text-sm text-slate-500">
-              Belum ada transaksi koperasi hari ini. Klik "Buka Kasir Koperasi" di atas untuk memulai.
-            </div>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>No. Transaksi</th>
-                  <th>Pelanggan</th>
-                  <th>Rincian Pembelian</th>
-                  <th>Total Belanja</th>
-                  <th>Metode</th>
-                  <th>Waktu</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentTransactions.map((trx) => (
-                  <tr key={trx.id}>
-                    <td><code>{trx.reference_no}</code></td>
-                    <td>
-                      <strong>{trx.user?.name || 'Siswa'}</strong>
-                      {trx.user?.identifier_number && (
-                        <span className="text-xs text-slate-400 block">NISN: {trx.user.identifier_number}</span>
-                      )}
-                    </td>
-                    <td>{trx.description}</td>
-                    <td className="font-bold text-emerald-700">
-                      Rp {Number(trx.amount).toLocaleString('id-ID')}
-                    </td>
-                    <td>
-                      <span className="badge-pill text-xs">
-                        {trx.payment_method === 'wallet' ? '💳 E-Wallet' : '💵 Tunai'}
-                      </span>
-                    </td>
-                    <td className="text-xs text-slate-500">
-                      {new Date(trx.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

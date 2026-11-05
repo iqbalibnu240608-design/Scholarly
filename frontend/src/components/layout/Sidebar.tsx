@@ -31,10 +31,31 @@ export const Sidebar: React.FC = () => {
     },
     {
       to: '/app/siswa',
-      label: 'Portal Siswa',
+      label: activeRole === 'siswa' ? 'Akademik & Presensi' : 'Portal Siswa',
       icon: GraduationCap,
       badge: 'Siswa',
       allowedRoles: ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'bk'],
+    },
+    {
+      to: '/app/kantin',
+      label: activeRole === 'siswa' || activeRole === 'guru' ? 'Kantin Sekolah' : 'Portal Kantin Sekolah',
+      icon: UtensilsCrossed,
+      badge: activeRole === 'siswa' || activeRole === 'guru' ? 'Pesan Makanan' : 'Kantin',
+      allowedRoles: ['admin', 'kantin', 'siswa', 'guru'],
+    },
+    {
+      to: '/app/kopsis',
+      label: activeRole === 'siswa' || activeRole === 'guru' ? 'Koperasi Siswa' : 'Portal Koperasi (Kopsis)',
+      icon: ShoppingBag,
+      badge: activeRole === 'siswa' || activeRole === 'guru' ? 'Belanja ATK' : 'Kopsis',
+      allowedRoles: ['admin', 'kopsis', 'siswa', 'guru'],
+    },
+    {
+      to: '/app/petugas',
+      label: activeRole === 'siswa' ? 'Layanan TU & SPP' : 'Portal TU & Petugas',
+      icon: FileSpreadsheet,
+      badge: activeRole === 'siswa' ? 'Bayar SPP' : 'Petugas',
+      allowedRoles: ['admin', 'petugas', 'siswa'],
     },
     {
       to: '/app/guru',
@@ -49,27 +70,6 @@ export const Sidebar: React.FC = () => {
       icon: Award,
       badge: 'Kepsek',
       allowedRoles: ['admin', 'kepsek'],
-    },
-    {
-      to: '/app/petugas',
-      label: 'Portal TU & Petugas',
-      icon: FileSpreadsheet,
-      badge: 'Petugas',
-      allowedRoles: ['admin', 'petugas'],
-    },
-    {
-      to: '/app/kopsis',
-      label: 'Portal Koperasi (Kopsis)',
-      icon: ShoppingBag,
-      badge: 'Kopsis',
-      allowedRoles: ['admin', 'kopsis'],
-    },
-    {
-      to: '/app/kantin',
-      label: 'Portal Kantin Sekolah',
-      icon: UtensilsCrossed,
-      badge: 'Kantin',
-      allowedRoles: ['admin', 'kantin'],
     },
     {
       to: '/app/security',
@@ -109,10 +109,10 @@ export const Sidebar: React.FC = () => {
           <>
             <div className="sidebar-indicator" style={{ color: '#2563eb' }}>
               <Lock size={15} style={{ color: '#2563eb' }} />
-              <span>Akses Terisolasi</span>
+              <span>Akses Peran: {ROLE_LABELS[activeRole] || activeRole}</span>
             </div>
             <p className="sidebar-note">
-              Navigasi dibatasi hanya pada modul wewenang{' '}
+              Navigasi disesuaikan untuk kebutuhan{' '}
               <strong style={{ color: '#1e293b' }}>{ROLE_LABELS[activeRole] || activeRole}</strong>.
             </p>
           </>

@@ -11,8 +11,8 @@ import {
   Building,
   Bell,
   ArrowRight,
-  ShieldAlert,
   ShieldCheck,
+  UserCheck,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -62,44 +62,44 @@ export const OverviewView: React.FC = () => {
     {
       to: '/app/siswa',
       icon: '🎓',
-      title: 'Portal Siswa',
+      title: activeRole === 'siswa' ? 'Akademik & Presensi' : 'Portal Siswa',
       desc: 'Jadwal pelajaran, nilai, presensi & saldo digital',
       allowedRoles: ['admin', 'siswa', 'guru', 'kepsek', 'petugas'],
+    },
+    {
+      to: '/app/kantin',
+      icon: '🍜',
+      title: activeRole === 'siswa' || activeRole === 'guru' ? 'Pesan Kantin Sekolah' : 'Portal Kantin Sekolah',
+      desc: activeRole === 'siswa' || activeRole === 'guru' ? 'Pesan menu makanan & minuman secara cashless' : 'Kasir POS stan kantin & kelola menu makanan',
+      allowedRoles: ['admin', 'kantin', 'siswa', 'guru'],
+    },
+    {
+      to: '/app/kopsis',
+      icon: '🛒',
+      title: activeRole === 'siswa' || activeRole === 'guru' ? 'Belanja Koperasi (Kopsis)' : 'Portal Koperasi (Kopsis)',
+      desc: activeRole === 'siswa' || activeRole === 'guru' ? 'Beli alat tulis, seragam, & buku pelajaran sekolah' : 'Kasir POS koperasi, stok ATK & seragam sekolah',
+      allowedRoles: ['admin', 'kopsis', 'siswa', 'guru'],
+    },
+    {
+      to: '/app/petugas',
+      icon: '📋',
+      title: activeRole === 'siswa' ? 'Pembayaran SPP & TU' : 'Portal Petugas TU',
+      desc: activeRole === 'siswa' ? 'Bayar tagihan SPP bulanan mandiri & cek status lunas' : 'Buku induk, verifikasi pembayaran SPP & surat',
+      allowedRoles: ['admin', 'petugas', 'siswa'],
     },
     {
       to: '/app/guru',
       icon: '👨‍🏫',
       title: 'Portal Guru',
-      desc: 'Input nilai evaluasi, absensi kelas & rekap',
+      desc: 'Input nilai evaluasi, absensi kelas & rekap pengajaran',
       allowedRoles: ['admin', 'guru', 'kepsek'],
     },
     {
       to: '/app/kepsek',
       icon: '🏫',
       title: 'Portal Kepala Sekolah',
-      desc: 'Monitoring eksekutif, akreditasi & keuangan',
+      desc: 'Monitoring eksekutif, akreditasi & keuangan sekolah',
       allowedRoles: ['admin', 'kepsek'],
-    },
-    {
-      to: '/app/petugas',
-      icon: '📋',
-      title: 'Portal Petugas TU',
-      desc: 'Buku induk, verifikasi pembayaran SPP & surat',
-      allowedRoles: ['admin', 'petugas'],
-    },
-    {
-      to: '/app/kopsis',
-      icon: '🛒',
-      title: 'Portal Koperasi (Kopsis)',
-      desc: 'Kasir POS koperasi, stok ATK & seragam sekolah',
-      allowedRoles: ['admin', 'kopsis'],
-    },
-    {
-      to: '/app/kantin',
-      icon: '🍜',
-      title: 'Portal Kantin Sekolah',
-      desc: 'Kasir POS stan kantin, kelola menu makanan & pesanan',
-      allowedRoles: ['admin', 'kantin'],
     },
     {
       to: '/app/security',
@@ -148,7 +148,7 @@ export const OverviewView: React.FC = () => {
               <strong className="text-indigo-700">
                 {ROLE_LABELS[activeRole] || activeRole}
               </strong>{' '}
-              (Wewenang terbatas sesuai peran).
+              (Akun: {user?.name || 'Pengguna'}).
             </p>
           )}
         </div>
@@ -159,7 +159,7 @@ export const OverviewView: React.FC = () => {
             </span>
           ) : (
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#1e40af' }}>
-              <ShieldAlert size={14} /> Hak Akses Khusus: {ROLE_LABELS[activeRole] || activeRole}
+              <UserCheck size={14} /> Mode: {ROLE_LABELS[activeRole] || activeRole}
             </span>
           )}
         </div>
@@ -236,7 +236,7 @@ export const OverviewView: React.FC = () => {
             <h3>
               {isAdmin
                 ? 'Navigasi Modul Peran (Seluruh Modul)'
-                : `Modul Khusus Wewenang: ${ROLE_LABELS[activeRole] || activeRole}`}
+                : `Menu Akses: ${ROLE_LABELS[activeRole] || activeRole}`}
             </h3>
             <span className="badge-pill">
               {isAdmin ? 'Semua Akses' : `${visiblePortals.length} Modul Terbuka`}
@@ -258,9 +258,8 @@ export const OverviewView: React.FC = () => {
 
           {!isAdmin && (
             <div className="mt-4 p-3 rounded text-xs bg-slate-50 text-slate-600 border border-slate-200">
-              🔒 <strong>Isolasi Hak Akses Aktif:</strong> Anda sedang dalam mode peran{' '}
-              <strong>{ROLE_LABELS[activeRole] || activeRole}</strong>. Modul di luar wewenang Anda
-              secara otomatis disembunyikan dan diproteksi oleh sistem keamanan.
+              💡 <strong>Akses Terpadu:</strong> Anda dapat mengunjungi modul kantin, koperasi, dan TU
+              untuk melakukan pemesanan makanan, belanja perlengkapan, serta pembayaran administrasi.
             </div>
           )}
         </div>
