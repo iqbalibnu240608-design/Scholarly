@@ -1,7 +1,22 @@
 ﻿import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Sparkles, ChevronDown, ChevronUp, AlertCircle, ArrowLeft } from 'lucide-react';
+import {
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  ArrowLeft,
+  GraduationCap,
+  Settings,
+  BookOpen,
+  School,
+  ClipboardList,
+  ShoppingCart,
+  UtensilsCrossed,
+  Shield,
+  Library,
+} from 'lucide-react';
 import './LoginView.css';
 
 export const LoginView: React.FC = () => {
@@ -19,16 +34,16 @@ export const LoginView: React.FC = () => {
   const [showDemoRoles, setShowDemoRoles] = useState<boolean>(false);
 
   const demoAccounts = [
-    { label: 'Siswa 1 (NISN: 0061234567)', id: '0061234567', pwd: 'password123', icon: '🎓' },
-    { label: 'Siswa 2 (NISN: 0089876543)', id: '0089876543', pwd: 'password123', icon: '🎓' },
-    { label: 'Admin IT (ID: admin)', id: 'admin', pwd: 'admin123', icon: '⚙️' },
-    { label: 'Guru (NIP: 19850315...)', id: '198503152010011002', pwd: 'password123', icon: '👨‍🏫' },
-    { label: 'Kepsek (NIP: 19700101...)', id: '197001011995031001', pwd: 'password123', icon: '🏫' },
-    { label: 'Petugas TU', id: '199008202015022003', pwd: 'password123', icon: '📋' },
-    { label: 'Kopsis', id: 'KOP-2026', pwd: 'password123', icon: '🛒' },
-    { label: 'Kantin', id: 'KTN-01', pwd: 'password123', icon: '🍜' },
-    { label: 'Satpam Gerbang', id: 'SEC-01', pwd: 'password123', icon: '🛡️' },
-    { label: 'Perpustakaan', id: 'LIB-01', pwd: 'password123', icon: '📚' },
+    { label: 'Siswa 1 (NISN: 0061234567)', id: '0061234567', pwd: 'password123', icon: GraduationCap },
+    { label: 'Siswa 2 (NISN: 0089876543)', id: '0089876543', pwd: 'password123', icon: GraduationCap },
+    { label: 'Admin IT (ID: admin)', id: 'admin', pwd: 'admin123', icon: Settings },
+    { label: 'Guru (NIP: 19850315...)', id: '198503152010011002', pwd: 'password123', icon: BookOpen },
+    { label: 'Kepsek (NIP: 19700101...)', id: '197001011995031001', pwd: 'password123', icon: School },
+    { label: 'Petugas TU', id: '199008202015022003', pwd: 'password123', icon: ClipboardList },
+    { label: 'Kopsis', id: 'KOP-2026', pwd: 'password123', icon: ShoppingCart },
+    { label: 'Kantin', id: 'KTN-01', pwd: 'password123', icon: UtensilsCrossed },
+    { label: 'Satpam Gerbang', id: 'SEC-01', pwd: 'password123', icon: Shield },
+    { label: 'Perpustakaan', id: 'LIB-01', pwd: 'password123', icon: Library },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -318,18 +333,21 @@ export const LoginView: React.FC = () => {
 
             {showDemoRoles && (
               <div className="steelschool-demo-pills-grid">
-                {demoAccounts.map((acc) => (
-                  <button
-                    key={acc.id}
-                    type="button"
-                    className="steelschool-role-pill"
-                    onClick={() => handleSelectDemoAccount(acc.id, acc.pwd)}
-                    title={`Isi otomatis ${acc.label}`}
-                  >
-                    <span>{acc.icon}</span>
-                    <span>{acc.label}</span>
-                  </button>
-                ))}
+                {demoAccounts.map((acc) => {
+                  const Icon = acc.icon;
+                  return (
+                    <button
+                      key={acc.id}
+                      type="button"
+                      className="steelschool-role-pill"
+                      onClick={() => handleSelectDemoAccount(acc.id, acc.pwd)}
+                      title={`Isi otomatis ${acc.label}`}
+                    >
+                      <Icon size={16} />
+                      <span>{acc.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
