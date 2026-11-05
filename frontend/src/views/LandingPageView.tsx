@@ -160,18 +160,6 @@ export const LandingPageView: React.FC = () => {
          ------------------------------------------------------------------ */}
       <nav className="lp-navbar">
         <div className="lp-container lp-nav-inner">
-          <Link to="/" className="lp-brand-group">
-            <svg className="lp-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z" fill="#fae467" />
-              <path d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z" fill="#1a365d" />
-              <path d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z" fill="#fae467" />
-              <path d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z" fill="#1a365d" />
-            </svg>
-            <div className="lp-brand-text">
-              <span className="lp-brand-name">SteelSchool</span>
-              <span className="lp-brand-tagline">Ekosistem Sekolah Terpadu</span>
-            </div>
-          </Link>
 
           <ul className="lp-nav-links">
             <li><a href="#keunggulan" className="lp-nav-item">Keunggulan</a></li>
@@ -206,8 +194,7 @@ export const LandingPageView: React.FC = () => {
             {/* Left Content */}
             <div className="lp-hero-content">
               <h1 className="lp-hero-title">
-                Satu Ekosistem Cerdas untuk Seluruh{' '}
-                <span className="lp-hero-highlight">Civitas Sekolah</span>
+                Steel<span className="lp-hero-highlight">School</span>
               </h1>
 
               <p className="lp-hero-desc">

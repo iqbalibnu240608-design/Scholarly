@@ -270,11 +270,11 @@
 }
 
 .lp-hero-title {
-  font-size: 52px;
-  font-weight: 500;
+  font-size: 64px;
+  font-weight: 600;
   color: var(--color-paper-white);
-  line-height: 1.1;
-  letter-spacing: -1.44px;
+  line-height: 1.05;
+  letter-spacing: -2px;
 }
 
 .lp-hero-highlight {
@@ -1085,6 +1085,9 @@
 @media (max-width: 768px) {
   .lp-nav-links {
     display: none;
+  }
+  .lp-nav-inner {
+    justify-content: flex-end;
   }
   .lp-hero-title {
     font-size: 36px;
