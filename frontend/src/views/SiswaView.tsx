@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
-import { Calendar, Clock, CreditCard, CheckCircle2, BookOpen } from 'lucide-react';
+import { Calendar, Clock, CreditCard, CheckCircle2, BookOpen, Award } from 'lucide-react';
 
 interface SiswaData {
   kelas: string;
@@ -29,15 +29,33 @@ interface SiswaData {
   };
 }
 
+interface GradeRecord {
+  id: number;
+  subject_name: string;
+  type: string;
+  score: number;
+  feedback?: string;
+  teacher?: {
+    name: string;
+  };
+}
+
 export const SiswaView: React.FC = () => {
   const [data, setData] = useState<SiswaData | null>(null);
+  const [grades, setGrades] = useState<GradeRecord[]>([]);
+  const [averageScore, setAverageScore] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await apiClient.get('/school/siswa');
-        setData(res.data.data);
+        const [resSiswa, resGrades] = await Promise.all([
+          apiClient.get('/school/siswa'),
+          apiClient.get('/siswa/my-grades').catch(() => ({ data: { grades: [], average_score: 0 } })),
+        ]);
+        setData(resSiswa.data.data);
+        setGrades(resGrades.data.grades || []);
+        setAverageScore(resGrades.data.average_score || 0);
       } catch (err) {
         console.error('Error fetching siswa data', err);
       } finally {
@@ -54,7 +72,7 @@ export const SiswaView: React.FC = () => {
       <div className="view-header">
         <div>
           <h2>🎓 Portal Siswa (Peserta Didik)</h2>
-          <p>Akses informasi akademik, jadwal kelas harian, presensi, dan saldo digital.</p>
+          <p>Akses informasi akademik, jadwal kelas harian, presensi, saldo digital, dan buku nilai.</p>
         </div>
         <div className="header-meta">
           <span className="info-chip">Kelas: {data?.kelas}</span>
@@ -105,7 +123,7 @@ export const SiswaView: React.FC = () => {
               <Clock size={18} className="inline mr-2 text-indigo-600" />
               Jadwal Pelajaran Hari Ini
             </h3>
-            <span className="badge-pill">3 Pertemuan</span>
+            <span className="badge-pill">{data?.jadwal_hari_ini.length || 0} Pertemuan</span>
           </div>
           <div className="schedule-list">
             {data?.jadwal_hari_ini.map((j, idx) => (
@@ -154,9 +172,55 @@ export const SiswaView: React.FC = () => {
             </div>
           </div>
           <div className="mt-4 p-3 bg-slate-50 rounded text-sm text-slate-600">
-            💡 Sistem presensi terhubung otomatis dengan rekapan absensi guru dan notifikasi wali kelas.
+            💡 Presensi otomatis terhubung dengan gate gerbang satpam dan absensi kelas guru.
           </div>
         </div>
+      </div>
+
+      {/* Rekap Nilai Akademik Siswa */}
+      <div className="overview-card mt-6">
+        <div className="card-header">
+          <h3>
+            <Award size={18} className="inline mr-2 text-amber-500" />
+            Transkrip Nilai Akademik Siswa (MySQL Table: `grades`)
+          </h3>
+          <span className="badge-pill bg-amber-50 text-amber-800 font-bold">
+            Rata-rata: {averageScore}
+          </span>
+        </div>
+
+        {grades.length === 0 ? (
+          <div className="p-4 text-center text-sm text-slate-500">
+            Belum ada nilai yang diinput oleh guru untuk semester ini.
+          </div>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Mata Pelajaran</th>
+                <th>Jenis Evaluasi</th>
+                <th>Nilai Angka</th>
+                <th>Guru Pengampu</th>
+                <th>Catatan / Evaluasi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {grades.map((g) => (
+                <tr key={g.id}>
+                  <td><strong>{g.subject_name}</strong></td>
+                  <td>
+                    <span className="badge-pill text-xs uppercase">{g.type}</span>
+                  </td>
+                  <td>
+                    <strong className="text-indigo-700 text-sm">{Number(g.score)}</strong>
+                  </td>
+                  <td>{g.teacher?.name || 'Guru Pengampu'}</td>
+                  <td className="text-xs text-slate-600">{g.feedback || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

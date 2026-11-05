@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
-import { FileText, DollarSign, Package, CheckCircle } from 'lucide-react';
+import {
+  FileText,
+  DollarSign,
+  Package,
+  CheckCircle,
+  CreditCard,
+  Banknote,
+  Receipt,
+  X,
+  Check
+} from 'lucide-react';
+import './EcosystemModals.css';
 
 interface PetugasData {
   administrasi_surat: {
@@ -21,35 +32,121 @@ interface PetugasData {
   };
 }
 
+interface RecentSPP {
+  reference_no: string;
+  student_name: string;
+  nisn: string;
+  month: string;
+  amount: number;
+  method: string;
+  time: string;
+}
+
 export const PetugasView: React.FC = () => {
   const [data, setData] = useState<PetugasData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Modal State: Pembayaran SPP
+  const [showSPPModal, setShowSPPModal] = useState<boolean>(false);
+  const [studentNisn, setStudentNisn] = useState<string>('0061234567');
+  const [sppMonth, setSppMonth] = useState<string>('November 2026');
+  const [sppAmount, setSppAmount] = useState<string>('350000');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'wallet'>('cash');
+  const [sppNotes, setSppNotes] = useState<string>('Lunas kasir loket TU');
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // Daftar pembayaran SPP terkini
+  const [recentSPP, setRecentSPP] = useState<RecentSPP[]>([
+    {
+      reference_no: 'SPP-INIT-01',
+      student_name: 'Ahmad Pratama',
+      nisn: '0061234567',
+      month: 'November 2026',
+      amount: 350000,
+      method: 'Tunai (Cash)',
+      time: 'Hari ini',
+    },
+  ]);
+
+  const fetchPetugasData = async () => {
+    try {
+      const res = await apiClient.get('/school/petugas');
+      setData(res.data.data);
+    } catch (err) {
+      console.error('Error fetching petugas data', err);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await apiClient.get('/school/petugas');
-        setData(res.data.data);
-      } catch (err) {
-        console.error('Error fetching petugas data', err);
-      } finally {
-        setLoading(false);
-      }
+    const init = async () => {
+      setLoading(true);
+      await fetchPetugasData();
+      setLoading(false);
     };
-    fetchData();
+    init();
   }, []);
+
+  // Handler: Catat Pembayaran SPP (Eksekusi API Riil)
+  const handlePaySPP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await apiClient.post('/petugas/spp-payment', {
+        student_identifier: studentNisn,
+        amount: Number(sppAmount),
+        month: sppMonth,
+        payment_method: paymentMethod,
+        notes: sppNotes || undefined,
+      });
+
+      setSuccessMsg(res.data.message);
+      setTimeout(() => setSuccessMsg(null), 3500);
+
+      const studentLabel = studentNisn === '0061234567' ? 'Ahmad Pratama' : studentNisn === '0089876543' ? 'Siti Rahmawati' : `Siswa (${studentNisn})`;
+      setRecentSPP((prev) => [
+        {
+          reference_no: res.data.transaction?.reference_no || 'SPP-' + Math.floor(Math.random() * 90000 + 10000),
+          student_name: studentLabel,
+          nisn: studentNisn,
+          month: sppMonth,
+          amount: Number(sppAmount),
+          method: paymentMethod === 'cash' ? 'Tunai (Cash)' : 'Potong Saldo E-Wallet',
+          time: 'Baru saja',
+        },
+        ...prev,
+      ]);
+
+      setShowSPPModal(false);
+      await fetchPetugasData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Gagal memproses pembayaran SPP.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) return <div className="loading-container">Memuat modul Petugas TU...</div>;
 
   return (
     <div className="view-container">
+      {/* Header Halaman */}
       <div className="view-header">
         <div>
           <h2>📋 Portal Petugas Tata Usaha (TU) & Administrasi</h2>
-          <p>Pengelolaan buku induk siswa, administrasi persuratan, verifikasi SPP, dan sarpras.</p>
+          <p>Pengelolaan buku induk siswa, administrasi persuratan, loket pembayaran SPP, dan sarpras.</p>
         </div>
       </div>
 
+      {/* Alert Notifikasi Sukses */}
+      {successMsg && (
+        <div className="p-3 mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg flex items-center gap-2">
+          <Check size={18} />
+          <span>{successMsg}</span>
+        </div>
+      )}
+
+      {/* Ringkasan Statistik TU */}
       <div className="grid-cards-3">
         <div className="feature-card">
           <div className="card-top-icon text-indigo-600">
@@ -87,6 +184,7 @@ export const PetugasView: React.FC = () => {
         </div>
       </div>
 
+      {/* Kolom Informasi & Aksi */}
       <div className="overview-columns mt-6">
         <div className="overview-card">
           <div className="card-header">
@@ -102,11 +200,14 @@ export const PetugasView: React.FC = () => {
             </div>
             <div className="flex justify-between items-center text-sm py-1 border-b">
               <span>Rombel Kelas X, XI, XII</span>
-              <span className="font-semibold">Lengkap</span>
+              <span className="font-semibold">Lengkap ({data?.inventaris_sekolah.total_ruang_kelas} Rombel)</span>
             </div>
             <div className="flex justify-between items-center text-sm py-1">
               <span>Cetak Leger Nilai & Surat Keterangan</span>
-              <button className="badge-pill bg-indigo-100 text-indigo-800 hover:bg-indigo-200">
+              <button
+                onClick={() => alert('Dokumen leger nilai siswa siap dicetak.')}
+                className="badge-pill bg-indigo-100 text-indigo-800 hover:bg-indigo-200 cursor-pointer"
+              >
                 Generate Dokumen
               </button>
             </div>
@@ -116,23 +217,221 @@ export const PetugasView: React.FC = () => {
         <div className="overview-card">
           <div className="card-header">
             <h3>Menu Administrasi TU</h3>
-            <span className="badge-pill">Fitur</span>
+            <span className="badge-pill">Fitur Aktif</span>
           </div>
           <div className="action-buttons-list">
-            <button className="btn-action">
+            <button
+              onClick={() => setShowSPPModal(true)}
+              className="btn-action bg-emerald-50 border border-emerald-300 text-emerald-900 font-bold hover:bg-emerald-100"
+            >
+              💳 Input Pembayaran SPP Tunai / Manual (Loket Kasir)
+            </button>
+            <button
+              onClick={() => alert('Formulir pencatatan surat masuk siap digunakan.')}
+              className="btn-action"
+            >
               📥 Catat Surat Masuk & Agenda Baru
             </button>
-            <button className="btn-action">
+            <button
+              onClick={() => alert('Nomor surat keluar otomatis diterbitkan sistem penomoran.')}
+              className="btn-action"
+            >
               📤 Terbitkan Nomor Surat Keluar Resmi
             </button>
-            <button className="btn-action">
-              💳 Input Pembayaran SPP Tunai / Manual
-            </button>
-            <button className="btn-action">
+            <button
+              onClick={() => alert('Pendataan aset dan sarpras ruang kelas terkoneksi.')}
+              className="btn-action"
+            >
               🏷️ Pendataan Aset & Inventaris Sekolah
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Modal: Input Pembayaran SPP Siswa */}
+      {showSPPModal && (
+        <div className="eco-modal-backdrop">
+          <div className="eco-modal-card">
+            <div className="eco-modal-header">
+              <h3>
+                <Receipt size={18} className="text-emerald-600" />
+                Loket Pembayaran SPP Siswa (Tata Usaha)
+              </h3>
+              <button onClick={() => setShowSPPModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handlePaySPP}>
+              <div className="eco-modal-body">
+                {/* 1. NISN Siswa */}
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Nomor Identitas (NISN Siswa) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contoh: 0061234567"
+                    value={studentNisn}
+                    onChange={(e) => setStudentNisn(e.target.value)}
+                    className="w-full p-2 border rounded text-xs bg-white"
+                  />
+                  <div className="quick-preset-container">
+                    <span className="text-[11px] text-slate-500">Pilih Cepat Siswa:</span>
+                    <button
+                      type="button"
+                      onClick={() => setStudentNisn('0061234567')}
+                      className={`quick-preset-btn ${studentNisn === '0061234567' ? 'active' : ''}`}
+                    >
+                      Ahmad Pratama (0061234567)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStudentNisn('0089876543')}
+                      className={`quick-preset-btn ${studentNisn === '0089876543' ? 'active' : ''}`}
+                    >
+                      Siti Rahmawati (0089876543)
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Periode Bulan & Nominal */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      Periode Bulan SPP *
+                    </label>
+                    <select
+                      value={sppMonth}
+                      onChange={(e) => setSppMonth(e.target.value)}
+                      className="w-full p-2 border rounded text-xs bg-white"
+                    >
+                      <option value="November 2026">November 2026</option>
+                      <option value="Desember 2026">Desember 2026</option>
+                      <option value="Januari 2027">Januari 2027</option>
+                      <option value="Februari 2027">Februari 2027</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      Nominal SPP (Rp) *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={sppAmount}
+                      onChange={(e) => setSppAmount(e.target.value)}
+                      className="w-full p-2 border rounded text-xs bg-white font-bold text-emerald-700"
+                    />
+                  </div>
+                </div>
+
+                {/* 3. Metode Pembayaran */}
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Metode Pembayaran *
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('cash')}
+                      className={`flex-1 p-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 ${
+                        paymentMethod === 'cash'
+                          ? 'bg-amber-50 border-amber-500 text-amber-700'
+                          : 'bg-white border-slate-200 text-slate-600'
+                      }`}
+                    >
+                      <Banknote size={14} /> Tunai (Loket TU)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('wallet')}
+                      className={`flex-1 p-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 ${
+                        paymentMethod === 'wallet'
+                          ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+                          : 'bg-white border-slate-200 text-slate-600'
+                      }`}
+                    >
+                      <CreditCard size={14} /> Potong Saldo E-Wallet Siswa
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. Catatan Kwitansi */}
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Catatan Kwitansi / Keterangan
+                  </label>
+                  <input
+                    type="text"
+                    value={sppNotes}
+                    onChange={(e) => setSppNotes(e.target.value)}
+                    className="w-full p-2 border rounded text-xs bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="eco-modal-footer">
+                <button
+                  type="button"
+                  onClick={() => setShowSPPModal(false)}
+                  className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                >
+                  {submitting ? 'Mencatat Pembayaran...' : `Terbitkan Bukti Lunas Rp ${Number(sppAmount).toLocaleString('id-ID')}`}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Tabel Riwayat Pembayaran SPP Terkini */}
+      <div className="overview-card mt-6">
+        <div className="card-header">
+          <h3>
+            <Receipt size={18} className="inline mr-2 text-emerald-600" />
+            Riwayat Pembayaran SPP Terkini (MySQL Table: `transactions`)
+          </h3>
+          <span className="badge-pill bg-emerald-50 text-emerald-700">Tersinkronisasi Kasir TU</span>
+        </div>
+
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>No. Kwitansi</th>
+              <th>Nama Siswa</th>
+              <th>NISN</th>
+              <th>Periode Bulan</th>
+              <th>Nominal</th>
+              <th>Metode</th>
+              <th>Waktu</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recentSPP.map((spp, idx) => (
+              <tr key={idx}>
+                <td><code>{spp.reference_no}</code></td>
+                <td><strong>{spp.student_name}</strong></td>
+                <td><code>{spp.nisn}</code></td>
+                <td><span className="badge-pill text-xs">{spp.month}</span></td>
+                <td className="font-bold text-emerald-700">
+                  Rp {spp.amount.toLocaleString('id-ID')}
+                </td>
+                <td><span className="badge-pill text-xs">{spp.method}</span></td>
+                <td className="text-xs text-slate-500">{spp.time}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

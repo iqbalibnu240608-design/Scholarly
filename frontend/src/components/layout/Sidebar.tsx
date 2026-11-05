@@ -11,6 +11,7 @@ import {
   UtensilsCrossed,
   Settings,
   ShieldCheck,
+  Shield
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -66,6 +67,13 @@ export const Sidebar: React.FC = () => {
       icon: UtensilsCrossed,
       badge: 'Kantin',
       role: 'kantin',
+    },
+    {
+      to: '/app/security',
+      label: 'Keamanan & Satpam',
+      icon: Shield,
+      badge: 'Satpam',
+      role: 'security',
     },
     {
       to: '/app/admin',

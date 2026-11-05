@@ -11,6 +11,7 @@ import { KepsekView } from './views/KepsekView';
 import { PetugasView } from './views/PetugasView';
 import { KopsisView } from './views/KopsisView';
 import { KantinView } from './views/KantinView';
+import { SecurityView } from './views/SecurityView';
 import { AdminView } from './views/AdminView';
 
 // Protected Route Wrapper
@@ -60,6 +61,7 @@ export const App: React.FC = () => {
             <Route path="petugas" element={<PetugasView />} />
             <Route path="kopsis" element={<KopsisView />} />
             <Route path="kantin" element={<KantinView />} />
+            <Route path="security" element={<SecurityView />} />
             <Route path="admin" element={<AdminView />} />
           </Route>
 
@@ -71,6 +73,7 @@ export const App: React.FC = () => {
           <Route path="/petugas" element={<Navigate to="/app/petugas" replace />} />
           <Route path="/kopsis" element={<Navigate to="/app/kopsis" replace />} />
           <Route path="/kantin" element={<Navigate to="/app/kantin" replace />} />
+          <Route path="/security" element={<Navigate to="/app/security" replace />} />
           <Route path="/admin" element={<Navigate to="/app/admin" replace />} />
 
           {/* Fallback */}
