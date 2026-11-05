@@ -43,7 +43,6 @@ export const GuruView: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Daftar nilai yang baru saja dimasukkan dalam sesi ini
   const [recentGrades, setRecentGrades] = useState<SubmittedGrade[]>([
     {
       student_name: 'Ahmad Pratama',
@@ -79,7 +78,6 @@ export const GuruView: React.FC = () => {
     fetchData();
   }, []);
 
-  // Handler: Simpan Nilai Akademik Siswa (Eksekusi API Riil)
   const handleSubmitGrade = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -95,7 +93,6 @@ export const GuruView: React.FC = () => {
       setSuccessMsg(res.data.message);
       setTimeout(() => setSuccessMsg(null), 3500);
 
-      // Tambahkan ke tabel histori lokal
       const studentLabel = studentNisn === '0061234567' ? 'Ahmad Pratama' : studentNisn === '0089876543' ? 'Siti Rahmawati' : `Siswa (${studentNisn})`;
       setRecentGrades((prev) => [
         {
@@ -188,26 +185,28 @@ export const GuruView: React.FC = () => {
             </h3>
             <span className="badge-pill">Tahun Ajaran 2026/2027</span>
           </div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Hari</th>
-                <th>Kelas</th>
-                <th>Jam Pelajaran</th>
-                <th>Ruangan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.jadwal_mengajar.map((item, idx) => (
-                <tr key={idx}>
-                  <td><strong>{item.hari}</strong></td>
-                  <td><span className="badge-pill">{item.kelas}</span></td>
-                  <td>{item.jam}</td>
-                  <td>{item.ruang}</td>
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Hari</th>
+                  <th>Kelas</th>
+                  <th>Jam Pelajaran</th>
+                  <th>Ruangan</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data?.jadwal_mengajar.map((item, idx) => (
+                  <tr key={idx}>
+                    <td><strong>{item.hari}</strong></td>
+                    <td><span className="badge-pill">{item.kelas}</span></td>
+                    <td>{item.jam}</td>
+                    <td>{item.ruang}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Menu Aksi Cepat Guru */}
@@ -259,9 +258,8 @@ export const GuruView: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmitGrade}>
+            <form onSubmit={handleSubmitGrade} className="eco-modal-form">
               <div className="eco-modal-body">
-                {/* 1. Pilih Siswa (NISN) */}
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
                     Nomor Identitas (NISN Siswa) *
@@ -293,8 +291,7 @@ export const GuruView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. Mata Pelajaran & Jenis Penilaian */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
                       Mata Pelajaran *
@@ -330,7 +327,6 @@ export const GuruView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 3. Skor Nilai (0-100) */}
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
                     Nilai Angka (Skor 0 - 100) *
@@ -346,7 +342,6 @@ export const GuruView: React.FC = () => {
                   />
                 </div>
 
-                {/* 4. Feedback & Catatan Evaluasi Guru */}
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
                     Catatan & Masukan untuk Siswa (Opsional)
@@ -365,16 +360,17 @@ export const GuruView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowGradeModal(false)}
-                  className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300"
+                  className="btn-secondary-action"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  className="btn-primary-action"
+                  style={{ opacity: submitting ? 0.6 : 1 }}
                 >
-                  {submitting ? 'Menyimpan ke Database...' : 'Simpan Nilai'}
+                  {submitting ? 'Menyimpan...' : 'Simpan Nilai'}
                 </button>
               </div>
             </form>
@@ -392,32 +388,34 @@ export const GuruView: React.FC = () => {
           <span className="badge-pill bg-indigo-50 text-indigo-700">Tersimpan ke Database</span>
         </div>
 
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Nama Siswa</th>
-              <th>NISN</th>
-              <th>Mata Pelajaran</th>
-              <th>Jenis</th>
-              <th>Nilai</th>
-              <th>Catatan Guru</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentGrades.map((g, idx) => (
-              <tr key={idx}>
-                <td><strong>{g.student_name}</strong></td>
-                <td><code>{g.student_nisn}</code></td>
-                <td>{g.subject_name}</td>
-                <td><span className="badge-pill text-xs">{g.type}</span></td>
-                <td>
-                  <span className="font-extrabold text-indigo-700 text-sm">{g.score}</span>
-                </td>
-                <td className="text-xs text-slate-600">{g.feedback || '-'}</td>
+        <div className="table-responsive">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Nama Siswa</th>
+                <th>NISN</th>
+                <th>Mata Pelajaran</th>
+                <th>Jenis</th>
+                <th>Nilai</th>
+                <th>Catatan Guru</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {recentGrades.map((g, idx) => (
+                <tr key={idx}>
+                  <td><strong>{g.student_name}</strong></td>
+                  <td><code>{g.student_nisn}</code></td>
+                  <td>{g.subject_name}</td>
+                  <td><span className="badge-pill text-xs">{g.type}</span></td>
+                  <td>
+                    <span className="font-extrabold text-indigo-700 text-sm">{g.score}</span>
+                  </td>
+                  <td className="text-xs text-slate-600">{g.feedback || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

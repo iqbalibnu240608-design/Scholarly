@@ -189,38 +189,40 @@ export const SiswaView: React.FC = () => {
           </span>
         </div>
 
-        {grades.length === 0 ? (
-          <div className="p-4 text-center text-sm text-slate-500">
-            Belum ada nilai yang diinput oleh guru untuk semester ini.
-          </div>
-        ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Mata Pelajaran</th>
-                <th>Jenis Evaluasi</th>
-                <th>Nilai Angka</th>
-                <th>Guru Pengampu</th>
-                <th>Catatan / Evaluasi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {grades.map((g) => (
-                <tr key={g.id}>
-                  <td><strong>{g.subject_name}</strong></td>
-                  <td>
-                    <span className="badge-pill text-xs uppercase">{g.type}</span>
-                  </td>
-                  <td>
-                    <strong className="text-indigo-700 text-sm">{Number(g.score)}</strong>
-                  </td>
-                  <td>{g.teacher?.name || 'Guru Pengampu'}</td>
-                  <td className="text-xs text-slate-600">{g.feedback || '-'}</td>
+        <div className="table-responsive">
+          {grades.length === 0 ? (
+            <div className="p-4 text-center text-sm text-slate-500">
+              Belum ada nilai yang diinput oleh guru untuk semester ini.
+            </div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Mata Pelajaran</th>
+                  <th>Jenis Evaluasi</th>
+                  <th>Nilai Angka</th>
+                  <th>Guru Pengampu</th>
+                  <th>Catatan / Evaluasi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {grades.map((g) => (
+                  <tr key={g.id}>
+                    <td><strong>{g.subject_name}</strong></td>
+                    <td>
+                      <span className="badge-pill text-xs uppercase">{g.type}</span>
+                    </td>
+                    <td>
+                      <strong className="text-indigo-700 text-sm">{Number(g.score)}</strong>
+                    </td>
+                    <td>{g.teacher?.name || 'Guru Pengampu'}</td>
+                    <td className="text-xs text-slate-600">{g.feedback || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );

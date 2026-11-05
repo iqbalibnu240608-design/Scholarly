@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
 import {
-  ShoppingBag,
   DollarSign,
   PackageCheck,
   PlusCircle,
@@ -114,7 +113,6 @@ export const KopsisView: React.FC = () => {
     initData();
   }, []);
 
-  // Handler: Tambah Produk Baru
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -138,7 +136,6 @@ export const KopsisView: React.FC = () => {
     }
   };
 
-  // Helper Cart POS
   const addToCart = (product: KopsisProduct) => {
     if (product.stock <= 0) {
       alert(`Stok produk "${product.name}" sedang habis!`);
@@ -189,7 +186,6 @@ export const KopsisView: React.FC = () => {
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Handler: Checkout Kasir Kopsis (Eksekusi API Riil)
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cart.length === 0) {
@@ -216,7 +212,6 @@ export const KopsisView: React.FC = () => {
       setShowPOSModal(false);
       setCart([]);
 
-      // Refresh statistik kopsis & histori transaksi riil
       await Promise.all([fetchKopsisData(), fetchRecentTransactions()]);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Gagal memproses transaksi kasir.');
@@ -280,7 +275,7 @@ export const KopsisView: React.FC = () => {
 
         <div className="feature-card">
           <div className="card-top-icon text-indigo-600">
-            <ShoppingBag size={22} />
+            <PackageCheck size={22} />
           </div>
           <h4>Metode Pembayaran</h4>
           <div className="amount-display text-indigo-700">
@@ -301,20 +296,59 @@ export const KopsisView: React.FC = () => {
         </div>
       </div>
 
-      {/* Action Toolbar */}
-      <div className="flex gap-3 mt-6">
-        <button
-          onClick={() => setShowPOSModal(true)}
-          className="badge-pill bg-emerald-600 text-white flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-emerald-700 font-bold shadow-sm"
-        >
-          <ShoppingCart size={16} /> Buka Kasir Koperasi / Transaksi Baru
-        </button>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="badge-pill bg-indigo-600 text-white flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-indigo-700 font-bold shadow-sm"
-        >
-          <PlusCircle size={16} /> Tambah Barang Baru
-        </button>
+      {/* Tabel Katalog Produk Kopsis dengan Action Buttons di dalam Header Panel */}
+      <div className="overview-card mt-6">
+        <div className="card-header">
+          <h3>
+            <PackageCheck size={18} className="inline mr-2 text-indigo-600" />
+            Katalog Produk Koperasi Siswa (MySQL Table: `kopsis_products`)
+          </h3>
+          <div className="card-header-actions">
+            <button
+              onClick={() => setShowPOSModal(true)}
+              className="btn-success-action"
+            >
+              <ShoppingCart size={15} /> Buka Kasir Koperasi / Transaksi Baru
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="btn-secondary-action"
+            >
+              <PlusCircle size={15} /> Tambah Barang Baru
+            </button>
+          </div>
+        </div>
+
+        <div className="table-responsive">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Nama Produk</th>
+                <th>Kategori</th>
+                <th>Harga Jual</th>
+                <th>Sisa Stok</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.produk_populer.map((prod) => (
+                <tr key={prod.id}>
+                  <td><code>{prod.sku}</code></td>
+                  <td><strong>{prod.name}</strong></td>
+                  <td><span className="badge-pill">{prod.category}</span></td>
+                  <td>Rp {Number(prod.price).toLocaleString('id-ID')}</td>
+                  <td><strong>{prod.stock}</strong> unit</td>
+                  <td>
+                    <span className={prod.stock > 10 ? 'text-emerald-600 font-medium' : prod.stock > 0 ? 'text-amber-600 font-medium' : 'text-red-600 font-bold'}>
+                      {prod.stock > 10 ? 'Tersedia' : prod.stock > 0 ? 'Stok Menipis' : 'Habis'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Modal 1: Kasir POS Kopsis */}
@@ -331,11 +365,11 @@ export const KopsisView: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleCheckout}>
+            <form onSubmit={handleCheckout} className="eco-modal-form">
               <div className="eco-modal-body">
                 {/* 1. Pilih Item Produk */}
                 <div>
-                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">
+                  <label className="text-xs font-bold text-slate-700 block mb-2">
                     1. Klik Barang yang Dibeli Siswa:
                   </label>
                   <div className="pos-items-grid">
@@ -365,7 +399,7 @@ export const KopsisView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setCart([])}
-                        className="text-xs text-red-500 hover:underline"
+                        className="text-xs text-red-500 hover:underline cursor-pointer"
                       >
                         Kosongkan
                       </button>
@@ -428,7 +462,7 @@ export const KopsisView: React.FC = () => {
                 </div>
 
                 {/* 3. Metode Pembayaran & Identitas Siswa */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
                       Metode Pembayaran:
@@ -437,7 +471,7 @@ export const KopsisView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setPaymentMethod('wallet')}
-                        className={`flex-1 p-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 ${
+                        className={`flex-1 p-2 rounded border text-xs font-bold flex items-center justify-center gap-1 cursor-pointer ${
                           paymentMethod === 'wallet'
                             ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
                             : 'bg-white border-slate-200 text-slate-600'
@@ -448,7 +482,7 @@ export const KopsisView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setPaymentMethod('cash')}
-                        className={`flex-1 p-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 ${
+                        className={`flex-1 p-2 rounded border text-xs font-bold flex items-center justify-center gap-1 cursor-pointer ${
                           paymentMethod === 'cash'
                             ? 'bg-amber-50 border-amber-500 text-amber-700'
                             : 'bg-white border-slate-200 text-slate-600'
@@ -498,14 +532,15 @@ export const KopsisView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPOSModal(false)}
-                  className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300"
+                  className="btn-secondary-action"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={processingOrder || cart.length === 0}
-                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  className="btn-success-action"
+                  style={{ opacity: processingOrder || cart.length === 0 ? 0.6 : 1 }}
                 >
                   {processingOrder ? 'Memproses Transaksi...' : `Bayar Rp ${cartTotal.toLocaleString('id-ID')}`}
                 </button>
@@ -517,125 +552,99 @@ export const KopsisView: React.FC = () => {
 
       {/* Modal 2: Tambah Barang Baru */}
       {showAddModal && (
-        <div className="p-4 my-4 bg-slate-50 border border-indigo-200 rounded-lg">
-          <div className="flex justify-between items-center mb-3">
-            <h4 className="font-bold text-slate-800">Tambah Produk Baru ke Kopsis</h4>
-            <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
-              <X size={18} />
-            </button>
+        <div className="eco-modal-backdrop">
+          <div className="eco-modal-card" style={{ maxWidth: '520px' }}>
+            <div className="eco-modal-header">
+              <h3>
+                <PlusCircle size={18} className="text-indigo-600" />
+                Tambah Produk Baru ke Kopsis
+              </h3>
+              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateProduct} className="eco-modal-form">
+              <div className="eco-modal-body">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Nama Produk *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contoh: Pensil 2B Faber Castell"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full p-2 border rounded text-xs bg-white"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Kode SKU</label>
+                    <input
+                      type="text"
+                      placeholder="Contoh: ATK-015"
+                      value={sku}
+                      onChange={(e) => setSku(e.target.value)}
+                      className="w-full p-2 border rounded text-xs bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Kategori</label>
+                    <select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="w-full p-2 border rounded text-xs bg-white"
+                    >
+                      <option value="Alat Tulis">Alat Tulis</option>
+                      <option value="Seragam">Seragam</option>
+                      <option value="Buku">Buku & Modul</option>
+                      <option value="Makanan">Makanan Ringan</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Harga Satuan (Rp) *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="Contoh: 4500"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      className="w-full p-2 border rounded text-xs bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Jumlah Stok Awal *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="Contoh: 100"
+                      value={stock}
+                      onChange={(e) => setStock(e.target.value)}
+                      className="w-full p-2 border rounded text-xs bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="eco-modal-footer">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="btn-secondary-action"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary-action"
+                >
+                  Simpan Produk
+                </button>
+              </div>
+            </form>
           </div>
-          <form onSubmit={handleCreateProduct} className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-semibold text-slate-600">Nama Produk</label>
-              <input
-                type="text"
-                required
-                placeholder="Contoh: Pensil 2B Faber Castell"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 border rounded text-xs bg-white mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-600">Kode SKU</label>
-              <input
-                type="text"
-                placeholder="Contoh: ATK-015 (otomatis jika kosong)"
-                value={sku}
-                onChange={(e) => setSku(e.target.value)}
-                className="w-full p-2 border rounded text-xs bg-white mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-600">Kategori</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full p-2 border rounded text-xs bg-white mt-1"
-              >
-                <option value="Alat Tulis">Alat Tulis</option>
-                <option value="Seragam">Seragam</option>
-                <option value="Buku">Buku & Modul</option>
-                <option value="Makanan">Makanan Ringan</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-600">Harga Satuan (Rp)</label>
-              <input
-                type="number"
-                required
-                placeholder="Contoh: 4500"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="w-full p-2 border rounded text-xs bg-white mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-600">Jumlah Stok Awal</label>
-              <input
-                type="number"
-                required
-                placeholder="Contoh: 100"
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-                className="w-full p-2 border rounded text-xs bg-white mt-1"
-              />
-            </div>
-            <div className="flex items-end gap-2">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white rounded text-xs font-bold hover:bg-indigo-700"
-              >
-                Simpan Produk
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 bg-slate-200 text-slate-700 rounded text-xs hover:bg-slate-300"
-              >
-                Batal
-              </button>
-            </div>
-          </form>
         </div>
       )}
-
-      {/* Tabel Katalog Produk Kopsis */}
-      <div className="overview-card mt-6">
-        <div className="card-header">
-          <h3>Katalog Produk Koperasi Siswa (MySQL Table: `kopsis_products`)</h3>
-          <span className="badge-pill">{data?.produk_populer.length} Item Tersedia</span>
-        </div>
-
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>SKU</th>
-              <th>Nama Produk</th>
-              <th>Kategori</th>
-              <th>Harga Jual</th>
-              <th>Sisa Stok</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.produk_populer.map((prod) => (
-              <tr key={prod.id}>
-                <td><code>{prod.sku}</code></td>
-                <td><strong>{prod.name}</strong></td>
-                <td><span className="badge-pill">{prod.category}</span></td>
-                <td>Rp {Number(prod.price).toLocaleString('id-ID')}</td>
-                <td><strong>{prod.stock}</strong> unit</td>
-                <td>
-                  <span className={prod.stock > 10 ? 'text-emerald-600 font-medium' : prod.stock > 0 ? 'text-amber-600 font-medium' : 'text-red-600 font-bold'}>
-                    {prod.stock > 10 ? 'Tersedia' : prod.stock > 0 ? 'Stok Menipis' : 'Habis'}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
 
       {/* Tabel Riwayat Transaksi Kopsis Terkini */}
       <div className="overview-card mt-6">
@@ -647,49 +656,51 @@ export const KopsisView: React.FC = () => {
           <span className="badge-pill bg-emerald-50 text-emerald-700">Tersinkronisasi Kasir</span>
         </div>
 
-        {recentTransactions.length === 0 ? (
-          <div className="p-4 text-center text-sm text-slate-500">
-            Belum ada transaksi koperasi hari ini. Klik "Buka Kasir Koperasi" di atas untuk memulai.
-          </div>
-        ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>No. Transaksi</th>
-                <th>Pelanggan</th>
-                <th>Rincian Pembelian</th>
-                <th>Total Belanja</th>
-                <th>Metode</th>
-                <th>Waktu</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentTransactions.map((trx) => (
-                <tr key={trx.id}>
-                  <td><code>{trx.reference_no}</code></td>
-                  <td>
-                    <strong>{trx.user?.name || 'Siswa'}</strong>
-                    {trx.user?.identifier_number && (
-                      <span className="text-xs text-slate-400 block">NISN: {trx.user.identifier_number}</span>
-                    )}
-                  </td>
-                  <td>{trx.description}</td>
-                  <td className="font-bold text-emerald-700">
-                    Rp {Number(trx.amount).toLocaleString('id-ID')}
-                  </td>
-                  <td>
-                    <span className="badge-pill text-xs">
-                      {trx.payment_method === 'wallet' ? '💳 E-Wallet' : '💵 Tunai'}
-                    </span>
-                  </td>
-                  <td className="text-xs text-slate-500">
-                    {new Date(trx.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                  </td>
+        <div className="table-responsive">
+          {recentTransactions.length === 0 ? (
+            <div className="p-4 text-center text-sm text-slate-500">
+              Belum ada transaksi koperasi hari ini. Klik "Buka Kasir Koperasi" di atas untuk memulai.
+            </div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>No. Transaksi</th>
+                  <th>Pelanggan</th>
+                  <th>Rincian Pembelian</th>
+                  <th>Total Belanja</th>
+                  <th>Metode</th>
+                  <th>Waktu</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {recentTransactions.map((trx) => (
+                  <tr key={trx.id}>
+                    <td><code>{trx.reference_no}</code></td>
+                    <td>
+                      <strong>{trx.user?.name || 'Siswa'}</strong>
+                      {trx.user?.identifier_number && (
+                        <span className="text-xs text-slate-400 block">NISN: {trx.user.identifier_number}</span>
+                      )}
+                    </td>
+                    <td>{trx.description}</td>
+                    <td className="font-bold text-emerald-700">
+                      Rp {Number(trx.amount).toLocaleString('id-ID')}
+                    </td>
+                    <td>
+                      <span className="badge-pill text-xs">
+                        {trx.payment_method === 'wallet' ? '💳 E-Wallet' : '💵 Tunai'}
+                      </span>
+                    </td>
+                    <td className="text-xs text-slate-500">
+                      {new Date(trx.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );

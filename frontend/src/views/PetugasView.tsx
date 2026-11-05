@@ -56,7 +56,6 @@ export const PetugasView: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Daftar pembayaran SPP terkini
   const [recentSPP, setRecentSPP] = useState<RecentSPP[]>([
     {
       reference_no: 'SPP-INIT-01',
@@ -87,7 +86,6 @@ export const PetugasView: React.FC = () => {
     init();
   }, []);
 
-  // Handler: Catat Pembayaran SPP (Eksekusi API Riil)
   const handlePaySPP = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -191,7 +189,7 @@ export const PetugasView: React.FC = () => {
             <h3>Buku Induk Siswa & Dapodik</h3>
             <span className="badge-pill">Sinkronisasi</span>
           </div>
-          <div className="p-4 bg-slate-50 rounded-lg space-y-2">
+          <div className="p-4 bg-slate-50 rounded space-y-2">
             <div className="flex justify-between items-center text-sm py-1 border-b">
               <span>Validasi NISN Kemdikbud</span>
               <span className="text-emerald-600 font-medium flex items-center gap-1">
@@ -206,7 +204,7 @@ export const PetugasView: React.FC = () => {
               <span>Cetak Leger Nilai & Surat Keterangan</span>
               <button
                 onClick={() => alert('Dokumen leger nilai siswa siap dicetak.')}
-                className="badge-pill bg-indigo-100 text-indigo-800 hover:bg-indigo-200 cursor-pointer"
+                className="btn-secondary-action cursor-pointer"
               >
                 Generate Dokumen
               </button>
@@ -262,9 +260,8 @@ export const PetugasView: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handlePaySPP}>
+            <form onSubmit={handlePaySPP} className="eco-modal-form">
               <div className="eco-modal-body">
-                {/* 1. NISN Siswa */}
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
                     Nomor Identitas (NISN Siswa) *
@@ -296,8 +293,7 @@ export const PetugasView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. Periode Bulan & Nominal */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
                       Periode Bulan SPP *
@@ -328,7 +324,6 @@ export const PetugasView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 3. Metode Pembayaran */}
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
                     Metode Pembayaran *
@@ -337,7 +332,7 @@ export const PetugasView: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('cash')}
-                      className={`flex-1 p-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 ${
+                      className={`flex-1 p-2 rounded border text-xs font-bold flex items-center justify-center gap-1 cursor-pointer ${
                         paymentMethod === 'cash'
                           ? 'bg-amber-50 border-amber-500 text-amber-700'
                           : 'bg-white border-slate-200 text-slate-600'
@@ -348,7 +343,7 @@ export const PetugasView: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('wallet')}
-                      className={`flex-1 p-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 ${
+                      className={`flex-1 p-2 rounded border text-xs font-bold flex items-center justify-center gap-1 cursor-pointer ${
                         paymentMethod === 'wallet'
                           ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
                           : 'bg-white border-slate-200 text-slate-600'
@@ -359,7 +354,6 @@ export const PetugasView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 4. Catatan Kwitansi */}
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
                     Catatan Kwitansi / Keterangan
@@ -377,16 +371,17 @@ export const PetugasView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowSPPModal(false)}
-                  className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300"
+                  className="btn-secondary-action"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  className="btn-success-action"
+                  style={{ opacity: submitting ? 0.6 : 1 }}
                 >
-                  {submitting ? 'Mencatat Pembayaran...' : `Terbitkan Bukti Lunas Rp ${Number(sppAmount).toLocaleString('id-ID')}`}
+                  {submitting ? 'Mencatat...' : `Terbitkan Bukti Lunas Rp ${Number(sppAmount).toLocaleString('id-ID')}`}
                 </button>
               </div>
             </form>
@@ -404,34 +399,36 @@ export const PetugasView: React.FC = () => {
           <span className="badge-pill bg-emerald-50 text-emerald-700">Tersinkronisasi Kasir TU</span>
         </div>
 
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>No. Kwitansi</th>
-              <th>Nama Siswa</th>
-              <th>NISN</th>
-              <th>Periode Bulan</th>
-              <th>Nominal</th>
-              <th>Metode</th>
-              <th>Waktu</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentSPP.map((spp, idx) => (
-              <tr key={idx}>
-                <td><code>{spp.reference_no}</code></td>
-                <td><strong>{spp.student_name}</strong></td>
-                <td><code>{spp.nisn}</code></td>
-                <td><span className="badge-pill text-xs">{spp.month}</span></td>
-                <td className="font-bold text-emerald-700">
-                  Rp {spp.amount.toLocaleString('id-ID')}
-                </td>
-                <td><span className="badge-pill text-xs">{spp.method}</span></td>
-                <td className="text-xs text-slate-500">{spp.time}</td>
+        <div className="table-responsive">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>No. Kwitansi</th>
+                <th>Nama Siswa</th>
+                <th>NISN</th>
+                <th>Periode Bulan</th>
+                <th>Nominal</th>
+                <th>Metode</th>
+                <th>Waktu</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {recentSPP.map((spp, idx) => (
+                <tr key={idx}>
+                  <td><code>{spp.reference_no}</code></td>
+                  <td><strong>{spp.student_name}</strong></td>
+                  <td><code>{spp.nisn}</code></td>
+                  <td><span className="badge-pill text-xs">{spp.month}</span></td>
+                  <td className="font-bold text-emerald-700">
+                    Rp {spp.amount.toLocaleString('id-ID')}
+                  </td>
+                  <td><span className="badge-pill text-xs">{spp.method}</span></td>
+                  <td className="text-xs text-slate-500">{spp.time}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

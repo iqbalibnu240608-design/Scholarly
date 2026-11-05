@@ -63,7 +63,6 @@ export const SecurityView: React.FC = () => {
     init();
   }, []);
 
-  // Handler: Scan RFID / Input NISN Check-in
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
     setScanning(true);
@@ -149,7 +148,7 @@ export const SecurityView: React.FC = () => {
         {/* Alert Hasil Scan Terbaru */}
         {checkinResult && (
           <div
-            className={`p-4 mb-4 rounded-xl flex items-start gap-3 border ${
+            className={`p-4 mb-4 rounded-lg flex items-start gap-3 border ${
               checkinResult.status === 'hadir'
                 ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
                 : 'bg-amber-50 border-amber-300 text-amber-900'
@@ -177,32 +176,32 @@ export const SecurityView: React.FC = () => {
           </div>
         )}
 
-        <form onSubmit={handleCheckin} className="p-4 bg-slate-50 rounded-xl space-y-4">
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">
+        <div className="gate-scanner-box">
+          <form onSubmit={handleCheckin}>
+            <label className="text-xs font-bold text-slate-700 block mb-2">
               Tempelkan Kartu RFID Siswa atau Masukkan NISN:
             </label>
-            <div className="flex gap-2">
+            <div className="gate-scan-group">
               <input
                 type="text"
                 required
                 placeholder="Contoh: 0061234567"
                 value={studentNisn}
                 onChange={(e) => setStudentNisn(e.target.value)}
-                className="flex-1 p-2 border rounded-lg bg-white text-sm font-mono"
+                className="flex-1 p-2 border rounded text-xs bg-white font-mono"
               />
               <button
                 type="submit"
                 disabled={scanning}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 cursor-pointer flex items-center gap-2"
+                className="btn-primary-action"
+                style={{ padding: '8px 18px' }}
               >
                 <ScanLine size={16} />
                 {scanning ? 'Memeriksa...' : 'Catat Presensi'}
               </button>
             </div>
 
-            {/* Quick Demo Preset Pills */}
-            <div className="quick-preset-container mt-2">
+            <div className="quick-preset-container mt-3">
               <span className="text-[11px] text-slate-500">Pilih Cepat Siswa Demo:</span>
               <button
                 type="button"
@@ -219,8 +218,8 @@ export const SecurityView: React.FC = () => {
                 Siti Rahmawati (0089876543)
               </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
 
       {/* Tabel Log Kedatangan Gerbang Hari Ini */}
@@ -233,46 +232,48 @@ export const SecurityView: React.FC = () => {
           <span className="badge-pill bg-indigo-50 text-indigo-700">{logs.length} Riwayat Presensi</span>
         </div>
 
-        {logs.length === 0 ? (
-          <div className="p-4 text-center text-sm text-slate-500">
-            Belum ada data presensi hari ini. Silakan catat presensi siswa di atas.
-          </div>
-        ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Nama Siswa</th>
-                <th>NISN</th>
-                <th>Jam Kedatangan</th>
-                <th>Status</th>
-                <th>Keterangan / Tindak Lanjut</th>
-                <th>Petugas Pos</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((log) => (
-                <tr key={log.id}>
-                  <td><strong>{log.user?.name || 'Siswa'}</strong></td>
-                  <td><code>{log.user?.identifier_number}</code></td>
-                  <td className="font-mono font-semibold">{log.check_in_time}</td>
-                  <td>
-                    <span
-                      className={`badge-pill text-xs font-bold ${
-                        log.status === 'hadir'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-amber-100 text-amber-800'
-                      }`}
-                    >
-                      {log.status === 'hadir' ? 'Tepat Waktu' : `Terlambat ${log.minutes_late}m`}
-                    </span>
-                  </td>
-                  <td className="text-xs text-slate-600">{log.notes || '-'}</td>
-                  <td className="text-xs text-slate-500">{log.verifier?.name || 'Satpam Pos'}</td>
+        <div className="table-responsive">
+          {logs.length === 0 ? (
+            <div className="p-4 text-center text-sm text-slate-500">
+              Belum ada data presensi hari ini. Silakan catat presensi siswa di atas.
+            </div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Nama Siswa</th>
+                  <th>NISN</th>
+                  <th>Jam Kedatangan</th>
+                  <th>Status</th>
+                  <th>Keterangan / Tindak Lanjut</th>
+                  <th>Petugas Pos</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {logs.map((log) => (
+                  <tr key={log.id}>
+                    <td><strong>{log.user?.name || 'Siswa'}</strong></td>
+                    <td><code>{log.user?.identifier_number}</code></td>
+                    <td className="font-mono font-semibold">{log.check_in_time}</td>
+                    <td>
+                      <span
+                        className={`badge-pill text-xs font-bold ${
+                          log.status === 'hadir'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-amber-100 text-amber-800'
+                        }`}
+                      >
+                        {log.status === 'hadir' ? 'Tepat Waktu' : `Terlambat ${log.minutes_late}m`}
+                      </span>
+                    </td>
+                    <td className="text-xs text-slate-600">{log.notes || '-'}</td>
+                    <td className="text-xs text-slate-500">{log.verifier?.name || 'Satpam Pos'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );
