@@ -16,6 +16,7 @@ import {
   Laptop,
   Check,
   Building,
+  Star,
 } from 'lucide-react';
 import './LandingPageView.css';
 
@@ -163,10 +164,10 @@ export const LandingPageView: React.FC = () => {
         <div className="lp-container lp-nav-inner">
           <Link to="/" className="lp-brand-group">
             <svg className="lp-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z" fill="#FBBF24" />
-              <path d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z" fill="#4ADE80" />
-              <path d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z" fill="#38BDF8" />
-              <path d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z" fill="#F472B6" />
+              <path d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z" fill="#fae467" />
+              <path d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z" fill="#1a365d" />
+              <path d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z" fill="#fae467" />
+              <path d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z" fill="#1a365d" />
             </svg>
             <div className="lp-brand-text">
               <span className="lp-brand-name">SteelSchool</span>
@@ -207,7 +208,7 @@ export const LandingPageView: React.FC = () => {
             {/* Left Content */}
             <div className="lp-hero-content">
               <div className="lp-badge-pill">
-                <Sparkles size={14} className="text-blue-500" />
+                <Sparkles size={14} color="var(--color-sunlit-yellow)" />
                 <span>Transformasi Digital Sekolah 2026 · Akreditasi A Unggul</span>
               </div>
 
@@ -232,17 +233,17 @@ export const LandingPageView: React.FC = () => {
 
               <div className="lp-hero-trust-row">
                 <div className="lp-trust-item">
-                  <ShieldCheck size={16} className="text-emerald-500" />
+                  <ShieldCheck size={16} color="var(--color-sunlit-yellow)" />
                   <span>Laravel 12 API Ready</span>
                 </div>
                 <span>•</span>
                 <div className="lp-trust-item">
-                  <CheckCircle2 size={16} className="text-blue-500" />
+                  <CheckCircle2 size={16} color="var(--color-sunlit-yellow)" />
                   <span>Multi-Role Terintegrasi</span>
                 </div>
                 <span>•</span>
                 <div className="lp-trust-item">
-                  <CheckCircle2 size={16} className="text-amber-500" />
+                  <CheckCircle2 size={16} color="var(--color-sunlit-yellow)" />
                   <span>100% Cashless Kopsis</span>
                 </div>
               </div>
@@ -287,13 +288,13 @@ export const LandingPageView: React.FC = () => {
                   </div>
                   <div className="lp-mock-mini-card">
                     <span>Transaksi Digital</span>
-                    <strong className="text-blue-600">Cashless Smart</strong>
+                    <strong style={{ color: 'var(--color-midnight-navy)' }}>Cashless Smart</strong>
                   </div>
                 </div>
 
                 <div className="lp-mock-action-bar">
                   <span>Jadwal Kelas · Input Nilai · Kasir POS · Menu Kantin</span>
-                  <Link to="/login" className="text-blue-600 font-bold hover:underline">
+                  <Link to="/login" style={{ color: 'var(--color-midnight-navy)', fontWeight: 600, textDecoration: 'none' }}>
                     Uji Coba →
                   </Link>
                 </div>
@@ -515,7 +516,7 @@ export const LandingPageView: React.FC = () => {
                   Pusat pembelajaran komputasi modern dengan kurikulum berbasis industri web, mobile app development, dan kecerdasan buatan.
                 </p>
               </div>
-              <div className="text-xs font-semibold text-blue-600 flex items-center gap-1">
+              <div className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-midnight-navy)' }}>
                 <span>Fasilitas Lab Multimedia Terkini</span>
                 <Check size={14} />
               </div>
@@ -529,7 +530,7 @@ export const LandingPageView: React.FC = () => {
                   Melatih siswa mengelola bisnis nyata melalui praktik kasir retail digital, supply chain ATK, dan pencatatan akuntansi koperasi.
                 </p>
               </div>
-              <div className="text-xs font-semibold text-amber-600 flex items-center gap-1">
+              <div className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-midnight-navy)' }}>
                 <span>Praktik Nyata Berbasis Smart POS</span>
                 <Check size={14} />
               </div>
@@ -543,7 +544,7 @@ export const LandingPageView: React.FC = () => {
                   Standar higienitas ketat dengan menu bergizi bersertifikasi untuk menunjang daya konsentrasi belajar siswa sepanjang hari.
                 </p>
               </div>
-              <div className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+              <div className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-midnight-navy)' }}>
                 <span>Pemesanan Pre-Order Tanpa Antre</span>
                 <Check size={14} />
               </div>
@@ -602,6 +603,11 @@ export const LandingPageView: React.FC = () => {
 
           <div className="lp-testimonials-grid">
             <div className="lp-testimonial-card">
+              <div className="lp-star-rating" aria-label="Rating 5 dari 5 bintang">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} size={15} fill="var(--color-sunlit-yellow)" color="var(--color-sunlit-yellow)" />
+                ))}
+              </div>
               <p className="lp-testimonial-quote">
                 "Jajan di kantin dan beli buku di Kopsis sekarang sangat cepat pakai saldo digital. Jadwal pelajaran dan nilai ujian juga langsung bisa dilihat di HP tanpa perlu tanya manual."
               </p>
@@ -615,6 +621,11 @@ export const LandingPageView: React.FC = () => {
             </div>
 
             <div className="lp-testimonial-card">
+              <div className="lp-star-rating" aria-label="Rating 5 dari 5 bintang">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} size={15} fill="var(--color-sunlit-yellow)" color="var(--color-sunlit-yellow)" />
+                ))}
+              </div>
               <p className="lp-testimonial-quote">
                 "Sebagai guru, saya tidak perlu lagi membawa tumpukan buku nilai fisik. Presensi kelas otomatis terdata dan nilai ujian semester langsung tersusun rapi untuk rapor siswa."
               </p>
@@ -628,6 +639,11 @@ export const LandingPageView: React.FC = () => {
             </div>
 
             <div className="lp-testimonial-card">
+              <div className="lp-star-rating" aria-label="Rating 5 dari 5 bintang">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} size={15} fill="var(--color-sunlit-yellow)" color="var(--color-sunlit-yellow)" />
+                ))}
+              </div>
               <p className="lp-testimonial-quote">
                 "Platform ini memberikan visibilitas penuh bagi saya selaku pimpinan sekolah. Rekap kehadiran guru dan laporan omset unit kopsis dapat saya tinjau dalam satu dashboard eksekutif."
               </p>

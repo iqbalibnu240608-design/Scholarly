@@ -58,10 +58,11 @@ export const Navbar: React.FC = () => {
             alignItems: 'center',
             gap: '6px',
             textDecoration: 'none',
-            padding: '6px 12px',
-            background: '#eff6ff',
-            color: '#1d63ff',
-            border: '1px solid #dbeafe',
+            padding: '6px 14px',
+            background: '#fae467',
+            color: '#000000',
+            border: '1px solid #fae467',
+            borderRadius: '20px',
             fontWeight: 600,
           }}
           title="Buka Halaman Promosi SteelSchool"
