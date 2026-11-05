@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Sparkles,
   ArrowRight,
   GraduationCap,
   BookOpen,
@@ -207,11 +206,6 @@ export const LandingPageView: React.FC = () => {
           <div className="lp-hero-grid">
             {/* Left Content */}
             <div className="lp-hero-content">
-              <div className="lp-badge-pill">
-                <Sparkles size={14} color="var(--color-sunlit-yellow)" />
-                <span>Transformasi Digital Sekolah 2026 · Akreditasi A Unggul</span>
-              </div>
-
               <h1 className="lp-hero-title">
                 Satu Ekosistem Cerdas untuk Seluruh{' '}
                 <span className="lp-hero-highlight">Civitas Sekolah</span>
