@@ -31,6 +31,7 @@ Route::get('/health', function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/roles', [RoleController::class, 'index']);
+Route::post('/auth/switch-role', [AuthController::class, 'switchRole']);
 
 // Authenticated Routes
 Route::middleware('auth:sanctum')->group(function () {

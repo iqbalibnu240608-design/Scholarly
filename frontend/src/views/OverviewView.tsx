@@ -13,6 +13,10 @@ import {
   ArrowRight,
   ShieldCheck,
   UserCheck,
+  CheckCircle2,
+  BookOpen,
+  Award,
+  Calendar,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -41,13 +45,48 @@ export const OverviewView: React.FC = () => {
   const [data, setData] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Student personalized stats
+  const [studentStats, setStudentStats] = useState<{
+    saldo_kopsis: number;
+    saldo_kantin: number;
+    spp_status: string;
+    kelas: string;
+    jadwal_count: number;
+    kehadiran: string;
+  }>({
+    saldo_kopsis: 75000,
+    saldo_kantin: 45000,
+    spp_status: 'Lunas',
+    kelas: 'XII RPL 1',
+    jadwal_count: 3,
+    kehadiran: '96.2%',
+  });
+
   const isAdmin = activeRole === 'admin';
+  const isStudent = activeRole === 'siswa';
 
   useEffect(() => {
     const fetchOverview = async () => {
       try {
         const res = await apiClient.get('/school/overview');
         setData(res.data);
+
+        // Jika user adalah siswa, ambil juga data wallet & presensi personal
+        if (activeRole === 'siswa') {
+          const [resWallet, resSiswa] = await Promise.all([
+            apiClient.get('/wallet/balance').catch(() => null),
+            apiClient.get('/school/siswa').catch(() => null),
+          ]);
+
+          setStudentStats({
+            saldo_kopsis: resWallet?.data?.wallet?.balance_kopsis ?? 75000,
+            saldo_kantin: resWallet?.data?.wallet?.balance_kantin ?? 45000,
+            spp_status: resSiswa?.data?.data?.tagihan_spp?.status ?? 'Lunas',
+            kelas: resSiswa?.data?.data?.kelas ?? 'XII RPL 1',
+            jadwal_count: resSiswa?.data?.data?.jadwal_hari_ini?.length ?? 3,
+            kehadiran: resSiswa?.data?.data?.presensi_bulan_ini?.persentase ?? '96.2%',
+          });
+        }
       } catch (err) {
         console.error('Gagal mengambil overview data', err);
       } finally {
@@ -55,36 +94,36 @@ export const OverviewView: React.FC = () => {
       }
     };
     fetchOverview();
-  }, []);
+  }, [activeRole]);
 
   // Daftar portal peran dengan batasan izin masing-masing
   const allPortals = [
     {
       to: '/app/siswa',
       icon: '🎓',
-      title: activeRole === 'siswa' ? 'Akademik & Presensi' : 'Portal Siswa',
-      desc: 'Jadwal pelajaran, nilai, presensi & saldo digital',
+      title: isStudent ? 'Akademik & Nilai Saya' : 'Portal Siswa',
+      desc: isStudent ? 'Lihat jadwal kelas, presensi, buku nilai & rapor' : 'Jadwal pelajaran, nilai, presensi & saldo digital',
       allowedRoles: ['admin', 'siswa', 'guru', 'kepsek', 'petugas'],
     },
     {
       to: '/app/kantin',
       icon: '🍜',
-      title: activeRole === 'siswa' || activeRole === 'guru' ? 'Pesan Kantin Sekolah' : 'Portal Kantin Sekolah',
-      desc: activeRole === 'siswa' || activeRole === 'guru' ? 'Pesan menu makanan & minuman secara cashless' : 'Kasir POS stan kantin & kelola menu makanan',
+      title: isStudent || activeRole === 'guru' ? 'Pesan Kantin Sekolah' : 'Portal Kantin Sekolah',
+      desc: isStudent || activeRole === 'guru' ? 'Pesan menu makanan & minuman secara cashless' : 'Kasir POS stan kantin & kelola menu makanan',
       allowedRoles: ['admin', 'kantin', 'siswa', 'guru'],
     },
     {
       to: '/app/kopsis',
       icon: '🛒',
-      title: activeRole === 'siswa' || activeRole === 'guru' ? 'Belanja Koperasi (Kopsis)' : 'Portal Koperasi (Kopsis)',
-      desc: activeRole === 'siswa' || activeRole === 'guru' ? 'Beli alat tulis, seragam, & buku pelajaran sekolah' : 'Kasir POS koperasi, stok ATK & seragam sekolah',
+      title: isStudent || activeRole === 'guru' ? 'Belanja Koperasi (Kopsis)' : 'Portal Koperasi (Kopsis)',
+      desc: isStudent || activeRole === 'guru' ? 'Beli alat tulis, seragam, & buku pelajaran sekolah' : 'Kasir POS koperasi, stok ATK & seragam sekolah',
       allowedRoles: ['admin', 'kopsis', 'siswa', 'guru'],
     },
     {
       to: '/app/petugas',
       icon: '📋',
-      title: activeRole === 'siswa' ? 'Pembayaran SPP & TU' : 'Portal Petugas TU',
-      desc: activeRole === 'siswa' ? 'Bayar tagihan SPP bulanan mandiri & cek status lunas' : 'Buku induk, verifikasi pembayaran SPP & surat',
+      title: isStudent ? 'Layanan SPP & Administrasi' : 'Portal Petugas TU',
+      desc: isStudent ? 'Bayar tagihan SPP bulanan mandiri & cek riwayat kuitansi' : 'Buku induk, verifikasi pembayaran SPP & surat',
       allowedRoles: ['admin', 'petugas', 'siswa'],
     },
     {
@@ -135,20 +174,23 @@ export const OverviewView: React.FC = () => {
       {/* Banner Selamat Datang */}
       <section className="welcome-banner">
         <div className="welcome-text">
-          <h2>Selamat Datang di SteelSchool 🎓</h2>
-          {isAdmin ? (
+          <h2>
+            Selamat Datang, {user?.name || (isAdmin ? 'Administrator' : 'Pengguna')} 🎓
+          </h2>
+          {isStudent ? (
+            <p>
+              Akun Siswa Aktif: <strong className="text-indigo-700">{user?.name}</strong> • NISN:{' '}
+              <code>{user?.identifier_number || '0061234567'}</code> • Kelas: {studentStats.kelas}
+            </p>
+          ) : isAdmin ? (
             <p>
               Anda sedang mengelola sistem dalam mode{' '}
-              <strong className="text-indigo-700">Administrator Penuh</strong> (Akun:{' '}
-              {user?.name || 'Admin'}).
+              <strong className="text-indigo-700">Administrator Penuh</strong> (Akun: {user?.name}).
             </p>
           ) : (
             <p>
               Anda sedang mengakses portal sebagai{' '}
-              <strong className="text-indigo-700">
-                {ROLE_LABELS[activeRole] || activeRole}
-              </strong>{' '}
-              (Akun: {user?.name || 'Pengguna'}).
+              <strong className="text-indigo-700">{ROLE_LABELS[activeRole] || activeRole}</strong> (Akun: {user?.name}).
             </p>
           )}
         </div>
@@ -159,74 +201,140 @@ export const OverviewView: React.FC = () => {
             </span>
           ) : (
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#1e40af' }}>
-              <UserCheck size={14} /> Mode: {ROLE_LABELS[activeRole] || activeRole}
+              <UserCheck size={14} /> Akun: {ROLE_LABELS[activeRole] || activeRole}
             </span>
           )}
         </div>
       </section>
 
-      {/* Metric Cards Grid - Tampilkan overview metrik sekolah */}
-      <section className="metrics-grid">
-        <div className="metric-card">
-          <div className="metric-icon-wrapper bg-blue-100 text-blue-600">
-            <GraduationCap size={24} />
+      {/* Metric Cards Grid - Disesuaikan apakah Siswa atau Staff */}
+      {isStudent ? (
+        <section className="metrics-grid">
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-emerald-100 text-emerald-600">
+              <Coffee size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Saldo Kantin Anda</span>
+              <span className="metric-value">Rp {studentStats.saldo_kantin.toLocaleString('id-ID')}</span>
+            </div>
           </div>
-          <div className="metric-info">
-            <span className="metric-label">Total Siswa Terdaftar</span>
-            <span className="metric-value">{data?.metrics.total_siswa ?? '1+'}</span>
-          </div>
-        </div>
 
-        <div className="metric-card">
-          <div className="metric-icon-wrapper bg-emerald-100 text-emerald-600">
-            <Briefcase size={24} />
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-orange-100 text-orange-600">
+              <Store size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Saldo Kopsis Anda</span>
+              <span className="metric-value">Rp {studentStats.saldo_kopsis.toLocaleString('id-ID')}</span>
+            </div>
           </div>
-          <div className="metric-info">
-            <span className="metric-label">Guru & Tenaga Pendidik</span>
-            <span className="metric-value">{data?.metrics.total_guru ?? '1+'}</span>
-          </div>
-        </div>
 
-        <div className="metric-card">
-          <div className="metric-icon-wrapper bg-purple-100 text-purple-600">
-            <Users size={24} />
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-blue-100 text-blue-600">
+              <CheckCircle2 size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Status Tagihan SPP</span>
+              <span className="metric-value" style={{ fontSize: '18px', color: '#16a34a' }}>
+                {studentStats.spp_status}
+              </span>
+            </div>
           </div>
-          <div className="metric-info">
-            <span className="metric-label">Petugas TU & Staff</span>
-            <span className="metric-value">{data?.metrics.total_petugas ?? '1+'}</span>
-          </div>
-        </div>
 
-        <div className="metric-card">
-          <div className="metric-icon-wrapper bg-amber-100 text-amber-600">
-            <Building size={24} />
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-indigo-100 text-indigo-600">
+              <Calendar size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Jadwal Hari Ini</span>
+              <span className="metric-value">{studentStats.jadwal_count} Mapel</span>
+            </div>
           </div>
-          <div className="metric-info">
-            <span className="metric-label">Rombongan Kelas</span>
-            <span className="metric-value">{data?.metrics.total_kelas ?? '5'}</span>
-          </div>
-        </div>
 
-        <div className="metric-card">
-          <div className="metric-icon-wrapper bg-orange-100 text-orange-600">
-            <Store size={24} />
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-purple-100 text-purple-600">
+              <BookOpen size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Tingkat Kehadiran</span>
+              <span className="metric-value">{studentStats.kehadiran}</span>
+            </div>
           </div>
-          <div className="metric-info">
-            <span className="metric-label">Produk Kopsis</span>
-            <span className="metric-value">{data?.metrics.total_kopsis_products ?? '5'}</span>
-          </div>
-        </div>
 
-        <div className="metric-card">
-          <div className="metric-icon-wrapper bg-cyan-100 text-cyan-600">
-            <Coffee size={24} />
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-amber-100 text-amber-600">
+              <Award size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Rombongan Belajar</span>
+              <span className="metric-value">{studentStats.kelas}</span>
+            </div>
           </div>
-          <div className="metric-info">
-            <span className="metric-label">Menu Kantin</span>
-            <span className="metric-value">{data?.metrics.total_kantin_menus ?? '6'}</span>
+        </section>
+      ) : (
+        <section className="metrics-grid">
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-blue-100 text-blue-600">
+              <GraduationCap size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Total Siswa Terdaftar</span>
+              <span className="metric-value">{data?.metrics.total_siswa ?? '1+'}</span>
+            </div>
           </div>
-        </div>
-      </section>
+
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-emerald-100 text-emerald-600">
+              <Briefcase size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Guru & Tenaga Pendidik</span>
+              <span className="metric-value">{data?.metrics.total_guru ?? '1+'}</span>
+            </div>
+          </div>
+
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-purple-100 text-purple-600">
+              <Users size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Petugas TU & Staff</span>
+              <span className="metric-value">{data?.metrics.total_petugas ?? '1+'}</span>
+            </div>
+          </div>
+
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-amber-100 text-amber-600">
+              <Building size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Rombongan Kelas</span>
+              <span className="metric-value">{data?.metrics.total_kelas ?? '5'}</span>
+            </div>
+          </div>
+
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-orange-100 text-orange-600">
+              <Store size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Produk Kopsis</span>
+              <span className="metric-value">{data?.metrics.total_kopsis_products ?? '5'}</span>
+            </div>
+          </div>
+
+          <div className="metric-card">
+            <div className="metric-icon-wrapper bg-cyan-100 text-cyan-600">
+              <Coffee size={24} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Menu Kantin</span>
+              <span className="metric-value">{data?.metrics.total_kantin_menus ?? '6'}</span>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Two Column Grid: Role Portals & Announcements */}
       <div className="overview-columns">
@@ -258,8 +366,8 @@ export const OverviewView: React.FC = () => {
 
           {!isAdmin && (
             <div className="mt-4 p-3 rounded text-xs bg-slate-50 text-slate-600 border border-slate-200">
-              💡 <strong>Akses Terpadu:</strong> Anda dapat mengunjungi modul kantin, koperasi, dan TU
-              untuk melakukan pemesanan makanan, belanja perlengkapan, serta pembayaran administrasi.
+              💡 <strong>Akun Riil Terhubung:</strong> Sesi Anda saat ini terhubung langsung ke akun{' '}
+              <strong>{user?.name}</strong> ({ROLE_LABELS[activeRole] || activeRole}).
             </div>
           )}
         </div>

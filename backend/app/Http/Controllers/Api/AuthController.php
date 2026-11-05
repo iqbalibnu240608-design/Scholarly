@@ -178,4 +178,51 @@ class AuthController extends Controller
             'message' => 'Logout berhasil. Sesi telah diakhiri.',
         ]);
     }
+
+    /**
+     * Switch Demo / Active Account by Role Name (Menghubungkan Sesi ke Akun Riil Setiap Role)
+     */
+    public function switchRole(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'role' => 'required|string',
+        ]);
+
+        $roleName = strtolower(trim($validated['role']));
+
+        // Cari pengguna pertama yang memiliki role tersebut di database
+        $user = User::with('role.permissions')
+            ->where('role_name', $roleName)
+            ->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => "Akun dengan peran '{$roleName}' tidak ditemukan.",
+            ], 404);
+        }
+
+        // Buat token baru untuk akun target
+        $token = $user->createToken('role-switch-' . $roleName)->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => "Berhasil beralih ke akun {$user->name} ({$user->role_name}).",
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'nisn' => $user->identifier_number,
+                'identifier_number' => $user->identifier_number,
+                'role' => $user->role_name,
+                'role_display' => $user->role?->display_name ?? ucfirst($user->role_name),
+                'status' => $user->status,
+                'phone' => $user->phone,
+                'gender' => $user->gender,
+                'avatar' => $user->avatar,
+                'permissions' => $user->role?->permissions->pluck('name') ?? [],
+            ],
+        ]);
+    }
 }

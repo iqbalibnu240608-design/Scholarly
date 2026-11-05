@@ -29,7 +29,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete(); // Siswa atau Pelanggan
             $table->enum('type', ['topup_kopsis', 'topup_kantin', 'purchase_kopsis', 'purchase_kantin', 'spp']);
             $table->decimal('amount', 12, 2);
-            $table->enum('payment_method', ['wallet', 'cash'])->default('wallet');
+            $table->string('payment_method', 50)->default('wallet');
             $table->string('description');
             $table->foreignId('operator_id')->nullable()->constrained('users')->nullOnDelete(); // Kasir / Petugas
             $table->timestamps();

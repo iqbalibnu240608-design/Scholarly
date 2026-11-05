@@ -13,6 +13,7 @@ import {
   Wallet,
   Sparkles,
   ShoppingBag,
+  QrCode,
 } from 'lucide-react';
 import './EcosystemModals.css';
 
@@ -75,7 +76,7 @@ export const KopsisView: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
-  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash'>('wallet');
+  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash' | 'qris'>('wallet');
   const [processingOrder, setProcessingOrder] = useState<boolean>(false);
 
   // Modal State: Tambah Barang (Staff/Admin)
@@ -100,6 +101,7 @@ export const KopsisView: React.FC = () => {
     customer: string;
     method: string;
     items?: string;
+    instructions?: string;
   } | null>(null);
 
   const fetchKopsisData = async () => {
@@ -142,6 +144,13 @@ export const KopsisView: React.FC = () => {
     };
     init();
   }, [fetchWalletBalance]);
+
+  // Keep NISN in sync when active user switches
+  useEffect(() => {
+    if (user?.identifier_number) {
+      setStudentNisn(user.identifier_number);
+    }
+  }, [user]);
 
   // Cart Handlers
   const addToCart = (product: KopsisProduct) => {
@@ -214,9 +223,16 @@ export const KopsisView: React.FC = () => {
     }
   };
 
-  // Checkout Handler (Siswa & Staff)
+  // Checkout Handler (Siswa & Kasir)
   const handleCheckout = async (isStudentSelfOrder: boolean = false) => {
     if (cart.length === 0) return;
+
+    // Validasi saldo hanya jika metode yang dipilih adalah wallet
+    if (paymentMethod === 'wallet' && walletBalance < cartTotal) {
+      alert('Saldo Kopsis Anda tidak mencukupi. Silakan lakukan Top Up atau gunakan opsi Bayar Tunai di Loket / QRIS.');
+      return;
+    }
+
     setProcessingOrder(true);
     try {
       const payloadNisn = isStudentSelfOrder
@@ -225,23 +241,34 @@ export const KopsisView: React.FC = () => {
 
       const res = await apiClient.post('/kopsis/checkout', {
         items: cart.map((i) => ({ product_id: i.product_id, quantity: i.quantity })),
-        payment_method: isStudentSelfOrder ? 'wallet' : paymentMethod,
+        payment_method: paymentMethod,
         student_identifier: payloadNisn,
       });
+
+      const methodLabel =
+        paymentMethod === 'wallet'
+          ? 'Saldo Kopsis (Cashless)'
+          : paymentMethod === 'cash'
+          ? 'Tunai di Loket Kopsis'
+          : 'QRIS / E-Money';
+
+      const instructionText =
+        paymentMethod === 'cash'
+          ? `Pesanan Diterima! Silakan bayar tunai Rp ${Number(res.data.total_amount).toLocaleString('id-ID')} saat mengambil barang di loket Kopsis.`
+          : paymentMethod === 'qris'
+          ? 'Pembayaran QRIS Koperasi berhasil diverifikasi! Barang Anda siap diambil.'
+          : 'Pembayaran berhasil dipotong dari Saldo Kopsis. Tunjukkan kode bukti untuk mengambil barang.';
 
       setLastReceipt({
         reference_no: res.data.reference_no,
         total: res.data.total_amount,
         customer: res.data.customer,
-        method: isStudentSelfOrder ? 'Saldo Kopsis (Cashless)' : paymentMethod === 'wallet' ? 'Saldo E-Wallet' : 'Tunai',
+        method: methodLabel,
         items: cart.map((i) => `${i.name} (x${i.quantity})`).join(', '),
+        instructions: instructionText,
       });
 
-      setSuccessMsg(
-        isStudentSelfOrder
-          ? `Pembelian Koperasi berhasil! Silakan ambil barang di loket Kopsis dengan menyebutkan kode ${res.data.reference_no}.`
-          : `Transaksi kasir kopsis berhasil diselesaikan untuk ${res.data.customer}.`
-      );
+      setSuccessMsg(instructionText);
 
       clearCart();
       setShowPOSModal(false);
@@ -299,9 +326,9 @@ export const KopsisView: React.FC = () => {
             <div className="receipt-alert-desc">
               Total Pembayaran: <strong>Rp {Number(lastReceipt.total).toLocaleString('id-ID')}</strong> ({lastReceipt.method}) • Pembeli: {lastReceipt.customer}
               {lastReceipt.items && <div className="mt-1 text-xs">Item: {lastReceipt.items}</div>}
-              {isCustomerView && (
-                <div className="mt-1 font-semibold text-emerald-800">
-                  📦 Silakan ambil barang Anda di etalase Kopsis sekolah!
+              {lastReceipt.instructions && (
+                <div className="mt-2 font-semibold text-emerald-800 p-2 bg-emerald-100 rounded">
+                  📦 {lastReceipt.instructions}
                 </div>
               )}
             </div>
@@ -329,10 +356,10 @@ export const KopsisView: React.FC = () => {
             <div className="wallet-hero-left">
               <h3>
                 <ShoppingBag size={20} className="text-orange-400" />
-                Katalog Koperasi Siswa (Kopsis Digital)
+                Katalog Koperasi Siswa (Kopsis)
               </h3>
               <p>
-                Beli buku, alat tulis, seragam, dan perlengkapan sekolah praktis menggunakan Saldo Kopsis.
+                Beli perlengkapan sekolah dengan berbagai cara bayar: Saldo Kopsis, Tunai di Loket, atau QRIS.
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -448,7 +475,7 @@ export const KopsisView: React.FC = () => {
                   className="btn-success-action"
                   style={{ padding: '8px 20px', fontSize: '13px' }}
                 >
-                  <ShoppingCart size={16} /> Bayar Sekarang (Rp {cartTotal.toLocaleString('id-ID')})
+                  <ShoppingCart size={16} /> Pilih Pembayaran & Checkout (Rp {cartTotal.toLocaleString('id-ID')})
                 </button>
               </div>
             </div>
@@ -487,7 +514,7 @@ export const KopsisView: React.FC = () => {
                         <td><strong>Rp {Number(trx.amount).toLocaleString('id-ID')}</strong></td>
                         <td>
                           <span className="badge-pill text-xs">
-                            {trx.payment_method === 'wallet' ? 'Saldo E-Wallet' : 'Tunai'}
+                            {trx.payment_method === 'wallet' ? 'Saldo E-Wallet' : trx.payment_method === 'qris' ? 'QRIS' : 'Tunai'}
                           </span>
                         </td>
                         <td className="text-xs text-slate-500">
@@ -536,7 +563,7 @@ export const KopsisView: React.FC = () => {
               <div className="card-top-icon text-indigo-600"><PackageCheck size={22} /></div>
               <h4>Pembayaran Non-Tunai</h4>
               <div className="amount-display">{data?.transaksi_hari_ini.pembayaran_digital}</div>
-              <p className="card-subtext">Menggunakan kartu NISN / Saldo E-Wallet Kopsis</p>
+              <p className="card-subtext">Menggunakan kartu NISN / Saldo E-Wallet Kopsis & QRIS</p>
             </div>
 
             <div className="feature-card">
@@ -630,16 +657,17 @@ export const KopsisView: React.FC = () => {
       )}
 
       {/* ============================================================== */}
-      {/* MODAL: KONFIRMASI CHECKOUT SISWA KOPSIS                        */}
+      {/* MODAL: KONFIRMASI CHECKOUT SISWA KOPSIS (MULTI-PAYMENT)        */}
       {/* ============================================================== */}
       {showStudentCheckoutModal && (
         <div className="eco-modal-backdrop" onClick={() => setShowStudentCheckoutModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '480px' }} onClick={(e) => e.stopPropagation()}>
+          <div className="eco-modal-card" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
             <div className="eco-modal-header">
-              <h3><ShoppingCart size={18} className="text-orange-600" /> Konfirmasi Pembelian Kopsis</h3>
+              <h3><ShoppingCart size={18} className="text-orange-600" /> Konfirmasi & Metode Pembayaran Kopsis</h3>
               <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
             <div className="eco-modal-body">
+              {/* Rincian Barang */}
               <div className="p-3 bg-slate-50 rounded border border-slate-200">
                 <div className="text-xs text-slate-500 font-semibold mb-2 uppercase">Rincian Barang:</div>
                 {cart.map((item) => (
@@ -654,30 +682,87 @@ export const KopsisView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-3 rounded border border-slate-200 text-xs">
-                <div className="flex justify-between">
-                  <span>Saldo Kopsis Anda:</span>
-                  <strong>Rp {walletBalance.toLocaleString('id-ID')}</strong>
-                </div>
-                <div className="flex justify-between mt-1">
-                  <span>Sisa Saldo Setelah Belanja:</span>
-                  <strong className={walletBalance >= cartTotal ? 'text-emerald-600' : 'text-red-500'}>
-                    Rp {(walletBalance - cartTotal).toLocaleString('id-ID')}
-                  </strong>
+              {/* Pilihan Metode Pembayaran */}
+              <div className="eco-form-group">
+                <label className="eco-form-label font-bold">Pilih Cara Pembayaran:</label>
+                <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('wallet')}
+                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'wallet' ? 'selected' : ''}`}
+                  >
+                    <CreditCard size={20} className="mb-1 text-orange-600" />
+                    <span className="font-bold text-xs">Saldo Kopsis</span>
+                    <span className="text-xs text-slate-500 mt-1">Rp {walletBalance.toLocaleString('id-ID')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('cash')}
+                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'cash' ? 'selected' : ''}`}
+                  >
+                    <Banknote size={20} className="mb-1 text-emerald-600" />
+                    <span className="font-bold text-xs">Bayar Tunai</span>
+                    <span className="text-xs text-slate-500 mt-1">Bayar di Loket</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('qris')}
+                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'qris' ? 'selected' : ''}`}
+                  >
+                    <QrCode size={20} className="mb-1 text-indigo-600" />
+                    <span className="font-bold text-xs">QRIS Instan</span>
+                    <span className="text-xs text-slate-500 mt-1">Scan QR Code</span>
+                  </button>
                 </div>
               </div>
 
-              {walletBalance < cartTotal && (
-                <div className="p-3 bg-red-50 text-red-700 rounded text-xs border border-red-200">
-                  ⚠️ Saldo Kopsis Anda tidak mencukupi. Silakan lakukan Top Up terlebih dahulu sebelum membeli.
+              {/* Informasi Sesuai Metode */}
+              {paymentMethod === 'wallet' && (
+                <div className="p-3 rounded border border-slate-200 text-xs">
+                  <div className="flex justify-between">
+                    <span>Saldo Kopsis Anda:</span>
+                    <strong>Rp {walletBalance.toLocaleString('id-ID')}</strong>
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span>Sisa Saldo Setelah Belanja:</span>
+                    <strong className={walletBalance >= cartTotal ? 'text-emerald-600' : 'text-red-500'}>
+                      Rp {(walletBalance - cartTotal).toLocaleString('id-ID')}
+                    </strong>
+                  </div>
+
+                  {walletBalance < cartTotal && (
+                    <div className="mt-3 p-2 bg-amber-50 text-amber-800 rounded border border-amber-200">
+                      ⚠️ Saldo kopsis Anda kurang. Anda bisa <strong>Isi Saldo</strong> atau cukup klik opsi <strong>Bayar Tunai di Loket</strong> di atas!
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {paymentMethod === 'cash' && (
+                <div className="p-3 bg-emerald-50 text-emerald-800 rounded text-xs border border-emerald-200">
+                  💵 <strong>Bayar Tunai di Loket Kopsis:</strong> Nomor pesanan akan langsung dibuat. Siapkan uang tunai sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil barang di etalase koperasi.
+                </div>
+              )}
+
+              {paymentMethod === 'qris' && (
+                <div className="p-3 bg-indigo-50 text-indigo-800 rounded text-xs border border-indigo-200 text-center">
+                  <QrCode size={48} className="mx-auto text-indigo-600 mb-2" />
+                  <p className="font-bold">QRIS Koperasi Siswa</p>
+                  <p className="text-xs text-slate-600 mt-1">
+                    Mendukung seluruh aplikasi dompet digital & mobile banking.
+                  </p>
                 </div>
               )}
             </div>
+
             <div className="eco-modal-footer">
               <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-secondary-action">
                 Batal
               </button>
-              {walletBalance < cartTotal ? (
+
+              {paymentMethod === 'wallet' && walletBalance < cartTotal ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -686,7 +771,7 @@ export const KopsisView: React.FC = () => {
                   }}
                   className="btn-primary-action"
                 >
-                  Isi Saldo Sekarang
+                  Isi Saldo Cepat
                 </button>
               ) : (
                 <button
@@ -694,7 +779,13 @@ export const KopsisView: React.FC = () => {
                   disabled={processingOrder}
                   className="btn-success-action"
                 >
-                  {processingOrder ? 'Memproses...' : 'Bayar via Saldo Kopsis'}
+                  {processingOrder
+                    ? 'Memproses...'
+                    : paymentMethod === 'cash'
+                    ? 'Pesan Sekarang (Bayar Tunai)'
+                    : paymentMethod === 'qris'
+                    ? 'Bayar via QRIS'
+                    : 'Bayar via Saldo Kopsis'}
                 </button>
               )}
             </div>
@@ -776,7 +867,7 @@ export const KopsisView: React.FC = () => {
               )}
 
               <div className="eco-form-group">
-                <label className="eco-form-label">Metode Pembayaran</label>
+                <label className="eco-form-label">Metode Pembayaran Kasir</label>
                 <div className="payment-method-selector">
                   <button
                     type="button"
@@ -791,6 +882,13 @@ export const KopsisView: React.FC = () => {
                     className={`payment-method-btn ${paymentMethod === 'cash' ? 'selected' : ''}`}
                   >
                     <Banknote size={16} /> Tunai (Cash)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('qris')}
+                    className={`payment-method-btn ${paymentMethod === 'qris' ? 'selected' : ''}`}
+                  >
+                    <QrCode size={16} /> QRIS
                   </button>
                 </div>
               </div>

@@ -9,7 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (identifier: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  switchRolePreview: (role: RoleName) => void;
+  switchRolePreview: (role: RoleName) => Promise<void>;
   resetRoleToActual: () => void;
 }
 
@@ -90,9 +90,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Allows switching active role preview easily during development/system inspection
-  const switchRolePreview = (role: RoleName) => {
+  // Otomatis menukar sesi akun aktif di backend ke user riil dari role yang dipilih
+  const switchRolePreview = async (role: RoleName) => {
     setActiveRole(role);
+    try {
+      const response = await apiClient.post('/auth/switch-role', { role });
+      const { token: receivedToken, user: receivedUser } = response.data;
+
+      if (receivedToken && receivedUser) {
+        localStorage.setItem('school_auth_token', receivedToken);
+        localStorage.setItem('school_auth_user', JSON.stringify(receivedUser));
+        setToken(receivedToken);
+        setUser(receivedUser);
+        setActiveRole(receivedUser.role);
+      }
+    } catch (err) {
+      console.warn('Gagal beralih akun riil di backend, tetap menggunakan mode simulasi role', err);
+    }
   };
 
   const resetRoleToActual = () => {

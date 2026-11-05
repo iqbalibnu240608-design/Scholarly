@@ -1,22 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLE_LABELS, ROLE_BADGE_COLORS, ROLE_HOME_ROUTES } from '../../types/auth';
-import { LogOut, User as UserIcon, Shield, Sparkles, Globe } from 'lucide-react';
+import { LogOut, User as UserIcon, Shield, Sparkles, Globe, Loader2 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, activeRole, switchRolePreview, logout } = useAuth();
   const navigate = useNavigate();
+  const [switching, setSwitching] = useState<boolean>(false);
 
   const allRoles = ['admin', 'kepsek', 'guru', 'siswa', 'petugas', 'kopsis', 'kantin', 'security', 'perpustakaan'];
   const badgeStyle = ROLE_BADGE_COLORS[activeRole] || { bg: '#f1f5f9', text: '#334155', border: '#cbd5e1' };
 
-  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleRoleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedRole = e.target.value;
-    switchRolePreview(selectedRole);
-    // Otomatis arahkan tampilan langsung ke portal peran yang dipilih
-    const targetRoute = ROLE_HOME_ROUTES[selectedRole] || '/app';
-    navigate(targetRoute);
+    setSwitching(true);
+    try {
+      await switchRolePreview(selectedRole);
+      // Otomatis arahkan tampilan langsung ke portal peran yang dipilih
+      const targetRoute = ROLE_HOME_ROUTES[selectedRole] || '/app';
+      navigate(targetRoute);
+    } finally {
+      setSwitching(false);
+    }
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return '';
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
   };
 
   return (
@@ -53,15 +70,21 @@ export const Navbar: React.FC = () => {
           <span>Web Sekolah</span>
         </Link>
 
-        {/* Role Preview Switcher Tool */}
+        {/* Role Preview & Real Account Switcher Tool */}
         <div className="role-switcher-container">
           <span className="switcher-label">
-            <Sparkles size={14} /> Preview Akses:
+            {switching ? (
+              <Loader2 size={14} className="animate-spin text-indigo-600" />
+            ) : (
+              <Sparkles size={14} />
+            )}
+            <span>Preview & Ganti Akun:</span>
           </span>
           <select
             className="role-select"
             value={activeRole}
             onChange={handleRoleChange}
+            disabled={switching}
           >
             {allRoles.map((r) => (
               <option key={r} value={r}>
@@ -84,14 +107,16 @@ export const Navbar: React.FC = () => {
           <span>{ROLE_LABELS[activeRole] || activeRole}</span>
         </div>
 
-        {/* User Profile Info */}
+        {/* User Profile Info - Real Active User Session */}
         <div className="user-profile">
-          <div className="avatar-circle">
-            <UserIcon size={16} />
+          <div className="avatar-circle font-bold text-xs" style={{ background: '#3b82f6', color: '#ffffff' }}>
+            {getInitials(user?.name) || <UserIcon size={16} />}
           </div>
           <div className="user-text">
             <span className="user-name">{user?.name || 'Pengguna'}</span>
-            <span className="user-email">{user?.email || 'Demo Mode'}</span>
+            <span className="user-email">
+              {user?.identifier_number ? `ID/NISN: ${user.identifier_number}` : (user?.email || 'Akun Aktif')}
+            </span>
           </div>
         </div>
 

@@ -513,7 +513,7 @@ class SchoolEcosystemController extends Controller
             'student_identifier' => 'required|string',
             'amount' => 'required|numeric|min:10000',
             'month' => 'required|string',
-            'payment_method' => 'required|in:cash,wallet',
+            'payment_method' => 'required|in:cash,wallet,transfer,qris',
             'notes' => 'nullable|string',
         ]);
 

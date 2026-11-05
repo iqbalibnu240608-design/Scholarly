@@ -14,6 +14,7 @@ import {
   Wallet,
   Sparkles,
   Building,
+  QrCode,
 } from 'lucide-react';
 import './EcosystemModals.css';
 
@@ -60,12 +61,12 @@ export const PetugasView: React.FC = () => {
   const [topupAmount, setTopupAmount] = useState<number>(100000);
   const [topupSubmitting, setTopupSubmitting] = useState<boolean>(false);
 
-  // Modal State: Pembayaran SPP (Digunakan Staff TU maupun Siswa Mandiri)
+  // Modal State: Pembayaran SPP (Multi-payment options)
   const [showSPPModal, setShowSPPModal] = useState<boolean>(false);
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
   const [sppMonth, setSppMonth] = useState<string>('Desember 2026');
   const [sppAmount, setSppAmount] = useState<string>('350000');
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'wallet'>('wallet');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'wallet' | 'transfer' | 'qris'>('wallet');
   const [sppNotes, setSppNotes] = useState<string>('Pembayaran SPP Mandiri Siswa');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -77,7 +78,7 @@ export const PetugasView: React.FC = () => {
       nisn: user?.identifier_number || '0061234567',
       month: 'November 2026',
       amount: 350000,
-      method: 'Saldo E-Wallet',
+      method: 'Saldo Digital',
       time: 'Hari ini, 08:30 WIB',
     },
   ]);
@@ -130,6 +131,13 @@ export const PetugasView: React.FC = () => {
     init();
   }, [fetchWalletBalance]);
 
+  // Keep studentNisn synced with user
+  useEffect(() => {
+    if (user?.identifier_number) {
+      setStudentNisn(user.identifier_number);
+    }
+  }, [user]);
+
   // Top Up Handler
   const handleTopup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,6 +164,12 @@ export const PetugasView: React.FC = () => {
   // Pay SPP Handler
   const handlePaySPP = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (paymentMethod === 'wallet' && walletBalance < Number(sppAmount)) {
+      alert('Saldo E-Wallet Anda tidak mencukupi. Anda dapat memilih metode Virtual Account, Tunai di Loket TU, atau QRIS!');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const targetIdentifier = isStudentView
@@ -170,13 +184,22 @@ export const PetugasView: React.FC = () => {
         notes: sppNotes || undefined,
       });
 
+      const methodLabel =
+        paymentMethod === 'wallet'
+          ? 'Saldo E-Wallet'
+          : paymentMethod === 'cash'
+          ? 'Tunai di Loket TU'
+          : paymentMethod === 'transfer'
+          ? 'Virtual Account / Transfer'
+          : 'QRIS Pendidikan';
+
       const newTrx: RecentSPP = {
         reference_no: res.data.transaction?.reference_no || 'SPP-' + Math.floor(Math.random() * 900000 + 100000),
         student_name: isStudentView ? (user?.name || 'Ahmad Pratama') : studentNisn,
         nisn: targetIdentifier,
         month: sppMonth,
         amount: Number(sppAmount),
-        method: paymentMethod === 'wallet' ? 'Saldo E-Wallet' : 'Tunai / Loket TU',
+        method: methodLabel,
         time: 'Baru saja',
       };
 
@@ -243,7 +266,7 @@ export const PetugasView: React.FC = () => {
                 Layanan Keuangan & Administrasi SPP Siswa
               </h3>
               <p>
-                Pantau tagihan iuran sekolah dan lakukan pembayaran SPP bulanan secara mandiri & cashless.
+                Pantau tagihan iuran sekolah dan lakukan pembayaran SPP bulanan mandiri via E-Wallet, Tunai di Loket, atau QRIS.
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -290,7 +313,7 @@ export const PetugasView: React.FC = () => {
               <div>
                 <div className="card-top-icon text-emerald-600"><CreditCard size={22} /></div>
                 <h4>Aksi Pembayaran</h4>
-                <p className="text-xs text-slate-500 mt-1">Bayar tagihan SPP tanpa antre di loket TU</p>
+                <p className="text-xs text-slate-500 mt-1">Pilih metode bayar: E-Wallet, VA, Tunai, atau QRIS</p>
               </div>
               <button
                 onClick={() => {
@@ -476,11 +499,11 @@ export const PetugasView: React.FC = () => {
       )}
 
       {/* ============================================================== */}
-      {/* MODAL: PEMBAYARAN SPP (STAFF & SISWA MANDIRI)                  */}
+      {/* MODAL: PEMBAYARAN SPP (MULTI-PAYMENT SUPPORT)                  */}
       {/* ============================================================== */}
       {showSPPModal && (
         <div className="eco-modal-backdrop" onClick={() => setShowSPPModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
+          <div className="eco-modal-card" style={{ maxWidth: '540px' }} onClick={(e) => e.stopPropagation()}>
             <div className="eco-modal-header">
               <h3>
                 <CreditCard size={18} className="text-emerald-600" />
@@ -515,10 +538,10 @@ export const PetugasView: React.FC = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setStudentNisn('0061234568')}
-                        className={`quick-preset-btn ${studentNisn === '0061234568' ? 'active' : ''}`}
+                        onClick={() => setStudentNisn('0089876543')}
+                        className={`quick-preset-btn ${studentNisn === '0089876543' ? 'active' : ''}`}
                       >
-                        Budi Santoso (0061234568)
+                        Siti Rahmawati (0089876543)
                       </button>
                     </div>
                   </div>
@@ -528,7 +551,7 @@ export const PetugasView: React.FC = () => {
                     <div className="mt-1 text-slate-700">Nama: <strong>{user?.name || 'Ahmad Pratama'}</strong></div>
                     <div className="text-slate-700">NISN: <code>{user?.identifier_number || '0061234567'}</code></div>
                     <div className="mt-2 text-purple-800">
-                      Saldo Anda: <strong>Rp {walletBalance.toLocaleString('id-ID')}</strong>
+                      Saldo E-Wallet Anda: <strong>Rp {walletBalance.toLocaleString('id-ID')}</strong>
                     </div>
                   </div>
                 )}
@@ -559,9 +582,10 @@ export const PetugasView: React.FC = () => {
                   />
                 </div>
 
+                {/* Pilihan Metode Pembayaran Fleksibel */}
                 <div className="eco-form-group">
-                  <label className="eco-form-label">Metode Pembayaran</label>
-                  <div className="payment-method-selector">
+                  <label className="eco-form-label font-bold">Pilih Cara Pembayaran:</label>
+                  <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('wallet')}
@@ -574,10 +598,37 @@ export const PetugasView: React.FC = () => {
                       onClick={() => setPaymentMethod('cash')}
                       className={`payment-method-btn ${paymentMethod === 'cash' ? 'selected' : ''}`}
                     >
-                      <Banknote size={16} /> Tunai / Loket Kasir
+                      <Banknote size={16} /> Tunai di Loket TU
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('transfer')}
+                      className={`payment-method-btn ${paymentMethod === 'transfer' ? 'selected' : ''}`}
+                    >
+                      <Building size={16} /> Virtual Account Bank
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('qris')}
+                      className={`payment-method-btn ${paymentMethod === 'qris' ? 'selected' : ''}`}
+                    >
+                      <QrCode size={16} /> QRIS Pendidikan
                     </button>
                   </div>
                 </div>
+
+                {paymentMethod === 'transfer' && (
+                  <div className="p-3 bg-blue-50 text-blue-800 rounded text-xs border border-blue-200">
+                    🏦 <strong>Nomor Virtual Account:</strong> <code>88001{user?.identifier_number || '0061234567'}</code> (Bank BNI / Mandiri / BRI). Konfirmasi instan tanpa upload slip transfer.
+                  </div>
+                )}
+
+                {paymentMethod === 'qris' && (
+                  <div className="p-3 bg-indigo-50 text-indigo-800 rounded text-xs border border-indigo-200 text-center">
+                    <QrCode size={36} className="mx-auto text-indigo-600 mb-1" />
+                    <p className="font-bold">QRIS Pembayaran SPP Sekolah</p>
+                  </div>
+                )}
 
                 <div className="eco-form-group">
                   <label className="eco-form-label">Catatan Tambahan (Opsional)</label>

@@ -24,7 +24,7 @@ class POSController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:kopsis_products,id',
             'items.*.quantity' => 'required|integer|min:1',
-            'payment_method' => 'required|in:wallet,cash',
+            'payment_method' => 'required|in:wallet,cash,qris',
             'student_identifier' => 'nullable|string', // NISN jika bayar saldo e-wallet
         ]);
 
@@ -50,7 +50,7 @@ class POSController extends Controller
                 $product->decrement('stock', $item['quantity']);
             }
 
-            // 2. Pemrosesan Metode Pembayaran (Saldo E-Wallet atau Tunai)
+            // 2. Pemrosesan Metode Pembayaran (Saldo E-Wallet, Tunai, atau QRIS)
             $customer = null;
             if ($validated['payment_method'] === 'wallet') {
                 if (empty($validated['student_identifier'])) {
@@ -79,7 +79,12 @@ class POSController extends Controller
                 // Potong saldo Kopsis
                 $wallet->decrement('balance_kopsis', $totalAmount);
             } else {
-                $customer = $request->user();
+                if (!empty($validated['student_identifier'])) {
+                    $customer = User::where('identifier_number', $validated['student_identifier'])->first();
+                }
+                if (!$customer) {
+                    $customer = $request->user();
+                }
             }
 
             // 3. Catat Transaksi Pembelian
@@ -114,7 +119,7 @@ class POSController extends Controller
             'items' => 'required|array|min:1',
             'items.*.menu_id' => 'required|exists:kantin_menus,id',
             'items.*.quantity' => 'required|integer|min:1',
-            'payment_method' => 'required|in:wallet,cash',
+            'payment_method' => 'required|in:wallet,cash,qris',
             'student_identifier' => 'nullable|string',
         ]);
 
@@ -163,7 +168,12 @@ class POSController extends Controller
 
                 $wallet->decrement('balance_kantin', $totalAmount);
             } else {
-                $customer = $request->user();
+                if (!empty($validated['student_identifier'])) {
+                    $customer = User::where('identifier_number', $validated['student_identifier'])->first();
+                }
+                if (!$customer) {
+                    $customer = $request->user();
+                }
             }
 
             $trx = Transaction::create([

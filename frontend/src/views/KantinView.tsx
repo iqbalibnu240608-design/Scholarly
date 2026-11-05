@@ -13,6 +13,7 @@ import {
   Receipt,
   Wallet,
   Sparkles,
+  QrCode,
 } from 'lucide-react';
 import './EcosystemModals.css';
 
@@ -67,11 +68,11 @@ export const KantinView: React.FC = () => {
   const [topupAmount, setTopupAmount] = useState<number>(20000);
   const [topupSubmitting, setTopupSubmitting] = useState<boolean>(false);
 
-  // Cart & Ordering State (Digunakan oleh Siswa maupun Kasir)
+  // Cart & Ordering State
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
-  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash'>('wallet');
+  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash' | 'qris'>('wallet');
   const [processingOrder, setProcessingOrder] = useState<boolean>(false);
 
   // Modal State: Tambah Menu (Staff/Admin)
@@ -95,6 +96,7 @@ export const KantinView: React.FC = () => {
     customer: string;
     method: string;
     items?: string;
+    instructions?: string;
   } | null>(null);
 
   const fetchKantinData = async () => {
@@ -137,6 +139,13 @@ export const KantinView: React.FC = () => {
     };
     init();
   }, [fetchWalletBalance]);
+
+  // Keep NISN in sync when active user switches
+  useEffect(() => {
+    if (user?.identifier_number) {
+      setStudentNisn(user.identifier_number);
+    }
+  }, [user]);
 
   // Cart Handlers
   const addToCart = (menu: KantinMenu) => {
@@ -200,9 +209,16 @@ export const KantinView: React.FC = () => {
     }
   };
 
-  // Checkout Handler (Digunakan untuk Siswa mandiri maupun Kasir)
+  // Checkout Handler (Siswa & Kasir)
   const handleCheckout = async (isStudentSelfOrder: boolean = false) => {
     if (cart.length === 0) return;
+
+    // Validasi saldo hanya jika metode yang dipilih adalah wallet
+    if (paymentMethod === 'wallet' && walletBalance < cartTotal) {
+      alert('Saldo Kantin Anda tidak mencukupi. Silakan lakukan Top Up atau gunakan opsi Bayar Tunai di Stan / QRIS.');
+      return;
+    }
+
     setProcessingOrder(true);
     try {
       const payloadNisn = isStudentSelfOrder
@@ -211,23 +227,34 @@ export const KantinView: React.FC = () => {
 
       const res = await apiClient.post('/kantin/checkout', {
         items: cart.map((i) => ({ menu_id: i.menu_id, quantity: i.quantity })),
-        payment_method: isStudentSelfOrder ? 'wallet' : paymentMethod,
+        payment_method: paymentMethod,
         student_identifier: payloadNisn,
       });
+
+      const methodLabel =
+        paymentMethod === 'wallet'
+          ? 'Saldo Kantin (Cashless)'
+          : paymentMethod === 'cash'
+          ? 'Tunai di Stan (Cash)'
+          : 'QRIS / E-Money';
+
+      const instructionText =
+        paymentMethod === 'cash'
+          ? `Pesanan Diterima! Silakan bayar tunai Rp ${Number(res.data.total_amount).toLocaleString('id-ID')} di stan kantin saat mengambil makanan.`
+          : paymentMethod === 'qris'
+          ? 'Pembayaran QRIS berhasil diverifikasi! Makanan Anda sedang disiapkan di stan.'
+          : 'Pembayaran berhasil dipotong dari Saldo Kantin. Tunjukkan nomor pesanan untuk mengambil makanan.';
 
       setLastReceipt({
         reference_no: res.data.reference_no,
         total: res.data.total_amount,
         customer: res.data.customer,
-        method: isStudentSelfOrder ? 'Saldo Kantin (Cashless)' : paymentMethod === 'wallet' ? 'Saldo E-Wallet' : 'Tunai',
+        method: methodLabel,
         items: cart.map((i) => `${i.name} (x${i.quantity})`).join(', '),
+        instructions: instructionText,
       });
 
-      setSuccessMsg(
-        isStudentSelfOrder
-          ? `Pesanan Kantin berhasil dibuat! Silakan ambil pesanan di stan dengan menyebutkan nomor ${res.data.reference_no}.`
-          : `Pesanan kasir berhasil diselesaikan untuk ${res.data.customer}.`
-      );
+      setSuccessMsg(instructionText);
 
       clearCart();
       setShowPOSModal(false);
@@ -282,9 +309,9 @@ export const KantinView: React.FC = () => {
             <div className="receipt-alert-desc">
               Total Pembayaran: <strong>Rp {Number(lastReceipt.total).toLocaleString('id-ID')}</strong> ({lastReceipt.method}) • Pemesan: {lastReceipt.customer}
               {lastReceipt.items && <div className="mt-1 text-xs">Pesanan: {lastReceipt.items}</div>}
-              {isCustomerView && (
-                <div className="mt-1 font-semibold text-emerald-800">
-                  💡 Nomor pesanan Anda siap diambil di stan kantin sekolah!
+              {lastReceipt.instructions && (
+                <div className="mt-2 font-semibold text-emerald-800 p-2 bg-emerald-100 rounded">
+                  💡 {lastReceipt.instructions}
                 </div>
               )}
             </div>
@@ -312,10 +339,10 @@ export const KantinView: React.FC = () => {
             <div className="wallet-hero-left">
               <h3>
                 <UtensilsCrossed size={20} className="text-amber-400" />
-                Pemesanan Makanan & Minuman Kantin Digital
+                Pemesanan Makanan & Minuman Kantin
               </h3>
               <p>
-                Pesan makanan lezat dan higienis secara cashless menggunakan Saldo Kantin Anda.
+                Pesan makanan lezat dengan berbagai metode pembayaran: Saldo Kantin, Tunai di Stan, atau QRIS.
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -401,7 +428,7 @@ export const KantinView: React.FC = () => {
             })}
           </div>
 
-          {/* Sticky Floating Cart Summary Bar (Jika ada item di keranjang) */}
+          {/* Sticky Floating Cart Summary Bar */}
           {cart.length > 0 && (
             <div className="cart-floating-bar">
               <div className="cart-floating-info">
@@ -425,7 +452,7 @@ export const KantinView: React.FC = () => {
                   className="btn-success-action"
                   style={{ padding: '8px 20px', fontSize: '13px' }}
                 >
-                  <ShoppingCart size={16} /> Bayar Sekarang (Rp {cartTotal.toLocaleString('id-ID')})
+                  <ShoppingCart size={16} /> Pilih Pembayaran & Checkout (Rp {cartTotal.toLocaleString('id-ID')})
                 </button>
               </div>
             </div>
@@ -464,7 +491,7 @@ export const KantinView: React.FC = () => {
                         <td><strong>Rp {Number(ord.amount).toLocaleString('id-ID')}</strong></td>
                         <td>
                           <span className="badge-pill text-xs">
-                            {ord.payment_method === 'wallet' ? 'Saldo E-Wallet' : 'Tunai'}
+                            {ord.payment_method === 'wallet' ? 'Saldo E-Wallet' : ord.payment_method === 'qris' ? 'QRIS' : 'Tunai'}
                           </span>
                         </td>
                         <td className="text-xs text-slate-500">
@@ -504,7 +531,7 @@ export const KantinView: React.FC = () => {
               <div className="card-top-icon text-cyan-600"><Coffee size={22} /></div>
               <h4>Status Layanan Kantin</h4>
               <div className="badge-status-paid">{data?.status_kantin}</div>
-              <p className="card-subtext">Jam istirahat aktif, melayani pemesanan cashless</p>
+              <p className="card-subtext">Jam istirahat aktif, melayani pemesanan cashless & tunai</p>
             </div>
 
             <div className="feature-card">
@@ -607,16 +634,17 @@ export const KantinView: React.FC = () => {
       )}
 
       {/* ============================================================== */}
-      {/* MODAL: KONFIRMASI CHECKOUT SISWA                                */}
+      {/* MODAL: KONFIRMASI CHECKOUT SISWA (DENGAN MULTI-PAYMENT)         */}
       {/* ============================================================== */}
       {showStudentCheckoutModal && (
         <div className="eco-modal-backdrop" onClick={() => setShowStudentCheckoutModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '480px' }} onClick={(e) => e.stopPropagation()}>
+          <div className="eco-modal-card" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
             <div className="eco-modal-header">
-              <h3><ShoppingCart size={18} className="text-emerald-600" /> Konfirmasi Pesanan Kantin</h3>
+              <h3><ShoppingCart size={18} className="text-emerald-600" /> Konfirmasi & Metode Pembayaran</h3>
               <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
             <div className="eco-modal-body">
+              {/* Rincian Pesanan */}
               <div className="p-3 bg-slate-50 rounded border border-slate-200">
                 <div className="text-xs text-slate-500 font-semibold mb-2 uppercase">Rincian Item:</div>
                 {cart.map((item) => (
@@ -631,30 +659,87 @@ export const KantinView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-3 rounded border border-slate-200 text-xs">
-                <div className="flex justify-between">
-                  <span>Saldo Kantin Anda:</span>
-                  <strong>Rp {walletBalance.toLocaleString('id-ID')}</strong>
-                </div>
-                <div className="flex justify-between mt-1">
-                  <span>Sisa Saldo Setelah Pesan:</span>
-                  <strong className={walletBalance >= cartTotal ? 'text-emerald-600' : 'text-red-500'}>
-                    Rp {(walletBalance - cartTotal).toLocaleString('id-ID')}
-                  </strong>
+              {/* Pilihan Metode Pembayaran Fleksibel */}
+              <div className="eco-form-group">
+                <label className="eco-form-label font-bold">Pilih Cara Pembayaran:</label>
+                <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('wallet')}
+                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'wallet' ? 'selected' : ''}`}
+                  >
+                    <CreditCard size={20} className="mb-1 text-sky-600" />
+                    <span className="font-bold text-xs">Saldo Kantin</span>
+                    <span className="text-xs text-slate-500 mt-1">Rp {walletBalance.toLocaleString('id-ID')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('cash')}
+                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'cash' ? 'selected' : ''}`}
+                  >
+                    <Banknote size={20} className="mb-1 text-emerald-600" />
+                    <span className="font-bold text-xs">Bayar Tunai</span>
+                    <span className="text-xs text-slate-500 mt-1">Bayar di Stan</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('qris')}
+                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'qris' ? 'selected' : ''}`}
+                  >
+                    <QrCode size={20} className="mb-1 text-indigo-600" />
+                    <span className="font-bold text-xs">QRIS Instan</span>
+                    <span className="text-xs text-slate-500 mt-1">Scan QR Code</span>
+                  </button>
                 </div>
               </div>
 
-              {walletBalance < cartTotal && (
-                <div className="p-3 bg-red-50 text-red-700 rounded text-xs border border-red-200">
-                  ⚠️ Saldo Anda tidak mencukupi. Silakan lakukan Top Up terlebih dahulu sebelum checkout.
+              {/* Informasi Sesuai Metode yang Dipilih */}
+              {paymentMethod === 'wallet' && (
+                <div className="p-3 rounded border border-slate-200 text-xs">
+                  <div className="flex justify-between">
+                    <span>Saldo Kantin Saat Ini:</span>
+                    <strong>Rp {walletBalance.toLocaleString('id-ID')}</strong>
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span>Sisa Saldo Setelah Pembayaran:</span>
+                    <strong className={walletBalance >= cartTotal ? 'text-emerald-600' : 'text-red-500'}>
+                      Rp {(walletBalance - cartTotal).toLocaleString('id-ID')}
+                    </strong>
+                  </div>
+
+                  {walletBalance < cartTotal && (
+                    <div className="mt-3 p-2 bg-amber-50 text-amber-800 rounded border border-amber-200">
+                      ⚠️ Saldo kantin Anda kurang. Anda bisa <strong>Isi Saldo</strong> atau cukup klik opsi <strong>Bayar Tunai</strong> di atas!
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {paymentMethod === 'cash' && (
+                <div className="p-3 bg-emerald-50 text-emerald-800 rounded text-xs border border-emerald-200">
+                  💵 <strong>Bayar Tunai di Stan:</strong> Nomor pesanan akan langsung dibuat. Bawa uang pas sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil makanan di stan.
+                </div>
+              )}
+
+              {paymentMethod === 'qris' && (
+                <div className="p-3 bg-indigo-50 text-indigo-800 rounded text-xs border border-indigo-200 text-center">
+                  <QrCode size={48} className="mx-auto text-indigo-600 mb-2" />
+                  <p className="font-bold">QRIS Standar Sekolah Nasional</p>
+                  <p className="text-xs text-slate-600 mt-1">
+                    Mendukung GoPay, OVO, Dana, ShopeePay, dan Mobile Banking.
+                  </p>
                 </div>
               )}
             </div>
+
             <div className="eco-modal-footer">
               <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-secondary-action">
                 Batal
               </button>
-              {walletBalance < cartTotal ? (
+
+              {paymentMethod === 'wallet' && walletBalance < cartTotal ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -663,7 +748,7 @@ export const KantinView: React.FC = () => {
                   }}
                   className="btn-primary-action"
                 >
-                  Isi Saldo Sekarang
+                  Isi Saldo Cepat
                 </button>
               ) : (
                 <button
@@ -671,7 +756,13 @@ export const KantinView: React.FC = () => {
                   disabled={processingOrder}
                   className="btn-success-action"
                 >
-                  {processingOrder ? 'Memproses...' : 'Bayar via Saldo Kantin'}
+                  {processingOrder
+                    ? 'Memproses...'
+                    : paymentMethod === 'cash'
+                    ? 'Pesan Sekarang (Bayar Tunai)'
+                    : paymentMethod === 'qris'
+                    ? 'Bayar via QRIS'
+                    : 'Bayar via Saldo Kantin'}
                 </button>
               )}
             </div>
@@ -752,7 +843,7 @@ export const KantinView: React.FC = () => {
               )}
 
               <div className="eco-form-group">
-                <label className="eco-form-label">Metode Pembayaran</label>
+                <label className="eco-form-label">Metode Pembayaran Kasir</label>
                 <div className="payment-method-selector">
                   <button
                     type="button"
@@ -767,6 +858,13 @@ export const KantinView: React.FC = () => {
                     className={`payment-method-btn ${paymentMethod === 'cash' ? 'selected' : ''}`}
                   >
                     <Banknote size={16} /> Tunai (Cash)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('qris')}
+                    className={`payment-method-btn ${paymentMethod === 'qris' ? 'selected' : ''}`}
+                  >
+                    <QrCode size={16} /> QRIS
                   </button>
                 </div>
               </div>
