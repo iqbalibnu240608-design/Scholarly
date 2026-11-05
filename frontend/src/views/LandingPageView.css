@@ -220,9 +220,10 @@
 .lp-hero-section {
   position: relative;
   background-color: #040914;
-  background-image: 
-    radial-gradient(circle at 74% 38%, rgba(70, 115, 153, 0.28) 0%, transparent 60%),
-    radial-gradient(ellipse 90% 48% at 50% 100%, rgba(184, 212, 236, 0.32) 0%, rgba(70, 115, 153, 0.15) 50%, transparent 80%),
+  background-image:
+    radial-gradient(ellipse 60% 55% at 75% 0%, rgba(255, 255, 255, 0.42) 0%, rgba(184, 212, 236, 0.20) 35%, transparent 65%),
+    radial-gradient(circle at 74% 45%, rgba(70, 115, 153, 0.32) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 48% at 50% 100%, rgba(184, 212, 236, 0.35) 0%, rgba(70, 115, 153, 0.15) 50%, transparent 80%),
     url('/hero-backdrop.jpg');
   background-size: cover;
   background-position: center bottom;
@@ -248,12 +249,11 @@
 }
 
 .lp-hero-grid {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  max-width: 660px;
-  min-height: 340px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 48px;
+  min-height: 440px;
 }
 
 .lp-hero-content {

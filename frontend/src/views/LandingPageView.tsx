@@ -194,7 +194,7 @@ export const LandingPageView: React.FC = () => {
             {/* Left Content */}
             <div className="lp-hero-content">
               <h1 className="lp-hero-title">
-                Steel<span className="lp-hero-highlight">School</span>
+                SteelSchool
               </h1>
 
               <p className="lp-hero-desc">
@@ -206,6 +206,19 @@ export const LandingPageView: React.FC = () => {
                   <span>Akses Portal Civitas</span>
                   <ArrowRight size={16} />
                 </Link>
+              </div>
+            </div>
+
+            {/* Right Showcase: 3D Metallic Shield with Top-Down Studio Spotlight */}
+            <div className="lp-hero-shield-container">
+              <div className="lp-hero-spotlight-beam" aria-hidden="true" />
+              <div className="lp-hero-shield-wrapper">
+                <img
+                  src="/steelschool-shield.png"
+                  alt="SteelSchool 3D Metallic Emblem"
+                  className="lp-hero-shield-img"
+                />
+                <div className="lp-hero-shield-floor-shadow" aria-hidden="true" />
               </div>
             </div>
 
