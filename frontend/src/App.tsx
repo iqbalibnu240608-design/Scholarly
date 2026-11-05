@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/layout/Layout';
+import { RoleProtectedRoute } from './components/auth/RoleProtectedRoute';
 import { LandingPageView } from './views/LandingPageView';
 import { LoginView } from './views/LoginView';
 import { OverviewView } from './views/OverviewView';
@@ -14,7 +15,7 @@ import { KantinView } from './views/KantinView';
 import { SecurityView } from './views/SecurityView';
 import { AdminView } from './views/AdminView';
 
-// Protected Route Wrapper
+// Protected Route Wrapper for Authenticated Session
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token, isLoading } = useAuth();
 
@@ -45,7 +46,7 @@ export const App: React.FC = () => {
           {/* SteelSchool 16:9 Login Page */}
           <Route path="/login" element={<LoginView />} />
 
-          {/* Protected School Ecosystem Dashboard Routes */}
+          {/* Protected School Ecosystem Dashboard Routes with Strict RBAC Isolation */}
           <Route
             path="/app"
             element={
@@ -55,14 +56,78 @@ export const App: React.FC = () => {
             }
           >
             <Route index element={<OverviewView />} />
-            <Route path="siswa" element={<SiswaView />} />
-            <Route path="guru" element={<GuruView />} />
-            <Route path="kepsek" element={<KepsekView />} />
-            <Route path="petugas" element={<PetugasView />} />
-            <Route path="kopsis" element={<KopsisView />} />
-            <Route path="kantin" element={<KantinView />} />
-            <Route path="security" element={<SecurityView />} />
-            <Route path="admin" element={<AdminView />} />
+            
+            <Route
+              path="siswa"
+              element={
+                <RoleProtectedRoute allowedRoles={['siswa', 'guru', 'kepsek', 'petugas', 'bk']}>
+                  <SiswaView />
+                </RoleProtectedRoute>
+              }
+            />
+
+            <Route
+              path="guru"
+              element={
+                <RoleProtectedRoute allowedRoles={['guru', 'kepsek']}>
+                  <GuruView />
+                </RoleProtectedRoute>
+              }
+            />
+
+            <Route
+              path="kepsek"
+              element={
+                <RoleProtectedRoute allowedRoles={['kepsek']}>
+                  <KepsekView />
+                </RoleProtectedRoute>
+              }
+            />
+
+            <Route
+              path="petugas"
+              element={
+                <RoleProtectedRoute allowedRoles={['petugas']}>
+                  <PetugasView />
+                </RoleProtectedRoute>
+              }
+            />
+
+            <Route
+              path="kopsis"
+              element={
+                <RoleProtectedRoute allowedRoles={['kopsis']}>
+                  <KopsisView />
+                </RoleProtectedRoute>
+              }
+            />
+
+            <Route
+              path="kantin"
+              element={
+                <RoleProtectedRoute allowedRoles={['kantin']}>
+                  <KantinView />
+                </RoleProtectedRoute>
+              }
+            />
+
+            <Route
+              path="security"
+              element={
+                <RoleProtectedRoute allowedRoles={['security']}>
+                  <SecurityView />
+                </RoleProtectedRoute>
+              }
+            />
+
+            <Route
+              path="admin"
+              element={
+                <RoleProtectedRoute allowedRoles={['admin']}>
+                  <AdminView />
+                </RoleProtectedRoute>
+              }
+            />
           </Route>
 
           {/* Helpful Aliases for Direct Navigation */}

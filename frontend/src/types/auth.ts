@@ -64,3 +64,28 @@ export const ROLE_BADGE_COLORS: Record<string, { bg: string; text: string; borde
   perpustakaan: { bg: '#fef9c3', text: '#854d0e', border: '#fde047' },
   security: { bg: '#e2e8f0', text: '#334155', border: '#cbd5e1' },
 };
+
+export const ROLE_HOME_ROUTES: Record<string, string> = {
+  admin: '/app/admin',
+  siswa: '/app/siswa',
+  guru: '/app/guru',
+  kepsek: '/app/kepsek',
+  petugas: '/app/petugas',
+  kopsis: '/app/kopsis',
+  kantin: '/app/kantin',
+  security: '/app/security',
+  perpustakaan: '/app',
+  bk: '/app',
+};
+
+export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
+  '/app': ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'kopsis', 'kantin', 'security', 'perpustakaan', 'bk'],
+  '/app/siswa': ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'bk'],
+  '/app/guru': ['admin', 'guru', 'kepsek'],
+  '/app/kepsek': ['admin', 'kepsek'],
+  '/app/petugas': ['admin', 'petugas'],
+  '/app/kopsis': ['admin', 'kopsis'],
+  '/app/kantin': ['admin', 'kantin'],
+  '/app/security': ['admin', 'security'],
+  '/app/admin': ['admin'],
+};

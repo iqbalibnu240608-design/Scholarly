@@ -1,14 +1,23 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ROLE_LABELS, ROLE_BADGE_COLORS } from '../../types/auth';
+import { ROLE_LABELS, ROLE_BADGE_COLORS, ROLE_HOME_ROUTES } from '../../types/auth';
 import { LogOut, User as UserIcon, Shield, Sparkles, Globe } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, activeRole, switchRolePreview, logout } = useAuth();
+  const navigate = useNavigate();
 
   const allRoles = ['admin', 'kepsek', 'guru', 'siswa', 'petugas', 'kopsis', 'kantin', 'security', 'perpustakaan'];
   const badgeStyle = ROLE_BADGE_COLORS[activeRole] || { bg: '#f1f5f9', text: '#334155', border: '#cbd5e1' };
+
+  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedRole = e.target.value;
+    switchRolePreview(selectedRole);
+    // Otomatis arahkan tampilan langsung ke portal peran yang dipilih
+    const targetRoute = ROLE_HOME_ROUTES[selectedRole] || '/app';
+    navigate(targetRoute);
+  };
 
   return (
     <header className="top-navbar">
@@ -52,7 +61,7 @@ export const Navbar: React.FC = () => {
           <select
             className="role-select"
             value={activeRole}
-            onChange={(e) => switchRolePreview(e.target.value)}
+            onChange={handleRoleChange}
           >
             {allRoles.map((r) => (
               <option key={r} value={r}>

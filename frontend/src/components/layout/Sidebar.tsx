@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { ROLE_LABELS } from '../../types/auth';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -11,11 +12,13 @@ import {
   UtensilsCrossed,
   Settings,
   ShieldCheck,
-  Shield
+  Shield,
+  Lock,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const { activeRole } = useAuth();
+  const isAdmin = activeRole === 'admin';
 
   const navigationItems = [
     {
@@ -23,7 +26,7 @@ export const Sidebar: React.FC = () => {
       label: 'Dashboard Utama',
       icon: LayoutDashboard,
       badge: 'Semua',
-      role: 'all',
+      allowedRoles: ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'kopsis', 'kantin', 'security', 'perpustakaan', 'bk'],
       end: true,
     },
     {
@@ -31,75 +34,95 @@ export const Sidebar: React.FC = () => {
       label: 'Portal Siswa',
       icon: GraduationCap,
       badge: 'Siswa',
-      role: 'siswa',
+      allowedRoles: ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'bk'],
     },
     {
       to: '/app/guru',
       label: 'Portal Guru',
       icon: BookOpen,
       badge: 'Guru',
-      role: 'guru',
+      allowedRoles: ['admin', 'guru', 'kepsek'],
     },
     {
       to: '/app/kepsek',
       label: 'Portal Kepsek',
       icon: Award,
       badge: 'Kepsek',
-      role: 'kepsek',
+      allowedRoles: ['admin', 'kepsek'],
     },
     {
       to: '/app/petugas',
       label: 'Portal TU & Petugas',
       icon: FileSpreadsheet,
       badge: 'Petugas',
-      role: 'petugas',
+      allowedRoles: ['admin', 'petugas'],
     },
     {
       to: '/app/kopsis',
       label: 'Portal Koperasi (Kopsis)',
       icon: ShoppingBag,
       badge: 'Kopsis',
-      role: 'kopsis',
+      allowedRoles: ['admin', 'kopsis'],
     },
     {
       to: '/app/kantin',
       label: 'Portal Kantin Sekolah',
       icon: UtensilsCrossed,
       badge: 'Kantin',
-      role: 'kantin',
+      allowedRoles: ['admin', 'kantin'],
     },
     {
       to: '/app/security',
       label: 'Keamanan & Satpam',
       icon: Shield,
       badge: 'Satpam',
-      role: 'security',
+      allowedRoles: ['admin', 'security'],
     },
     {
       to: '/app/admin',
       label: 'Manajemen Sistem & Role',
       icon: Settings,
       badge: 'Admin',
-      role: 'admin',
+      allowedRoles: ['admin'],
     },
   ];
+
+  // Hanya tampilkan modul yang berhak diakses oleh peran aktif saat ini
+  const visibleItems = navigationItems.filter(
+    (item) => isAdmin || item.allowedRoles.includes(activeRole)
+  );
 
   return (
     <aside className="app-sidebar">
       <div className="sidebar-header">
-        <div className="sidebar-indicator">
-          <ShieldCheck size={16} className="text-emerald-500" />
-          <span>Akses Terbuka (Full Setup)</span>
-        </div>
-        <p className="sidebar-note">
-          Mode eksplorasi semua modul role aktif untuk tahap sistem & arsitektur.
-        </p>
+        {isAdmin ? (
+          <>
+            <div className="sidebar-indicator">
+              <ShieldCheck size={16} className="text-emerald-500" />
+              <span>Akses Admin (Full Setup)</span>
+            </div>
+            <p className="sidebar-note">
+              Mode inspeksi seluruh modul ekosistem sekolah aktif untuk Administrator.
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="sidebar-indicator" style={{ color: '#2563eb' }}>
+              <Lock size={15} style={{ color: '#2563eb' }} />
+              <span>Akses Terisolasi</span>
+            </div>
+            <p className="sidebar-note">
+              Navigasi dibatasi hanya pada modul wewenang{' '}
+              <strong style={{ color: '#1e293b' }}>{ROLE_LABELS[activeRole] || activeRole}</strong>.
+            </p>
+          </>
+        )}
       </div>
 
       <nav className="sidebar-nav">
-        {navigationItems.map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon;
-          const isCurrentActiveRole = activeRole === item.role;
+          const isTargetRole = item.allowedRoles.includes(activeRole) && item.to !== '/app';
 
           return (
             <NavLink
@@ -108,14 +131,14 @@ export const Sidebar: React.FC = () => {
               end={item.end}
               className={({ isActive }) =>
                 `nav-item ${isActive ? 'nav-item-active' : ''} ${
-                  isCurrentActiveRole ? 'nav-item-highlight' : ''
+                  isTargetRole ? 'nav-item-highlight' : ''
                 }`
               }
             >
               <Icon size={18} className="nav-icon" />
               <span className="nav-label">{item.label}</span>
               {item.badge && (
-                <span className={`nav-badge ${isCurrentActiveRole ? 'nav-badge-focused' : ''}`}>
+                <span className={`nav-badge ${isTargetRole ? 'nav-badge-focused' : ''}`}>
                   {item.badge}
                 </span>
               )}
