@@ -10,7 +10,6 @@ import {
   ShoppingBag,
   UtensilsCrossed,
   ShieldCheck,
-  CheckCircle2,
   TrendingUp,
   Laptop,
   Check,
@@ -223,57 +222,6 @@ export const LandingPageView: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Interactive Mockup Visual */}
-            <div className="lp-hero-visual">
-              <div className="lp-floating-badge lp-float-top">
-                <CheckCircle2 size={16} />
-                <span>Presensi Kehadiran 98.4%</span>
-              </div>
-
-              <div className="lp-floating-badge lp-float-bottom">
-                <ShoppingBag size={16} />
-                <span>Kasir Kopsis & Kantin Aktif</span>
-              </div>
-
-              <div className="lp-hero-card-main">
-                <div className="lp-mockup-header">
-                  <div className="lp-mockup-avatar-group">
-                    <div className="lp-mockup-avatar">SN</div>
-                    <div className="lp-mockup-user-info">
-                      <h4>Portal Ekosistem Terpadu</h4>
-                      <span>SMA Bintang Nusantara · Tahun Ajaran 2026/2027</span>
-                    </div>
-                  </div>
-                  <span className="lp-badge-pill text-xs">Live System</span>
-                </div>
-
-                <div className="lp-mockup-body-grid">
-                  <div className="lp-mock-mini-card lp-mock-card-highlight">
-                    <span>Modul Aktif</span>
-                    <strong>6 Peran Terhubung</strong>
-                  </div>
-                  <div className="lp-mock-mini-card">
-                    <span>Akreditasi Sekolah</span>
-                    <strong className="text-emerald-600">Grade A (96.8)</strong>
-                  </div>
-                  <div className="lp-mock-mini-card">
-                    <span>Rombongan Belajar</span>
-                    <strong>15 Rombel Kelas</strong>
-                  </div>
-                  <div className="lp-mock-mini-card">
-                    <span>Transaksi Digital</span>
-                    <strong style={{ color: 'var(--color-midnight-navy)' }}>Cashless Smart</strong>
-                  </div>
-                </div>
-
-                <div className="lp-mock-action-bar">
-                  <span>Jadwal Kelas · Input Nilai · Kasir POS · Menu Kantin</span>
-                  <Link to="/login" style={{ color: 'var(--color-midnight-navy)', fontWeight: 600, textDecoration: 'none' }}>
-                    Uji Coba →
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </header>

@@ -248,10 +248,12 @@
 }
 
 .lp-hero-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  align-items: center;
-  gap: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 660px;
+  min-height: 340px;
 }
 
 .lp-hero-content {
