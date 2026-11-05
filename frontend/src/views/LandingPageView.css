@@ -368,147 +368,82 @@
   color: var(--color-sunlit-yellow) !important;
 }
 
-/* Hero Showcase Visual (Clinical Authority Dark/White Product Card) */
-.lp-hero-visual {
+/* --------------------------------------------------------------------------
+   3D Shield Showcase with Overhead Spotlight & Deep Studio Shadow
+   -------------------------------------------------------------------------- */
+.lp-hero-shield-container {
   position: relative;
   display: flex;
   justify-content: center;
-}
-
-.lp-hero-card-main {
+  align-items: center;
   width: 100%;
-  max-width: 480px;
-  background: var(--color-paper-white);
-  border-radius: var(--radius-cards);
-  border: 1px solid var(--color-frost);
-  box-shadow: var(--shadow-lg);
-  padding: 26px;
+}
+
+/* Overhead white spotlight beam coming from the top down */
+.lp-hero-spotlight-beam {
+  position: absolute;
+  top: -140px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 480px;
+  height: 600px;
+  background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(210, 235, 255, 0.22) 35%, transparent 70%);
+  pointer-events: none;
+  filter: blur(14px);
+  z-index: 1;
+}
+
+.lp-hero-shield-wrapper {
   position: relative;
-  z-index: 2;
-  color: var(--color-graphite);
-}
-
-.lp-mockup-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--color-frost);
-  margin-bottom: 18px;
-}
-
-.lp-mockup-avatar-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.lp-mockup-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 9999px;
-  background: var(--color-midnight-navy);
-  color: var(--color-sunlit-yellow);
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
+  z-index: 2;
+  animation: lpShieldFloat 6s ease-in-out infinite;
 }
 
-.lp-mockup-user-info h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-ink-black);
-}
-
-.lp-mockup-user-info span {
-  font-size: 11px;
-  color: var(--color-smoke);
-}
-
-.lp-mockup-body-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.lp-mock-mini-card {
-  background: var(--color-soft-vellum);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-cards);
-  padding: 14px 12px;
-}
-
-.lp-mock-mini-card span {
-  font-size: 11px;
-  color: var(--color-smoke);
+.lp-hero-shield-img {
+  width: 100%;
+  max-width: 330px;
+  height: auto;
   display: block;
-  text-transform: uppercase;
-  letter-spacing: 0.036em;
+  /* Multi-layered 3D Studio Shadow: top specular rim + deep directional floor shadows */
+  filter: 
+    drop-shadow(0 -14px 28px rgba(255, 255, 255, 0.48))
+    drop-shadow(0 12px 22px rgba(4, 9, 20, 0.6))
+    drop-shadow(22px 34px 44px rgba(0, 0, 0, 0.8))
+    drop-shadow(-8px 16px 28px rgba(70, 115, 153, 0.35));
+  transform: perspective(1000px) rotateY(-5deg) rotateX(3deg);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
 }
 
-.lp-mock-mini-card strong {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--color-ink-black);
-  margin-top: 4px;
-  display: block;
+.lp-hero-shield-wrapper:hover .lp-hero-shield-img {
+  transform: perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1.04);
+  filter: 
+    drop-shadow(0 -18px 34px rgba(255, 255, 255, 0.6))
+    drop-shadow(0 16px 30px rgba(4, 9, 20, 0.7))
+    drop-shadow(26px 40px 52px rgba(0, 0, 0, 0.88))
+    drop-shadow(-10px 20px 32px rgba(70, 115, 153, 0.45));
 }
 
-.lp-mock-card-highlight {
-  border-left: 3px solid var(--color-midnight-navy);
+/* Studio Floor Shadow Ellipse */
+.lp-hero-shield-floor-shadow {
+  width: 250px;
+  height: 26px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, rgba(4, 9, 20, 0.4) 45%, transparent 75%);
+  border-radius: 50%;
+  margin-top: 14px;
+  filter: blur(8px);
 }
 
-.lp-mock-action-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--color-linen-cream);
-  border-radius: var(--radius-inputs);
-  padding: 10px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-graphite);
-}
-
-.lp-mock-action-bar a {
-  color: var(--color-midnight-navy) !important;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.lp-mock-action-bar a:hover {
-  text-decoration: underline;
-}
-
-/* Floating Badges around Mockup */
-.lp-floating-badge {
-  position: absolute;
-  background: var(--color-paper-white);
-  border-radius: var(--radius-badges);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--color-frost);
-  padding: 8px 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11.5px;
-  font-weight: 600;
-  z-index: 3;
-}
-
-.lp-float-top {
-  top: -14px;
-  right: -10px;
-  color: #1e5a22;
-}
-
-.lp-float-bottom {
-  bottom: -14px;
-  left: -12px;
-  color: var(--color-midnight-navy);
+@keyframes lpShieldFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -1049,20 +984,12 @@
    -------------------------------------------------------------------------- */
 @media (max-width: 1024px) {
   .lp-hero-grid {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-  .lp-hero-content {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 32px;
     align-items: center;
   }
-  .lp-hero-desc {
-    margin: 0 auto;
-  }
-  .lp-hero-cta-group {
-    justify-content: center;
-  }
-  .lp-hero-trust-row {
-    justify-content: center;
+  .lp-hero-shield-img {
+    max-width: 270px;
   }
   .lp-metrics-box {
     grid-template-columns: repeat(2, 1fr);
@@ -1083,6 +1010,14 @@
 }
 
 @media (max-width: 768px) {
+  .lp-hero-grid {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    align-items: center;
+  }
+  .lp-hero-shield-img {
+    max-width: 210px;
+  }
   .lp-nav-links {
     display: none;
   }
@@ -1114,5 +1049,25 @@
     flex-direction: column;
     gap: 12px;
     text-align: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .lp-hero-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 36px;
+  }
+  .lp-hero-content {
+    align-items: center;
+  }
+  .lp-hero-desc {
+    margin: 0 auto;
+  }
+  .lp-hero-cta-group {
+    justify-content: center;
+  }
+  .lp-hero-shield-img {
+    max-width: 200px;
   }
 }
