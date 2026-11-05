@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Sparkles, ChevronDown, ChevronUp, AlertCircle, ArrowLeft } from 'lucide-react';
@@ -190,12 +190,7 @@ export const LoginView: React.FC = () => {
           style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}
           title="Kembali ke Web Sekolah"
         >
-          <svg className="brand-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z" fill="#fae467" />
-            <path d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z" fill="#1a365d" />
-            <path d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z" fill="#fae467" />
-            <path d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z" fill="#1a365d" />
-          </svg>
+          <img src="/steelschool-shield.png" alt="SteelSchool" style={{ width: "36px", height: "42px", objectFit: "contain" }} />
           <span className="brand-name-text">SteelSchool</span>
         </Link>
       </header>

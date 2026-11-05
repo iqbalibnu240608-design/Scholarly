@@ -969,6 +969,26 @@
   color: var(--color-sunlit-yellow);
 }
 
+.lp-footer-shield-logo {
+  width: 36px;
+  height: 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45));
+}
+
+.lp-footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.lp-footer-contact-item svg {
+  color: var(--color-sunlit-yellow);
+  flex-shrink: 0;
+}
+
 .lp-footer-bottom {
   display: flex;
   align-items: center;

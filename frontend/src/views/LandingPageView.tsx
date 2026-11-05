@@ -15,6 +15,10 @@ import {
   Check,
   Building,
   Star,
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
 } from 'lucide-react';
 import './LandingPageView.css';
 
@@ -609,12 +613,7 @@ export const LandingPageView: React.FC = () => {
           <div className="lp-footer-grid">
             <div className="lp-footer-brand-col">
               <div className="lp-brand-group">
-                <svg className="lp-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z" fill="#FBBF24" />
-                  <path d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z" fill="#4ADE80" />
-                  <path d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z" fill="#38BDF8" />
-                  <path d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z" fill="#F472B6" />
-                </svg>
+                <img src="/steelschool-shield.png" alt="SteelSchool Logo" className="lp-footer-shield-logo" />
                 <div className="lp-brand-text">
                   <span className="lp-brand-name">SteelSchool</span>
                   <span className="lp-brand-tagline">Ekosistem Sekolah Terpadu</span>
@@ -651,10 +650,22 @@ export const LandingPageView: React.FC = () => {
             <div className="lp-footer-col">
               <h5>Kontak & Layanan</h5>
               <ul className="lp-footer-links">
-                <li><span>📍 Jl. Pendidikan No. 45, Indonesia</span></li>
-                <li><span>📞 (021) 8876-2026</span></li>
-                <li><span>✉️ info@steelschool.sch.id</span></li>
-                <li><span>🕒 Senin - Jumat, 07:00 - 16:00</span></li>
+                <li className="lp-footer-contact-item">
+                  <MapPin size={16} />
+                  <span>Jl. Pendidikan No. 45, Indonesia</span>
+                </li>
+                <li className="lp-footer-contact-item">
+                  <Phone size={16} />
+                  <span>(021) 8876-2026</span>
+                </li>
+                <li className="lp-footer-contact-item">
+                  <Mail size={16} />
+                  <span>info@steelschool.sch.id</span>
+                </li>
+                <li className="lp-footer-contact-item">
+                  <Clock size={16} />
+                  <span>Senin - Jumat, 07:00 - 16:00</span>
+                </li>
               </ul>
             </div>
           </div>
