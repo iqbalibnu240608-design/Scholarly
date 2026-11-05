@@ -127,6 +127,13 @@ export const OverviewView: React.FC = () => {
       allowedRoles: ['admin', 'petugas', 'siswa'],
     },
     {
+      to: '/app/perpus',
+      icon: '📚',
+      title: isStudent ? 'Perpustakaan (E-Library)' : 'Portal Perpustakaan',
+      desc: isStudent ? 'Pinjam buku pelajaran, modul, sastra & komik' : 'Katalog inventaris buku & sirkulasi peminjaman',
+      allowedRoles: ['admin', 'perpustakaan', 'siswa', 'guru'],
+    },
+    {
       to: '/app/guru',
       icon: '👨‍🏫',
       title: 'Portal Guru',

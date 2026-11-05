@@ -12,6 +12,7 @@ import { KepsekView } from './views/KepsekView';
 import { PetugasView } from './views/PetugasView';
 import { KopsisView } from './views/KopsisView';
 import { KantinView } from './views/KantinView';
+import { PerpusView } from './views/PerpusView';
 import { SecurityView } from './views/SecurityView';
 import { AdminView } from './views/AdminView';
 
@@ -117,6 +118,16 @@ export const App: React.FC = () => {
               }
             />
 
+            {/* Perpustakaan Sekolah (E-Library): Petugas mengelola katalog & sirkulasi, Siswa & Guru meminjam buku */}
+            <Route
+              path="perpus"
+              element={
+                <RoleProtectedRoute allowedRoles={['perpustakaan', 'siswa', 'guru', 'admin']}>
+                  <PerpusView />
+                </RoleProtectedRoute>
+              }
+            />
+
             {/* Gate Keamanan & Presensi Satpam (Khusus Satpam) */}
             <Route
               path="security"
@@ -146,6 +157,7 @@ export const App: React.FC = () => {
           <Route path="/petugas" element={<Navigate to="/app/petugas" replace />} />
           <Route path="/kopsis" element={<Navigate to="/app/kopsis" replace />} />
           <Route path="/kantin" element={<Navigate to="/app/kantin" replace />} />
+          <Route path="/perpus" element={<Navigate to="/app/perpus" replace />} />
           <Route path="/security" element={<Navigate to="/app/security" replace />} />
           <Route path="/admin" element={<Navigate to="/app/admin" replace />} />
 

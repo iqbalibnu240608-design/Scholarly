@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Shield,
   Lock,
+  BookMarked,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -56,6 +57,13 @@ export const Sidebar: React.FC = () => {
       icon: FileSpreadsheet,
       badge: activeRole === 'siswa' ? 'Bayar SPP' : 'Petugas',
       allowedRoles: ['admin', 'petugas', 'siswa'],
+    },
+    {
+      to: '/app/perpus',
+      label: activeRole === 'perpustakaan' ? 'Portal Perpustakaan' : 'Perpustakaan (Perpus)',
+      icon: BookMarked,
+      badge: activeRole === 'siswa' ? 'Pinjam Buku' : 'Perpus',
+      allowedRoles: ['admin', 'perpustakaan', 'siswa', 'guru'],
     },
     {
       to: '/app/guru',

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AcademicController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\LibraryController;
 use App\Http\Controllers\Api\POSController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SchoolEcosystemController;
@@ -74,6 +75,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/guru/grades', [AcademicController::class, 'inputGrade']);
     Route::get('/siswa/my-grades', [AcademicController::class, 'getMyGrades']);
     Route::get('/school/schedules', [AcademicController::class, 'getSchedules']);
+
+    // Modul Perpustakaan Sekolah (E-Library)
+    Route::get('/school/library', [LibraryController::class, 'getLibraryData']);
+    Route::post('/library/books', [LibraryController::class, 'addBook']);
+    Route::post('/library/borrow', [LibraryController::class, 'borrowBook']);
+    Route::post('/library/return', [LibraryController::class, 'returnBook']);
 
     // Modul Petugas TU (SPP)
     Route::post('/petugas/spp-payment', [SchoolEcosystemController::class, 'paySPP']);

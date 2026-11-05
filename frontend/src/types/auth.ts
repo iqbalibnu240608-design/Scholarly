@@ -73,19 +73,20 @@ export const ROLE_HOME_ROUTES: Record<string, string> = {
   petugas: '/app/petugas',
   kopsis: '/app/kopsis',
   kantin: '/app/kantin',
+  perpustakaan: '/app/perpus',
   security: '/app/security',
-  perpustakaan: '/app',
   bk: '/app',
 };
 
 export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
-  '/app': ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'kopsis', 'kantin', 'security', 'perpustakaan', 'bk'],
+  '/app': ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'kopsis', 'kantin', 'perpustakaan', 'security', 'bk'],
   '/app/siswa': ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'bk'],
   '/app/guru': ['admin', 'guru', 'kepsek'],
   '/app/kepsek': ['admin', 'kepsek'],
   '/app/petugas': ['admin', 'petugas', 'siswa'],
   '/app/kopsis': ['admin', 'kopsis', 'siswa', 'guru'],
   '/app/kantin': ['admin', 'kantin', 'siswa', 'guru'],
+  '/app/perpus': ['admin', 'perpustakaan', 'siswa', 'guru'],
   '/app/security': ['admin', 'security'],
   '/app/admin': ['admin'],
 };

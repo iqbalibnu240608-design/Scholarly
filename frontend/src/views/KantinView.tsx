@@ -82,6 +82,15 @@ export const KantinView: React.FC = () => {
   const [price, setPrice] = useState<string>('');
   const [stallName, setStallName] = useState<string>('Stand 1 Bu Titin');
 
+  // Modal State: Pengaturan / Upload QRIS Stan (Staff Kantin)
+  const [showQrisSettingsModal, setShowQrisSettingsModal] = useState<boolean>(false);
+  const [qrisStallName, setQrisStallName] = useState<string>(() => {
+    return localStorage.getItem('kantin_qris_stall') || 'Kantin Sehat Bu Titin - Stand 1';
+  });
+  const [qrisImage, setQrisImage] = useState<string>(() => {
+    return localStorage.getItem('kantin_qris_image') || '';
+  });
+
   // Modal State: Kasir POS (Staff/Admin)
   const [showPOSModal, setShowPOSModal] = useState<boolean>(false);
 
@@ -114,7 +123,7 @@ export const KantinView: React.FC = () => {
       const kantinTrx = (res.data.transactions || []).filter(
         (t: any) => t.type === 'purchase_kantin'
       );
-      setRecentOrders(kantinTrx.slice(0, 6));
+      setRecentOrders(kantinTrx.slice(0, 15));
     } catch (err) {
       console.error('Error fetching transactions', err);
     }
@@ -209,11 +218,31 @@ export const KantinView: React.FC = () => {
     }
   };
 
+  // Save QRIS Settings
+  const handleSaveQrisSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('kantin_qris_stall', qrisStallName);
+    localStorage.setItem('kantin_qris_image', qrisImage);
+    setShowQrisSettingsModal(false);
+    setSuccessMsg('Pengaturan & Gambar QRIS Stan Kantin berhasil diperbarui!');
+    setTimeout(() => setSuccessMsg(null), 3000);
+  };
+
+  const handleQrisFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setQrisImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Checkout Handler (Siswa & Kasir)
   const handleCheckout = async (isStudentSelfOrder: boolean = false) => {
     if (cart.length === 0) return;
 
-    // Validasi saldo hanya jika metode yang dipilih adalah wallet
     if (paymentMethod === 'wallet' && walletBalance < cartTotal) {
       alert('Saldo Kantin Anda tidak mencukupi. Silakan lakukan Top Up atau gunakan opsi Bayar Tunai di Stan / QRIS.');
       return;
@@ -512,10 +541,17 @@ export const KantinView: React.FC = () => {
         <>
           <div className="view-header">
             <div>
-              <h2>🍜 Portal Kantin Sekolah (Stand & Kasir POS)</h2>
-              <p>Kelola menu makanan harian, operasional kasir stan kantin, dan transaksi pesanan.</p>
+              <h2>🍜 Portal Pengelola Stan Kantin</h2>
+              <p>Kelola menu makanan harian, pantau antrean pesanan masuk, dan atur QRIS stan Anda.</p>
             </div>
             <div className="card-header-actions">
+              <button
+                onClick={() => setShowQrisSettingsModal(true)}
+                className="btn-secondary-action"
+                title="Atur QRIS Stan Kantin"
+              >
+                <QrCode size={16} /> Upload QRIS Stan
+              </button>
               <button onClick={() => setShowAddModal(true)} className="btn-secondary-action">
                 <PlusCircle size={16} /> Tambah Menu Baru
               </button>
@@ -545,13 +581,79 @@ export const KantinView: React.FC = () => {
 
             <div className="feature-card">
               <div className="card-top-icon text-indigo-600"><CheckCircle size={22} /></div>
-              <h4>Pesanan Selesai Hari Ini</h4>
-              <div className="amount-display">{data?.pesanan_selesai_hari_ini ?? 0} Pesanan</div>
+              <h4>Total Transaksi Masuk</h4>
+              <div className="amount-display">{recentOrders.length} Pesanan</div>
               <p className="card-subtext">{data?.pesanan_aktif ?? 0} pesanan aktif dalam antrean</p>
             </div>
           </div>
 
-          {/* Daftar Menu Stan */}
+          {/* TABEL 1: DAFTAR PESANAN MASUK & RIWAYAT PEMBELIAN DI KANTIN */}
+          <div className="overview-card mt-6">
+            <div className="card-header">
+              <h3>
+                <Sparkles size={18} className="inline mr-2 text-indigo-600" />
+                Antrean Pesanan Masuk & Riwayat Pembelian Stan Kantin
+              </h3>
+              <span className="badge-pill bg-indigo-50 text-indigo-700 font-bold">
+                {recentOrders.length} Pesanan Tercatat
+              </span>
+            </div>
+            <div className="table-responsive">
+              {recentOrders.length === 0 ? (
+                <div className="p-4 text-center text-sm text-slate-500">
+                  Belum ada pesanan yang masuk ke stan kantin hari ini.
+                </div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Kode Order</th>
+                      <th>Pemesan / Pelanggan</th>
+                      <th>Rincian Pesanan Menu</th>
+                      <th>Total Bayar</th>
+                      <th>Metode Bayar</th>
+                      <th>Waktu Pesanan</th>
+                      <th>Status Pesanan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentOrders.map((ord) => (
+                      <tr key={ord.id}>
+                        <td><strong className="text-indigo-600">{ord.reference_no}</strong></td>
+                        <td>
+                          <strong>{ord.user?.name || 'Siswa Sekolah'}</strong>
+                          {ord.user?.identifier_number && (
+                            <div className="text-xs text-slate-500">NISN: {ord.user.identifier_number}</div>
+                          )}
+                        </td>
+                        <td>{ord.description}</td>
+                        <td><strong>Rp {Number(ord.amount).toLocaleString('id-ID')}</strong></td>
+                        <td>
+                          <span className="badge-pill text-xs font-semibold">
+                            {ord.payment_method === 'wallet'
+                              ? 'Saldo E-Wallet'
+                              : ord.payment_method === 'qris'
+                              ? '📱 QRIS'
+                              : '💵 Tunai di Stan'}
+                          </span>
+                        </td>
+                        <td className="text-xs text-slate-500">
+                          {new Date(ord.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td>
+                          <span className={`badge-pill text-xs font-bold ${ord.payment_method === 'cash' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                            {ord.payment_method === 'cash' ? 'Bayar di Stan' : 'Lunas (Siap Saji)'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+
+          {/* TABEL 2: DAFTAR MENU STAN */}
           <div className="overview-card mt-6">
             <div className="card-header">
               <h3>Katalog Menu Stan Makanan & Minuman</h3>
@@ -587,6 +689,82 @@ export const KantinView: React.FC = () => {
             </div>
           </div>
         </>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: PENGATURAN / UPLOAD QRIS STAN (STAFF KANTIN)             */}
+      {/* ============================================================== */}
+      {showQrisSettingsModal && (
+        <div className="eco-modal-backdrop" onClick={() => setShowQrisSettingsModal(false)}>
+          <div className="eco-modal-card" style={{ maxWidth: '480px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header">
+              <h3><QrCode size={18} className="text-indigo-600" /> Pengaturan QRIS Stan Kantin</h3>
+              <button onClick={() => setShowQrisSettingsModal(false)} className="btn-close-modal"><X size={18} /></button>
+            </div>
+            <form onSubmit={handleSaveQrisSettings} className="eco-modal-form">
+              <div className="eco-modal-body">
+                <div className="eco-form-group">
+                  <label className="eco-form-label">Nama Stan Kantin (Merchant Name)</label>
+                  <input
+                    type="text"
+                    value={qrisStallName}
+                    onChange={(e) => setQrisStallName(e.target.value)}
+                    placeholder="Contoh: Kantin Sehat Bu Titin - Stand 1"
+                    required
+                    className="eco-form-input"
+                  />
+                </div>
+
+                <div className="eco-form-group">
+                  <label className="eco-form-label">Upload Gambar Barcode QRIS Stan</label>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleQrisFileChange}
+                      className="eco-form-input text-xs"
+                    />
+                    <span className="text-xs text-slate-500">Atau masukkan URL gambar barcode QRIS:</span>
+                    <input
+                      type="url"
+                      value={qrisImage}
+                      onChange={(e) => setQrisImage(e.target.value)}
+                      placeholder="https://... atau biarkan kosong untuk barcode standar"
+                      className="eco-form-input text-xs"
+                    />
+                  </div>
+                </div>
+
+                {/* Preview QRIS */}
+                <div className="p-3 bg-slate-50 border rounded text-center">
+                  <div className="text-xs font-semibold text-slate-600 mb-2">Preview QRIS yang Dilihat Siswa:</div>
+                  {qrisImage ? (
+                    <img
+                      src={qrisImage}
+                      alt="QRIS Stan Preview"
+                      style={{ maxWidth: '160px', maxHeight: '160px', margin: '0 auto', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                  ) : (
+                    <div style={{ padding: '16px', background: '#ffffff', display: 'inline-block', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                      <QrCode size={120} className="text-indigo-700" />
+                    </div>
+                  )}
+                  <div className="mt-2 font-bold text-xs text-slate-800">{qrisStallName}</div>
+                  <div className="text-xs text-slate-500">NMID: ID1029384756910 • A.N {qrisStallName}</div>
+                </div>
+              </div>
+
+              <div className="eco-modal-footer">
+                <button type="button" onClick={() => setShowQrisSettingsModal(false)} className="btn-secondary-action">
+                  Batal
+                </button>
+                <button type="submit" className="btn-success-action">
+                  Simpan Pengaturan QRIS
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* ============================================================== */}
@@ -634,7 +812,7 @@ export const KantinView: React.FC = () => {
       )}
 
       {/* ============================================================== */}
-      {/* MODAL: KONFIRMASI CHECKOUT SISWA (DENGAN MULTI-PAYMENT)         */}
+      {/* MODAL: KONFIRMASI CHECKOUT SISWA (DENGAN MULTI-PAYMENT & QRIS)  */}
       {/* ============================================================== */}
       {showStudentCheckoutModal && (
         <div className="eco-modal-backdrop" onClick={() => setShowStudentCheckoutModal(false)}>
@@ -690,7 +868,7 @@ export const KantinView: React.FC = () => {
                   >
                     <QrCode size={20} className="mb-1 text-indigo-600" />
                     <span className="font-bold text-xs">QRIS Instan</span>
-                    <span className="text-xs text-slate-500 mt-1">Scan QR Code</span>
+                    <span className="text-xs text-slate-500 mt-1">Scan QR Stan</span>
                   </button>
                 </div>
               </div>
@@ -725,10 +903,21 @@ export const KantinView: React.FC = () => {
 
               {paymentMethod === 'qris' && (
                 <div className="p-3 bg-indigo-50 text-indigo-800 rounded text-xs border border-indigo-200 text-center">
-                  <QrCode size={48} className="mx-auto text-indigo-600 mb-2" />
-                  <p className="font-bold">QRIS Standar Sekolah Nasional</p>
+                  <div className="text-xs font-semibold text-indigo-900 mb-2">Scan QRIS Stan untuk Bayar:</div>
+                  {qrisImage ? (
+                    <img
+                      src={qrisImage}
+                      alt="QRIS Stan Kantin"
+                      style={{ maxWidth: '140px', maxHeight: '140px', margin: '0 auto 8px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                  ) : (
+                    <div style={{ padding: '12px', background: '#ffffff', display: 'inline-block', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '8px' }}>
+                      <QrCode size={100} className="text-indigo-700" />
+                    </div>
+                  )}
+                  <p className="font-bold text-xs text-indigo-950">{qrisStallName}</p>
                   <p className="text-xs text-slate-600 mt-1">
-                    Mendukung GoPay, OVO, Dana, ShopeePay, dan Mobile Banking.
+                    Nominal: <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> • Mendukung GoPay, OVO, Dana, ShopeePay & BCA.
                   </p>
                 </div>
               )}
@@ -761,7 +950,7 @@ export const KantinView: React.FC = () => {
                     : paymentMethod === 'cash'
                     ? 'Pesan Sekarang (Bayar Tunai)'
                     : paymentMethod === 'qris'
-                    ? 'Bayar via QRIS'
+                    ? 'Konfirmasi Pembayaran QRIS'
                     : 'Bayar via Saldo Kantin'}
                 </button>
               )}
