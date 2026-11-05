@@ -220,26 +220,6 @@ export const LandingPageView: React.FC = () => {
                   <span>Akses Portal Civitas</span>
                   <ArrowRight size={16} />
                 </Link>
-                <a href="#ekosistem" className="lp-btn-outline">
-                  <span>Lihat Demo Modul</span>
-                </a>
-              </div>
-
-              <div className="lp-hero-trust-row">
-                <div className="lp-trust-item">
-                  <ShieldCheck size={16} color="var(--color-sunlit-yellow)" />
-                  <span>Laravel 12 API Ready</span>
-                </div>
-                <span>•</span>
-                <div className="lp-trust-item">
-                  <CheckCircle2 size={16} color="var(--color-sunlit-yellow)" />
-                  <span>Multi-Role Terintegrasi</span>
-                </div>
-                <span>•</span>
-                <div className="lp-trust-item">
-                  <CheckCircle2 size={16} color="var(--color-sunlit-yellow)" />
-                  <span>100% Cashless Kopsis</span>
-                </div>
               </div>
             </div>
 
