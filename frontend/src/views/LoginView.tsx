@@ -2,7 +2,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  Sparkles,
   ChevronDown,
   ChevronUp,
   AlertCircle,
@@ -326,7 +325,6 @@ export const LoginView: React.FC = () => {
               className="steelschool-demo-toggle-btn"
               onClick={() => setShowDemoRoles(!showDemoRoles)}
             >
-              <Sparkles size={14} className="text-amber-500" />
               <span>Pilihan Akun Demo (Siswa via NISN, Admin, Staf)</span>
               {showDemoRoles ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
