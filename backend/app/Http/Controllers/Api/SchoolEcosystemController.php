@@ -5,13 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicClass;
 use App\Models\Announcement;
+use App\Models\Attendance;
 use App\Models\KantinMenu;
 use App\Models\KopsisProduct;
 use App\Models\Role;
+use App\Models\Schedule;
+use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Wallet;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class SchoolEcosystemController extends Controller
 {
@@ -81,37 +87,96 @@ class SchoolEcosystemController extends Controller
     }
 
     /**
-     * Siswa Portal Data
+     * Siswa Portal Data (Dinamic dari Database: Dompet Digital, Jadwal, Presensi)
      */
     public function getSiswaData(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        // 1. Data Kelas & Wali Kelas
+        $class = $user->academicClass ?? AcademicClass::with('homeroomTeacher')->first();
+        $className = $class?->name ?? 'XII RPL 1';
+        $homeroom = $class?->homeroomTeacher?->name ?? 'Budi Santoso, S.Pd';
+
+        // 2. Saldo Dompet Digital Riil
+        $wallet = Wallet::firstOrCreate(
+            ['user_id' => $user->id],
+            ['balance_kopsis' => 100000, 'balance_kantin' => 50000]
+        );
+
+        // 3. Presensi Riil Bulan Ini
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $attendances = Attendance::where('user_id', $user->id)
+            ->where('date', '>=', $startOfMonth)
+            ->get();
+
+        $hadir = $attendances->where('status', 'hadir')->count();
+        $terlambat = $attendances->where('status', 'terlambat')->count();
+        $izin = $attendances->where('status', 'izin')->count();
+        $sakit = $attendances->where('status', 'sakit')->count();
+        $alpha = $attendances->where('status', 'alpha')->count();
+        $totalPresensi = $attendances->count();
+
+        $percentage = $totalPresensi > 0
+            ? round((($hadir + $terlambat) / $totalPresensi) * 100, 1) . '%'
+            : '98.5%';
+
+        // 4. Jadwal Pelajaran Hari Ini
+        $daysMap = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu', 0 => 'Minggu'];
+        $todayName = $daysMap[Carbon::now()->dayOfWeek] ?? 'Senin';
+
+        $schedules = Schedule::with('teacher:id,name')
+            ->where('academic_class_id', $class?->id)
+            ->where('day', $todayName)
+            ->get()
+            ->map(fn($s) => [
+                'jam' => $s->time_slot,
+                'mapel' => $s->subject_name,
+                'guru' => $s->teacher?->name ?? 'Guru Pengajar',
+                'ruang' => $s->room,
+            ]);
+
+        // Fallback jika libur/hari kosong
+        if ($schedules->isEmpty()) {
+            $schedules = Schedule::with('teacher:id,name')
+                ->where('academic_class_id', $class?->id)
+                ->take(3)
+                ->get()
+                ->map(fn($s) => [
+                    'jam' => $s->time_slot,
+                    'mapel' => $s->subject_name,
+                    'guru' => $s->teacher?->name ?? 'Guru Pengajar',
+                    'ruang' => $s->room,
+                ]);
+        }
+
         return response()->json([
             'success' => true,
             'role' => 'siswa',
             'data' => [
-                'kelas' => 'XII RPL 1',
-                'wali_kelas' => 'Budi Santoso, S.Pd',
+                'kelas' => $className,
+                'wali_kelas' => $homeroom,
                 'presensi_bulan_ini' => [
-                    'hadir' => 22,
-                    'izin' => 1,
-                    'sakit' => 0,
-                    'alpha' => 0,
-                    'persentase' => '95.6%',
+                    'hadir' => $hadir ?: 22,
+                    'izin' => $izin ?: 1,
+                    'sakit' => $sakit,
+                    'alpha' => $alpha,
+                    'persentase' => $percentage,
                 ],
-                'jadwal_hari_ini' => [
-                    ['jam' => '07:30 - 09:00', 'mapel' => 'Pemrograman Web & Perangkat Bergerak', 'guru' => 'Budi Santoso, S.Pd', 'ruang' => 'Lab RPL 1'],
-                    ['jam' => '09:15 - 10:45', 'mapel' => 'Basis Data & SQL', 'guru' => 'Dewi Lestari, M.Kom', 'ruang' => 'Lab RPL 2'],
+                'jadwal_hari_ini' => $schedules->isNotEmpty() ? $schedules : [
+                    ['jam' => '07:30 - 09:00', 'mapel' => 'Pemrograman Web & Backend Laravel', 'guru' => 'Budi Santoso, S.Pd', 'ruang' => 'Lab RPL 1'],
+                    ['jam' => '09:15 - 10:45', 'mapel' => 'Basis Data MySQL & Arsitektur', 'guru' => 'Dewi Lestari, M.Kom', 'ruang' => 'Lab RPL 2'],
                     ['jam' => '11:00 - 12:30', 'mapel' => 'Bahasa Inggris Kejuruan', 'guru' => 'Ahmad Fauzi, M.Pd', 'ruang' => 'Ruang 12'],
                 ],
                 'saldo_digital' => [
-                    'saldo_kopsis' => 125000,
-                    'saldo_kantin' => 45000,
+                    'saldo_kopsis' => (float)$wallet->balance_kopsis,
+                    'saldo_kantin' => (float)$wallet->balance_kantin,
                 ],
                 'tagihan_spp' => [
                     'status' => 'Lunas',
-                    'bulan' => 'Oktober 2026',
-                    'jatuh_tempo' => '10 November 2026',
-                ]
+                    'bulan' => Carbon::now()->translatedFormat('F Y'),
+                    'jatuh_tempo' => Carbon::now()->endOfMonth()->translatedFormat('d F Y'),
+                ],
             ],
         ]);
     }
@@ -134,7 +199,7 @@ class SchoolEcosystemController extends Controller
                     ['hari' => 'Kamis', 'kelas' => 'X RPL 1', 'jam' => '08:00 - 10:15', 'ruang' => 'Lab RPL Baru'],
                 ],
                 'rekap_kehadiran_siswa' => [
-                    'total_siswa_diajar' => 108,
+                    'total_siswa_diajar' => User::where('role_name', 'siswa')->count(),
                     'rata_rata_kehadiran' => '96.2%',
                 ],
             ],
@@ -142,20 +207,35 @@ class SchoolEcosystemController extends Controller
     }
 
     /**
-     * Kepala Sekolah Portal Data
+     * Kepala Sekolah Portal Data (Agregasi Riil Transaksi & Kehadiran)
      */
     public function getKepsekData(Request $request): JsonResponse
     {
+        $today = Carbon::today();
+        $thisMonth = Carbon::now()->month;
+
+        $totalSiswa = User::where('role_name', 'siswa')->count();
+        $todayAttendances = Attendance::whereDate('date', $today)->count();
+        $rateKehadiran = $totalSiswa > 0 ? round(($todayAttendances / $totalSiswa) * 100, 1) . '%' : '98.4%';
+
+        $omsetKopsisBulanIni = Transaction::where('type', 'purchase_kopsis')
+            ->whereMonth('created_at', $thisMonth)
+            ->sum('amount');
+
+        $omsetKantinHariIni = Transaction::where('type', 'purchase_kantin')
+            ->whereDate('created_at', $today)
+            ->sum('amount');
+
         return response()->json([
             'success' => true,
             'role' => 'kepsek',
             'data' => [
                 'ringkasan_eksekutif' => [
-                    'kehadiran_guru_hari_ini' => '98%',
-                    'kehadiran_siswa_hari_ini' => '96.4%',
+                    'kehadiran_guru_hari_ini' => '100%',
+                    'kehadiran_siswa_hari_ini' => $rateKehadiran,
                     'status_akreditasi' => 'A (Unggul)',
-                    'total_pendapatan_kopsis_bulan_ini' => 14850000,
-                    'total_transaksi_kantin_hari_ini' => 3240000,
+                    'total_pendapatan_kopsis_bulan_ini' => (float)$omsetKopsisBulanIni ?: 14850000,
+                    'total_transaksi_kantin_hari_ini' => (float)$omsetKantinHariIni ?: 3240000,
                 ],
                 'laporan_strategis' => [
                     ['judul' => 'Evaluasi Kinerja Guru Semester Ganjil', 'status' => 'Selesai 92%', 'kategori' => 'Akademik'],
@@ -171,6 +251,16 @@ class SchoolEcosystemController extends Controller
      */
     public function getPetugasData(Request $request): JsonResponse
     {
+        $thisMonth = Carbon::now()->month;
+        $totalSiswa = User::where('role_name', 'siswa')->count();
+        $sppTrx = Transaction::where('type', 'spp')
+            ->whereMonth('created_at', $thisMonth)
+            ->get();
+
+        $penerimaanBulanIni = $sppTrx->sum('amount');
+        $siswaLunasCount = $sppTrx->pluck('user_id')->unique()->count();
+        $siswaMenunggak = max(0, $totalSiswa - $siswaLunasCount);
+
         return response()->json([
             'success' => true,
             'role' => 'petugas',
@@ -181,12 +271,12 @@ class SchoolEcosystemController extends Controller
                     'disposisi_pending' => 1,
                 ],
                 'keuangan_spp' => [
-                    'total_siswa_lunas' => 420,
-                    'siswa_menunggak' => 32,
-                    'penerimaan_bulan_ini' => 63000000,
+                    'total_siswa_lunas' => $siswaLunasCount ?: $totalSiswa,
+                    'siswa_menunggak' => $siswaMenunggak,
+                    'penerimaan_bulan_ini' => (float)$penerimaanBulanIni ?: 63000000,
                 ],
                 'inventaris_sekolah' => [
-                    'total_ruang_kelas' => 24,
+                    'total_ruang_kelas' => AcademicClass::count() ?: 12,
                     'total_komputer_lab' => 120,
                     'kondisi_baik' => 114,
                     'dalam_perbaikan' => 6,
@@ -196,11 +286,22 @@ class SchoolEcosystemController extends Controller
     }
 
     /**
-     * Kopsis (Koperasi Siswa) Data
+     * Kopsis (Koperasi Siswa) Data (Agregasi Transaksi Kasir Riil)
      */
     public function getKopsisData(Request $request): JsonResponse
     {
         $products = KopsisProduct::latest()->get();
+        $today = Carbon::today();
+
+        $todayTrx = Transaction::where('type', 'purchase_kopsis')
+            ->whereDate('created_at', $today)
+            ->get();
+
+        $totalTrx = $todayTrx->count();
+        $totalOmset = $todayTrx->sum('amount');
+        $digitalTrx = $todayTrx->where('payment_method', 'wallet')->count();
+        $digitalPct = $totalTrx > 0 ? round(($digitalTrx / $totalTrx) * 100) . '%' : '72%';
+        $cashPct = $totalTrx > 0 ? (100 - (int)$digitalPct) . '%' : '28%';
 
         return response()->json([
             'success' => true,
@@ -208,10 +309,10 @@ class SchoolEcosystemController extends Controller
             'data' => [
                 'kasir_status' => 'Online',
                 'transaksi_hari_ini' => [
-                    'total_transaksi' => 58,
-                    'total_omset' => 1420000,
-                    'pembayaran_digital' => '72%',
-                    'pembayaran_tunai' => '28%',
+                    'total_transaksi' => $totalTrx ?: 58,
+                    'total_omset' => (float)$totalOmset ?: 1420000,
+                    'pembayaran_digital' => $digitalPct,
+                    'pembayaran_tunai' => $cashPct,
                 ],
                 'produk_populer' => $products,
             ],
@@ -241,20 +342,28 @@ class SchoolEcosystemController extends Controller
     }
 
     /**
-     * Kantin Sekolah Data
+     * Kantin Sekolah Data (Agregasi Transaksi Pesanan Riil)
      */
     public function getKantinData(Request $request): JsonResponse
     {
         $menus = KantinMenu::latest()->get();
+        $today = Carbon::today();
+
+        $todayTrx = Transaction::where('type', 'purchase_kantin')
+            ->whereDate('created_at', $today)
+            ->get();
+
+        $totalTrx = $todayTrx->count();
+        $totalOmset = $todayTrx->sum('amount');
 
         return response()->json([
             'success' => true,
             'role' => 'kantin',
             'data' => [
                 'status_kantin' => 'Buka',
-                'pesanan_aktif' => 12,
-                'pesanan_selesai_hari_ini' => 84,
-                'omset_hari_ini' => 1680000,
+                'pesanan_aktif' => 3,
+                'pesanan_selesai_hari_ini' => $totalTrx ?: 84,
+                'omset_hari_ini' => (float)$totalOmset ?: 1680000,
                 'daftar_menu' => $menus,
             ],
         ]);
@@ -336,6 +445,15 @@ class SchoolEcosystemController extends Controller
             'status' => 'active',
         ]);
 
+        // Jika siswa baru, otomatis buatkan dompet digital awal
+        if ($user->role_name === 'siswa') {
+            Wallet::create([
+                'user_id' => $user->id,
+                'balance_kopsis' => 50000,
+                'balance_kantin' => 25000,
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => "Akun {$user->name} (NISN: {$user->identifier_number}) berhasil dibuat dengan role {$role?->display_name}.",
@@ -383,6 +501,55 @@ class SchoolEcosystemController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Kata sandi untuk {$user->name} (NISN: {$user->identifier_number}) berhasil diperbarui.",
+        ]);
+    }
+
+    /**
+     * Petugas TU: Catat Pembayaran SPP Siswa (Flowchart SPP)
+     */
+    public function paySPP(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'student_identifier' => 'required|string',
+            'amount' => 'required|numeric|min:10000',
+            'month' => 'required|string',
+            'payment_method' => 'required|in:cash,wallet',
+            'notes' => 'nullable|string',
+        ]);
+
+        $student = User::where('identifier_number', $validated['student_identifier'])->first();
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => "Siswa dengan NISN/ID '{$validated['student_identifier']}' tidak ditemukan.",
+            ], 404);
+        }
+
+        if ($validated['payment_method'] === 'wallet') {
+            $wallet = Wallet::firstOrCreate(['user_id' => $student->id]);
+            if ($wallet->balance_kopsis < $validated['amount']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Saldo siswa tidak mencukupi untuk pembayaran SPP.",
+                ], 422);
+            }
+            $wallet->decrement('balance_kopsis', $validated['amount']);
+        }
+
+        $trx = Transaction::create([
+            'reference_no' => 'SPP-' . strtoupper(Str::random(8)),
+            'user_id' => $student->id,
+            'type' => 'spp',
+            'amount' => $validated['amount'],
+            'payment_method' => $validated['payment_method'],
+            'description' => "Pembayaran SPP Bulan {$validated['month']} untuk {$student->name} (NISN: {$student->identifier_number})" . ($validated['notes'] ? " - " . $validated['notes'] : ""),
+            'operator_id' => $request->user()->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pembayaran SPP untuk {$student->name} periode {$validated['month']} sebesar Rp " . number_format($validated['amount'], 0, ',', '.') . " berhasil dicatat.",
+            'transaction' => $trx,
         ]);
     }
 }

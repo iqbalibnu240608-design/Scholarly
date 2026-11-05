@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -18,6 +20,7 @@ class User extends Authenticatable
         'password',
         'role_id',
         'role_name',
+        'academic_class_id',
         'identifier_number',
         'phone',
         'gender',
@@ -43,6 +46,31 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    public function academicClass(): BelongsTo
+    {
+        return $this->belongsTo(AcademicClass::class, 'academic_class_id');
+    }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function grades(): HasMany
+    {
+        return $this->hasMany(Grade::class, 'student_id');
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
     /**
      * Check if user has specific role or one of given roles
      */
@@ -58,24 +86,12 @@ class User extends Authenticatable
     /**
      * Check if user has a permission
      */
-    public function hasPermission(string $permissionName): bool
+    public function hasPermission(string $permission): bool
     {
-        if ($this->role_name === 'admin') {
-            return true;
+        if (!$this->role) {
+            return false;
         }
 
-        if (!$this->relationLoaded('role')) {
-            $this->load('role.permissions');
-        }
-
-        return $this->role?->permissions->contains('name', $permissionName) ?? false;
+        return $this->role->permissions->contains('name', $permission);
     }
-
-    public function isSiswa(): bool { return $this->role_name === 'siswa'; }
-    public function isGuru(): bool { return $this->role_name === 'guru'; }
-    public function isPetugas(): bool { return $this->role_name === 'petugas'; }
-    public function isKepsek(): bool { return $this->role_name === 'kepsek'; }
-    public function isKopsis(): bool { return $this->role_name === 'kopsis'; }
-    public function isKantin(): bool { return $this->role_name === 'kantin'; }
-    public function isAdmin(): bool { return $this->role_name === 'admin'; }
 }
