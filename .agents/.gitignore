@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+**/node_modules/
+**/vendor/
+qa/test-results/
+qa/playwright-report/
+qa/videos/
+qa/traces/
+qa/screenshots/actual/
