@@ -552,4 +552,26 @@ class SchoolEcosystemController extends Controller
             'transaction' => $trx,
         ]);
     }
+
+    /**
+     * Dapatkan Riwayat Transaksi SPP (Untuk Siswa atau Petugas TU)
+     */
+    public function getSPPHistory(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $query = Transaction::with(['user:id,name,identifier_number', 'operator:id,name'])
+            ->where('type', 'spp')
+            ->latest();
+
+        if ($user->role_name === 'siswa') {
+            $query->where('user_id', $user->id);
+        }
+
+        $transactions = $query->take(30)->get();
+
+        return response()->json([
+            'success' => true,
+            'transactions' => $transactions,
+        ]);
+    }
 }

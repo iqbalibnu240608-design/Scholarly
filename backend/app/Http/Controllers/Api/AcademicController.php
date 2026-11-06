@@ -72,6 +72,25 @@ class AcademicController extends Controller
     }
 
     /**
+     * Guru: Dapatkan Riwayat Seluruh Nilai yang Telah Diinput oleh Guru Ini
+     */
+    public function getTeacherGrades(Request $request): JsonResponse
+    {
+        $teacherId = $request->user()->id;
+
+        $grades = Grade::with(['student:id,name,identifier_number'])
+            ->where('teacher_id', $teacherId)
+            ->latest()
+            ->take(50)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'grades' => $grades,
+        ]);
+    }
+
+    /**
      * Dapatkan Jadwal Pelajaran (Berdasarkan Kelas Siswa atau Seluruh Kelas)
      */
     public function getSchedules(Request $request): JsonResponse

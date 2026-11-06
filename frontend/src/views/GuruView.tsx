@@ -67,8 +67,30 @@ export const GuruView: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await apiClient.get('/school/guru');
-        setData(res.data.data);
+        const [resGuru, resGrades] = await Promise.all([
+          apiClient.get('/school/guru'),
+          apiClient.get('/guru/my-grades').catch(() => ({ data: { grades: [] } })),
+        ]);
+        setData(resGuru.data.data);
+
+        if (resGrades.data?.grades && resGrades.data.grades.length > 0) {
+          setRecentGrades(
+            resGrades.data.grades.map((g: any) => ({
+              student_name: g.student?.name || `Siswa (${g.student?.identifier_number || ''})`,
+              student_nisn: g.student?.identifier_number || '',
+              subject_name: g.subject_name,
+              type: String(g.type).toUpperCase(),
+              score: Number(g.score),
+              feedback: g.feedback || '',
+              created_at: new Date(g.created_at).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit',
+              }),
+            }))
+          );
+        }
       } catch (err) {
         console.error('Error fetching guru data', err);
       } finally {

@@ -100,6 +100,39 @@ export const PetugasView: React.FC = () => {
     }
   };
 
+  const fetchSPPHistory = async () => {
+    try {
+      const res = await apiClient.get('/petugas/spp-history');
+      if (res.data?.transactions && res.data.transactions.length > 0) {
+        setRecentSPP(
+          res.data.transactions.map((t: any) => ({
+            reference_no: t.reference_no,
+            student_name: t.user?.name || 'Siswa',
+            nisn: t.user?.identifier_number || '-',
+            month: t.description || 'SPP Bulanan',
+            amount: Number(t.amount),
+            method:
+              t.payment_method === 'wallet'
+                ? 'Saldo Digital'
+                : t.payment_method === 'cash'
+                ? 'Tunai di Loket'
+                : t.payment_method === 'qris'
+                ? 'QRIS'
+                : 'Transfer Bank',
+            time: new Date(t.created_at).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+          }))
+        );
+      }
+    } catch (err) {
+      console.error('Error fetching SPP history', err);
+    }
+  };
+
   const fetchStudentData = async () => {
     try {
       const res = await apiClient.get('/school/siswa');
@@ -125,7 +158,7 @@ export const PetugasView: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([fetchPetugasData(), fetchStudentData(), fetchWalletBalance()]);
+      await Promise.all([fetchPetugasData(), fetchStudentData(), fetchWalletBalance(), fetchSPPHistory()]);
       setLoading(false);
     };
     init();

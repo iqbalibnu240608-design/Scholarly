@@ -73,6 +73,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Modul Akademik (Guru & Siswa)
     Route::post('/guru/grades', [AcademicController::class, 'inputGrade']);
+    Route::get('/guru/my-grades', [AcademicController::class, 'getTeacherGrades']);
     Route::get('/siswa/my-grades', [AcademicController::class, 'getMyGrades']);
     Route::get('/school/schedules', [AcademicController::class, 'getSchedules']);
 
@@ -84,6 +85,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Modul Petugas TU (SPP)
     Route::post('/petugas/spp-payment', [SchoolEcosystemController::class, 'paySPP']);
+    Route::get('/petugas/spp-history', [SchoolEcosystemController::class, 'getSPPHistory']);
 
     // Admin Endpoints
     Route::get('/school/admin', [SchoolEcosystemController::class, 'getAdminData']);
