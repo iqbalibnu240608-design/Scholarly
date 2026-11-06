@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight,
-  GraduationCap,
-  BookOpen,
-  Award,
-  FileSpreadsheet,
-  ShoppingBag,
-  UtensilsCrossed,
-  Shield,
-  Sparkles,
-  CheckCircle2,
-  Lock,
-  Play,
-  Globe,
-  Layers,
-} from 'lucide-react';
+  FiArrowRight,
+  FiPlay,
+  FiCheckCircle,
+  FiLayers,
+  FiGlobe,
+} from 'react-icons/fi';
+import {
+  HiOutlineSparkles,
+  HiOutlineShieldCheck,
+  HiOutlineLockClosed,
+  HiOutlineAcademicCap,
+  HiOutlineBookOpen,
+} from 'react-icons/hi2';
+import {
+  RiAwardLine,
+  RiFileList3Line,
+  RiShoppingCart2Line,
+  RiRestaurantLine,
+} from 'react-icons/ri';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
 import './LandingPageView.css';
 
 export const LandingPageView: React.FC = () => {
@@ -151,9 +157,9 @@ export const LandingPageView: React.FC = () => {
       <div className="lp-bg-glow-orb-1" aria-hidden="true" />
       <div className="lp-bg-glow-orb-2" aria-hidden="true" />
 
-      {/* Top Header Navbar */}
+      {/* Top Header Navbar with Tailwind & Shadcn styling */}
       <header className="lp-header">
-        <div className="lp-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        <div className="lp-container flex items-center justify-between w-full">
           <Link to="/" className="lp-nav-brand">
             <img src="/steelschool-shield.png" alt="SteelSchool" className="lp-nav-brand-logo" />
             <div>
@@ -171,10 +177,12 @@ export const LandingPageView: React.FC = () => {
             </ul>
           </nav>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <Link to="/login" className="lp-nav-cta">
-              <span>Masuk Portal</span>
-              <ArrowRight size={15} />
+          <div className="flex items-center gap-3">
+            <Link to="/login">
+              <Button size="default" pill className="gap-2 text-xs md:text-sm font-bold shadow-md shadow-blue-500/30">
+                <span>Masuk Portal</span>
+                <FiArrowRight className="w-4 h-4" />
+              </Button>
             </Link>
           </div>
         </div>
@@ -186,9 +194,11 @@ export const LandingPageView: React.FC = () => {
           <div className="lp-hero-grid">
             {/* Left Content */}
             <div>
-              <div className="lp-hero-badge">
-                <Sparkles size={14} />
-                <span>Kompetisi Inovasi Teknologi Pendidikan 2026</span>
+              <div className="inline-flex items-center gap-2 mb-5">
+                <Badge variant="default" className="text-xs px-3.5 py-1.5 font-bold gap-2 bg-indigo-50 border-indigo-200/80 text-indigo-700 shadow-xs">
+                  <HiOutlineSparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
+                  <span>Kompetisi Inovasi Teknologi Pendidikan 2026</span>
+                </Badge>
               </div>
 
               <h1 className="lp-hero-title">
@@ -200,17 +210,21 @@ export const LandingPageView: React.FC = () => {
                 Satu platform terintegrasi untuk 9 civitas: manajemen akademik, presensi gerbang RFID, unit usaha kopsis & kantin cashless, hingga pemantauan eksekutif pimpinan sekolah.
               </p>
 
-              <div className="lp-hero-buttons">
-                <Link to="/login" className="lp-btn-primary">
-                  <span>Masuk ke Portal Sekolah</span>
-                  <ArrowRight size={18} />
+              <div className="lp-hero-buttons flex items-center gap-4 flex-wrap">
+                <Link to="/login">
+                  <Button size="lg" pill className="gap-2.5 shadow-xl shadow-blue-500/35">
+                    <span>Masuk ke Portal Sekolah</span>
+                    <FiArrowRight className="w-4 h-4" />
+                  </Button>
                 </Link>
 
-                <a href="#roles" className="lp-btn-secondary">
-                  <div className="lp-btn-icon-circle">
-                    <Play size={12} style={{ marginLeft: 2 }} />
-                  </div>
-                  <span>Lihat Simulasi 6 Peran</span>
+                <a href="#roles">
+                  <Button variant="secondary" size="lg" pill className="gap-2.5">
+                    <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                      <FiPlay className="w-3 h-3 ml-0.5" />
+                    </div>
+                    <span>Lihat Simulasi 6 Peran</span>
+                  </Button>
                 </a>
               </div>
             </div>
@@ -220,13 +234,13 @@ export const LandingPageView: React.FC = () => {
               <div className="lp-showcase-tablet">
                 <div className="lp-showcase-header">
                   <div className="lp-showcase-brand">
-                    <img src="/steelschool-shield.png" alt="Shield" style={{ width: 24, height: 24 }} />
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>SteelSchool Operational Hub</span>
+                    <img src="/steelschool-shield.png" alt="Shield" className="w-6 h-6 object-contain" />
+                    <span className="text-xs font-bold text-slate-900">SteelSchool Operational Hub</span>
                   </div>
-                  <div className="lp-showcase-badge-active">
-                    <span className="lp-showcase-pulse-dot" />
+                  <Badge variant="success" className="text-[10px] uppercase font-bold py-0.5 px-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-ping" />
                     <span>Sistem Aktif</span>
-                  </div>
+                  </Badge>
                 </div>
 
                 <div className="lp-showcase-stats-grid">
@@ -236,45 +250,54 @@ export const LandingPageView: React.FC = () => {
                   </div>
                   <div className="lp-mini-stat-card">
                     <div className="lp-mini-stat-label">Kehadiran Gerbang</div>
-                    <div className="lp-mini-stat-val" style={{ color: '#059669' }}>98.8%</div>
+                    <div className="lp-mini-stat-val text-emerald-600">98.8%</div>
                   </div>
                   <div className="lp-mini-stat-card">
                     <div className="lp-mini-stat-label">Saldo Cashless</div>
-                    <div className="lp-mini-stat-val" style={{ color: '#356df3' }}>Aktif</div>
+                    <div className="lp-mini-stat-val text-blue-600">Aktif</div>
                   </div>
                 </div>
 
-                <div style={{ background: '#f8fafc', borderRadius: 14, padding: '16px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Layers size={14} className="text-primary" />
+                <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-200/80">
+                  <div className="text-xs font-bold text-slate-900 mb-2 flex items-center gap-1.5">
+                    <FiLayers className="w-3.5 h-3.5 text-blue-600" />
                     <span>Alur Ekosistem Waktu-Nyata</span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>
-                    ✓ Check-in Gerbang Otomatis via RFID/NISN<br />
-                    ✓ Belanja Kopsis & Kantin via Dual-Balance Wallet<br />
-                    ✓ Evaluasi Nilai Guru & Rekap SPP Terpusat
+                  <div className="text-xs text-slate-600 leading-relaxed space-y-1">
+                    <div className="flex items-center gap-1.5">
+                      <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span>Check-in Gerbang Otomatis via RFID/NISN</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span>Belanja Kopsis & Kantin via Dual-Balance Wallet</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span>Evaluasi Nilai Guru & Rekap SPP Terpusat</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Floating Cards (Novus Style) */}
               <div className="lp-floating-card-1">
-                <div className="lp-floating-icon" style={{ background: '#d1fae5', color: '#059669' }}>
-                  <CheckCircle2 size={18} />
+                <div className="lp-floating-icon bg-emerald-100 text-emerald-600">
+                  <FiCheckCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>Presensi Gerbang</div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>Ahmad P. Hadir 06:45 WIB</div>
+                  <div className="text-xs font-bold text-slate-900">Presensi Gerbang</div>
+                  <div className="text-[11px] text-slate-500">Ahmad P. Hadir 06:45 WIB</div>
                 </div>
               </div>
 
               <div className="lp-floating-card-2">
-                <div className="lp-floating-icon" style={{ background: '#e0e7ff', color: '#356df3' }}>
-                  <ShoppingBag size={18} />
+                <div className="lp-floating-icon bg-blue-100 text-blue-600">
+                  <RiShoppingCart2Line className="w-4 h-4" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>Kopsis Smart POS</div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>Transaksi Saldo Sukses</div>
+                  <div className="text-xs font-bold text-slate-900">Kopsis Smart POS</div>
+                  <div className="text-[11px] text-slate-500">Transaksi Saldo Sukses</div>
                 </div>
               </div>
             </div>
@@ -282,25 +305,25 @@ export const LandingPageView: React.FC = () => {
         </div>
       </section>
 
-      {/* Trust & Partnership Section (Novus / Flowize Logos) */}
+      {/* Trust & Partnership Section */}
       <section className="lp-trust-section">
         <div className="lp-container">
           <div className="lp-trust-label">Standar Integrasi & Kompatibilitas Ekosistem Pendidikan</div>
           <div className="lp-trust-logos-row">
             <div className="lp-trust-logo-item">
-              <Globe size={18} />
+              <FiGlobe className="w-4 h-4 text-blue-600" />
               <span>Kemendikbudristek Dapodik</span>
             </div>
             <div className="lp-trust-logo-item">
-              <Sparkles size={18} />
+              <HiOutlineSparkles className="w-4 h-4 text-indigo-600" />
               <span>Google for Education</span>
             </div>
             <div className="lp-trust-logo-item">
-              <Shield size={18} />
+              <HiOutlineShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>Bank Indonesia QRIS</span>
             </div>
             <div className="lp-trust-logo-item">
-              <Lock size={18} />
+              <HiOutlineLockClosed className="w-4 h-4 text-purple-600" />
               <span>ISO 27001 Data Security</span>
             </div>
           </div>
@@ -328,7 +351,7 @@ export const LandingPageView: React.FC = () => {
             </div>
 
             <div className="lp-highlight-card">
-              <div className="lp-highlight-metric" style={{ color: '#059669' }}>99.8%</div>
+              <div className="lp-highlight-metric text-emerald-600">99.8%</div>
               <div className="lp-highlight-title">Akurasi Presensi Gerbang</div>
               <p className="lp-highlight-text">
                 Deteksi otomatis waktu check-in satpam dengan kalkulasi menit keterlambatan yang objektif.
@@ -336,7 +359,7 @@ export const LandingPageView: React.FC = () => {
             </div>
 
             <div className="lp-highlight-card">
-              <div className="lp-highlight-metric" style={{ color: '#7c3aed' }}>100%</div>
+              <div className="lp-highlight-metric text-purple-600">100%</div>
               <div className="lp-highlight-title">Cashless Dual-Balance</div>
               <p className="lp-highlight-text">
                 Pemisahan ketat saldo belanja Kopsis dan jajan Kantin agar uang saku edukasi siswa terarah.
@@ -344,7 +367,7 @@ export const LandingPageView: React.FC = () => {
             </div>
 
             <div className="lp-highlight-card">
-              <div className="lp-highlight-metric" style={{ color: '#0284c7' }}>RBAC</div>
+              <div className="lp-highlight-metric text-sky-600">RBAC</div>
               <div className="lp-highlight-title">Keamanan Multi-Peran</div>
               <p className="lp-highlight-text">
                 Setiap peran memiliki hak akses terisolasi ketat dengan enkripsi token API berstandar tinggi.
@@ -367,12 +390,12 @@ export const LandingPageView: React.FC = () => {
 
           <div className="lp-role-tabs-nav">
             {[
-              { id: 'siswa', label: 'Siswa / Murid', icon: GraduationCap },
-              { id: 'guru', label: 'Dewan Guru', icon: BookOpen },
-              { id: 'kepsek', label: 'Kepala Sekolah', icon: Award },
-              { id: 'petugas', label: 'Tata Usaha (TU)', icon: FileSpreadsheet },
-              { id: 'kopsis', label: 'Koperasi Siswa', icon: ShoppingBag },
-              { id: 'kantin', label: 'Kantin Sehat', icon: UtensilsCrossed },
+              { id: 'siswa', label: 'Siswa / Murid', icon: HiOutlineAcademicCap },
+              { id: 'guru', label: 'Dewan Guru', icon: HiOutlineBookOpen },
+              { id: 'kepsek', label: 'Kepala Sekolah', icon: RiAwardLine },
+              { id: 'petugas', label: 'Tata Usaha (TU)', icon: RiFileList3Line },
+              { id: 'kopsis', label: 'Koperasi Siswa', icon: RiShoppingCart2Line },
+              { id: 'kantin', label: 'Kantin Sehat', icon: RiRestaurantLine },
             ].map((tab) => {
               const TabIcon = tab.icon;
               return (
@@ -382,7 +405,7 @@ export const LandingPageView: React.FC = () => {
                   className={`lp-role-tab-btn ${activeRoleTab === tab.id ? 'active' : ''}`}
                   type="button"
                 >
-                  <TabIcon size={16} />
+                  <TabIcon className="w-4 h-4" />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -391,8 +414,10 @@ export const LandingPageView: React.FC = () => {
 
           <div className="lp-role-display-card">
             <div>
-              <div style={{ display: 'inline-block', padding: '4px 12px', background: '#e0e7ff', color: '#4338ca', borderRadius: 9999, fontSize: 12, fontWeight: 700, marginBottom: 12 }}>
-                {activeRoleData.roleBadge}
+              <div className="inline-block mb-3">
+                <Badge variant="primary" className="text-xs font-bold px-3 py-1">
+                  {activeRoleData.roleBadge}
+                </Badge>
               </div>
               <h3 className="lp-role-info-title">{activeRoleData.title}</h3>
               <p className="lp-role-info-desc">{activeRoleData.desc}</p>
@@ -400,22 +425,24 @@ export const LandingPageView: React.FC = () => {
               <div className="lp-role-features-list">
                 {activeRoleData.features.map((feat, idx) => (
                   <div key={idx} className="lp-role-feature-item">
-                    <CheckCircle2 size={16} style={{ color: '#10b981', flexShrink: 0 }} />
+                    <FiCheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span>{feat}</span>
                   </div>
                 ))}
               </div>
 
-              <Link to="/login" className="lp-btn-primary" style={{ padding: '10px 22px', fontSize: 13 }}>
-                <span>Coba Masuk Akun Ini</span>
-                <ArrowRight size={14} />
+              <Link to="/login">
+                <Button size="sm" pill className="gap-2 text-xs font-bold">
+                  <span>Coba Masuk Akun Ini</span>
+                  <FiArrowRight className="w-3.5 h-3.5" />
+                </Button>
               </Link>
             </div>
 
             <div className="lp-role-preview-widget">
               <div className="lp-widget-header">
                 <span>{activeRoleData.widgetTitle}</span>
-                <span style={{ color: '#356df3' }}>{activeRoleData.demoUser}</span>
+                <span className="text-blue-600 font-bold">{activeRoleData.demoUser}</span>
               </div>
               {activeRoleData.widgetRows.map((row, idx) => (
                 <div key={idx} className="lp-widget-row">
@@ -435,9 +462,11 @@ export const LandingPageView: React.FC = () => {
           <p className="lp-cta-desc">
             Bergabunglah dengan ekosistem digital terpadu untuk efisiensi akademik, transparansi unit usaha, dan kemudahan bagi seluruh civitas.
           </p>
-          <Link to="/login" className="lp-btn-primary" style={{ background: '#ffffff', color: '#1e1b4b', fontWeight: 700, boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
-            <span>Masuk ke Portal Sekolah Sekarang</span>
-            <ArrowRight size={16} />
+          <Link to="/login">
+            <Button size="lg" pill variant="secondary" className="gap-2 text-slate-900 font-bold shadow-xl">
+              <span>Masuk ke Portal Sekolah Sekarang</span>
+              <FiArrowRight className="w-4 h-4" />
+            </Button>
           </Link>
         </div>
       </div>
@@ -448,7 +477,7 @@ export const LandingPageView: React.FC = () => {
           <div className="lp-footer-grid">
             <div>
               <div className="lp-footer-brand-title">SteelSchool</div>
-              <p style={{ lineHeight: 1.6, maxWidth: 280 }}>
+              <p className="leading-relaxed max-w-xs text-slate-400">
                 Platform digitalisasi sekolah modern yang mengintegrasikan akademik, tata usaha, koperasi siswa, dan kantin sehat berstandar nasional.
               </p>
             </div>
@@ -475,7 +504,7 @@ export const LandingPageView: React.FC = () => {
 
             <div>
               <div className="lp-footer-heading">Kontak & Lokasi</div>
-              <p style={{ lineHeight: 1.6 }}>
+              <p className="leading-relaxed text-slate-400">
                 Jl. Pendidikan No. 45, Indonesia<br />
                 Telepon: (021) 8876-2026<br />
                 Email: info@steelschool.sch.id

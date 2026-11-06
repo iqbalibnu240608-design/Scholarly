@@ -25,6 +25,8 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 
 interface OverviewData {
   current_user: { name: string; role: string };
@@ -199,230 +201,245 @@ export const OverviewView: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: 48, textAlign: 'center', color: '#64748b' }}>
+      <div className="flex items-center justify-center min-h-[300px] text-sm text-slate-500 font-medium">
         Memuat data ekosistem sekolah...
       </div>
     );
   }
 
   return (
-    <div className="view-container">
-      {/* Welcome Greeting Banner (Flowize AI Style) */}
-      <div
-        className="card-panel"
-        style={{
-          background: 'linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%)',
-          border: '1px solid #e0e7ff',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '28px',
-          padding: '28px 32px',
-        }}
-      >
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: '#e0e7ff', color: '#4338ca', borderRadius: 9999, fontSize: 12, fontWeight: 700, marginBottom: 10 }}>
-            <UserCheck size={14} />
-            <span>Sesi Aktif: {ROLE_LABELS[activeRole] || activeRole}</span>
+    <div className="space-y-6">
+      {/* Welcome Greeting Banner (Flowize AI Style: Soft lavender gradient, rounded-3xl) */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-white via-blue-50/40 to-indigo-50/40 border border-indigo-100/80 p-6 md:p-8 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100/80 text-blue-700 rounded-full text-xs font-bold mb-3">
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Sesi Aktif: {ROLE_LABELS[activeRole] || activeRole}</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Selamat Datang, {user?.name || (isAdmin ? 'Administrator' : 'Pengguna')}
+            </h2>
+            <p className="text-xs md:text-sm text-slate-600 mt-1">
+              {isStudent
+                ? `NISN: ${user?.identifier_number || '0061234567'} • Rombel Kelas: ${studentStats.kelas}`
+                : 'Ekosistem Sekolah Terpadu berjalan lancar dan terintegrasi secara real-time.'}
+            </p>
           </div>
-          <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', letterSpacing: -0.5, marginBottom: 6 }}>
-            Selamat Datang, {user?.name || (isAdmin ? 'Administrator' : 'Pengguna')}
-          </h2>
-          <p style={{ fontSize: 14, color: '#64748b' }}>
-            {isStudent
-              ? `NISN: ${user?.identifier_number || '0061234567'} • Rombel Kelas: ${studentStats.kelas}`
-              : 'Ekosistem Sekolah Terpadu berjalan lancar dan terintegrasi.'}
-          </p>
-        </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          {isAdmin ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: '#d1fae5', color: '#065f46', borderRadius: 9999, fontSize: 13, fontWeight: 700 }}>
-              <ShieldCheck size={16} />
-              <span>Full Admin Access</span>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 9999, fontSize: 13, fontWeight: 600, color: '#334155' }}>
-              <CheckCircle2 size={16} style={{ color: '#10b981' }} />
-              <span>Status Terverifikasi</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {isAdmin ? (
+              <Badge variant="success" className="px-3.5 py-1.5 text-xs font-bold gap-1.5 rounded-full">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Full Admin Access</span>
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="px-3.5 py-1.5 text-xs font-semibold gap-1.5 rounded-full bg-white text-slate-700">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>Status Terverifikasi</span>
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
 
       {/* NexaAdmin 4-Grid Key Stat Cards */}
-      <div className="kpi-grid">
-        <div className="kpi-card">
-          <div className="kpi-content">
-            <span className="kpi-label">{isStudent ? 'Saldo Koperasi Siswa' : 'Total Siswa Terdaftar'}</span>
-            <span className="kpi-value">
-              {isStudent ? `Rp ${studentStats.saldo_kopsis.toLocaleString('id-ID')}` : (data?.metrics?.total_siswa || 348)}
-            </span>
-            <span className="kpi-trend">
-              <TrendingUp size={12} /> {isStudent ? 'Siap Dibelanjakan' : '+12 Siswa Baru'}
-            </span>
-          </div>
-          <div className="kpi-icon-box icon-blue">
-            <GraduationCap size={24} />
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1 */}
+        <Card className="border-slate-200/80 hover:shadow-md transition-shadow">
+          <CardContent className="p-5 flex items-start justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                {isStudent ? 'Saldo Koperasi Siswa' : 'Total Siswa Terdaftar'}
+              </span>
+              <span className="text-2xl font-black text-slate-900 tracking-tight mt-1.5 block">
+                {isStudent
+                  ? `Rp ${studentStats.saldo_kopsis.toLocaleString('id-ID')}`
+                  : (data?.metrics?.total_siswa || 348)}
+              </span>
+              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-blue-600">
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span>{isStudent ? 'Siap Dibelanjakan' : '+12 Siswa Baru'}</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <GraduationCap className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="kpi-card">
-          <div className="kpi-content">
-            <span className="kpi-label">{isStudent ? 'Saldo Kantin Sehat' : 'Dewan Guru & Staf'}</span>
-            <span className="kpi-value">
-              {isStudent ? `Rp ${studentStats.saldo_kantin.toLocaleString('id-ID')}` : (data?.metrics?.total_guru || 24)}
-            </span>
-            <span className="kpi-trend" style={{ color: '#6366f1' }}>
-              <CheckCircle2 size={12} /> {isStudent ? 'Bebas Tunai' : 'Aktif Mengajar'}
-            </span>
-          </div>
-          <div className="kpi-icon-box icon-purple">
-            {isStudent ? <UtensilsCrossed size={24} /> : <Users size={24} />}
-          </div>
-        </div>
+        {/* Card 2 */}
+        <Card className="border-slate-200/80 hover:shadow-md transition-shadow">
+          <CardContent className="p-5 flex items-start justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                {isStudent ? 'Saldo Kantin Sehat' : 'Dewan Guru & Staf'}
+              </span>
+              <span className="text-2xl font-black text-slate-900 tracking-tight mt-1.5 block">
+                {isStudent
+                  ? `Rp ${studentStats.saldo_kantin.toLocaleString('id-ID')}`
+                  : (data?.metrics?.total_guru || 24)}
+              </span>
+              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-indigo-600">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{isStudent ? 'Bebas Tunai' : 'Aktif Mengajar'}</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+              {isStudent ? <UtensilsCrossed className="w-6 h-6" /> : <Users className="w-6 h-6" />}
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="kpi-card">
-          <div className="kpi-content">
-            <span className="kpi-label">{isStudent ? 'Kehadiran Bulan Ini' : 'Rombongan Belajar'}</span>
-            <span className="kpi-value">
-              {isStudent ? studentStats.kehadiran : (data?.metrics?.total_kelas || 12)}
-            </span>
-            <span className="kpi-trend" style={{ color: '#059669' }}>
-              <CheckCircle2 size={12} /> {isStudent ? 'Disiplin Tinggi' : 'Kelas X, XI, XII'}
-            </span>
-          </div>
-          <div className="kpi-icon-box icon-emerald">
-            {isStudent ? <Calendar size={24} /> : <Building size={24} />}
-          </div>
-        </div>
+        {/* Card 3 */}
+        <Card className="border-slate-200/80 hover:shadow-md transition-shadow">
+          <CardContent className="p-5 flex items-start justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                {isStudent ? 'Kehadiran Bulan Ini' : 'Rombongan Belajar'}
+              </span>
+              <span className="text-2xl font-black text-slate-900 tracking-tight mt-1.5 block">
+                {isStudent ? studentStats.kehadiran : (data?.metrics?.total_kelas || 12)}
+              </span>
+              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-600">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{isStudent ? 'Disiplin Tinggi' : 'Kelas X, XI, XII'}</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              {isStudent ? <Calendar className="w-6 h-6" /> : <Building className="w-6 h-6" />}
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="kpi-card">
-          <div className="kpi-content">
-            <span className="kpi-label">{isStudent ? 'Status SPP Bulan Ini' : 'Unit Usaha Sekolah'}</span>
-            <span className="kpi-value" style={{ color: isStudent ? '#059669' : '#0f172a' }}>
-              {isStudent ? studentStats.spp_status : ((data?.metrics?.total_kopsis_products || 28) + ' ATK / ' + (data?.metrics?.total_kantin_menus || 19) + ' Menu')}
-            </span>
-            <span className="kpi-trend" style={{ color: '#d97706' }}>
-              <CheckCircle2 size={12} /> {isStudent ? 'Kuitansi Digital' : 'Kopsis & Kantin'}
-            </span>
-          </div>
-          <div className="kpi-icon-box icon-amber">
-            {isStudent ? <CreditCard size={24} /> : <Store size={24} />}
-          </div>
-        </div>
+        {/* Card 4 */}
+        <Card className="border-slate-200/80 hover:shadow-md transition-shadow">
+          <CardContent className="p-5 flex items-start justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                {isStudent ? 'Status SPP Bulan Ini' : 'Unit Usaha Sekolah'}
+              </span>
+              <span className={`text-2xl font-black tracking-tight mt-1.5 block ${isStudent ? 'text-emerald-600' : 'text-slate-900'}`}>
+                {isStudent
+                  ? studentStats.spp_status
+                  : `${data?.metrics?.total_kopsis_products || 28} ATK / ${data?.metrics?.total_kantin_menus || 19} Menu`}
+              </span>
+              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-amber-600">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{isStudent ? 'Kuitansi Digital' : 'Kopsis & Kantin'}</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              {isStudent ? <CreditCard className="w-6 h-6" /> : <Store className="w-6 h-6" />}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Grid: Modul Civitas (NexaAdmin) + Papan Pengumuman (Flowize AI) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: 24, marginBottom: 28 }}>
-        {/* Modul Akses Cepat */}
-        <div className="card-panel">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Modul Akses Cepat (Col span 2) */}
+        <Card className="lg:col-span-2 border-slate-200/80">
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
             <div>
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>Modul Civitas Sekolah</h3>
-              <p style={{ fontSize: 13, color: '#64748b' }}>Pilih modul untuk mulai mengelola operasional peran Anda</p>
+              <CardTitle className="text-base md:text-lg font-bold text-slate-900">
+                Modul Civitas Sekolah
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Pilih modul untuk mengelola operasional peran Anda
+              </CardDescription>
             </div>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#356df3', background: '#eef2ff', padding: '4px 10px', borderRadius: 9999 }}>
+            <Badge variant="primary" className="text-xs font-bold rounded-full">
               {visiblePortals.length} Modul Tersedia
-            </span>
-          </div>
+            </Badge>
+          </CardHeader>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
-            {visiblePortals.map((portal, idx) => {
-              const PortalIcon = portal.icon;
-              return (
-                <Link
-                  key={idx}
-                  to={portal.to}
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: 14,
-                    padding: 18,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    textDecoration: 'none',
-                    transition: 'all 0.2s ease',
-                  }}
-                  className="card-panel-hover"
-                >
-                  <div>
-                    <div
-                      style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 10,
-                        background: portal.iconBg,
-                        color: portal.iconColor,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginBottom: 12,
-                      }}
-                    >
-                      <PortalIcon size={20} />
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {visiblePortals.map((portal, idx) => {
+                const PortalIcon = portal.icon;
+                return (
+                  <Link
+                    key={idx}
+                    to={portal.to}
+                    className="group flex flex-col justify-between p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-blue-400 hover:shadow-md transition-all duration-200"
+                  >
+                    <div>
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform"
+                        style={{
+                          backgroundColor: portal.iconBg,
+                          color: portal.iconColor,
+                        }}
+                      >
+                        <PortalIcon className="w-5 h-5" />
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                        {portal.title}
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                        {portal.desc}
+                      </p>
                     </div>
-                    <h4 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
-                      {portal.title}
-                    </h4>
-                    <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5, marginBottom: 14 }}>
-                      {portal.desc}
-                    </p>
-                  </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#356df3' }}>
-                    <span>Buka Portal</span>
-                    <ArrowRight size={14} />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600 mt-3 pt-2 border-t border-slate-100 group-hover:translate-x-1 transition-transform">
+                      <span>Buka Modul</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Papan Pengumuman Sekolah */}
-        <div className="card-panel">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
-            <Bell size={18} style={{ color: '#356df3' }} />
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>Pengumuman Sekolah</h3>
-          </div>
+        {/* Papan Pengumuman Sekolah (Col span 1) */}
+        <Card className="border-slate-200/80">
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-blue-600" />
+              <CardTitle className="text-base font-bold text-slate-900">
+                Pengumuman Sekolah
+              </CardTitle>
+            </div>
+            <Badge variant="secondary" className="text-[11px] font-mono">
+              Live Feed
+            </Badge>
+          </CardHeader>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <CardContent className="space-y-3">
             {visibleAnnouncements.length > 0 ? (
               visibleAnnouncements.map((ann) => (
                 <div
                   key={ann.id}
-                  style={{
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: 12,
-                    padding: 16,
-                  }}
+                  className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:shadow-xs transition-all"
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: 9999 }}>
-                      {ann.target_role === 'all' ? 'Semua Civitas' : ann.target_role.toUpperCase()}
-                    </span>
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>
-                      {new Date(ann.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <Badge variant="primary" className="text-[10px] uppercase font-bold py-0.5">
+                      {ann.target_role === 'all' ? 'Semua Civitas' : ann.target_role}
+                    </Badge>
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {new Date(ann.created_at).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                      })}
                     </span>
                   </div>
-                  <h5 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
+                  <h5 className="text-xs font-bold text-slate-900 mb-1">
                     {ann.title}
                   </h5>
-                  <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     {ann.content}
                   </p>
                 </div>
               ))
             ) : (
-              <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+              <div className="p-8 text-center text-xs text-slate-400">
                 Belum ada pengumuman baru untuk peran Anda.
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

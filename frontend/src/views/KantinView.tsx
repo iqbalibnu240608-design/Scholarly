@@ -5,6 +5,7 @@ import {
   UtensilsCrossed,
   Coffee,
   CheckCircle,
+  AlertCircle,
   PlusCircle,
   ShoppingCart,
   X,
@@ -334,7 +335,8 @@ export const KantinView: React.FC = () => {
           <Receipt size={24} className="receipt-alert-icon" />
           <div className="receipt-alert-content">
             <div className="receipt-alert-title">
-              ✅ Struk Pesanan Kantin: {lastReceipt.reference_no}
+              <CheckCircle className="w-4 h-4 text-emerald-600 inline mr-1.5" />
+              Struk Pesanan Kantin: {lastReceipt.reference_no}
             </div>
             <div className="receipt-alert-desc">
               Total Pembayaran: <strong>Rp {Number(lastReceipt.total).toLocaleString('id-ID')}</strong> ({lastReceipt.method}) • Pemesan: {lastReceipt.customer}
@@ -890,7 +892,8 @@ export const KantinView: React.FC = () => {
 
                   {walletBalance < cartTotal && (
                     <div className="mt-3 p-2 bg-amber-50 text-amber-800 rounded border border-amber-200">
-                      ⚠️ Saldo kantin Anda kurang. Anda bisa <strong>Isi Saldo</strong> atau cukup klik opsi <strong>Bayar Tunai</strong> di atas!
+                      <AlertCircle className="w-4 h-4 text-amber-600 inline mr-1.5" />
+                      Saldo kantin Anda kurang. Anda bisa <strong>Isi Saldo</strong> atau cukup klik opsi <strong>Bayar Tunai</strong> di atas!
                     </div>
                   )}
                 </div>

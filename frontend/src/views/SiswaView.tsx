@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../api/client';
+import { toast } from 'sonner';
 import {
   Calendar,
   Clock,
@@ -12,11 +13,21 @@ import {
   ShoppingCart,
   UtensilsCrossed,
   PlusCircle,
-  Wallet,
-  X,
-  CheckCircle, GraduationCap, Sparkles,
+  GraduationCap,
+  Sparkles,
 } from 'lucide-react';
-import './EcosystemModals.css';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../components/ui/table';
+import { Dialog } from '../components/ui/dialog';
 
 interface SiswaData {
   kelas: string;
@@ -68,7 +79,6 @@ export const SiswaView: React.FC = () => {
   const [topupTarget, setTopupTarget] = useState<'kopsis' | 'kantin'>('kantin');
   const [topupAmount, setTopupAmount] = useState<number>(50000);
   const [topupSubmitting, setTopupSubmitting] = useState<boolean>(false);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -91,6 +101,7 @@ export const SiswaView: React.FC = () => {
       setAverageScore(resGrades.data.average_score || 0);
     } catch (err) {
       console.error('Error fetching siswa data', err);
+      toast.error('Gagal mengambil data siswa');
     }
   }, []);
 
@@ -118,291 +129,368 @@ export const SiswaView: React.FC = () => {
 
       await fetchData();
       setShowTopupModal(false);
-      setSuccessMsg(`Top-up Rp ${topupAmount.toLocaleString('id-ID')} ke Saldo ${topupTarget.toUpperCase()} berhasil!`);
-      setTimeout(() => setSuccessMsg(null), 4000);
+      toast.success(
+        `Top-up Rp ${topupAmount.toLocaleString('id-ID')} ke Saldo ${topupTarget.toUpperCase()} berhasil!`
+      );
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal melakukan top-up');
+      toast.error(err.response?.data?.message || 'Gagal melakukan top-up');
     } finally {
       setTopupSubmitting(false);
     }
   };
 
-  if (loading) return <div className="loading-container">Memuat modul Siswa...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px] text-sm text-slate-500 font-medium">
+        Memuat modul Siswa...
+      </div>
+    );
+  }
 
   return (
-    <div className="view-container">
-      {successMsg && (
-        <div className="feedback-alert mb-4">
-          <CheckCircle size={18} />
-          <span>{successMsg}</span>
+    <div className="space-y-6">
+      {/* View Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
+        <div className="flex items-start gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+            <GraduationCap className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant="primary" className="text-xs">
+                Portal Siswa
+              </Badge>
+              <Badge variant="secondary" className="text-xs font-mono">
+                NISN: {user?.identifier_number || '0061234567'}
+              </Badge>
+            </div>
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+              Portal Akademik & Kehadiran Siswa
+            </h2>
+            <p className="text-xs md:text-sm text-slate-500 mt-0.5">
+              Pantau jadwal kelas, rekap absensi harian, saldo digital cashless, dan buku nilai evaluasi.
+            </p>
+          </div>
         </div>
-      )}
 
-      <div className="view-header">
-        <div>
-          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><GraduationCap size={24} style={{ color: '#356df3' }} /> Portal Siswa (Peserta Didik)</h2>
-          <p>Akses informasi akademik, jadwal kelas harian, presensi, saldo digital, dan buku nilai.</p>
-        </div>
-        <div className="header-meta">
-          <span className="info-chip">Kelas: {data?.kelas}</span>
-          <span className="info-chip">Wali: {data?.wali_kelas}</span>
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          <Badge variant="secondary" className="px-3 py-1 text-xs font-bold">
+            Kelas: {data?.kelas}
+          </Badge>
+          <Badge variant="outline" className="px-3 py-1 text-xs font-semibold">
+            Wali: {data?.wali_kelas}
+          </Badge>
         </div>
       </div>
 
-      {/* Saldo Digital & SPP Grid with Interactive Action Buttons */}
-      <div className="grid-cards-3">
+      {/* Saldo Digital & SPP Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Card 1: Saldo Koperasi Siswa */}
-        <div className="feature-card highlight-card flex flex-col justify-between">
-          <div>
-            <div className="card-top-icon text-indigo-600">
-              <CreditCard size={22} />
+        <Card className="border-indigo-100/80 bg-white flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Saldo Koperasi Siswa
+            </CardTitle>
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <CreditCard className="w-4 h-4" />
             </div>
-            <h4>Saldo Koperasi Siswa</h4>
-            <div className="amount-display">
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black text-slate-900 tracking-tight">
               Rp {(data?.saldo_digital.saldo_kopsis ?? 0).toLocaleString('id-ID')}
             </div>
-            <p className="card-subtext">Dapat digunakan untuk pembelian ATK & seragam di Kopsis</p>
-          </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Dapat digunakan untuk pembelian ATK & seragam di Kopsis
+            </p>
 
-          <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
-            <Link
-              to="/app/kopsis"
-              className="btn-primary-action flex-1 text-center"
-              style={{ justifyContent: 'center', fontSize: '12px', padding: '6px 10px' }}
-            >
-              <ShoppingCart size={14} /> Belanja Kopsis
-            </Link>
-            <button
-              onClick={() => {
-                setTopupTarget('kopsis');
-                setShowTopupModal(true);
-              }}
-              className="btn-secondary-action"
-              style={{ fontSize: '12px', padding: '6px 10px' }}
-              title="Isi Saldo Kopsis"
-            >
-              <PlusCircle size={14} /> Top Up
-            </button>
-          </div>
-        </div>
+            <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
+              <Link to="/app/kopsis" className="flex-1">
+                <Button size="sm" className="w-full gap-1.5 text-xs rounded-xl">
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  <span>Belanja</span>
+                </Button>
+              </Link>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setTopupTarget('kopsis');
+                  setShowTopupModal(true);
+                }}
+                className="gap-1 text-xs rounded-xl"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Top Up</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Card 2: Saldo Kantin Sekolah */}
-        <div className="feature-card highlight-card flex flex-col justify-between">
-          <div>
-            <div className="card-top-icon text-emerald-600">
-              <CreditCard size={22} />
+        <Card className="border-emerald-100/80 bg-white flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Saldo Kantin Sehat
+            </CardTitle>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <UtensilsCrossed className="w-4 h-4" />
             </div>
-            <h4>Saldo Kantin Sekolah</h4>
-            <div className="amount-display">
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black text-slate-900 tracking-tight">
               Rp {(data?.saldo_digital.saldo_kantin ?? 0).toLocaleString('id-ID')}
             </div>
-            <p className="card-subtext">Dapat digunakan untuk pemesanan makanan cashless di kantin</p>
-          </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Dapat digunakan untuk pemesanan makanan cashless di kantin
+            </p>
 
-          <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
-            <Link
-              to="/app/kantin"
-              className="btn-success-action flex-1 text-center"
-              style={{ justifyContent: 'center', fontSize: '12px', padding: '6px 10px' }}
-            >
-              <UtensilsCrossed size={14} /> Pesan Kantin
-            </Link>
-            <button
-              onClick={() => {
-                setTopupTarget('kantin');
-                setShowTopupModal(true);
-              }}
-              className="btn-secondary-action"
-              style={{ fontSize: '12px', padding: '6px 10px' }}
-              title="Isi Saldo Kantin"
-            >
-              <PlusCircle size={14} /> Top Up
-            </button>
-          </div>
-        </div>
+            <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
+              <Link to="/app/kantin" className="flex-1">
+                <Button size="sm" variant="success" className="w-full gap-1.5 text-xs rounded-xl">
+                  <UtensilsCrossed className="w-3.5 h-3.5" />
+                  <span>Pesan Menu</span>
+                </Button>
+              </Link>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setTopupTarget('kantin');
+                  setShowTopupModal(true);
+                }}
+                className="gap-1 text-xs rounded-xl"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Top Up</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Card 3: Status Pembayaran SPP */}
-        <div className="feature-card flex flex-col justify-between">
-          <div>
-            <div className="card-top-icon text-amber-600">
-              <CheckCircle2 size={22} />
+        <Card className="border-amber-100/80 bg-white flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Status SPP Bulanan
+            </CardTitle>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4" />
             </div>
-            <h4>Status Pembayaran SPP</h4>
-            <div className="badge-status-paid">{data?.tagihan_spp.status}</div>
-            <p className="card-subtext">Periode {data?.tagihan_spp.bulan} (Jatuh tempo: {data?.tagihan_spp.jatuh_tempo})</p>
-          </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <Badge variant="success" className="text-sm font-bold px-3 py-0.5">
+                {data?.tagihan_spp.status}
+              </Badge>
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              Periode {data?.tagihan_spp.bulan} (Jatuh tempo: {data?.tagihan_spp.jatuh_tempo})
+            </p>
 
-          <div className="mt-4 pt-3 border-t border-slate-100">
-            <Link
-              to="/app/petugas"
-              className="btn-primary-action w-full text-center"
-              style={{ justifyContent: 'center', fontSize: '12px', padding: '6px 10px' }}
-            >
-              <CreditCard size={14} /> Layanan TU & Bayar SPP
-            </Link>
-          </div>
-        </div>
+            <div className="mt-4 pt-3 border-t border-slate-100">
+              <Link to="/app/petugas">
+                <Button size="sm" variant="outline" className="w-full gap-1.5 text-xs rounded-xl">
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>Layanan TU & Riwayat SPP</span>
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Jadwal & Presensi Section */}
-      <div className="overview-columns mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Jadwal Pelajaran */}
-        <div className="overview-card">
-          <div className="card-header">
-            <h3>
-              <Clock size={18} className="inline mr-2 text-indigo-600" />
-              Jadwal Pelajaran Hari Ini
-            </h3>
-            <span className="badge-pill">{data?.jadwal_hari_ini.length || 0} Pertemuan</span>
-          </div>
-          <div className="schedule-list">
+        <Card className="border-slate-200/80">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-blue-600" />
+              <CardTitle className="text-base font-bold text-slate-900">
+                Jadwal Pelajaran Hari Ini
+              </CardTitle>
+            </div>
+            <Badge variant="secondary" className="text-xs">
+              {data?.jadwal_hari_ini.length || 0} Pertemuan
+            </Badge>
+          </CardHeader>
+          <CardContent className="space-y-3">
             {data?.jadwal_hari_ini.map((j, idx) => (
-              <div key={idx} className="schedule-item">
-                <div className="schedule-time">
-                  <Calendar size={14} className="inline mr-1" /> {j.jam}
+              <div
+                key={idx}
+                className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:shadow-xs transition-all"
+              >
+                <div className="px-2.5 py-1 rounded-xl bg-blue-100/80 text-blue-700 text-xs font-bold font-mono shrink-0">
+                  <Calendar className="w-3 h-3 inline mr-1" />
+                  {j.jam}
                 </div>
-                <div className="schedule-details">
-                  <h4>{j.mapel}</h4>
-                  <div className="schedule-meta">
-                    <span>Pengajar: {j.guru}</span> • <span>Lokasi: {j.ruang}</span>
+                <div className="flex-1">
+                  <h4 className="text-sm font-bold text-slate-900">{j.mapel}</h4>
+                  <div className="text-xs text-slate-500 mt-0.5">
+                    <span>Pengajar: {j.guru}</span> • <span>Ruang: {j.ruang}</span>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Rekap Kehadiran Siswa */}
-        <div className="overview-card">
-          <div className="card-header">
-            <h3>
-              <BookOpen size={18} className="inline mr-2 text-emerald-600" />
-              Presensi & Kehadiran Bulan Ini
-            </h3>
-            <span className="badge-pill bg-emerald-100 text-emerald-800">
+        <Card className="border-slate-200/80">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-emerald-600" />
+              <CardTitle className="text-base font-bold text-slate-900">
+                Presensi & Kehadiran Bulan Ini
+              </CardTitle>
+            </div>
+            <Badge variant="success" className="text-xs font-bold">
               {data?.presensi_bulan_ini.persentase}
-            </span>
-          </div>
-          <div className="attendance-stats-grid">
-            <div className="att-box hadir">
-              <span className="att-number">{data?.presensi_bulan_ini.hadir}</span>
-              <span className="att-label">Hadir</span>
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-4 gap-2.5">
+              <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-100 text-center">
+                <span className="text-xl font-black text-emerald-700 block">
+                  {data?.presensi_bulan_ini.hadir}
+                </span>
+                <span className="text-[11px] font-bold text-emerald-800">Hadir</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-blue-50 border border-blue-100 text-center">
+                <span className="text-xl font-black text-blue-700 block">
+                  {data?.presensi_bulan_ini.izin}
+                </span>
+                <span className="text-[11px] font-bold text-blue-800">Izin</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-100 text-center">
+                <span className="text-xl font-black text-amber-700 block">
+                  {data?.presensi_bulan_ini.sakit}
+                </span>
+                <span className="text-[11px] font-bold text-amber-800">Sakit</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-rose-50 border border-rose-100 text-center">
+                <span className="text-xl font-black text-rose-700 block">
+                  {data?.presensi_bulan_ini.alpha}
+                </span>
+                <span className="text-[11px] font-bold text-rose-800">Alpha</span>
+              </div>
             </div>
-            <div className="att-box izin">
-              <span className="att-number">{data?.presensi_bulan_ini.izin}</span>
-              <span className="att-label">Izin</span>
+
+            <div className="mt-4 p-3 rounded-2xl bg-slate-50 border border-slate-200/60 text-xs text-slate-600 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+              <span>Presensi otomatis terhubung dengan RFID gate gerbang satpam dan absensi kelas guru.</span>
             </div>
-            <div className="att-box sakit">
-              <span className="att-number">{data?.presensi_bulan_ini.sakit}</span>
-              <span className="att-label">Sakit</span>
-            </div>
-            <div className="att-box alpha">
-              <span className="att-number">{data?.presensi_bulan_ini.alpha}</span>
-              <span className="att-label">Alpha</span>
-            </div>
-          </div>
-          <div className="mt-4 p-3 bg-slate-50 rounded text-sm text-slate-600">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#356df3' }} /> Presensi otomatis terhubung dengan gate gerbang satpam dan absensi kelas guru.</span>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Rekap Nilai Akademik Siswa */}
-      <div className="overview-card mt-6">
-        <div className="card-header">
-          <h3>
-            <Award size={18} className="inline mr-2 text-amber-500" />
-            Transkrip Nilai Akademik Siswa (MySQL Table: `grades`)
-          </h3>
-          <span className="badge-pill bg-amber-50 text-amber-800 font-bold">
+      <Card className="border-slate-200/80">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Award className="w-4 h-4 text-amber-500" />
+            <CardTitle className="text-base font-bold text-slate-900">
+              Transkrip Nilai Akademik Siswa
+            </CardTitle>
+          </div>
+          <Badge variant="warning" className="text-xs font-bold">
             Rata-rata: {averageScore}
-          </span>
-        </div>
-
-        <div className="table-responsive">
+          </Badge>
+        </CardHeader>
+        <CardContent className="p-0">
           {grades.length === 0 ? (
-            <div className="p-4 text-center text-sm text-slate-500">
+            <div className="p-8 text-center text-xs text-slate-400">
               Belum ada nilai yang diinput oleh guru untuk semester ini.
             </div>
           ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Mata Pelajaran</th>
-                  <th>Jenis Evaluasi</th>
-                  <th>Nilai Angka</th>
-                  <th>Guru Pengampu</th>
-                  <th>Catatan / Evaluasi</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Mata Pelajaran</TableHead>
+                  <TableHead>Jenis Evaluasi</TableHead>
+                  <TableHead>Nilai Angka</TableHead>
+                  <TableHead>Guru Pengampu</TableHead>
+                  <TableHead>Catatan / Evaluasi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {grades.map((g) => (
-                  <tr key={g.id}>
-                    <td><strong>{g.subject_name}</strong></td>
-                    <td>
-                      <span className="badge-pill text-xs uppercase">{g.type}</span>
-                    </td>
-                    <td>
-                      <strong className="text-indigo-700 text-sm">{Number(g.score)}</strong>
-                    </td>
-                    <td>{g.teacher?.name || 'Guru Pengampu'}</td>
-                    <td className="text-xs text-slate-600">{g.feedback || '-'}</td>
-                  </tr>
+                  <TableRow key={g.id}>
+                    <TableCell className="font-bold text-slate-900">
+                      {g.subject_name}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="text-[11px] uppercase">
+                        {g.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-mono font-black text-blue-600 text-sm">
+                        {Number(g.score)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs text-slate-600">
+                      {g.teacher?.name || 'Guru Pengampu'}
+                    </TableCell>
+                    <TableCell className="text-xs text-slate-500">
+                      {g.feedback || '-'}
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* ============================================================== */}
-      {/* MODAL: TOP-UP SALDO DIGITAL SISWA                              */}
-      {/* ============================================================== */}
-      {showTopupModal && (
-        <div className="eco-modal-backdrop" onClick={() => setShowTopupModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="eco-modal-header">
-              <h3>
-                <Wallet size={18} className="text-sky-500" />
-                Isi Saldo {topupTarget === 'kantin' ? 'Kantin Sekolah' : 'Koperasi Siswa'}
-              </h3>
-              <button onClick={() => setShowTopupModal(false)} className="btn-close-modal">
-                <X size={18} />
+      {/* Modal Top Up Saldo Digital (Shadcn Dialog) */}
+      <Dialog
+        open={showTopupModal}
+        onClose={() => setShowTopupModal(false)}
+        title={`Isi Saldo ${topupTarget === 'kantin' ? 'Kantin Sehat' : 'Koperasi Siswa'}`}
+        description="Pilih nominal saldo yang ingin Anda tambahkan ke Saldo E-Wallet Sekolah."
+      >
+        <form onSubmit={handleTopup} className="space-y-4 mt-2">
+          <div className="grid grid-cols-3 gap-2">
+            {[10000, 20000, 50000, 100000, 150000, 200000].map((amt) => (
+              <button
+                key={amt}
+                type="button"
+                onClick={() => setTopupAmount(amt)}
+                className={`p-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer ${
+                  topupAmount === amt
+                    ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300'
+                }`}
+              >
+                Rp {amt.toLocaleString('id-ID')}
               </button>
-            </div>
-            <form onSubmit={handleTopup} className="eco-modal-form">
-              <div className="eco-modal-body">
-                <p className="text-xs text-slate-600">
-                  Pilih nominal saldo yang ingin Anda tambahkan ke Saldo E-Wallet:
-                </p>
-                <div className="topup-grid">
-                  {[10000, 20000, 50000, 100000, 150000, 200000].map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      onClick={() => setTopupAmount(amt)}
-                      className={`topup-btn ${topupAmount === amt ? 'selected' : ''}`}
-                    >
-                      Rp {amt.toLocaleString('id-ID')}
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-4 p-3 bg-sky-50 rounded text-xs text-sky-800 border border-sky-200">
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#0284c7' }} /> Saldo ini langsung masuk ke akun Anda dan dapat dipakai belanja secara cashless.</span>
-                </div>
-              </div>
-              <div className="eco-modal-footer">
-                <button type="button" onClick={() => setShowTopupModal(false)} className="btn-secondary-action">
-                  Batal
-                </button>
-                <button type="submit" disabled={topupSubmitting} className="btn-success-action">
-                  {topupSubmitting ? 'Memproses...' : `Konfirmasi Top Up Rp ${topupAmount.toLocaleString('id-ID')}`}
-                </button>
-              </div>
-            </form>
+            ))}
           </div>
-        </div>
-      )}
+
+          <div className="p-3 rounded-2xl bg-sky-50 border border-sky-100 text-xs text-sky-800 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-sky-600 shrink-0" />
+            <span>Saldo ini langsung masuk ke akun Anda dan dapat dipakai belanja secara cashless.</span>
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowTopupModal(false)}
+            >
+              Batal
+            </Button>
+            <Button type="submit" disabled={topupSubmitting}>
+              {topupSubmitting
+                ? 'Memproses...'
+                : `Konfirmasi Top Up Rp ${topupAmount.toLocaleString('id-ID')}`}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
     </div>
   );
 };
+
+export default SiswaView;

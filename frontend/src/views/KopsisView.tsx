@@ -4,6 +4,8 @@ import { apiClient } from '../api/client';
 import {
   DollarSign,
   PackageCheck,
+  CheckCircle,
+  AlertCircle,
   PlusCircle,
   ShoppingCart,
   X,
@@ -321,7 +323,8 @@ export const KopsisView: React.FC = () => {
           <Receipt size={24} className="receipt-alert-icon" />
           <div className="receipt-alert-content">
             <div className="receipt-alert-title">
-              ✅ Bukti Belanja Koperasi: {lastReceipt.reference_no}
+              <CheckCircle className="w-4 h-4 text-emerald-600 inline mr-1.5" />
+              Bukti Belanja Koperasi: {lastReceipt.reference_no}
             </div>
             <div className="receipt-alert-desc">
               Total Pembayaran: <strong>Rp {Number(lastReceipt.total).toLocaleString('id-ID')}</strong> ({lastReceipt.method}) • Pembeli: {lastReceipt.customer}
@@ -734,7 +737,8 @@ export const KopsisView: React.FC = () => {
 
                   {walletBalance < cartTotal && (
                     <div className="mt-3 p-2 bg-amber-50 text-amber-800 rounded border border-amber-200">
-                      ⚠️ Saldo kopsis Anda kurang. Anda bisa <strong>Isi Saldo</strong> atau cukup klik opsi <strong>Bayar Tunai di Loket</strong> di atas!
+                      <AlertCircle className="w-4 h-4 text-amber-600 inline mr-1.5" />
+                      Saldo kopsis Anda kurang. Anda bisa <strong>Isi Saldo</strong> atau cukup klik opsi <strong>Bayar Tunai di Loket</strong> di atas!
                     </div>
                   )}
                 </div>

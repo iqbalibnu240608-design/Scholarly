@@ -97,30 +97,57 @@ export const Sidebar: React.FC = () => {
   );
 
   return (
-    <aside className="app-sidebar">
-      <div className="sidebar-heading">Menu Ekosistem</div>
-      <ul className="sidebar-nav-list">
-        {visibleItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <li key={item.to}>
-              <NavLink
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  isActive ? 'sidebar-nav-item active' : 'sidebar-nav-item'
-                }
-              >
-                <div className="nav-link-content">
-                  <Icon className="nav-icon" />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge && <span className="nav-item-badge">{item.badge}</span>}
-              </NavLink>
-            </li>
-          );
-        })}
-      </ul>
+    <aside className="w-64 bg-white border-r border-slate-200/80 p-4 shrink-0 hidden md:flex flex-col justify-between">
+      <div>
+        <div className="px-3 pb-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          Menu Ekosistem
+        </div>
+        <ul className="space-y-1 list-none p-0 m-0">
+          {visibleItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <div className="flex items-center gap-2.5">
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                            isActive
+                              ? 'bg-white/20 text-white'
+                              : 'bg-slate-100 text-slate-500'
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/60 text-center">
+        <span className="text-[11px] font-bold text-slate-700 block">SteelSchool v2.0</span>
+        <span className="text-[10px] text-slate-400">Active Build: Production</span>
+      </div>
     </aside>
   );
 };
