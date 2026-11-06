@@ -177,12 +177,13 @@ export const LandingPageView: React.FC = () => {
             </ul>
           </nav>
 
-          <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button size="default" pill className="gap-2 text-xs md:text-sm font-bold shadow-md shadow-blue-500/30">
-                <span>Masuk Portal</span>
-                <FiArrowRight className="w-4 h-4" />
-              </Button>
+          <div className="flex items-center">
+            <Link
+              to="/login"
+              className="group inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-gradient-to-r from-[#356DF3] to-[#4F46E5] text-white text-sm font-semibold shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 no-underline select-none cursor-pointer"
+            >
+              <span className="leading-none">Masuk Portal</span>
+              <FiArrowRight className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
           </div>
         </div>
@@ -211,20 +212,24 @@ export const LandingPageView: React.FC = () => {
               </p>
 
               <div className="lp-hero-buttons flex items-center gap-4 flex-wrap">
-                <Link to="/login">
-                  <Button size="lg" pill className="gap-2.5 shadow-xl shadow-blue-500/35">
-                    <span>Masuk ke Portal Sekolah</span>
-                    <FiArrowRight className="w-4 h-4" />
-                  </Button>
+                <Link
+                  to="/login"
+                  className="group inline-flex items-center justify-center gap-2.5 h-[52px] px-8 rounded-full bg-gradient-to-r from-[#356DF3] via-[#3B82F6] to-[#4F46E5] text-white text-[15px] font-semibold shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 no-underline select-none cursor-pointer"
+                >
+                  <span className="leading-none">Masuk ke Portal Sekolah</span>
+                  <FiArrowRight className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
 
-                <a href="#roles">
-                  <Button variant="secondary" size="lg" pill className="gap-2.5">
-                    <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                      <FiPlay className="w-3 h-3 ml-0.5" />
-                    </div>
-                    <span>Lihat Simulasi 6 Peran</span>
-                  </Button>
+                <a
+                  href="#roles"
+                  className="group inline-flex items-center gap-3.5 h-[52px] pl-3.5 pr-6 rounded-full bg-white text-slate-800 border border-slate-200/90 shadow-sm hover:border-blue-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 no-underline select-none cursor-pointer"
+                >
+                  <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 shadow-xs group-hover:bg-blue-600 group-hover:text-white transition-all duration-200">
+                    <FiPlay className="w-3.5 h-3.5 ml-0.5 fill-current" />
+                  </div>
+                  <span className="text-[15px] font-semibold tracking-tight text-slate-800 group-hover:text-blue-600 transition-colors leading-none">
+                    Lihat Simulasi Peran
+                  </span>
                 </a>
               </div>
             </div>
@@ -381,7 +386,7 @@ export const LandingPageView: React.FC = () => {
       <section id="roles" className="lp-roles-section">
         <div className="lp-container">
           <div className="lp-section-header">
-            <span className="lp-section-tag">Simulasi 6 Peran Civitas</span>
+            <span className="lp-section-tag">Simulasi Peran Civitas</span>
             <h2 className="lp-section-title">Satu Platform, Pengalaman Spesifik</h2>
             <p className="lp-section-desc">
               Pilih peran di bawah ini untuk melihat bagaimana antarmuka menyesuaikan dengan alur kerja masing-masing pengguna.
