@@ -14,6 +14,7 @@ import {
   Wallet,
   Sparkles,
   QrCode,
+  Store,
 } from 'lucide-react';
 import './EcosystemModals.css';
 
@@ -340,7 +341,7 @@ export const KantinView: React.FC = () => {
               {lastReceipt.items && <div className="mt-1 text-xs">Pesanan: {lastReceipt.items}</div>}
               {lastReceipt.instructions && (
                 <div className="mt-2 font-semibold text-emerald-800 p-2 bg-emerald-100 rounded">
-                  💡 {lastReceipt.instructions}
+                  <Sparkles size={14} className="inline mr-1 text-primary" /> {lastReceipt.instructions}
                 </div>
               )}
             </div>
@@ -404,7 +405,7 @@ export const KantinView: React.FC = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`catalog-tab-btn ${selectedCategory === cat ? 'active' : ''}`}
               >
-                {cat === 'Makanan' ? '🍛 Makanan' : cat === 'Minuman' ? '🥤 Minuman' : cat === 'Snack' ? '🥐 Snack' : '🍽️ Semua Menu'}
+                {cat === 'Makanan' ? 'Makanan' : cat === 'Minuman' ? 'Minuman' : cat === 'Snack' ? 'Snack' : 'Semua Menu'}
               </button>
             ))}
           </div>
@@ -419,7 +420,7 @@ export const KantinView: React.FC = () => {
                     <span className="catalog-item-badge">{menu.category}</span>
                     <h4 className="catalog-item-name">{menu.name}</h4>
                     <p className="catalog-item-meta">
-                      📍 {menu.stall_name} •{' '}
+                      <Store size={12} className="inline mr-1 text-primary" /> {menu.stall_name} •{' '}
                       <span className={menu.is_available ? 'text-emerald-600 font-semibold' : 'text-red-500'}>
                         {menu.is_available ? 'Tersedia' : 'Habis'}
                       </span>
@@ -541,7 +542,7 @@ export const KantinView: React.FC = () => {
         <>
           <div className="view-header">
             <div>
-              <h2>🍜 Portal Pengelola Stan Kantin</h2>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><UtensilsCrossed size={24} style={{ color: '#356df3' }} /> Portal Pengelola Stan Kantin</h2>
               <p>Kelola menu makanan harian, pantau antrean pesanan masuk, dan atur QRIS stan Anda.</p>
             </div>
             <div className="card-header-actions">
@@ -633,8 +634,8 @@ export const KantinView: React.FC = () => {
                             {ord.payment_method === 'wallet'
                               ? 'Saldo E-Wallet'
                               : ord.payment_method === 'qris'
-                              ? '📱 QRIS'
-                              : '💵 Tunai di Stan'}
+                              ? 'QRIS'
+                              : 'Tunai di Stan'}
                           </span>
                         </td>
                         <td className="text-xs text-slate-500">
@@ -795,7 +796,7 @@ export const KantinView: React.FC = () => {
                   ))}
                 </div>
                 <div className="mt-4 p-3 bg-sky-50 rounded text-xs text-sky-800 border border-sky-200">
-                  💡 Saldo ini langsung dapat dipakai untuk checkout pesanan makanan tanpa uang tunai.
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#0284c7' }} /> Saldo ini langsung dapat dipakai untuk checkout pesanan makanan tanpa uang tunai.</span>
                 </div>
               </div>
               <div className="eco-modal-footer">
@@ -897,7 +898,7 @@ export const KantinView: React.FC = () => {
 
               {paymentMethod === 'cash' && (
                 <div className="p-3 bg-emerald-50 text-emerald-800 rounded text-xs border border-emerald-200">
-                  💵 <strong>Bayar Tunai di Stan:</strong> Nomor pesanan akan langsung dibuat. Bawa uang pas sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil makanan di stan.
+                  <Banknote size={16} className="inline mr-1 text-primary" /> <strong>Bayar Tunai di Stan:</strong> Nomor pesanan akan langsung dibuat. Bawa uang pas sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil makanan di stan.
                 </div>
               )}
 

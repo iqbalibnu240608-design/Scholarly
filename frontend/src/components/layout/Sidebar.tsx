@@ -1,7 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ROLE_LABELS } from '../../types/auth';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -11,9 +10,7 @@ import {
   ShoppingBag,
   UtensilsCrossed,
   Settings,
-  ShieldCheck,
   Shield,
-  Lock,
   BookMarked,
 } from 'lucide-react';
 
@@ -39,51 +36,51 @@ export const Sidebar: React.FC = () => {
     },
     {
       to: '/app/kantin',
-      label: activeRole === 'siswa' || activeRole === 'guru' ? 'Kantin Sekolah' : 'Portal Kantin Sekolah',
+      label: activeRole === 'siswa' || activeRole === 'guru' ? 'Kantin Sekolah' : 'Kasir Kantin',
       icon: UtensilsCrossed,
-      badge: activeRole === 'siswa' || activeRole === 'guru' ? 'Pesan Makanan' : 'Kantin',
+      badge: 'Kantin',
       allowedRoles: ['admin', 'kantin', 'siswa', 'guru'],
     },
     {
       to: '/app/kopsis',
-      label: activeRole === 'siswa' || activeRole === 'guru' ? 'Koperasi Siswa' : 'Portal Koperasi (Kopsis)',
+      label: activeRole === 'siswa' || activeRole === 'guru' ? 'Koperasi Siswa' : 'Kasir Kopsis',
       icon: ShoppingBag,
-      badge: activeRole === 'siswa' || activeRole === 'guru' ? 'Belanja ATK' : 'Kopsis',
+      badge: 'Kopsis',
       allowedRoles: ['admin', 'kopsis', 'siswa', 'guru'],
     },
     {
       to: '/app/petugas',
-      label: activeRole === 'siswa' ? 'Layanan TU & SPP' : 'Portal TU & Petugas',
+      label: activeRole === 'siswa' ? 'Layanan TU & SPP' : 'Tata Usaha (TU)',
       icon: FileSpreadsheet,
-      badge: activeRole === 'siswa' ? 'Bayar SPP' : 'Petugas',
+      badge: 'SPP',
       allowedRoles: ['admin', 'petugas', 'siswa'],
     },
     {
       to: '/app/perpus',
-      label: activeRole === 'perpustakaan' ? 'Portal Perpustakaan' : 'Perpustakaan (Perpus)',
+      label: 'Perpustakaan (E-Library)',
       icon: BookMarked,
-      badge: activeRole === 'siswa' ? 'Pinjam Buku' : 'Perpus',
+      badge: 'Perpus',
       allowedRoles: ['admin', 'perpustakaan', 'siswa', 'guru'],
     },
     {
       to: '/app/guru',
-      label: 'Portal Guru',
+      label: 'Portal Dewan Guru',
       icon: BookOpen,
-      badge: 'Guru',
+      badge: 'Nilai',
       allowedRoles: ['admin', 'guru', 'kepsek'],
     },
     {
       to: '/app/kepsek',
-      label: 'Portal Kepsek',
+      label: 'Monitoring Kepsek',
       icon: Award,
-      badge: 'Kepsek',
+      badge: 'Eksekutif',
       allowedRoles: ['admin', 'kepsek'],
     },
     {
       to: '/app/security',
-      label: 'Keamanan & Satpam',
+      label: 'Gate Presensi Satpam',
       icon: Shield,
-      badge: 'Satpam',
+      badge: 'RFID',
       allowedRoles: ['admin', 'security'],
     },
     {
@@ -95,72 +92,35 @@ export const Sidebar: React.FC = () => {
     },
   ];
 
-  // Hanya tampilkan modul yang berhak diakses oleh peran aktif saat ini
   const visibleItems = navigationItems.filter(
     (item) => isAdmin || item.allowedRoles.includes(activeRole)
   );
 
   return (
     <aside className="app-sidebar">
-      <div className="sidebar-header">
-        {isAdmin ? (
-          <>
-            <div className="sidebar-indicator">
-              <ShieldCheck size={16} className="text-emerald-500" />
-              <span>Akses Admin (Full Setup)</span>
-            </div>
-            <p className="sidebar-note">
-              Mode inspeksi seluruh modul ekosistem sekolah aktif untuk Administrator.
-            </p>
-          </>
-        ) : (
-          <>
-            <div className="sidebar-indicator" style={{ color: '#2563eb' }}>
-              <Lock size={15} style={{ color: '#2563eb' }} />
-              <span>Akses Peran: {ROLE_LABELS[activeRole] || activeRole}</span>
-            </div>
-            <p className="sidebar-note">
-              Navigasi disesuaikan untuk kebutuhan{' '}
-              <strong style={{ color: '#1e293b' }}>{ROLE_LABELS[activeRole] || activeRole}</strong>.
-            </p>
-          </>
-        )}
-      </div>
-
-      <nav className="sidebar-nav">
+      <div className="sidebar-heading">Menu Ekosistem</div>
+      <ul className="sidebar-nav-list">
         {visibleItems.map((item) => {
           const Icon = item.icon;
-          const isTargetRole = item.allowedRoles.includes(activeRole) && item.to !== '/app';
-
           return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `nav-item ${isActive ? 'nav-item-active' : ''} ${
-                  isTargetRole ? 'nav-item-highlight' : ''
-                }`
-              }
-            >
-              <Icon size={18} className="nav-icon" />
-              <span className="nav-label">{item.label}</span>
-              {item.badge && (
-                <span className={`nav-badge ${isTargetRole ? 'nav-badge-focused' : ''}`}>
-                  {item.badge}
-                </span>
-              )}
-            </NavLink>
+            <li key={item.to}>
+              <NavLink
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  isActive ? 'sidebar-nav-item active' : 'sidebar-nav-item'
+                }
+              >
+                <div className="nav-link-content">
+                  <Icon className="nav-icon" />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && <span className="nav-item-badge">{item.badge}</span>}
+              </NavLink>
+            </li>
           );
         })}
-      </nav>
-
-      <div className="sidebar-footer">
-        <div className="system-pill">
-          <span className="dot dot-online" />
-          <span>Backend Laravel 12 API Ready</span>
-        </div>
-      </div>
+      </ul>
     </aside>
   );
 };

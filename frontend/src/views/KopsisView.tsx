@@ -328,7 +328,7 @@ export const KopsisView: React.FC = () => {
               {lastReceipt.items && <div className="mt-1 text-xs">Item: {lastReceipt.items}</div>}
               {lastReceipt.instructions && (
                 <div className="mt-2 font-semibold text-emerald-800 p-2 bg-emerald-100 rounded">
-                  📦 {lastReceipt.instructions}
+                  <Sparkles size={14} className="inline mr-1 text-primary" /> {lastReceipt.instructions}
                 </div>
               )}
             </div>
@@ -392,7 +392,7 @@ export const KopsisView: React.FC = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`catalog-tab-btn ${selectedCategory === cat ? 'active' : ''}`}
               >
-                {cat === 'Alat Tulis' ? '✏️ Alat Tulis' : cat === 'Seragam' ? '👕 Seragam' : cat === 'Buku' ? '📚 Buku & Modul' : '🛍️ Semua Produk'}
+                {cat === 'Alat Tulis' ? 'Alat Tulis' : cat === 'Seragam' ? 'Seragam' : cat === 'Buku' ? 'Buku & Modul' : 'Semua Produk'}
               </button>
             ))}
           </div>
@@ -535,7 +535,7 @@ export const KopsisView: React.FC = () => {
         <>
           <div className="view-header">
             <div>
-              <h2>🛒 Portal Koperasi Siswa (Kopsis)</h2>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ShoppingBag size={24} style={{ color: '#356df3' }} /> Portal Koperasi Siswa (Kopsis)</h2>
               <p>Kelola inventaris seragam, alat tulis sekolah, dan operasional kasir harian.</p>
             </div>
             <div className="card-header-actions">
@@ -640,7 +640,7 @@ export const KopsisView: React.FC = () => {
                   ))}
                 </div>
                 <div className="mt-4 p-3 bg-orange-50 rounded text-xs text-orange-800 border border-orange-200">
-                  💡 Saldo ini langsung dapat dipakai untuk checkout perlengkapan ATK & seragam tanpa uang tunai.
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#0284c7' }} /> Saldo ini langsung dapat dipakai untuk checkout perlengkapan ATK & seragam tanpa uang tunai.</span>
                 </div>
               </div>
               <div className="eco-modal-footer">
@@ -742,7 +742,7 @@ export const KopsisView: React.FC = () => {
 
               {paymentMethod === 'cash' && (
                 <div className="p-3 bg-emerald-50 text-emerald-800 rounded text-xs border border-emerald-200">
-                  💵 <strong>Bayar Tunai di Loket Kopsis:</strong> Nomor pesanan akan langsung dibuat. Siapkan uang tunai sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil barang di etalase koperasi.
+                  <Banknote size={16} className="inline mr-1 text-primary" /> <strong>Bayar Tunai di Loket Kopsis:</strong> Nomor pesanan akan langsung dibuat. Siapkan uang tunai sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil barang di etalase koperasi.
                 </div>
               )}
 

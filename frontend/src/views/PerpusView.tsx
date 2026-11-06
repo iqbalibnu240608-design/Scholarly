@@ -246,7 +246,7 @@ export const PerpusView: React.FC = () => {
                   onClick={() => setSelectedCategory(cat)}
                   className={`catalog-tab-btn ${selectedCategory === cat ? 'active' : ''}`}
                 >
-                  {cat === 'Pelajaran' ? '📖 Pelajaran' : cat === 'Teknologi' ? '💻 Teknologi' : cat === 'Fiksi' ? '✨ Fiksi' : cat === 'Komik' ? '🎨 Komik' : cat}
+                  {cat}
                 </button>
               ))}
             </div>
@@ -371,7 +371,7 @@ export const PerpusView: React.FC = () => {
         <>
           <div className="view-header">
             <div>
-              <h2>📚 Portal Sirkulasi Perpustakaan Sekolah</h2>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><BookMarked size={24} style={{ color: '#356df3' }} /> Portal Sirkulasi Perpustakaan Sekolah</h2>
               <p>Kelola katalog koleksi buku, sirkulasi peminjaman & pengembalian, serta denda keterlambatan.</p>
             </div>
             <div className="card-header-actions">
@@ -671,7 +671,7 @@ export const PerpusView: React.FC = () => {
                 </div>
 
                 <div className="p-3 bg-emerald-50 text-emerald-800 text-xs rounded border border-emerald-200">
-                  💡 Buku wajib dikembalikan tepat waktu sebelum tanggal jatuh tempo agar tidak terkena denda keterlambatan Rp 1.000 / hari.
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#0284c7' }} /> Buku wajib dikembalikan tepat waktu sebelum tanggal jatuh tempo agar tidak terkena denda keterlambatan Rp 1.000 / hari.</span>
                 </div>
               </div>
 

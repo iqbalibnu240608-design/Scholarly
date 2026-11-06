@@ -318,7 +318,7 @@ export const AdminView: React.FC = () => {
                     className="w-full p-2 border rounded text-xs bg-white font-mono"
                   />
                   <span className="text-[11px] text-slate-500 mt-1 block">
-                    💡 Kata sandi ini diberikan langsung ke siswa/staf saat penyerahan akun.
+                    Kata sandi ini diberikan langsung ke siswa/staf saat penyerahan akun.
                   </span>
                 </div>
               </div>

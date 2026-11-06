@@ -14,7 +14,7 @@ import {
   PlusCircle,
   Wallet,
   X,
-  CheckCircle,
+  CheckCircle, GraduationCap, Sparkles,
 } from 'lucide-react';
 import './EcosystemModals.css';
 
@@ -140,7 +140,7 @@ export const SiswaView: React.FC = () => {
 
       <div className="view-header">
         <div>
-          <h2>🎓 Portal Siswa (Peserta Didik)</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><GraduationCap size={24} style={{ color: '#356df3' }} /> Portal Siswa (Peserta Didik)</h2>
           <p>Akses informasi akademik, jadwal kelas harian, presensi, saldo digital, dan buku nilai.</p>
         </div>
         <div className="header-meta">
@@ -302,7 +302,7 @@ export const SiswaView: React.FC = () => {
             </div>
           </div>
           <div className="mt-4 p-3 bg-slate-50 rounded text-sm text-slate-600">
-            💡 Presensi otomatis terhubung dengan gate gerbang satpam dan absensi kelas guru.
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#356df3' }} /> Presensi otomatis terhubung dengan gate gerbang satpam dan absensi kelas guru.</span>
           </div>
         </div>
       </div>
@@ -388,7 +388,7 @@ export const SiswaView: React.FC = () => {
                   ))}
                 </div>
                 <div className="mt-4 p-3 bg-sky-50 rounded text-xs text-sky-800 border border-sky-200">
-                  💡 Saldo ini langsung masuk ke akun Anda dan dapat dipakai belanja secara cashless.
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#0284c7' }} /> Saldo ini langsung masuk ke akun Anda dan dapat dipakai belanja secara cashless.</span>
                 </div>
               </div>
               <div className="eco-modal-footer">

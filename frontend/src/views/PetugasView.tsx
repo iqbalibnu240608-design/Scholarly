@@ -15,6 +15,7 @@ import {
   Sparkles,
   Building,
   QrCode,
+  ClipboardList,
 } from 'lucide-react';
 import './EcosystemModals.css';
 
@@ -378,7 +379,7 @@ export const PetugasView: React.FC = () => {
         <>
           <div className="view-header">
             <div>
-              <h2>📋 Portal Petugas TU & Administrasi</h2>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ClipboardList size={24} style={{ color: '#356df3' }} /> Portal Petugas TU & Administrasi</h2>
               <p>Kelola surat-menyurat, verifikasi pembayaran SPP sekolah, dan inventaris sarana prasarana.</p>
             </div>
             <div className="card-header-actions">
@@ -482,7 +483,7 @@ export const PetugasView: React.FC = () => {
                   ))}
                 </div>
                 <div className="mt-4 p-3 bg-purple-50 rounded text-xs text-purple-800 border border-purple-200">
-                  💡 Saldo ini dapat langsung dipakai untuk membayar tagihan SPP bulanan sekolah.
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#0284c7' }} /> Saldo ini dapat langsung dipakai untuk membayar tagihan SPP bulanan sekolah.</span>
                 </div>
               </div>
               <div className="eco-modal-footer">
@@ -619,7 +620,7 @@ export const PetugasView: React.FC = () => {
 
                 {paymentMethod === 'transfer' && (
                   <div className="p-3 bg-blue-50 text-blue-800 rounded text-xs border border-blue-200">
-                    🏦 <strong>Nomor Virtual Account:</strong> <code>88001{user?.identifier_number || '0061234567'}</code> (Bank BNI / Mandiri / BRI). Konfirmasi instan tanpa upload slip transfer.
+                    <Building size={14} className="inline mr-1 text-primary" /> <strong>Nomor Virtual Account:</strong> <code>88001{user?.identifier_number || '0061234567'}</code> (Bank BNI / Mandiri / BRI). Konfirmasi instan tanpa upload slip transfer.
                   </div>
                 )}
 

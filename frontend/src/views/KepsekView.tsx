@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
-import { Award, TrendingUp, CheckCircle, ShieldAlert } from 'lucide-react';
+import { Award, TrendingUp, CheckCircle, ShieldAlert, FileCheck, FileText, BarChart3, School } from 'lucide-react';
 
 interface KepsekData {
   ringkasan_eksekutif: {
@@ -41,7 +41,7 @@ export const KepsekView: React.FC = () => {
     <div className="view-container">
       <div className="view-header">
         <div>
-          <h2>🏫 Portal Kepala Sekolah (Pimpinan Eksekutif)</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><School size={24} style={{ color: '#356df3' }} /> Portal Kepala Sekolah (Pimpinan Eksekutif)</h2>
           <p>Pemantauan KPI sekolah, pengawasan integritas akademik, keuangan kopsis, dan evaluasi unit.</p>
         </div>
         <div className="header-meta">
@@ -126,13 +126,13 @@ export const KepsekView: React.FC = () => {
           </div>
           <div className="action-buttons-list">
             <button className="btn-action">
-              ✅ Pengesahan Nilai Rapor Semester Siswa
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FileCheck size={16} style={{ color: '#10b981' }} /> Pengesahan Nilai Rapor Semester Siswa</span>
             </button>
             <button className="btn-action">
-              📑 Tanda Tangan Digital Surat Keputusan (SK)
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={16} style={{ color: '#356df3' }} /> Tanda Tangan Digital Surat Keputusan (SK)</span>
             </button>
             <button className="btn-action">
-              📊 Ekspor Laporan Tahunan Sekolah (PDF/Excel)
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><BarChart3 size={16} style={{ color: '#6366f1' }} /> Ekspor Laporan Tahunan Sekolah (PDF/Excel)</span>
             </button>
             <button className="btn-action">
               <ShieldAlert size={16} className="inline mr-1 text-amber-500" /> Audit Keuangan Kopsis & Kantin

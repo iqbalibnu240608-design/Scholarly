@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
-import { BookOpen, Users, Calendar, Award, Check, X, FileText, CheckCircle2 } from 'lucide-react';
+import { BookOpen, Users, Calendar, Award, Check, X, FileText, CheckCircle2, ClipboardList, FolderUp, MessageSquare } from 'lucide-react';
 import './EcosystemModals.css';
 
 interface GuruData {
@@ -123,7 +123,7 @@ export const GuruView: React.FC = () => {
       {/* Header Halaman */}
       <div className="view-header">
         <div>
-          <h2>👨‍🏫 Portal Guru & Tenaga Pendidik</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><BookOpen size={24} style={{ color: '#356df3' }} /> Portal Guru & Tenaga Pendidik</h2>
           <p>Kelola jadwal mengajar, input nilai siswa ke database rapor, dan pantau rekapitulasi rombel.</p>
         </div>
         <div className="header-meta">
@@ -220,25 +220,25 @@ export const GuruView: React.FC = () => {
               onClick={() => setShowGradeModal(true)}
               className="btn-action bg-indigo-50 border border-indigo-200 text-indigo-900 font-bold hover:bg-indigo-100"
             >
-              📝 Input Nilai Ulangan Harian / Tugas / PTS
+              <FileText size={16} /> <span>Input Nilai Ulangan Harian / Tugas / PTS</span>
             </button>
             <button
               onClick={() => alert('Presensi kelas hari ini tersinkronisasi otomatis dengan gerbang satpam.')}
               className="btn-action"
             >
-              📋 Buka Presensi Kelas Hari Ini
+              <ClipboardList size={16} /> <span>Buka Presensi Kelas Hari Ini</span>
             </button>
             <button
               onClick={() => alert('Fitur repositori modul PDF siap diintegrasikan.')}
               className="btn-action"
             >
-              📂 Unggah Modul & Bahan Ajar PDF
+              <FolderUp size={16} /> <span>Unggah Modul & Bahan Ajar PDF</span>
             </button>
             <button
               onClick={() => alert('Catatan karakter terhubung dengan sistem konseling BK.')}
               className="btn-action"
             >
-              💬 Catatan Karakter Siswa (Terhubung ke BK)
+              <MessageSquare size={16} /> <span>Catatan Karakter Siswa (Terhubung ke BK)</span>
             </button>
           </div>
         </div>

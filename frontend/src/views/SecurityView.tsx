@@ -7,7 +7,8 @@ import {
   UserCheck,
   ScanLine,
   X,
-  History
+  History,
+  Shield
 } from 'lucide-react';
 import './EcosystemModals.css';
 
@@ -97,7 +98,7 @@ export const SecurityView: React.FC = () => {
       {/* Header Halaman */}
       <div className="view-header">
         <div>
-          <h2>🛡️ Portal Keamanan & Presensi Gerbang (Satpam)</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Shield size={24} style={{ color: '#356df3' }} /> Portal Keamanan & Presensi Gerbang (Satpam)</h2>
           <p>Verifikasi kedatangan siswa, pemindaian kartu RFID/NISN, dan pemantauan keterlambatan sekolah.</p>
         </div>
         <div className="header-meta">
