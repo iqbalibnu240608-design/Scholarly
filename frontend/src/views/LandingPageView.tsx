@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Sparkles,
   ArrowRight,
   GraduationCap,
   BookOpen,
@@ -11,11 +10,15 @@ import {
   ShoppingBag,
   UtensilsCrossed,
   ShieldCheck,
-  CheckCircle2,
   TrendingUp,
   Laptop,
   Check,
   Building,
+  Star,
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
 } from 'lucide-react';
 import './LandingPageView.css';
 
@@ -161,18 +164,6 @@ export const LandingPageView: React.FC = () => {
          ------------------------------------------------------------------ */}
       <nav className="lp-navbar">
         <div className="lp-container lp-nav-inner">
-          <Link to="/" className="lp-brand-group">
-            <svg className="lp-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z" fill="#FBBF24" />
-              <path d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z" fill="#4ADE80" />
-              <path d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z" fill="#38BDF8" />
-              <path d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z" fill="#F472B6" />
-            </svg>
-            <div className="lp-brand-text">
-              <span className="lp-brand-name">SteelSchool</span>
-              <span className="lp-brand-tagline">Ekosistem Sekolah Terpadu</span>
-            </div>
-          </Link>
 
           <ul className="lp-nav-links">
             <li><a href="#keunggulan" className="lp-nav-item">Keunggulan</a></li>
@@ -206,14 +197,8 @@ export const LandingPageView: React.FC = () => {
           <div className="lp-hero-grid">
             {/* Left Content */}
             <div className="lp-hero-content">
-              <div className="lp-badge-pill">
-                <Sparkles size={14} className="text-blue-500" />
-                <span>Transformasi Digital Sekolah 2026 · Akreditasi A Unggul</span>
-              </div>
-
               <h1 className="lp-hero-title">
-                Satu Ekosistem Cerdas untuk Seluruh{' '}
-                <span className="lp-hero-highlight">Civitas Sekolah</span>
+                SteelSchool
               </h1>
 
               <p className="lp-hero-desc">
@@ -225,80 +210,22 @@ export const LandingPageView: React.FC = () => {
                   <span>Akses Portal Civitas</span>
                   <ArrowRight size={16} />
                 </Link>
-                <a href="#ekosistem" className="lp-btn-outline">
-                  <span>Lihat Demo Modul</span>
-                </a>
-              </div>
-
-              <div className="lp-hero-trust-row">
-                <div className="lp-trust-item">
-                  <ShieldCheck size={16} className="text-emerald-500" />
-                  <span>Laravel 12 API Ready</span>
-                </div>
-                <span>•</span>
-                <div className="lp-trust-item">
-                  <CheckCircle2 size={16} className="text-blue-500" />
-                  <span>Multi-Role Terintegrasi</span>
-                </div>
-                <span>•</span>
-                <div className="lp-trust-item">
-                  <CheckCircle2 size={16} className="text-amber-500" />
-                  <span>100% Cashless Kopsis</span>
-                </div>
               </div>
             </div>
 
-            {/* Right Interactive Mockup Visual */}
-            <div className="lp-hero-visual">
-              <div className="lp-floating-badge lp-float-top">
-                <CheckCircle2 size={16} />
-                <span>Presensi Kehadiran 98.4%</span>
-              </div>
-
-              <div className="lp-floating-badge lp-float-bottom">
-                <ShoppingBag size={16} />
-                <span>Kasir Kopsis & Kantin Aktif</span>
-              </div>
-
-              <div className="lp-hero-card-main">
-                <div className="lp-mockup-header">
-                  <div className="lp-mockup-avatar-group">
-                    <div className="lp-mockup-avatar">SN</div>
-                    <div className="lp-mockup-user-info">
-                      <h4>Portal Ekosistem Terpadu</h4>
-                      <span>SMA Bintang Nusantara · Tahun Ajaran 2026/2027</span>
-                    </div>
-                  </div>
-                  <span className="lp-badge-pill text-xs">Live System</span>
-                </div>
-
-                <div className="lp-mockup-body-grid">
-                  <div className="lp-mock-mini-card lp-mock-card-highlight">
-                    <span>Modul Aktif</span>
-                    <strong>6 Peran Terhubung</strong>
-                  </div>
-                  <div className="lp-mock-mini-card">
-                    <span>Akreditasi Sekolah</span>
-                    <strong className="text-emerald-600">Grade A (96.8)</strong>
-                  </div>
-                  <div className="lp-mock-mini-card">
-                    <span>Rombongan Belajar</span>
-                    <strong>15 Rombel Kelas</strong>
-                  </div>
-                  <div className="lp-mock-mini-card">
-                    <span>Transaksi Digital</span>
-                    <strong className="text-blue-600">Cashless Smart</strong>
-                  </div>
-                </div>
-
-                <div className="lp-mock-action-bar">
-                  <span>Jadwal Kelas · Input Nilai · Kasir POS · Menu Kantin</span>
-                  <Link to="/login" className="text-blue-600 font-bold hover:underline">
-                    Uji Coba →
-                  </Link>
-                </div>
+            {/* Right Showcase: 3D Metallic Shield with Top-Down Studio Spotlight */}
+            <div className="lp-hero-shield-container">
+              <div className="lp-hero-spotlight-beam" aria-hidden="true" />
+              <div className="lp-hero-shield-wrapper">
+                <img
+                  src="/steelschool-shield.png"
+                  alt="SteelSchool 3D Metallic Emblem"
+                  className="lp-hero-shield-img"
+                />
+                <div className="lp-hero-shield-floor-shadow" aria-hidden="true" />
               </div>
             </div>
+
           </div>
         </div>
       </header>
@@ -515,7 +442,7 @@ export const LandingPageView: React.FC = () => {
                   Pusat pembelajaran komputasi modern dengan kurikulum berbasis industri web, mobile app development, dan kecerdasan buatan.
                 </p>
               </div>
-              <div className="text-xs font-semibold text-blue-600 flex items-center gap-1">
+              <div className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-midnight-navy)' }}>
                 <span>Fasilitas Lab Multimedia Terkini</span>
                 <Check size={14} />
               </div>
@@ -529,7 +456,7 @@ export const LandingPageView: React.FC = () => {
                   Melatih siswa mengelola bisnis nyata melalui praktik kasir retail digital, supply chain ATK, dan pencatatan akuntansi koperasi.
                 </p>
               </div>
-              <div className="text-xs font-semibold text-amber-600 flex items-center gap-1">
+              <div className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-midnight-navy)' }}>
                 <span>Praktik Nyata Berbasis Smart POS</span>
                 <Check size={14} />
               </div>
@@ -543,7 +470,7 @@ export const LandingPageView: React.FC = () => {
                   Standar higienitas ketat dengan menu bergizi bersertifikasi untuk menunjang daya konsentrasi belajar siswa sepanjang hari.
                 </p>
               </div>
-              <div className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+              <div className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-midnight-navy)' }}>
                 <span>Pemesanan Pre-Order Tanpa Antre</span>
                 <Check size={14} />
               </div>
@@ -602,6 +529,11 @@ export const LandingPageView: React.FC = () => {
 
           <div className="lp-testimonials-grid">
             <div className="lp-testimonial-card">
+              <div className="lp-star-rating" aria-label="Rating 5 dari 5 bintang">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} size={15} fill="var(--color-sunlit-yellow)" color="var(--color-sunlit-yellow)" />
+                ))}
+              </div>
               <p className="lp-testimonial-quote">
                 "Jajan di kantin dan beli buku di Kopsis sekarang sangat cepat pakai saldo digital. Jadwal pelajaran dan nilai ujian juga langsung bisa dilihat di HP tanpa perlu tanya manual."
               </p>
@@ -615,6 +547,11 @@ export const LandingPageView: React.FC = () => {
             </div>
 
             <div className="lp-testimonial-card">
+              <div className="lp-star-rating" aria-label="Rating 5 dari 5 bintang">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} size={15} fill="var(--color-sunlit-yellow)" color="var(--color-sunlit-yellow)" />
+                ))}
+              </div>
               <p className="lp-testimonial-quote">
                 "Sebagai guru, saya tidak perlu lagi membawa tumpukan buku nilai fisik. Presensi kelas otomatis terdata dan nilai ujian semester langsung tersusun rapi untuk rapor siswa."
               </p>
@@ -628,6 +565,11 @@ export const LandingPageView: React.FC = () => {
             </div>
 
             <div className="lp-testimonial-card">
+              <div className="lp-star-rating" aria-label="Rating 5 dari 5 bintang">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} size={15} fill="var(--color-sunlit-yellow)" color="var(--color-sunlit-yellow)" />
+                ))}
+              </div>
               <p className="lp-testimonial-quote">
                 "Platform ini memberikan visibilitas penuh bagi saya selaku pimpinan sekolah. Rekap kehadiran guru dan laporan omset unit kopsis dapat saya tinjau dalam satu dashboard eksekutif."
               </p>
@@ -671,12 +613,7 @@ export const LandingPageView: React.FC = () => {
           <div className="lp-footer-grid">
             <div className="lp-footer-brand-col">
               <div className="lp-brand-group">
-                <svg className="lp-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 2 C25 2, 29 6, 29 11 C29 16, 25 20, 20 20 C15 20, 11 16, 11 11 C11 6, 15 2, 20 2 Z" fill="#FBBF24" />
-                  <path d="M29 11 C34 11, 38 15, 38 20 C38 25, 34 29, 29 29 C24 29, 20 25, 20 20 C20 15, 24 11, 29 11 Z" fill="#4ADE80" />
-                  <path d="M20 20 C25 20, 29 24, 29 29 C29 34, 25 38, 20 38 C15 38, 11 34, 11 29 C11 24, 15 20, 20 20 Z" fill="#38BDF8" />
-                  <path d="M11 11 C16 11, 20 15, 20 20 C20 25, 16 29, 11 29 C6 29, 2 25, 2 20 C2 15, 6 11, 11 11 Z" fill="#F472B6" />
-                </svg>
+                <img src="/steelschool-shield.png" alt="SteelSchool Logo" className="lp-footer-shield-logo" />
                 <div className="lp-brand-text">
                   <span className="lp-brand-name">SteelSchool</span>
                   <span className="lp-brand-tagline">Ekosistem Sekolah Terpadu</span>
@@ -713,10 +650,22 @@ export const LandingPageView: React.FC = () => {
             <div className="lp-footer-col">
               <h5>Kontak & Layanan</h5>
               <ul className="lp-footer-links">
-                <li><span>📍 Jl. Pendidikan No. 45, Indonesia</span></li>
-                <li><span>📞 (021) 8876-2026</span></li>
-                <li><span>✉️ info@steelschool.sch.id</span></li>
-                <li><span>🕒 Senin - Jumat, 07:00 - 16:00</span></li>
+                <li className="lp-footer-contact-item">
+                  <MapPin size={16} />
+                  <span>Jl. Pendidikan No. 45, Indonesia</span>
+                </li>
+                <li className="lp-footer-contact-item">
+                  <Phone size={16} />
+                  <span>(021) 8876-2026</span>
+                </li>
+                <li className="lp-footer-contact-item">
+                  <Mail size={16} />
+                  <span>info@steelschool.sch.id</span>
+                </li>
+                <li className="lp-footer-contact-item">
+                  <Clock size={16} />
+                  <span>Senin - Jumat, 07:00 - 16:00</span>
+                </li>
               </ul>
             </div>
           </div>
