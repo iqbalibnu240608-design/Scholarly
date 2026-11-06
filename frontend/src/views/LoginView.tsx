@@ -3,13 +3,13 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
-  FiArrowRight,
-  FiArrowLeft,
   FiEye,
   FiEyeOff,
   FiAlertCircle,
   FiChevronDown,
   FiChevronUp,
+  FiArrowLeft,
+  FiCheckCircle,
 } from 'react-icons/fi';
 import {
   HiOutlineAcademicCap,
@@ -24,9 +24,8 @@ import {
   RiShoppingCart2Line,
   RiRestaurantLine,
 } from 'react-icons/ri';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
+import { FaFacebook } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 import './LoginView.css';
 
 export const LoginView: React.FC = () => {
@@ -80,152 +79,199 @@ export const LoginView: React.FC = () => {
   };
 
   return (
-    <div className="login-viewport">
-      {/* Decorative Atmosphere Glows */}
-      <div className="login-glow-orb-top" aria-hidden="true" />
-      <div className="login-glow-orb-bottom" aria-hidden="true" />
+    <div className="login-screen-root">
+      {/* Subtle Purple Aura in Top-Right Corner */}
+      <div className="login-purple-aura" aria-hidden="true" />
 
-      {/* Floating Card with Tailwind & Shadcn styling */}
-      <div className="login-card max-w-lg w-full bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-3xl p-8 md:p-10 shadow-2xl shadow-blue-500/10">
-        {/* Card Header with Brand Logo */}
-        <div className="login-header text-center mb-6">
-          <Link to="/" className="inline-flex items-center gap-3 no-underline mb-3 hover:opacity-90 transition-opacity">
-            <img
-              src="/steelschool-shield.png"
-              alt="SteelSchool Logo"
-              className="w-12 h-12 object-contain drop-shadow-md"
-            />
-          </Link>
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <Badge variant="primary" className="text-xs font-semibold px-3 py-1">
-              Portal Terintegrasi
-            </Badge>
+      {/* Main Two-Column Card Modal */}
+      <div className="login-master-container">
+        {/* ================= LEFT HERO CARD (BLUE) ================= */}
+        <div className="login-left-banner">
+          <div>
+            <h1 className="login-banner-title">
+              Simplify<br />
+              management with<br />
+              our dashboard
+            </h1>
+            <p className="login-banner-desc">
+              Simplify your e-commerce &amp; school management with our user friendly admin dashboard.
+            </p>
           </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Masuk ke SteelSchool
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Gunakan NISN (Siswa), NIP (Guru/Staf), atau ID Akun Anda
-          </p>
+
+          {/* 3D Character Illustration at desk with waving hands & laptop */}
+          <div className="login-banner-illustration-wrap">
+            <img
+              src="/login-3d-character.svg"
+              alt="3D Character at Desk"
+              className="login-3d-char-img"
+            />
+          </div>
         </div>
 
-        {/* Demo Account Quick-Picker (NexaAdmin Style) */}
-        <div className="demo-accounts-wrapper mb-6 border border-indigo-100 rounded-2xl bg-slate-50/70 overflow-hidden transition-all">
-          <button
-            type="button"
-            className="w-full px-4 py-3 bg-transparent border-none flex items-center justify-between text-xs font-bold text-blue-600 hover:bg-blue-50/60 cursor-pointer transition-colors"
-            onClick={() => setShowDemoRoles(!showDemoRoles)}
-          >
-            <div className="flex items-center gap-2">
-              <span>Pilihan Akun Demo (10 Peran Siap Pakai)</span>
-            </div>
-            {showDemoRoles ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
-          </button>
+        {/* ================= RIGHT FORM CONTAINER ================= */}
+        <div className="login-right-form-wrap">
+          {/* Top Brand Logo */}
+          <div className="login-brand-header">
+            <Link to="/" className="login-brand-logo-link">
+              <div className="login-brand-icon-drop">
+                <HiOutlineShieldCheck className="w-5 h-5 text-white" />
+              </div>
+              <span className="login-brand-name">SteelSchool</span>
+            </Link>
+          </div>
 
-          {showDemoRoles && (
-            <div className="p-3 border-t border-indigo-100 grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
-              {demoAccounts.map((acc, idx) => {
-                const AccIcon = acc.icon;
-                const isSelected = identifier === acc.id;
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSelectDemoAccount(acc.role, acc.id, acc.pwd)}
-                    className={`flex items-center gap-2.5 p-2 rounded-xl border text-left cursor-pointer transition-all duration-150 ${
-                      isSelected
-                        ? 'border-blue-500 bg-blue-50/90 shadow-xs'
-                        : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50'
-                    }`}
-                  >
-                    <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ background: acc.bg, color: acc.color }}
-                    >
-                      <AccIcon className="w-4 h-4" />
-                    </div>
-                    <div className="flex flex-col overflow-hidden leading-tight">
-                      <span className="text-xs font-bold text-slate-900 truncate">{acc.role}</span>
-                      <span className="text-[10px] text-slate-500 font-mono truncate">{acc.id}</span>
-                    </div>
-                  </button>
-                );
-              })}
+          {/* Welcome Text */}
+          <div className="mb-6">
+            <h2 className="login-welcome-title">Welcome Back</h2>
+            <p className="login-welcome-subtitle">Please Login to your account</p>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="login-error-alert" role="alert">
+              <FiAlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>{error}</span>
             </div>
           )}
-        </div>
 
-        {/* Error Alert */}
-        {error && (
-          <div className="flex items-center gap-2.5 p-3.5 mb-5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium" role="alert">
-            <FiAlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* Login Form with Shadcn Input & Button */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5" htmlFor="identifier">
-              Nomor Identitas (NISN / NIP / Username)
-            </label>
-            <Input
-              id="identifier"
-              type="text"
-              placeholder="Contoh: 0061234567 atau admin"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5" htmlFor="password">
-              Kata Sandi
-            </label>
-            <div className="relative flex items-center">
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Masukkan kata sandi..."
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email / Identifier Input */}
+            <div>
+              <input
+                id="identifier"
+                type="text"
+                placeholder="Email or NISN / Username"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
-                className="pr-10"
+                className="login-input-field"
               />
-              <button
-                type="button"
-                className="absolute right-3 text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer"
-                onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
-              >
-                {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-              </button>
             </div>
+
+            {/* Password Input */}
+            <div>
+              <div className="login-password-container">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="login-input-field pr-11"
+                />
+                <button
+                  type="button"
+                  className="login-password-eye-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+                >
+                  {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {/* Forgot Password Right-Aligned */}
+              <div className="flex justify-end mt-2">
+                <button
+                  type="button"
+                  onClick={() => toast.info('Silakan hubungi Administrator TU Sekolah untuk reset password.')}
+                  className="login-forgot-link"
+                >
+                  Forgot Password
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="login-submit-btn"
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="login-divider-row">
+            <div className="login-divider-line" />
+            <span className="login-divider-text">or Login with</span>
+            <div className="login-divider-line" />
           </div>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-2 h-12 text-sm font-bold shadow-lg shadow-blue-500/30"
-          >
-            {loading ? (
-              <span>Memverifikasi Sesi...</span>
-            ) : (
-              <>
-                <span>Masuk ke Portal Sekolah</span>
-                <FiArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </Button>
-        </form>
+          {/* Social Buttons */}
+          <div className="login-social-row">
+            <button
+              type="button"
+              onClick={() => toast.info('Fitur SSO Facebook aktif dalam mode integrasi OAuth.')}
+              className="login-social-btn"
+            >
+              <FaFacebook className="w-5 h-5 text-[#1877F2]" />
+              <span>Facebook</span>
+            </button>
 
-        {/* Back Link */}
-        <div className="text-center mt-6 pt-4 border-t border-slate-100">
-          <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors">
-            <FiArrowLeft className="w-3.5 h-3.5" />
-            <span>Kembali ke Beranda Sekolah</span>
-          </Link>
+            <button
+              type="button"
+              onClick={() => toast.info('Fitur SSO Google aktif dalam mode integrasi Google for Education.')}
+              className="login-social-btn"
+            >
+              <FcGoogle className="w-5 h-5" />
+              <span>Google</span>
+            </button>
+          </div>
+
+          {/* Demo Accounts Quick-Picker Drawer */}
+          <div className="login-demo-drawer">
+            <button
+              type="button"
+              className="login-demo-toggle-btn"
+              onClick={() => setShowDemoRoles(!showDemoRoles)}
+            >
+              <div className="flex items-center gap-1.5">
+                <FiCheckCircle className="w-3.5 h-3.5 text-blue-600" />
+                <span>Pilihan Cepat Akun Demo (10 Peran Civitas)</span>
+              </div>
+              {showDemoRoles ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
+            </button>
+
+            {showDemoRoles && (
+              <div className="login-demo-grid">
+                {demoAccounts.map((acc, idx) => {
+                  const AccIcon = acc.icon;
+                  const isSelected = identifier === acc.id;
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSelectDemoAccount(acc.role, acc.id, acc.pwd)}
+                      className={`login-demo-item ${isSelected ? 'active' : ''}`}
+                    >
+                      <div
+                        className="login-demo-icon-wrap"
+                        style={{ background: acc.bg, color: acc.color }}
+                      >
+                        <AccIcon className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col overflow-hidden text-left leading-tight">
+                        <span className="text-xs font-bold text-slate-800 truncate">{acc.role}</span>
+                        <span className="text-[10px] text-slate-500 font-mono truncate">{acc.id}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Back to Home Link */}
+          <div className="text-center mt-5">
+            <Link to="/" className="login-back-home-link">
+              <FiArrowLeft className="w-3.5 h-3.5" />
+              <span>Kembali ke Beranda Sekolah</span>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

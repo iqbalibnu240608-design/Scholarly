@@ -1,0 +1,215 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 850" width="1280" height="850" style="background:#EEF1F6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <defs>
+    <!-- Background Lavender Aura -->
+    <radialGradient id="loginPurpleAura" cx="70%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#C084FC" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="#DDD6FE" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#EEF1F6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="blueCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F58FB"/>
+      <stop offset="50%" stop-color="#464BE7"/>
+      <stop offset="100%" stop-color="#3D42DE"/>
+    </linearGradient>
+    <!-- 3D Character gradients -->
+    <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE4D6"/>
+      <stop offset="100%" stop-color="#F5BCA5"/>
+    </linearGradient>
+    <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </linearGradient>
+    <linearGradient id="pantsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+    <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C2410C"/>
+      <stop offset="100%" stop-color="#7C2D12"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Purple Aura (Top Right) -->
+  <circle cx="1100" cy="150" r="380" fill="url(#loginPurpleAura)"/>
+
+  <!-- ================= MASTER WHITE CONTAINER ================= -->
+  <g transform="translate(150, 95)">
+    <!-- White Card Shadow & Body -->
+    <rect x="0" y="8" width="980" height="660" rx="36" fill="#0F172A" fill-opacity="0.04"/>
+    <rect width="980" height="660" rx="36" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+
+    <!-- ================= LEFT BLUE CARD ================= -->
+    <g transform="translate(24, 24)">
+      <rect width="450" height="612" rx="28" fill="url(#blueCardGrad)"/>
+
+      <!-- Headline -->
+      <g transform="translate(36, 46)">
+        <text x="0" y="32" font-size="34" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">
+          <tspan x="0" dy="0">Simplify</tspan>
+          <tspan x="0" dy="42">management with</tspan>
+          <tspan x="0" dy="42">our dashboard</tspan>
+        </text>
+
+        <!-- Subtitle -->
+        <text x="0" y="162" font-size="13.5" font-weight="400" fill="#FFFFFF" fill-opacity="0.85" width="340">
+          <tspan x="0" dy="0">Simplify your e-commerce management</tspan>
+          <tspan x="0" dy="22">with our user friendly admin dashboard</tspan>
+        </text>
+      </g>
+
+      <!-- 3D Character Illustration at desk -->
+      <g transform="translate(25, 270)">
+        <!-- Ground Shadow -->
+        <ellipse cx="200" cy="275" rx="140" ry="12" fill="#1E1B4B" fill-opacity="0.3"/>
+
+        <!-- Desk -->
+        <rect x="70" y="210" width="8" height="65" rx="4" fill="#0369A1"/>
+        <rect x="320" y="210" width="8" height="65" rx="4" fill="#0369A1"/>
+        <rect x="65" y="270" width="18" height="5" rx="2.5" fill="#0369A1"/>
+        <rect x="315" y="270" width="18" height="5" rx="2.5" fill="#0369A1"/>
+        <rect x="55" y="205" width="288" height="12" rx="6" fill="#0284C7"/>
+
+        <!-- Chair & Legs -->
+        <rect x="198" y="225" width="5" height="42" rx="2.5" fill="#64748B"/>
+        <line x1="175" y1="265" x2="225" y2="265" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+        <ellipse cx="200" cy="225" rx="28" ry="8" fill="#E2E8F0"/>
+
+        <!-- Dangling Legs -->
+        <path d="M185 225 L170 252" stroke="url(#pantsGrad)" stroke-width="16" stroke-linecap="round"/>
+        <g transform="translate(155, 245) rotate(-18)">
+          <rect width="26" height="13" rx="6.5" fill="#FFFFFF"/>
+          <rect x="4" y="10" width="20" height="3" rx="1.5" fill="#2563EB"/>
+        </g>
+        <path d="M215 225 L230 252" stroke="url(#pantsGrad)" stroke-width="16" stroke-linecap="round"/>
+        <g transform="translate(230, 248) rotate(22)">
+          <rect width="26" height="13" rx="6.5" fill="#FFFFFF"/>
+          <rect x="4" y="10" width="20" height="3" rx="1.5" fill="#2563EB"/>
+        </g>
+
+        <!-- Body -->
+        <ellipse cx="200" cy="200" rx="32" ry="28" fill="url(#shirtGrad)"/>
+
+        <!-- Left Arm on desk -->
+        <path d="M172 192 Q162 208 186 210" stroke="url(#shirtGrad)" stroke-width="15" stroke-linecap="round" fill="none"/>
+        <circle cx="188" cy="210" r="7" fill="url(#skinGrad)"/>
+
+        <!-- Right Arm Raised in Wave / Peace Sign -->
+        <path d="M224 190 Q248 172 244 142" stroke="url(#shirtGrad)" stroke-width="14" stroke-linecap="round" fill="none"/>
+        <circle cx="244" cy="136" r="8" fill="url(#skinGrad)"/>
+        <rect x="238" y="122" width="5" height="16" rx="2.5" fill="url(#skinGrad)"/>
+        <rect x="245" y="124" width="5" height="15" rx="2.5" fill="url(#skinGrad)"/>
+
+        <!-- Head & Cute Face -->
+        <circle cx="200" cy="160" r="26" fill="url(#skinGrad)"/>
+        <path d="M178 150 Q200 140 222 150 Q216 158 208 154 Q200 158 192 154 Q184 158 178 150 Z" fill="#1E293B"/>
+        <ellipse cx="184" cy="166" rx="4.5" ry="3" fill="#FDA4AF" fill-opacity="0.8"/>
+        <ellipse cx="216" cy="166" rx="4.5" ry="3" fill="#FDA4AF" fill-opacity="0.8"/>
+        <circle cx="189" cy="160" r="2.8" fill="#0F172A"/>
+        <circle cx="211" cy="160" r="2.8" fill="#0F172A"/>
+        <path d="M196 168 Q200 173 204 168" fill="none" stroke="#0F172A" stroke-width="1.8" stroke-linecap="round"/>
+
+        <!-- Hat -->
+        <g transform="translate(200, 138)">
+          <ellipse cx="0" cy="0" rx="34" ry="8" fill="url(#capGrad)"/>
+          <path d="M-18 0 C-18 -15 18 -15 18 0 Z" fill="#C2410C"/>
+          <circle cx="0" cy="-14" r="3" fill="#EA580C"/>
+        </g>
+
+        <!-- Monitor on Left -->
+        <g transform="translate(74, 164)">
+          <rect x="34" y="36" width="12" height="20" rx="3" fill="#CBD5E1"/>
+          <path d="M26 56 L54 56" stroke="#94A3B8" stroke-width="5" stroke-linecap="round"/>
+          <rect width="64" height="40" rx="6" fill="#334155"/>
+          <rect x="3" y="3" width="58" height="34" rx="3" fill="#0F172A"/>
+          <rect x="42" y="20" width="10" height="10" rx="1.5" fill="#FEF08A"/>
+          <!-- Glow rays -->
+          <line x1="26" y1="-8" x2="26" y2="-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="-6" x2="19" y2="-1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+          <line x1="36" y1="-6" x2="33" y2="-1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+        </g>
+
+        <!-- Laptop on Right -->
+        <g transform="translate(266, 178)">
+          <polygon points="4,26 46,26 42,32 8,32" fill="#9D174D"/>
+          <rect x="10" y="6" width="34" height="22" rx="3" fill="#BE185D"/>
+          <circle cx="27" cy="17" r="3.5" fill="#FCE7F3"/>
+        </g>
+
+        <!-- Potted Plant on Left Floor -->
+        <g transform="translate(45, 235)">
+          <path d="M6 22 L8 36 C8 39 18 39 18 36 L20 22 Z" fill="#E11D48"/>
+          <ellipse cx="13" cy="22" rx="7" ry="2.5" fill="#BE123C"/>
+          <ellipse cx="13" cy="13" rx="7" ry="11" fill="#4ADE80"/>
+          <ellipse cx="13" cy="5" rx="5" ry="7" fill="#86EFAC"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- ================= RIGHT FORM CONTAINER ================= -->
+    <g transform="translate(510, 50)">
+      <!-- Brand Logo (Blue drop icon + Logoipsum / SteelSchool) -->
+      <g transform="translate(0, 0)">
+        <circle cx="16" cy="16" r="16" fill="#356DF3"/>
+        <path d="M16 6 L22 10 V16 C22 20 16 23 16 23 C16 23 10 20 10 16 V10 Z" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>
+        <text x="42" y="22" font-size="20" font-weight="800" fill="#0F172A" letter-spacing="-0.5">SteelSchool</text>
+      </g>
+
+      <!-- Welcome Back -->
+      <text x="0" y="78" font-size="28" font-weight="800" fill="#0F172A">Welcome Back</text>
+      <text x="0" y="104" font-size="13.5" font-weight="400" fill="#94A3B8">Please Login to your account</text>
+
+      <!-- Email Input -->
+      <g transform="translate(0, 134)">
+        <rect width="420" height="50" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="16" y="30" font-size="14" fill="#94A3B8">Email</text>
+      </g>
+
+      <!-- Password Input -->
+      <g transform="translate(0, 200)">
+        <rect width="420" height="50" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="16" y="30" font-size="14" fill="#94A3B8">Password</text>
+        <!-- Eye Icon right -->
+        <circle cx="396" cy="25" r="4" fill="none" stroke="#94A3B8" stroke-width="1.5"/>
+        <path d="M388 25 Q396 18 404 25 Q396 32 388 25 Z" fill="none" stroke="#94A3B8" stroke-width="1.5"/>
+        <line x1="388" y1="19" x2="404" y2="31" stroke="#94A3B8" stroke-width="1.5"/>
+
+        <!-- Forgot Password Link -->
+        <text x="420" y="72" font-size="12" font-weight="500" fill="#94A3B8" text-anchor="end">Forgot Password</text>
+      </g>
+
+      <!-- Login Button -->
+      <g transform="translate(0, 290)">
+        <rect width="420" height="50" rx="12" fill="#4D5DFB"/>
+        <text x="210" y="31" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle">Login</text>
+      </g>
+
+      <!-- Divider: "or Login with" -->
+      <g transform="translate(0, 368)">
+        <line x1="0" y1="8" x2="160" y2="8" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="210" y="12" font-size="12" font-weight="500" fill="#94A3B8" text-anchor="middle">or Login with</text>
+        <line x1="260" y1="8" x2="420" y2="8" stroke="#E2E8F0" stroke-width="1"/>
+      </g>
+
+      <!-- Social Buttons -->
+      <g transform="translate(0, 396)">
+        <!-- Facebook -->
+        <g transform="translate(0, 0)">
+          <rect width="202" height="48" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+          <!-- Facebook icon -->
+          <circle cx="50" cy="24" r="10" fill="#1877F2"/>
+          <text x="50" y="28" font-size="12" font-weight="800" fill="#FFFFFF" text-anchor="middle">f</text>
+          <text x="115" y="30" font-size="13.5" font-weight="600" fill="#334155" text-anchor="middle">Facebook</text>
+        </g>
+
+        <!-- Google -->
+        <g transform="translate(218, 0)">
+          <rect width="202" height="48" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+          <!-- Google colored G icon -->
+          <text x="50" y="30" font-size="16" font-weight="700" fill="#EA4335" text-anchor="middle">G</text>
+          <text x="110" y="30" font-size="13.5" font-weight="600" fill="#334155" text-anchor="middle">Google</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
