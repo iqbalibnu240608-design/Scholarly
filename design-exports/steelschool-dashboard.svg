@@ -1,253 +1,421 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1024" width="1440" height="1024" style="background:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1024" width="1440" height="1024" style="background:#F7F8FC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
   <defs>
+    
+    <!-- Gradients -->
     <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#356DF3"/>
+      <stop offset="50%" stop-color="#3B82F6"/>
       <stop offset="100%" stop-color="#4F46E5"/>
     </linearGradient>
-    <linearGradient id="flowizeHero" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#3B82F6"/>
-      <stop offset="50%" stop-color="#4F46E5"/>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#356DF3"/>
       <stop offset="100%" stop-color="#6366F1"/>
     </linearGradient>
-    <filter id="dashShadow" x="-5%" y="-5%" width="115%" height="120%" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.04"/>
-    </filter>
+    <linearGradient id="chartAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#356DF3" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#356DF3" stop-opacity="0.0"/>
+    </linearGradient>
+    <radialGradient id="novusAura1" cx="30%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#EEF2FF" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#F5F3FF" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#F8FAFC" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="novusAura2" cx="70%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#E0E7FF" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#EFF6FF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#F8FAFC" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tabletBezel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+    <linearGradient id="isoBlockBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#3730A3"/>
+    </linearGradient>
+
   </defs>
 
-  <!-- ================= SIDEBAR (NexaAdmin Style) ================= -->
-  <g id="Sidebar" transform="translate(0, 0)">
-    <rect width="260" height="1024" fill="#FFFFFF"/>
-    <line x1="260" y1="0" x2="260" y2="1024" stroke="#E2E8F0" stroke-width="1"/>
+  <!-- ================= LEFT SIDEBAR (NEXAADMIN STYLE) ================= -->
+  <g id="NexaSidebar" transform="translate(0, 0)">
+    <rect width="250" height="1024" fill="#FFFFFF"/>
+    <line x1="250" y1="0" x2="250" y2="1024" stroke="#EEF2F6" stroke-width="1"/>
 
     <!-- Brand -->
     <g transform="translate(24, 28)">
-      <rect width="36" height="36" rx="10" fill="#356DF3" fill-opacity="0.1"/>
-      <path d="M18 6 L27 10 V19 C27 24 18 29 18 29 C18 29 9 24 9 19 V10 Z" fill="none" stroke="#356DF3" stroke-width="2"/>
-      <text x="46" y="18" font-size="18" font-weight="800" fill="#0F172A">SteelSchool</text>
-      <text x="46" y="32" font-size="10.5" font-weight="600" fill="#94A3B8">PORTAL OPERASIONAL</text>
+      <rect width="36" height="36" rx="10" fill="#356DF3"/>
+      <path d="M18 7 L26 11 V18 C26 23 18 27 18 27 C18 27 10 23 10 18 V11 Z" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+      <text x="46" y="20" font-size="18" font-weight="800" fill="#0F172A">NexaAdmin</text>
+      <text x="46" y="32" font-size="10.5" font-weight="600" fill="#94A3B8">STEELSCHOOL HUB</text>
     </g>
 
-    <line x1="24" y1="88" x2="236" y2="88" stroke="#F1F5F9" stroke-width="1"/>
+    <line x1="24" y1="84" x2="226" y2="84" stroke="#F1F5F9" stroke-width="1"/>
 
     <!-- Menu Items -->
-    <g transform="translate(16, 110)">
-      <!-- Item 1: Dashboard (Active) -->
+    <g transform="translate(14, 104)">
+      <!-- 1. Dashboard (Active blue pill) -->
       <g transform="translate(0, 0)">
-        <rect width="228" height="44" rx="12" fill="#EFF6FF"/>
-        <circle cx="26" cy="22" r="8" fill="#356DF3"/>
-        <text x="46" y="27" font-size="13.5" font-weight="700" fill="#356DF3">Dashboard Ringkasan</text>
+        <rect width="222" height="42" rx="12" fill="#356DF3"/>
+        <circle cx="26" cy="21" r="7" fill="#FFFFFF"/>
+        <text x="44" y="26" font-size="13.5" font-weight="700" fill="#FFFFFF">Dashboard</text>
       </g>
 
-      <!-- Item 2: Civitas Sekolah -->
-      <g transform="translate(0, 52)">
-        <text x="46" y="27" font-size="13.5" font-weight="500" fill="#64748B">Civitas &amp; Rombel</text>
+      <!-- 2. Products / Civitas -->
+      <g transform="translate(0, 50)">
+        <rect width="222" height="40" rx="10" fill="transparent"/>
+        <rect x="20" y="13" width="14" height="14" rx="3" fill="#94A3B8"/>
+        <text x="44" y="25" font-size="13.5" font-weight="500" fill="#64748B">Civitas Siswa</text>
       </g>
 
-      <!-- Item 3: Presensi Gerbang -->
-      <g transform="translate(0, 104)">
-        <text x="46" y="27" font-size="13.5" font-weight="500" fill="#64748B">Presensi RFID Gerbang</text>
+      <!-- 3. Orders / Presensi -->
+      <g transform="translate(0, 96)">
+        <rect width="222" height="40" rx="10" fill="transparent"/>
+        <circle cx="27" cy="20" r="7" fill="#94A3B8"/>
+        <text x="44" y="25" font-size="13.5" font-weight="500" fill="#64748B">Presensi RFID</text>
       </g>
 
-      <!-- Item 4: Kopsis Smart POS -->
-      <g transform="translate(0, 156)">
-        <text x="46" y="27" font-size="13.5" font-weight="500" fill="#64748B">Kopsis Smart POS</text>
+      <!-- 4. Customers / Kopsis POS -->
+      <g transform="translate(0, 142)">
+        <rect width="222" height="40" rx="10" fill="transparent"/>
+        <path d="M22 25 C22 21 32 21 32 25" fill="none" stroke="#94A3B8" stroke-width="2"/>
+        <circle cx="27" cy="16" r="4" fill="#94A3B8"/>
+        <text x="44" y="25" font-size="13.5" font-weight="500" fill="#64748B">Kopsis Smart POS</text>
       </g>
 
-      <!-- Item 5: Kantin Sehat -->
-      <g transform="translate(0, 208)">
-        <text x="46" y="27" font-size="13.5" font-weight="500" fill="#64748B">Kantin Sehat Cashless</text>
+      <!-- 5. Kantin Sehat -->
+      <g transform="translate(0, 188)">
+        <rect width="222" height="40" rx="10" fill="transparent"/>
+        <text x="44" y="25" font-size="13.5" font-weight="500" fill="#64748B">Kantin Sehat</text>
       </g>
 
-      <!-- Item 6: Pembayaran SPP -->
-      <g transform="translate(0, 260)">
-        <text x="46" y="27" font-size="13.5" font-weight="500" fill="#64748B">Pembayaran SPP Digital</text>
+      <!-- 6. Tagihan SPP -->
+      <g transform="translate(0, 234)">
+        <rect width="222" height="40" rx="10" fill="transparent"/>
+        <text x="44" y="25" font-size="13.5" font-weight="500" fill="#64748B">Pembayaran SPP</text>
       </g>
 
-      <!-- Item 7: Pengaturan -->
-      <g transform="translate(0, 312)">
-        <text x="46" y="27" font-size="13.5" font-weight="500" fill="#64748B">Pengaturan &amp; Audit Log</text>
+      <!-- 7. Analytics -->
+      <g transform="translate(0, 280)">
+        <rect width="222" height="40" rx="10" fill="transparent"/>
+        <text x="44" y="25" font-size="13.5" font-weight="500" fill="#64748B">Analytics &amp; Laporan</text>
+      </g>
+
+      <!-- 8. Settings -->
+      <g transform="translate(0, 326)">
+        <rect width="222" height="40" rx="10" fill="transparent"/>
+        <text x="44" y="25" font-size="13.5" font-weight="500" fill="#64748B">Pengaturan Sistem</text>
       </g>
     </g>
 
-    <!-- Bottom User Profile Card -->
-    <g transform="translate(16, 936)">
-      <rect width="228" height="64" rx="14" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-      <circle cx="34" cy="32" r="18" fill="#356DF3"/>
-      <text x="34" y="37" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">AP</text>
-      <text x="62" y="26" font-size="13" font-weight="700" fill="#0F172A">Ahmad Pratama</text>
-      <text x="62" y="44" font-size="11" font-weight="500" fill="#64748B">Siswa • XII RPL 1</text>
+    <!-- User Profile at Bottom -->
+    <g transform="translate(16, 940)">
+      <rect width="218" height="60" rx="14" fill="#F8FAFC" stroke="#EEF2F6" stroke-width="1"/>
+      <circle cx="32" cy="30" r="16" fill="#356DF3"/>
+      <text x="32" y="35" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">SK</text>
+      <text x="56" y="24" font-size="12.5" font-weight="700" fill="#0F172A">Dr. H. Soekarno</text>
+      <text x="56" y="40" font-size="11" font-weight="500" fill="#64748B">Kepala Sekolah</text>
     </g>
   </g>
 
-  <!-- ================= TOP HEADER (NexaAdmin Style) ================= -->
-  <g id="TopHeader" transform="translate(260, 0)">
-    <rect width="1180" height="74" fill="#FFFFFF"/>
-    <line x1="0" y1="74" x2="1180" y2="74" stroke="#E2E8F0" stroke-width="1"/>
+  <!-- ================= TOP HEADER (NEXAADMIN) ================= -->
+  <g id="NexaHeader" transform="translate(250, 0)">
+    <rect width="1190" height="74" fill="#FFFFFF"/>
+    <line x1="0" y1="74" x2="1190" y2="74" stroke="#EEF2F6" stroke-width="1"/>
 
     <!-- Search Input -->
     <g transform="translate(36, 17)">
-      <rect width="360" height="40" rx="20" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-      <text x="20" y="25" font-size="13" fill="#94A3B8">Cari data civitas, NISN, transaksi...</text>
+      <rect width="380" height="40" rx="10" fill="#F8FAFC" stroke="#EEF2F6" stroke-width="1"/>
+      <!-- Search Icon -->
+      <circle cx="24" cy="20" r="6" fill="none" stroke="#94A3B8" stroke-width="1.8"/>
+      <line x1="28" y1="24" x2="34" y2="30" stroke="#94A3B8" stroke-width="1.8"/>
+      <text x="44" y="25" font-size="13" fill="#94A3B8">Search anything (siswa, NISN, transaksi)...</text>
     </g>
 
     <!-- Header Right Items -->
-    <g transform="translate(860, 22)">
-      <!-- Period Badge -->
-      <rect width="170" height="32" rx="16" fill="#F1F5F9"/>
-      <text x="85" y="20" font-size="11.5" font-weight="600" fill="#475569" text-anchor="middle">Semester Ganjil 2026/2027</text>
+    <g transform="translate(850, 20)">
+      <!-- Date Filter -->
+      <rect width="180" height="34" rx="8" fill="#F8FAFC" stroke="#EEF2F6" stroke-width="1"/>
+      <text x="90" y="21" font-size="11.5" font-weight="600" fill="#475569" text-anchor="middle">1 Nov 2026 - 30 Nov 2026</text>
 
-      <!-- Status Indicator -->
-      <circle cx="196" cy="16" r="5" fill="#10B981"/>
-      <text x="210" y="20" font-size="12" font-weight="600" fill="#047857">Online</text>
+      <!-- User avatar right -->
+      <g transform="translate(200, 0)">
+        <circle cx="17" cy="17" r="17" fill="#356DF3" fill-opacity="0.1"/>
+        <circle cx="17" cy="17" r="14" fill="#356DF3"/>
+        <text x="17" y="21" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">SK</text>
+      </g>
     </g>
   </g>
 
-  <!-- ================= MAIN CONTENT ================= -->
-  <g id="MainContent" transform="translate(296, 96)">
-    <!-- Flowize AI Welcome Hero Banner -->
-    <g transform="translate(0, 0)">
-      <rect width="1108" height="130" rx="20" fill="url(#flowizeHero)" filter="url(#dashShadow)"/>
-      <text x="36" y="46" font-size="24" font-weight="800" fill="#FFFFFF">Selamat Datang di Portal SteelSchool! 👋</text>
-      <text x="36" y="74" font-size="14" font-weight="400" fill="#E0E7FF">
-        Akses cepat jadwal belajar harian, riwayat kehadiran gerbang RFID, dan transaksi kantin &amp; kopsis secara real-time.
-      </text>
+  <!-- ================= MAIN DASHBOARD CONTENT (NEXAADMIN) ================= -->
+  <g id="NexaContent" transform="translate(286, 96)">
+    <!-- Dashboard Title -->
+    <text x="0" y="24" font-size="22" font-weight="800" fill="#0F172A">Dashboard</text>
+    <text x="0" y="44" font-size="13" font-weight="500" fill="#64748B">Welcome Back, John Doe! Here's what's happening today.</text>
 
-      <!-- Quick Action Pills -->
-      <g transform="translate(36, 88)">
-        <rect width="150" height="28" rx="14" fill="#FFFFFF" fill-opacity="0.2"/>
-        <text x="75" y="18" font-size="11.5" font-weight="600" fill="#FFFFFF" text-anchor="middle">Jadwal Hari Ini</text>
+    <!-- ================= 4 KPI METRIC CARDS (NEXAADMIN) ================= -->
+    <g transform="translate(0, 64)">
+      <!-- Card 1: Total Sales (Penerimaan SPP) -->
+      <g transform="translate(0, 0)">
+        <rect width="260" height="106" rx="16" fill="#FFFFFF" stroke="#EEF2F6" stroke-width="1.2"/>
+        <text x="20" y="28" font-size="12" font-weight="600" fill="#64748B">Total Penerimaan SPP</text>
+        <text x="20" y="62" font-size="26" font-weight="800" fill="#0F172A">Rp 64.25M</text>
+        <!-- Trend Badge -->
+        <text x="20" y="86" font-size="11" font-weight="700" fill="#059669">↑ +12%</text>
+        <text x="60" y="86" font-size="11" font-weight="500" fill="#94A3B8">vs bulan lalu</text>
+        <!-- Icon Right -->
+        <rect x="194" y="18" width="46" height="46" rx="12" fill="#EFF6FF"/>
+        <path d="M210 36 H224 M210 44 H220 M206 30 H228 V52 H206 Z" fill="none" stroke="#356DF3" stroke-width="1.8"/>
+      </g>
 
-        <g transform="translate(162, 0)">
-          <rect width="160" height="28" rx="14" fill="#FFFFFF" fill-opacity="0.2"/>
-          <text x="80" y="18" font-size="11.5" font-weight="600" fill="#FFFFFF" text-anchor="middle">Cek Saldo Dompet</text>
-        </g>
+      <!-- Card 2: Total Orders (Transaksi Kasir) -->
+      <g transform="translate(286, 0)">
+        <rect width="260" height="106" rx="16" fill="#FFFFFF" stroke="#EEF2F6" stroke-width="1.2"/>
+        <text x="20" y="28" font-size="12" font-weight="600" fill="#64748B">Transaksi Kasir</text>
+        <text x="20" y="62" font-size="26" font-weight="800" fill="#0F172A">1,420</text>
+        <text x="20" y="86" font-size="11" font-weight="700" fill="#7C3AED">↑ +8%</text>
+        <text x="56" y="86" font-size="11" font-weight="500" fill="#94A3B8">Kopsis &amp; Kantin</text>
+        <!-- Icon Right (Purple Box) -->
+        <rect x="194" y="18" width="46" height="46" rx="12" fill="#FAF5FF"/>
+        <path d="M210 32 L217 35 L224 32 L217 29 Z M210 35 V43 L217 47 V39 Z M224 35 V43 L217 47 V39 Z" fill="none" stroke="#7C3AED" stroke-width="1.8"/>
+      </g>
 
-        <g transform="translate(334, 0)">
-          <rect width="170" height="28" rx="14" fill="#FFFFFF" fill-opacity="0.2"/>
-          <text x="85" y="18" font-size="11.5" font-weight="600" fill="#FFFFFF" text-anchor="middle">Unduh Kartu Pelajar</text>
-        </g>
+      <!-- Card 3: Total Customers (Civitas) -->
+      <g transform="translate(572, 0)">
+        <rect width="260" height="106" rx="16" fill="#FFFFFF" stroke="#EEF2F6" stroke-width="1.2"/>
+        <text x="20" y="28" font-size="12" font-weight="600" fill="#64748B">Civitas Terdaftar</text>
+        <text x="20" y="62" font-size="26" font-weight="800" fill="#0F172A">384</text>
+        <text x="20" y="86" font-size="11" font-weight="700" fill="#D97706">↑ +15%</text>
+        <text x="62" y="86" font-size="11" font-weight="500" fill="#94A3B8">Siswa &amp; Guru</text>
+        <!-- Icon Right (Amber Users) -->
+        <rect x="194" y="18" width="46" height="46" rx="12" fill="#FFFBEB"/>
+        <circle cx="217" cy="36" r="6" fill="none" stroke="#D97706" stroke-width="1.8"/>
+        <path d="M208 49 C208 45 226 45 226 49" fill="none" stroke="#D97706" stroke-width="1.8"/>
+      </g>
+
+      <!-- Card 4: Products (Kehadiran Gerbang) -->
+      <g transform="translate(858, 0)">
+        <rect width="260" height="106" rx="16" fill="#FFFFFF" stroke="#EEF2F6" stroke-width="1.2"/>
+        <text x="20" y="28" font-size="12" font-weight="600" fill="#64748B">Kehadiran Hari Ini</text>
+        <text x="20" y="62" font-size="26" font-weight="800" fill="#059669">98.8%</text>
+        <text x="20" y="86" font-size="11" font-weight="700" fill="#059669">↑ +4%</text>
+        <text x="56" y="86" font-size="11" font-weight="500" fill="#94A3B8">Presensi RFID</text>
+        <!-- Icon Right (Green Cube) -->
+        <rect x="194" y="18" width="46" height="46" rx="12" fill="#ECFDF5"/>
+        <rect x="210" y="32" width="14" height="14" rx="3" fill="none" stroke="#059669" stroke-width="2"/>
       </g>
     </g>
 
-    <!-- NexaAdmin 4 KPI Cards -->
-    <g transform="translate(0, 154)">
-      <!-- Card 1: Total Civitas -->
+    <!-- ================= MIDDLE ROW: CHARTS (NEXAADMIN) ================= -->
+    <g transform="translate(0, 194)">
+      <!-- Left: Sales Overview (Line Area Chart) -->
       <g transform="translate(0, 0)">
-        <rect width="262" height="116" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#dashShadow)"/>
-        <text x="20" y="32" font-size="12.5" font-weight="600" fill="#64748B">Total Civitas Sekolah</text>
-        <text x="20" y="68" font-size="26" font-weight="800" fill="#0F172A">384</text>
-        <rect x="20" y="80" width="84" height="22" rx="11" fill="#ECFDF5"/>
-        <text x="62" y="95" font-size="11" font-weight="700" fill="#059669" text-anchor="middle">+12% semester ini</text>
+        <rect width="730" height="320" rx="18" fill="#FFFFFF" stroke="#EEF2F6" stroke-width="1.2"/>
+
+        <!-- Header -->
+        <text x="24" y="36" font-size="16" font-weight="700" fill="#0F172A">Tren Presensi &amp; Transaksi</text>
+        <!-- Month pill right -->
+        <rect x="620" y="18" width="86" height="28" rx="8" fill="#F8FAFC" stroke="#EEF2F6" stroke-width="1"/>
+        <text x="663" y="36" font-size="11.5" font-weight="600" fill="#64748B" text-anchor="middle">Bulanan ▼</text>
+
+        <!-- Chart Grid Lines -->
+        <g transform="translate(24, 70)" stroke="#F1F5F9" stroke-width="1">
+          <line x1="40" y1="40" x2="680" y2="40"/>
+          <line x1="40" y1="90" x2="680" y2="90"/>
+          <line x1="40" y1="140" x2="680" y2="140"/>
+          <line x1="40" y1="190" x2="680" y2="190"/>
+        </g>
+
+        <!-- Y Axis Labels -->
+        <g transform="translate(24, 70)" font-size="11" font-weight="500" fill="#94A3B8" text-anchor="end">
+          <text x="30" y="44">20k</text>
+          <text x="30" y="94">15k</text>
+          <text x="30" y="144">10k</text>
+          <text x="30" y="194">5k</text>
+        </g>
+
+        <!-- Smooth Spline Line Chart Area Fill & Path -->
+        <g transform="translate(24, 70)">
+          <!-- Area Under Curve -->
+          <path d="M 60 180 Q 140 160 210 110 T 360 80 T 510 50 T 660 70 L 660 190 L 60 190 Z" fill="url(#chartAreaGrad)"/>
+          <!-- Line -->
+          <path d="M 60 180 Q 140 160 210 110 T 360 80 T 510 50 T 660 70" fill="none" stroke="#356DF3" stroke-width="3" stroke-linecap="round"/>
+
+          <!-- Peak Data Marker Tooltip (NexaAdmin style) -->
+          <circle cx="510" cy="50" r="5" fill="#356DF3" stroke="#FFFFFF" stroke-width="2"/>
+          <rect x="465" y="16" width="90" height="24" rx="6" fill="#0F172A"/>
+          <text x="510" y="32" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">Rp 14.850.000</text>
+        </g>
+
+        <!-- X Axis Labels -->
+        <g transform="translate(24, 280)" font-size="11.5" font-weight="600" fill="#94A3B8" text-anchor="middle">
+          <text x="84" y="0">Sen</text>
+          <text x="200" y="0">Sel</text>
+          <text x="320" y="0">Rab</text>
+          <text x="440" y="0">Kam</text>
+          <text x="540" y="0">Jum</text>
+          <text x="650" y="0">Sab</text>
+        </g>
       </g>
 
-      <!-- Card 2: Kehadiran Gerbang -->
-      <g transform="translate(282, 0)">
-        <rect width="262" height="116" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#dashShadow)"/>
-        <text x="20" y="32" font-size="12.5" font-weight="600" fill="#64748B">Kehadiran Hari Ini</text>
-        <text x="20" y="68" font-size="26" font-weight="800" fill="#059669">98.8%</text>
-        <rect x="20" y="80" width="76" height="22" rx="11" fill="#ECFDF5"/>
-        <text x="58" y="95" font-size="11" font-weight="700" fill="#059669" text-anchor="middle">+1.4% tepat waktu</text>
-      </g>
+      <!-- Right: Order Status (Donut Chart) -->
+      <g transform="translate(754, 0)">
+        <rect width="364" height="320" rx="18" fill="#FFFFFF" stroke="#EEF2F6" stroke-width="1.2"/>
+        <text x="24" y="36" font-size="16" font-weight="700" fill="#0F172A">Status Transaksi</text>
 
-      <!-- Card 3: Saldo E-Wallet -->
-      <g transform="translate(564, 0)">
-        <rect width="262" height="116" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#dashShadow)"/>
-        <text x="20" y="32" font-size="12.5" font-weight="600" fill="#64748B">Saldo Dompet Siswa</text>
-        <text x="20" y="68" font-size="24" font-weight="800" fill="#2563EB">Rp 170.000</text>
-        <text x="20" y="95" font-size="11" font-weight="500" fill="#64748B">Kopsis 100k • Kantin 70k</text>
-      </g>
+        <!-- Donut Chart Center -->
+        <g transform="translate(110, 160)">
+          <!-- Donut Background Circle -->
+          <circle cx="0" cy="0" r="64" fill="none" stroke="#F1F5F9" stroke-width="20"/>
+          <!-- Donut Segments (SVG stroke-dasharray) -->
+          <!-- Green segment: 68% (approx 273 of 402 circumference) -->
+          <circle cx="0" cy="0" r="64" fill="none" stroke="#10B981" stroke-width="20" stroke-dasharray="270 402" stroke-dashoffset="0" stroke-linecap="round"/>
+          <!-- Blue segment: 18% -->
+          <circle cx="0" cy="0" r="64" fill="none" stroke="#356DF3" stroke-width="20" stroke-dasharray="72 402" stroke-dashoffset="-275" stroke-linecap="round"/>
+          <!-- Amber segment: 9% -->
+          <circle cx="0" cy="0" r="64" fill="none" stroke="#F59E0B" stroke-width="20" stroke-dasharray="36 402" stroke-dashoffset="-350" stroke-linecap="round"/>
 
-      <!-- Card 4: Status SPP -->
-      <g transform="translate(846, 0)">
-        <rect width="262" height="116" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#dashShadow)"/>
-        <text x="20" y="32" font-size="12.5" font-weight="600" fill="#64748B">Status Tagihan SPP</text>
-        <text x="20" y="68" font-size="24" font-weight="800" fill="#059669">Lunas</text>
-        <rect x="20" y="80" width="104" height="22" rx="11" fill="#ECFDF5"/>
-        <text x="72" y="95" font-size="11" font-weight="700" fill="#059669" text-anchor="middle">November 2026</text>
-      </g>
-    </g>
+          <!-- Center Text -->
+          <text x="0" y="4" font-size="22" font-weight="800" fill="#0F172A" text-anchor="middle">1,420</text>
+          <text x="0" y="20" font-size="10.5" font-weight="600" fill="#94A3B8" text-anchor="middle">Orders</text>
+        </g>
 
-    <!-- Activity & Analytics Grid -->
-    <g transform="translate(0, 294)">
-      <!-- Left: Schedule & Presence Widget (w=670, h=400) -->
-      <g transform="translate(0, 0)">
-        <rect width="670" height="580" rx="18" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#dashShadow)"/>
-        <text x="24" y="36" font-size="16" font-weight="700" fill="#0F172A">Jadwal Pembelajaran &amp; Presensi Kelas</text>
-        <text x="24" y="56" font-size="12.5" font-weight="400" fill="#64748B">Sinkronisasi langsung dengan portal dewan guru</text>
-
-        <!-- Schedule Items -->
-        <g transform="translate(24, 80)">
+        <!-- Donut Legend (Right) -->
+        <g transform="translate(230, 95)" font-size="12" font-weight="600" fill="#475569">
           <!-- Item 1 -->
-          <g transform="translate(0, 0)">
-            <rect width="622" height="68" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-            <rect width="4" height="68" rx="2" fill="#356DF3"/>
-            <text x="20" y="28" font-size="14" font-weight="700" fill="#0F172A">Pemrograman Web &amp; Mobile</text>
-            <text x="20" y="48" font-size="12" font-weight="500" fill="#64748B">07:30 - 09:30 • Lab Komputer 1 • Budi Santoso, S.Pd</text>
-            <rect x="520" y="20" width="84" height="26" rx="13" fill="#ECFDF5"/>
-            <text x="562" y="37" font-size="11" font-weight="700" fill="#059669" text-anchor="middle">SELESAI</text>
-          </g>
+          <circle cx="0" cy="10" r="5" fill="#10B981"/>
+          <text x="14" y="14">Lunas</text>
+          <text x="100" y="14" font-weight="700" text-anchor="end">68%</text>
 
           <!-- Item 2 -->
-          <g transform="translate(0, 80)">
-            <rect width="622" height="68" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-            <rect width="4" height="68" rx="2" fill="#10B981"/>
-            <text x="20" y="28" font-size="14" font-weight="700" fill="#0F172A">Basis Data Relasional &amp; MySQL</text>
-            <text x="20" y="48" font-size="12" font-weight="500" fill="#64748B">10:00 - 12:00 • Ruang Teori RPL • Siti Aminah, M.Kom</text>
-            <rect x="520" y="20" width="84" height="26" rx="13" fill="#EFF6FF"/>
-            <text x="562" y="37" font-size="11" font-weight="700" fill="#2563EB" text-anchor="middle">BERLANGSUNG</text>
+          <g transform="translate(0, 32)">
+            <circle cx="0" cy="10" r="5" fill="#356DF3"/>
+            <text x="14" y="14">Kantin</text>
+            <text x="100" y="14" font-weight="700" text-anchor="end">18%</text>
           </g>
 
           <!-- Item 3 -->
-          <g transform="translate(0, 160)">
-            <rect width="622" height="68" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-            <rect width="4" height="68" rx="2" fill="#F59E0B"/>
-            <text x="20" y="28" font-size="14" font-weight="700" fill="#0F172A">Praktikum Jaringan &amp; Cloud</text>
-            <text x="20" y="48" font-size="12" font-weight="500" fill="#64748B">13:00 - 15:00 • Lab Jaringan • Ir. Bambang, M.T</text>
-            <rect x="520" y="20" width="84" height="26" rx="13" fill="#FFFBEB"/>
-            <text x="562" y="37" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">AKAN DATANG</text>
+          <g transform="translate(0, 64)">
+            <circle cx="0" cy="10" r="5" fill="#F59E0B"/>
+            <text x="14" y="14">Pending</text>
+            <text x="100" y="14" font-weight="700" text-anchor="end">9%</text>
+          </g>
+
+          <!-- Item 4 -->
+          <g transform="translate(0, 96)">
+            <circle cx="0" cy="10" r="5" fill="#EF4444"/>
+            <text x="14" y="14">Batal</text>
+            <text x="100" y="14" font-weight="700" text-anchor="end">5%</text>
           </g>
         </g>
       </g>
+    </g>
 
-      <!-- Right: Recent Transactions Widget (w=414, h=580) -->
-      <g transform="translate(694, 0)">
-        <rect width="414" height="580" rx="18" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#dashShadow)"/>
-        <text x="24" y="36" font-size="16" font-weight="700" fill="#0F172A">Transaksi Dompet Terakhir</text>
-        <text x="24" y="56" font-size="12.5" font-weight="400" fill="#64748B">Mutasi belanja Kopsis &amp; Kantin Sehat</text>
+    <!-- ================= BOTTOM ROW: DATA TABLES (NEXAADMIN) ================= -->
+    <g transform="translate(0, 538)">
+      <!-- Left: Recent Orders Table -->
+      <g transform="translate(0, 0)">
+        <rect width="730" height="340" rx="18" fill="#FFFFFF" stroke="#EEF2F6" stroke-width="1.2"/>
+        <text x="24" y="36" font-size="16" font-weight="700" fill="#0F172A">Transaksi Kasir Terbaru</text>
+        <text x="680" y="36" font-size="12" font-weight="600" fill="#356DF3" text-anchor="end">View All</text>
 
-        <!-- Transaction Rows -->
-        <g transform="translate(24, 80)">
-          <!-- Tx 1 -->
-          <g transform="translate(0, 0)">
-            <circle cx="20" cy="24" r="16" fill="#EFF6FF"/>
-            <path d="M16 20 H24 V28 H16 Z" fill="none" stroke="#356DF3" stroke-width="1.8"/>
-            <text x="46" y="20" font-size="13" font-weight="700" fill="#0F172A">Kantin Bu Sri (Stand 2)</text>
-            <text x="46" y="36" font-size="11" font-weight="500" fill="#64748B">Hari ini, 09:45 WIB • Saldo Kantin</text>
-            <text x="366" y="26" font-size="13" font-weight="700" fill="#DC2626" text-anchor="end">- Rp 15.000</text>
-          </g>
+        <!-- Table Header -->
+        <g transform="translate(24, 60)">
+          <rect width="682" height="34" rx="8" fill="#F8FAFC"/>
+          <text x="16" y="22" font-size="11.5" font-weight="700" fill="#64748B"># ID</text>
+          <text x="90" y="22" font-size="11.5" font-weight="700" fill="#64748B">Civitas / Siswa</text>
+          <text x="280" y="22" font-size="11.5" font-weight="700" fill="#64748B">Waktu</text>
+          <text x="410" y="22" font-size="11.5" font-weight="700" fill="#64748B">Nominal</text>
+          <text x="510" y="22" font-size="11.5" font-weight="700" fill="#64748B">Unit</text>
+          <text x="620" y="22" font-size="11.5" font-weight="700" fill="#64748B">Status</text>
+        </g>
 
-          <line x1="0" y1="56" x2="366" y2="56" stroke="#F1F5F9" stroke-width="1"/>
+        <!-- Row 1 -->
+        <g transform="translate(24, 108)" font-size="12.5" font-weight="500" fill="#1E293B">
+          <text x="16" y="20" fill="#64748B">#1001</text>
+          <text x="90" y="20" font-weight="600">Ahmad Pratama (XII RPL)</text>
+          <text x="280" y="20" fill="#64748B">09:45 WIB</text>
+          <text x="410" y="20" font-weight="700">Rp 15.000</text>
+          <text x="510" y="20">Kantin Stand 2</text>
+          <!-- Badge: Completed (Green) -->
+          <rect x="610" y="5" width="70" height="22" rx="11" fill="#ECFDF5"/>
+          <text x="645" y="20" font-size="11" font-weight="700" fill="#059669" text-anchor="middle">Lunas</text>
+          <line x1="0" y1="36" x2="682" y2="36" stroke="#F1F5F9" stroke-width="1"/>
+        </g>
 
-          <!-- Tx 2 -->
-          <g transform="translate(0, 68)">
-            <circle cx="20" cy="24" r="16" fill="#FAF5FF"/>
-            <path d="M16 20 H24 V28 H16 Z" fill="none" stroke="#7C3AED" stroke-width="1.8"/>
-            <text x="46" y="20" font-size="13" font-weight="700" fill="#0F172A">Koperasi Siswa (Buku &amp; ATK)</text>
-            <text x="46" y="36" font-size="11" font-weight="500" fill="#64748B">Kemarin, 14:10 WIB • Saldo Kopsis</text>
-            <text x="366" y="26" font-size="13" font-weight="700" fill="#DC2626" text-anchor="end">- Rp 25.000</text>
-          </g>
+        <!-- Row 2 -->
+        <g transform="translate(24, 156)" font-size="12.5" font-weight="500" fill="#1E293B">
+          <text x="16" y="20" fill="#64748B">#1002</text>
+          <text x="90" y="20" font-weight="600">Siti Rahma (XI AKL)</text>
+          <text x="280" y="20" fill="#64748B">09:30 WIB</text>
+          <text x="410" y="20" font-weight="700">Rp 25.000</text>
+          <text x="510" y="20">Kopsis Sekolah</text>
+          <rect x="610" y="5" width="70" height="22" rx="11" fill="#ECFDF5"/>
+          <text x="645" y="20" font-size="11" font-weight="700" fill="#059669" text-anchor="middle">Lunas</text>
+          <line x1="0" y1="36" x2="682" y2="36" stroke="#F1F5F9" stroke-width="1"/>
+        </g>
 
-          <line x1="0" y1="124" x2="366" y2="124" stroke="#F1F5F9" stroke-width="1"/>
+        <!-- Row 3 -->
+        <g transform="translate(24, 204)" font-size="12.5" font-weight="500" fill="#1E293B">
+          <text x="16" y="20" fill="#64748B">#1003</text>
+          <text x="90" y="20" font-weight="600">Budi Santoso, S.Pd</text>
+          <text x="280" y="20" fill="#64748B">08:15 WIB</text>
+          <text x="410" y="20" font-weight="700">Rp 12.000</text>
+          <text x="510" y="20">Kantin Stand 1</text>
+          <rect x="610" y="5" width="70" height="22" rx="11" fill="#ECFDF5"/>
+          <text x="645" y="20" font-size="11" font-weight="700" fill="#059669" text-anchor="middle">Lunas</text>
+          <line x1="0" y1="36" x2="682" y2="36" stroke="#F1F5F9" stroke-width="1"/>
+        </g>
 
-          <!-- Tx 3 -->
-          <g transform="translate(0, 136)">
-            <circle cx="20" cy="24" r="16" fill="#ECFDF5"/>
-            <path d="M20 18 V30 M14 24 H26" fill="none" stroke="#059669" stroke-width="2"/>
-            <text x="46" y="20" font-size="13" font-weight="700" fill="#0F172A">Top-Up Saldo Siswa (Loket TU)</text>
-            <text x="46" y="36" font-size="11" font-weight="500" fill="#64748B">03 Nov 2026 • Petugas Tata Usaha</text>
-            <text x="366" y="26" font-size="13" font-weight="700" fill="#059669" text-anchor="end">+ Rp 100.000</text>
-          </g>
+        <!-- Row 4 -->
+        <g transform="translate(24, 252)" font-size="12.5" font-weight="500" fill="#1E293B">
+          <text x="16" y="20" fill="#64748B">#1004</text>
+          <text x="90" y="20" font-weight="600">Dika Pratama (X TJKT)</text>
+          <text x="280" y="20" fill="#64748B">07:50 WIB</text>
+          <text x="410" y="20" font-weight="700">Rp 50.000</text>
+          <text x="510" y="20">Top-Up Loket TU</text>
+          <!-- Badge: Processing (Blue) -->
+          <rect x="610" y="5" width="70" height="22" rx="11" fill="#EFF6FF"/>
+          <text x="645" y="20" font-size="11" font-weight="700" fill="#2563EB" text-anchor="middle">Diproses</text>
+        </g>
+      </g>
+
+      <!-- Right: Top Selling Products (NexaAdmin) -->
+      <g transform="translate(754, 0)">
+        <rect width="364" height="340" rx="18" fill="#FFFFFF" stroke="#EEF2F6" stroke-width="1.2"/>
+        <text x="24" y="36" font-size="16" font-weight="700" fill="#0F172A">Item Terlaris Kopsis &amp; Kantin</text>
+        <text x="320" y="36" font-size="12" font-weight="600" fill="#356DF3" text-anchor="end">View All</text>
+
+        <!-- Product 1 -->
+        <g transform="translate(24, 70)">
+          <rect width="44" height="44" rx="10" fill="#EFF6FF"/>
+          <text x="22" y="28" font-size="16" text-anchor="middle">📚</text>
+          <text x="56" y="20" font-size="13.5" font-weight="700" fill="#0F172A">Buku Tulis Eksekutif 58L</text>
+          <text x="56" y="38" font-size="11.5" font-weight="500" fill="#64748B">140 order • Kopsis</text>
+          <text x="316" y="28" font-size="13" font-weight="700" fill="#0F172A" text-anchor="end">Rp 840k</text>
+          <line x1="0" y1="56" x2="316" y2="56" stroke="#F1F5F9" stroke-width="1"/>
+        </g>
+
+        <!-- Product 2 -->
+        <g transform="translate(24, 146)">
+          <rect width="44" height="44" rx="10" fill="#ECFDF5"/>
+          <text x="22" y="28" font-size="16" text-anchor="middle">🍱</text>
+          <text x="56" y="20" font-size="13.5" font-weight="700" fill="#0F172A">Paket Bento Sehat</text>
+          <text x="56" y="38" font-size="11.5" font-weight="500" fill="#64748B">115 order • Kantin 2</text>
+          <text x="316" y="28" font-size="13" font-weight="700" fill="#0F172A" text-anchor="end">Rp 1.38M</text>
+          <line x1="0" y1="56" x2="316" y2="56" stroke="#F1F5F9" stroke-width="1"/>
+        </g>
+
+        <!-- Product 3 -->
+        <g transform="translate(24, 222)">
+          <rect width="44" height="44" rx="10" fill="#FAF5FF"/>
+          <text x="22" y="28" font-size="16" text-anchor="middle">👔</text>
+          <text x="56" y="20" font-size="13.5" font-weight="700" fill="#0F172A">Dasi &amp; Atribut Seragam</text>
+          <text x="56" y="38" font-size="11.5" font-weight="500" fill="#64748B">85 order • Kopsis</text>
+          <text x="316" y="28" font-size="13" font-weight="700" fill="#0F172A" text-anchor="end">Rp 510k</text>
         </g>
       </g>
     </g>
