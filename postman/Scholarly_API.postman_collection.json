@@ -1,0 +1,597 @@
+{
+  "info": {
+    "_postman_id": "c76a911f-8230-4e5a-8b83-scholarly-collection",
+    "name": "Scholarly - Ekosistem Sekolah API",
+    "description": "Koleksi API Lengkap untuk Ekosistem Sekolah (Scholarly / SteelSchool). Mencakup seluruh modul (Auth, Overview, Siswa, Guru, Kepsek, Petugas TU, Kopsis, Kantin, Wallet, Library, Satpam, Admin).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "01. Authentication & Role Switcher",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] }
+          }
+        },
+        {
+          "name": "Login Admin (Auto-Save Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    if (res.token) {",
+                  "        pm.environment.set('auth_token', res.token);",
+                  "        console.log('Admin Token Saved:', res.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{admin_identifier}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "Login Siswa (Auto-Save Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    if (res.token) {",
+                  "        pm.environment.set('auth_token', res.token);",
+                  "        console.log('Siswa Token Saved:', res.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{siswa_identifier}}\",\n  \"password\": \"{{siswa_password}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "Login Guru (Auto-Save Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    if (res.token) {",
+                  "        pm.environment.set('auth_token', res.token);",
+                  "        console.log('Guru Token Saved:', res.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{guru_identifier}}\",\n  \"password\": \"{{guru_password}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "Switch Role Instan (Auto-Update Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    if (res.token) {",
+                  "        pm.environment.set('auth_token', res.token);",
+                  "        console.log('Switched to:', res.user.role, 'Token:', res.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"kantin\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/switch-role", "host": ["{{base_url}}"], "path": ["auth", "switch-role"] }
+          }
+        },
+        {
+          "name": "Get Current User Profile (/me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/me", "host": ["{{base_url}}"], "path": ["me"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/logout", "host": ["{{base_url}}"], "path": ["logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Overview & Pengumuman",
+      "item": [
+        {
+          "name": "Get Overview Ekosistem",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/overview", "host": ["{{base_url}}"], "path": ["school", "overview"] }
+          }
+        },
+        {
+          "name": "Buat Pengumuman Baru",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Jadwal Try Out CBT Pekan Depan\",\n  \"content\": \"Seluruh siswa kelas XII diwajibkan membawa kartu pelajar digital untuk presensi ujian.\",\n  \"target_role\": \"all\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/school/announcements", "host": ["{{base_url}}"], "path": ["school", "announcements"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Modul Siswa (Portal Siswa)",
+      "item": [
+        {
+          "name": "Data Dashboard Siswa",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/siswa", "host": ["{{base_url}}"], "path": ["school", "siswa"] }
+          }
+        },
+        {
+          "name": "Nilai Rapor Siswa (/siswa/my-grades)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/siswa/my-grades", "host": ["{{base_url}}"], "path": ["siswa", "my-grades"] }
+          }
+        },
+        {
+          "name": "Jadwal Pelajaran",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/schedules", "host": ["{{base_url}}"], "path": ["school", "schedules"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Modul Guru (Akademik & Nilai)",
+      "item": [
+        {
+          "name": "Data Dashboard Guru",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/guru", "host": ["{{base_url}}"], "path": ["school", "guru"] }
+          }
+        },
+        {
+          "name": "Input Nilai Siswa",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_identifier\": \"0061234567\",\n  \"subject_name\": \"Pemrograman Web & Backend Laravel\",\n  \"type\": \"tugas\",\n  \"score\": 95,\n  \"feedback\": \"Implementasi REST API dan Sanctum token sangat rapi.\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/guru/grades", "host": ["{{base_url}}"], "path": ["guru", "grades"] }
+          }
+        },
+        {
+          "name": "Riwayat Nilai yang Diinput Guru",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/guru/my-grades", "host": ["{{base_url}}"], "path": ["guru", "my-grades"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Modul Tata Usaha (SPP & Keuangan)",
+      "item": [
+        {
+          "name": "Data Dashboard Petugas TU",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/petugas", "host": ["{{base_url}}"], "path": ["school", "petugas"] }
+          }
+        },
+        {
+          "name": "Catat / Bayar SPP Siswa",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_identifier\": \"0061234567\",\n  \"amount\": 350000,\n  \"month\": \"Desember 2026\",\n  \"payment_method\": \"cash\",\n  \"notes\": \"Pembayaran tunai di loket TU\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/petugas/spp-payment", "host": ["{{base_url}}"], "path": ["petugas", "spp-payment"] }
+          }
+        },
+        {
+          "name": "Riwayat Transaksi SPP",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/petugas/spp-history", "host": ["{{base_url}}"], "path": ["petugas", "spp-history"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Modul Dompet Digital (E-Wallet)",
+      "item": [
+        {
+          "name": "Cek Saldo Dompet",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/wallet/balance", "host": ["{{base_url}}"], "path": ["wallet", "balance"] }
+          }
+        },
+        {
+          "name": "Top Up Saldo Dompet",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier_number\": \"0061234567\",\n  \"amount\": 50000,\n  \"target_wallet\": \"kantin\",\n  \"notes\": \"Top up saldo jajan kantin\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/wallet/topup", "host": ["{{base_url}}"], "path": ["wallet", "topup"] }
+          }
+        },
+        {
+          "name": "Riwayat Mutasi Saldo",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/wallet/transactions", "host": ["{{base_url}}"], "path": ["wallet", "transactions"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Modul Kantin Sekolah",
+      "item": [
+        {
+          "name": "Data Menu & Omzet Kantin",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/kantin", "host": ["{{base_url}}"], "path": ["school", "kantin"] }
+          }
+        },
+        {
+          "name": "Tambah Menu Kantin Baru",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nasi Ayam Geprek Sambal Matah\",\n  \"category\": \"Makanan\",\n  \"price\": 15000,\n  \"stock\": 30,\n  \"is_available\": true\n}"
+            },
+            "url": { "raw": "{{base_url}}/school/kantin/menus", "host": ["{{base_url}}"], "path": ["school", "kantin", "menus"] }
+          }
+        },
+        {
+          "name": "Checkout Pesanan Kantin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_identifier\": \"0061234567\",\n  \"items\": [\n    {\n      \"menu_id\": 1,\n      \"quantity\": 1\n    }\n  ],\n  \"payment_method\": \"wallet\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/kantin/checkout", "host": ["{{base_url}}"], "path": ["kantin", "checkout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08. Modul Koperasi Siswa (Kopsis)",
+      "item": [
+        {
+          "name": "Data Produk & Penjualan Kopsis",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/kopsis", "host": ["{{base_url}}"], "path": ["school", "kopsis"] }
+          }
+        },
+        {
+          "name": "Tambah Produk Kopsis Baru",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"ATK-PEN-09\",\n  \"name\": \"Bolpoin Gel Hitam 0.5mm\",\n  \"category\": \"Alat Tulis\",\n  \"price\": 4500,\n  \"stock\": 100\n}"
+            },
+            "url": { "raw": "{{base_url}}/school/kopsis/products", "host": ["{{base_url}}"], "path": ["school", "kopsis", "products"] }
+          }
+        },
+        {
+          "name": "Checkout Pembelian Kopsis",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_identifier\": \"0061234567\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    }\n  ],\n  \"payment_method\": \"cash\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/kopsis/checkout", "host": ["{{base_url}}"], "path": ["kopsis", "checkout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09. Modul Perpustakaan (E-Library)",
+      "item": [
+        {
+          "name": "Data Katalog & Sirkulasi Perpustakaan",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/library", "host": ["{{base_url}}"], "path": ["school", "library"] }
+          }
+        },
+        {
+          "name": "Tambah Buku Baru ke Katalog",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isbn\": \"978-602-000-999-1\",\n  \"title\": \"Dasar Arsitektur REST API & Microservices\",\n  \"author\": \"Martin Fowler\",\n  \"publisher\": \"O'Reilly Media\",\n  \"category\": \"Pemrograman\",\n  \"stock\": 8,\n  \"shelf_location\": \"Rak IT-03\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/library/books", "host": ["{{base_url}}"], "path": ["library", "books"] }
+          }
+        },
+        {
+          "name": "Pinjam Buku",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"book_id\": 2,\n  \"student_identifier\": \"0061234567\",\n  \"duration_days\": 14\n}"
+            },
+            "url": { "raw": "{{base_url}}/library/borrow", "host": ["{{base_url}}"], "path": ["library", "borrow"] }
+          }
+        },
+        {
+          "name": "Pengembalian Buku (Return & Denda)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loan_id\": 1\n}"
+            },
+            "url": { "raw": "{{base_url}}/library/return", "host": ["{{base_url}}"], "path": ["library", "return"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Modul Satpam & Gerbang Presensi",
+      "item": [
+        {
+          "name": "Log Presensi Gerbang Hari Ini",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/security/today-logs", "host": ["{{base_url}}"], "path": ["security", "today-logs"] }
+          }
+        },
+        {
+          "name": "Gate Check-In RFID / NISN",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier_number\": \"0061234567\",\n  \"notes\": \"Presensi gerbang utama pagi\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/security/gate-checkin", "host": ["{{base_url}}"], "path": ["security", "gate-checkin"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Modul Kepala Sekolah (Eksekutif)",
+      "item": [
+        {
+          "name": "Ringkasan KPI Eksekutif",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/kepsek", "host": ["{{base_url}}"], "path": ["school", "kepsek"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Modul Administrator Sistem",
+      "item": [
+        {
+          "name": "Data Master Administrator",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/school/admin", "host": ["{{base_url}}"], "path": ["school", "admin"] }
+          }
+        },
+        {
+          "name": "Tambah Pengguna Baru",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Farhan Rizky\",\n  \"identifier_number\": \"0091122334\",\n  \"password\": \"password123\",\n  \"role\": \"siswa\",\n  \"gender\": \"L\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/admin/users", "host": ["{{base_url}}"], "path": ["admin", "users"] }
+          }
+        },
+        {
+          "name": "Ubah / Assign Role Pengguna",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 4,\n  \"role_name\": \"siswa\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/admin/assign-role", "host": ["{{base_url}}"], "path": ["admin", "assign-role"] }
+          }
+        },
+        {
+          "name": "Toggle Status Akun User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/admin/users/4/toggle-status", "host": ["{{base_url}}"], "path": ["admin", "users", "4", "toggle-status"] }
+          }
+        },
+        {
+          "name": "Reset Password User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"rahasia123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/admin/users/4/reset-password", "host": ["{{base_url}}"], "path": ["admin", "users", "4", "reset-password"] }
+          }
+        }
+      ]
+    }
+  ]
+}
