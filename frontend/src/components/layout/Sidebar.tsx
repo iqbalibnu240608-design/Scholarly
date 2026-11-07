@@ -116,9 +116,9 @@ export const Sidebar: React.FC = () => {
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `flex items-center gap-3.5 px-5 py-3.5 rounded-2xl text-sm transition-all duration-200 ${
+                  `flex items-center gap-3 px-4.5 py-3 rounded-xl text-sm transition-all duration-200 ${
                     isActive
-                      ? 'bg-white text-[#2857e6] shadow-md font-bold scale-[1.02]'
+                      ? 'bg-white text-[#2857e6] shadow-sm font-bold'
                       : 'text-white/85 hover:text-white hover:bg-white/10 font-semibold'
                   }`
                 }
