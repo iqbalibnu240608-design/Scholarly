@@ -125,10 +125,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         <button
           type="button"
           onClick={onToggleMobileMenu}
-          className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+          className="md:hidden w-8 h-8 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors inline-flex items-center justify-center p-0 shrink-0"
           title="Buka Navigasi Menu"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-5 h-5 shrink-0" />
         </button>
 
         {/* Search Input with Enter Submit */}
@@ -158,29 +158,29 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         {/* Tombol ke Beranda SteelSchool */}
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-2xs"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-2xs leading-none shrink-0"
           title="Buka Beranda Publik SteelSchool"
         >
           <img
             src="/steelschool-shield.png"
             alt="SteelSchool Logo"
-            className="w-4 h-4 object-contain"
+            className="w-4 h-4 object-contain shrink-0 block"
           />
-          <span className="hidden sm:inline">Beranda SteelSchool</span>
+          <span className="hidden sm:inline leading-none">Beranda SteelSchool</span>
         </Link>
 
         {/* Role Switcher Pill */}
-        <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-slate-50 border border-slate-200/80 rounded-full text-xs">
-          <span className="flex items-center gap-1 text-slate-500 font-semibold text-[11px]">
+        <div className="inline-flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1 bg-slate-50 border border-slate-200/80 rounded-full text-xs h-8 leading-none shrink-0">
+          <span className="inline-flex items-center justify-center gap-1 text-slate-500 font-semibold text-[11px] leading-none shrink-0">
             {switching ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600 shrink-0" />
             ) : (
-              <UserCheck className="w-3.5 h-3.5 text-blue-600" />
+              <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
             )}
-            <span className="hidden lg:inline">Peran:</span>
+            <span className="hidden lg:inline leading-none">Peran:</span>
           </span>
           <select
-            className="border-none bg-transparent text-xs font-bold text-blue-600 cursor-pointer outline-none pr-1"
+            className="border-none bg-transparent text-xs font-bold text-blue-600 cursor-pointer outline-none pr-1 leading-none py-0 m-0"
             value={activeRole}
             onChange={handleRoleChange}
             disabled={switching}
@@ -194,17 +194,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         </div>
 
         {/* Notification Bell with Dropdown Popover */}
-        <div className="relative" ref={notifRef}>
+        <div className="relative inline-flex items-center justify-center" ref={notifRef}>
           <button
             type="button"
             onClick={() => {
               setShowNotifications((prev) => !prev);
               setHasUnread(false);
             }}
-            className="relative p-2 rounded-full text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors"
+            className="relative w-8 h-8 rounded-full text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors inline-flex items-center justify-center p-0 shrink-0"
             title="Notifikasi Sekolah"
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="w-4 h-4 shrink-0" />
             {hasUnread && (
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-white"></span>
             )}

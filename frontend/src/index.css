@@ -211,9 +211,40 @@ html, body {
 /* --------------------------------------------------------------------------
    HIERARCHICAL BUTTONS & INTERACTIVE AFFORDANCES
    (Semakin Penting Aksi, Semakin Prominen & Terstruktur Layoutnya)
+   Semua tombol dirancang presisi, simetris, vertikal seimbang dengan ikon.
    -------------------------------------------------------------------------- */
 button {
   cursor: pointer;
+}
+
+/* Symmetrical Alignment Base for All Action Buttons */
+.btn-hero-primary,
+.btn-hero-secondary,
+.btn-primary-action,
+.btn-secondary-action,
+.btn-compact-action,
+.btn-success-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1 !important;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn-hero-primary svg,
+.btn-hero-secondary svg,
+.btn-primary-action svg,
+.btn-secondary-action svg,
+.btn-compact-action svg,
+.btn-success-action svg,
+button svg {
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 /* TIER 1: HERO PRIMARY ACTION (Aksi Paling Penting / Utama) */
@@ -221,19 +252,14 @@ button {
   background: var(--primary);
   color: #ffffff !important;
   border: none;
-  padding: 9.5px 22px;
+  padding: 10px 22px;
   border-radius: var(--radius-pill);
   font-weight: 700;
   font-size: 13.5px;
   letter-spacing: -0.01em;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   gap: 8px;
   box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.35);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  white-space: nowrap;
 }
 
 .btn-hero-primary:hover {
@@ -251,18 +277,13 @@ button {
   background: #ffffff;
   color: #1d4ed8 !important;
   border: 1px solid #bfdbfe;
-  padding: 8.5px 18px;
+  padding: 9px 18px;
   border-radius: var(--radius-pill);
   font-weight: 600;
   font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   gap: 7px;
   box-shadow: 0 2px 6px 0 rgba(37, 99, 235, 0.08);
   transition: all 0.2s ease;
-  cursor: pointer;
-  white-space: nowrap;
 }
 
 .btn-hero-secondary:hover {
@@ -276,18 +297,13 @@ button {
   background: var(--primary);
   color: #ffffff !important;
   border: none;
-  padding: 8px 18px;
+  padding: 8.5px 18px;
   border-radius: var(--radius-pill);
   font-weight: 600;
   font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   gap: 7px;
   box-shadow: 0 3px 10px 0 rgba(37, 99, 235, 0.25);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  white-space: nowrap;
 }
 
 .btn-primary-action:hover {
@@ -312,18 +328,13 @@ button {
   background: #ffffff;
   color: var(--navy-slate) !important;
   border: 1px solid var(--border-color);
-  padding: 7.5px 16px;
+  padding: 8px 16px;
   border-radius: var(--radius-pill);
   font-weight: 600;
   font-size: 12.5px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  gap: 6.5px;
   box-shadow: var(--shadow-xs);
   transition: all 0.2s ease;
-  cursor: pointer;
-  white-space: nowrap;
 }
 
 .btn-secondary-action:hover {
@@ -337,17 +348,12 @@ button {
   background: #f1f5f9;
   color: #334155 !important;
   border: 1px solid #e2e8f0;
-  padding: 6px 13px;
+  padding: 6.5px 14px;
   border-radius: var(--radius-pill);
   font-weight: 600;
   font-size: 11.5px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
+  gap: 5.5px;
   transition: all 0.15s ease;
-  cursor: pointer;
-  white-space: nowrap;
 }
 
 .btn-compact-action:hover {
@@ -359,18 +365,13 @@ button {
   background: #059669;
   color: #ffffff !important;
   border: none;
-  padding: 8px 18px;
+  padding: 8.5px 18px;
   border-radius: var(--radius-pill);
   font-weight: 600;
   font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   gap: 7px;
   box-shadow: 0 3px 10px 0 rgba(5, 150, 105, 0.2);
   transition: all 0.2s;
-  cursor: pointer;
-  white-space: nowrap;
 }
 
 .btn-success-action:hover {

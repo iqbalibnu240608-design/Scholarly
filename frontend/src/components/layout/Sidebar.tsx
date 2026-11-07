@@ -145,8 +145,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
           {/* Navigation Items (Left Icon Strip + Right Text with Merged Active Tab) */}
           <nav className="relative space-y-1">
-            {/* Continuous Lighter Blue Pill Rail behind the icons */}
-            <div className="absolute left-3 top-0 bottom-0 w-11 bg-[#3f6ef5] rounded-full pointer-events-none -z-0" />
+            {/* Continuous Lighter Blue Pill Rail behind the icons - Perfectly Coaxial at 28px Center */}
+            <div className="absolute left-2 top-0 bottom-0 w-10 bg-[#3f6ef5] rounded-full pointer-events-none -z-0" />
 
             {visibleItems.map((item) => {
               const Icon = item.icon;

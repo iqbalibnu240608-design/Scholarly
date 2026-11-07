@@ -244,12 +244,12 @@ export const OverviewView: React.FC = () => {
             <div className="flex items-center gap-3 mt-4 pt-1">
               <Link
                 to={isStudent ? '/app/siswa' : `/app/${activeRole}`}
-                className="btn-primary-action text-xs font-bold"
+                className="btn-primary-action text-xs font-bold leading-none gap-2 inline-flex items-center justify-center shrink-0"
               >
                 <span>
                   {isStudent ? 'Buka Portal Akademik' : `Kelola Modul ${activeRole.toUpperCase()}`}
                 </span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3.5 h-3.5 shrink-0" />
               </Link>
             </div>
           </div>
@@ -291,10 +291,10 @@ export const OverviewView: React.FC = () => {
               </div>
               <Link
                 to="/app/kantin"
-                className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 hover:bg-blue-600 hover:border-blue-600 hover:text-white text-slate-500 flex items-center justify-center transition-all shrink-0"
+                className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 hover:bg-blue-600 hover:border-blue-600 hover:text-white text-slate-500 inline-flex items-center justify-center transition-all shrink-0 p-0 leading-none"
                 title="Pesan Menu Kantin"
               >
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 shrink-0" />
               </Link>
             </div>
 
@@ -315,10 +315,10 @@ export const OverviewView: React.FC = () => {
               </div>
               <Link
                 to="/app/kopsis"
-                className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 hover:bg-blue-600 hover:border-blue-600 hover:text-white text-slate-500 flex items-center justify-center transition-all shrink-0"
+                className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 hover:bg-blue-600 hover:border-blue-600 hover:text-white text-slate-500 inline-flex items-center justify-center transition-all shrink-0 p-0 leading-none"
                 title="Belanja Koperasi ATK"
               >
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 shrink-0" />
               </Link>
             </div>
 
@@ -357,10 +357,10 @@ export const OverviewView: React.FC = () => {
               </div>
               <Link
                 to="/app/petugas"
-                className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 hover:bg-blue-600 hover:border-blue-600 hover:text-white text-slate-500 flex items-center justify-center transition-all shrink-0"
+                className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 hover:bg-blue-600 hover:border-blue-600 hover:text-white text-slate-500 inline-flex items-center justify-center transition-all shrink-0 p-0 leading-none"
                 title="Buku Kas & Kwitansi TU"
               >
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 shrink-0" />
               </Link>
             </div>
           </>
@@ -577,18 +577,18 @@ export const OverviewView: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedTeacher(teacher)}
-                      className="w-8 h-8 rounded-full bg-white border border-slate-200/80 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center shadow-2xs transition-all"
+                      className="w-8 h-8 rounded-full bg-white border border-slate-200/80 hover:bg-blue-50 hover:text-blue-600 inline-flex items-center justify-center shadow-2xs transition-all shrink-0 p-0 leading-none"
                       title="Kirim Pesan / Email"
                     >
-                      <MessageSquare className="w-4 h-4" />
+                      <MessageSquare className="w-4 h-4 shrink-0" />
                     </button>
                     <button
                       type="button"
                       onClick={() => copyContact(teacher.phone, `Nomor ${teacher.name}`)}
-                      className="w-8 h-8 rounded-full bg-white border border-slate-200/80 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center shadow-2xs transition-all"
+                      className="w-8 h-8 rounded-full bg-white border border-slate-200/80 hover:bg-blue-50 hover:text-blue-600 inline-flex items-center justify-center shadow-2xs transition-all shrink-0 p-0 leading-none"
                       title="Salin Kontak Telepon"
                     >
-                      <Phone className="w-4 h-4" />
+                      <Phone className="w-4 h-4 shrink-0" />
                     </button>
                   </div>
                 </div>
