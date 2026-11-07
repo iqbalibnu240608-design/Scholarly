@@ -89,24 +89,24 @@ export const Sidebar: React.FC = () => {
   );
 
   return (
-    <aside className="w-68 bg-[#2857e6] p-6 shrink-0 hidden md:flex flex-col justify-between text-white shadow-xl min-h-screen">
+    <aside className="w-72 bg-[#2857e6] p-6 shrink-0 hidden md:flex flex-col justify-between text-white shadow-xl min-h-screen">
       <div>
-        {/* Brand Header - Matching Reference "Smart" Brand */}
-        <div className="flex items-center gap-3 px-2 py-2 mb-8">
-          <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs">
-            <Sparkles className="w-5 h-5 text-white" />
+        {/* Brand Header - "Smart SteelSchool" */}
+        <div className="flex items-center gap-3.5 px-2 py-2 mb-8">
+          <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs shrink-0">
+            <Sparkles className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold tracking-tight leading-none text-white">
+            <h1 className="text-xl font-black tracking-tight leading-none text-white">
               Smart
             </h1>
-            <span className="text-xs font-semibold text-white/80 block mt-1">
+            <span className="text-xs font-bold text-white/80 block mt-1 tracking-wide">
               SteelSchool Ecosystem
             </span>
           </div>
         </div>
 
-        {/* Navigation Tab Kiri (Ukuran Tombol Lega, Jelas, & Nyaman Diklik) */}
+        {/* Navigation Items (Ukuran Isi Disesuaikan Lebih Besar & Prominen Seimbang dengan Header) */}
         <nav className="space-y-2">
           {visibleItems.map((item) => {
             const Icon = item.icon;
@@ -116,17 +116,17 @@ export const Sidebar: React.FC = () => {
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4.5 py-3 rounded-xl text-sm transition-all duration-200 ${
+                  `flex items-center gap-3.5 px-5 py-3.5 rounded-2xl text-[15px] transition-all duration-200 ${
                     isActive
-                      ? 'bg-white text-[#2857e6] shadow-sm font-bold'
-                      : 'text-white/85 hover:text-white hover:bg-white/10 font-semibold'
+                      ? 'bg-white text-[#2857e6] shadow-md font-black scale-[1.02]'
+                      : 'text-white/85 hover:text-white hover:bg-white/10 font-bold'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#2857e6]' : 'text-white/85'}`} />
-                    <span className="truncate">{item.label}</span>
+                    <Icon className={`w-5.5 h-5.5 shrink-0 ${isActive ? 'text-[#2857e6]' : 'text-white/85'}`} />
+                    <span className="truncate tracking-tight">{item.label}</span>
                   </>
                 )}
               </NavLink>
@@ -135,13 +135,13 @@ export const Sidebar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Logout Action at Bottom - Spacious and Clear */}
+      {/* Logout Action at Bottom - Prominent and Sized to Match */}
       <div className="pt-6 border-t border-white/20">
         <button
           onClick={() => logout()}
-          className="w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-semibold text-white/85 hover:text-white hover:bg-white/10 transition-colors"
+          className="w-full flex items-center gap-3.5 px-5 py-3.5 rounded-2xl text-[15px] font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors"
         >
-          <LogOut className="w-5 h-5 shrink-0" />
+          <LogOut className="w-5.5 h-5.5 shrink-0" />
           <span>Keluar Sesi</span>
         </button>
       </div>
