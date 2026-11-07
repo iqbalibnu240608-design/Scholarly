@@ -1,3 +1,8 @@
+---
+name: functional-engineering
+description: User-facing behavior, interaction contracts, forms, state management, API integration, and edge cases.
+---
+
 # Skill: Functional Engineering
 
 Act as a senior engineer responsible for complete user-facing behavior.

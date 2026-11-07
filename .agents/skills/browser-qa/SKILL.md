@@ -1,3 +1,8 @@
+---
+name: browser-qa
+description: End-to-end browser QA, Playwright test conventions, visual inspection, regression testing, and verification.
+---
+
 # Skill: Browser QA
 
 Verify the application as a user would, using the available browser and Playwright tooling.

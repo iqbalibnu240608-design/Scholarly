@@ -1,3 +1,8 @@
+---
+name: project-planning
+description: Project planning, PRD drafting, scope definition, requirements breakdown, user stories, and acceptance criteria.
+---
+
 # Skill: Project Planning
 
 For new projects and substantial features:

@@ -1,3 +1,8 @@
+---
+name: graphify
+description: Graphify project knowledge graphing, codebase navigation graph generation, and architectural relationship mapping.
+---
+
 # Skill: Graphify Project Knowledge
 
 Use Graphify to create or refresh a navigable knowledge graph of the codebase when the tool is installed and its usage is verified.

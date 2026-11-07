@@ -1,3 +1,8 @@
+---
+name: flow-intelligence
+description: Business process mapping, user journey flows, decision trees, exception paths, and FigJam diagrams.
+---
+
 # Skill: Flow Intelligence
 
 Analyze and communicate how users, business processes, and software systems move through a feature.

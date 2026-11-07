@@ -1,3 +1,8 @@
+---
+name: backend-engineering
+description: Backend engineering standards, API contracts, Laravel, MySQL, migrations, controllers, and authorization.
+---
+
 # Skill: Backend Engineering (Laravel + MySQL)
 
 Follow `.agents/rules/backend-standards.md` and inspect the installed Laravel version before implementation.

@@ -1,3 +1,8 @@
+---
+name: code-architecture
+description: Code architecture guidelines, module boundaries, system design, dependency direction, and ADRs.
+---
+
 # Skill: Code Architecture
 
 Inspect before designing. Map current modules, entry points, dependencies, data flow, and conventions. Prefer incremental evolution over rewrites.
