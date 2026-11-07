@@ -48,8 +48,8 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="h-16 bg-white border-b border-slate-200/80 px-4 md:px-7 flex items-center justify-between sticky top-0 z-40 shadow-xs">
-      {/* Brand Identity with Shield Logo */}
-      <div className="flex items-center gap-6">
+      {/* Brand Identity with Shield Logo (Bersih di sisi kiri) */}
+      <div className="flex items-center gap-3">
         <Link to="/" className="flex items-center gap-2.5 no-underline hover:opacity-90 transition-opacity" title="Beranda SteelSchool">
           <img
             src="/steelschool-shield.png"
@@ -65,21 +65,21 @@ export const Navbar: React.FC = () => {
             </span>
           </div>
         </Link>
+      </div>
 
-        {/* Reference-Styled Rounded Pill Search Bar */}
+      <div className="flex items-center gap-2.5 md:gap-3">
+        {/* Search Bar dipindah ke agak kanan agar tidak menutupi area konten kiri */}
         <div className="hidden md:flex items-center relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari jadwal, modul, atau data..."
-            className="pl-9 pr-4 py-1.5 bg-slate-100/70 border border-slate-200/70 rounded-full text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all w-52 lg:w-72"
+            placeholder="Cari jadwal, modul, data..."
+            className="pl-9 pr-4 py-1.5 bg-slate-100/70 border border-slate-200/70 rounded-full text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all w-44 lg:w-56"
           />
         </div>
-      </div>
 
-      <div className="flex items-center gap-2.5 md:gap-3">
         {/* Quick Link to Landing Page */}
         <Link
           to="/"

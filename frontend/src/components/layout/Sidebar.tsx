@@ -89,25 +89,28 @@ export const Sidebar: React.FC = () => {
   );
 
   return (
-    <aside className="w-72 bg-[#2857e6] p-6 shrink-0 hidden md:flex flex-col justify-between text-white shadow-xl min-h-screen">
-      <div>
-        {/* Brand Header - "Smart SteelSchool" */}
-        <div className="flex items-center gap-3.5 px-2 py-2 mb-8">
-          <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs shrink-0">
-            <Sparkles className="w-6 h-6 text-white" />
+    <aside className="w-68 bg-[#2857e6] shrink-0 hidden md:flex flex-col justify-between text-white relative z-30 select-none min-h-screen">
+      {/* Background Pill Rail for Icons on the Left (Matching Reference Visual) */}
+      <div className="absolute left-3.5 top-20 bottom-24 w-12 bg-[#4272f6] rounded-3xl pointer-events-none -z-0 shadow-inner" />
+
+      <div className="relative z-10 pt-5">
+        {/* Brand Header: "🔷 Smart" */}
+        <div className="flex items-center gap-3 pl-6 pr-4 mb-6">
+          <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs shrink-0">
+            <Sparkles className="w-4.5 h-4.5 text-white" />
           </div>
           <div>
             <h1 className="text-xl font-black tracking-tight leading-none text-white">
               Smart
             </h1>
-            <span className="text-xs font-bold text-white/80 block mt-1 tracking-wide">
-              SteelSchool Ecosystem
+            <span className="text-[10px] font-bold text-white/75 block mt-0.5 tracking-wider uppercase">
+              SteelSchool
             </span>
           </div>
         </div>
 
-        {/* Navigation Items (Ukuran Isi Disesuaikan Lebih Besar & Prominen Seimbang dengan Header) */}
-        <nav className="space-y-2">
+        {/* Navigation Items (Left Icon Strip + Right Text with Merged Active Tab) */}
+        <nav className="space-y-1.5">
           {visibleItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -115,18 +118,37 @@ export const Sidebar: React.FC = () => {
                 key={item.to}
                 to={item.to}
                 end={item.end}
-                className={({ isActive }) =>
-                  `flex items-center gap-3.5 px-5 py-3.5 rounded-2xl text-[15px] transition-all duration-200 ${
-                    isActive
-                      ? 'bg-white text-[#2857e6] shadow-md font-black scale-[1.02]'
-                      : 'text-white/85 hover:text-white hover:bg-white/10 font-bold'
-                  }`
-                }
+                className="relative flex items-center h-12 w-full group no-underline"
               >
                 {({ isActive }) => (
                   <>
-                    <Icon className={`w-5.5 h-5.5 shrink-0 ${isActive ? 'text-[#2857e6]' : 'text-white/85'}`} />
-                    <span className="truncate tracking-tight">{item.label}</span>
+                    {/* Left Icon Rail Segment */}
+                    <div className="w-16 shrink-0 flex items-center justify-center relative">
+                      {/* Active Indicator: White vertical sliver on the very left */}
+                      {isActive && (
+                        <span className="absolute left-0 w-1.5 h-6 bg-white rounded-r-full shadow-2xs" />
+                      )}
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                          isActive
+                            ? 'bg-white/25 text-white shadow-2xs'
+                            : 'text-white/80 group-hover:text-white group-hover:bg-white/10'
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 shrink-0" />
+                      </div>
+                    </div>
+
+                    {/* Right Label Area: Putih Nyatu di Kanan, Melengkung di Kiri */}
+                    <div
+                      className={`flex-1 flex items-center h-full pl-3.5 pr-4 text-sm tracking-tight transition-all ${
+                        isActive
+                          ? 'sidebar-tab-merged font-black'
+                          : 'text-white/85 group-hover:text-white font-bold pl-4'
+                      }`}
+                    >
+                      <span className="truncate">{item.label}</span>
+                    </div>
                   </>
                 )}
               </NavLink>
@@ -135,14 +157,22 @@ export const Sidebar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Logout Action at Bottom - Prominent and Sized to Match */}
-      <div className="pt-6 border-t border-white/20">
+      {/* Logout Action at Bottom */}
+      <div className="relative z-10 pb-6 pt-3 border-t border-white/15">
         <button
           onClick={() => logout()}
-          className="w-full flex items-center gap-3.5 px-5 py-3.5 rounded-2xl text-[15px] font-bold text-white/85 hover:text-white hover:bg-white/10 transition-colors"
+          className="relative flex items-center h-12 w-full group text-white/80 hover:text-white transition-colors"
         >
-          <LogOut className="w-5.5 h-5.5 shrink-0" />
-          <span>Keluar Sesi</span>
+          {/* Left Icon */}
+          <div className="w-16 shrink-0 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center group-hover:bg-white/10 text-white/80 group-hover:text-white transition-all">
+              <LogOut className="w-5 h-5 shrink-0" />
+            </div>
+          </div>
+          {/* Right Text */}
+          <div className="flex-1 text-left pl-3.5 pr-4 text-sm font-bold tracking-tight">
+            <span>Keluar Sesi</span>
+          </div>
         </button>
       </div>
     </aside>
