@@ -36,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
     },
     {
       to: '/app/siswa',
-      label: activeRole === 'siswa' ? 'Akademik' : 'Portal Siswa',
+      label: activeRole === 'siswa' ? 'Akademik Siswa' : 'Portal Siswa',
       icon: GraduationCap,
       allowedRoles: ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'bk'],
     },
@@ -48,7 +48,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
     },
     {
       to: '/app/kopsis',
-      label: 'Koperasi (Kopsis)',
+      label: 'Koperasi Siswa',
       icon: ShoppingBag,
       allowedRoles: ['admin', 'kopsis', 'siswa', 'guru'],
     },
@@ -181,11 +181,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                       <div
                         className={`flex-1 flex items-center h-full pr-3 tracking-tight transition-all ${
                           isActive
-                            ? 'sidebar-tab-merged font-black text-[14.5px] pl-6'
-                            : 'text-white/85 group-hover:text-white font-bold text-[14px] pl-6'
+                            ? 'sidebar-tab-merged font-extrabold text-[14px] pl-6'
+                            : 'text-white/85 group-hover:text-white font-semibold text-[14px] pl-6'
                         }`}
                       >
-                        <span className="truncate">{item.label}</span>
+                        <span className="truncate leading-none">{item.label}</span>
                       </div>
                     </>
                   )}

@@ -13,7 +13,6 @@ import {
   Sparkles,
   X,
 } from 'lucide-react';
-import { Button } from '../ui/button';
 
 interface NavbarProps {
   onToggleMobileMenu?: () => void;
@@ -254,27 +253,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         </div>
 
         {/* User Profile Avatar & Info */}
-        <div className="flex items-center gap-2 pl-2 border-l border-slate-200" title={user?.email || 'Pengguna Aktif'}>
+        <div className="flex items-center gap-2.5 pl-2.5 border-l border-slate-200" title={user?.email || 'Pengguna Aktif'}>
           <div className="w-8 h-8 rounded-full bg-[#2857e6] text-white flex items-center justify-center text-xs font-extrabold shadow-xs shrink-0">
             {getInitials(user?.name)}
           </div>
-          <div className="hidden lg:flex flex-col text-left">
-            <span className="text-xs font-bold text-slate-900 max-w-[120px] truncate leading-tight">
+          <div className="hidden lg:flex flex-col text-left gap-0.5">
+            <span className="text-xs font-bold text-slate-900 max-w-[150px] truncate leading-none">
               {user?.name || 'Civitas Sekolah'}
             </span>
-            <span className="text-[10px] font-semibold text-slate-500 leading-none">
+            <span className="text-[10.5px] font-medium text-slate-500 leading-none">
               {ROLE_LABELS[activeRole] || activeRole}
             </span>
           </div>
-          <Button
-            size="sm"
-            variant="ghost"
+          <button
+            type="button"
             onClick={logout}
             title="Keluar dari Sesi"
-            className="w-8 h-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full shrink-0"
+            className="w-8 h-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full shrink-0 inline-flex items-center justify-center transition-colors"
           >
-            <LogOut className="w-4 h-4" />
-          </Button>
+            <LogOut className="w-4 h-4 shrink-0" />
+          </button>
         </div>
       </div>
     </header>
