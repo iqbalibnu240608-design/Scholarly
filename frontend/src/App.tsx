@@ -15,6 +15,7 @@ import { KantinView } from './views/KantinView';
 import { PerpusView } from './views/PerpusView';
 import { SecurityView } from './views/SecurityView';
 import { AdminView } from './views/AdminView';
+import { Toaster } from 'sonner';
 
 // Protected Route Wrapper for Authenticated Session
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -40,6 +41,7 @@ export const App: React.FC = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Toaster richColors position="top-right" />
         <Routes>
           {/* Public Landing Page (School Promotion & Competition Showcase) */}
           <Route path="/" element={<LandingPageView />} />

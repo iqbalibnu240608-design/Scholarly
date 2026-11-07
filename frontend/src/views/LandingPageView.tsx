@@ -1,29 +1,30 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import {
-  ArrowRight,
-  GraduationCap,
-  BookOpen,
-  Award,
-  FileSpreadsheet,
-  ShoppingBag,
-  UtensilsCrossed,
-  ShieldCheck,
-  TrendingUp,
-  Laptop,
-  Check,
-  Building,
-  Star,
-  MapPin,
-  Phone,
-  Mail,
-  Clock,
-} from 'lucide-react';
+  FiArrowRight,
+  FiPlay,
+  FiCheckCircle,
+  FiLayers,
+  FiGlobe,
+} from 'react-icons/fi';
+import {
+  HiOutlineSparkles,
+  HiOutlineShieldCheck,
+  HiOutlineLockClosed,
+  HiOutlineAcademicCap,
+  HiOutlineBookOpen,
+} from 'react-icons/hi2';
+import {
+  RiAwardLine,
+  RiFileList3Line,
+  RiShoppingCart2Line,
+  RiRestaurantLine,
+} from 'react-icons/ri';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
 import './LandingPageView.css';
 
 export const LandingPageView: React.FC = () => {
-  const { user } = useAuth();
   const [activeRoleTab, setActiveRoleTab] = useState<string>('siswa');
 
   const roleShowcaseData: Record<
@@ -31,7 +32,6 @@ export const LandingPageView: React.FC = () => {
     {
       title: string;
       roleBadge: string;
-      badgeColor: string;
       desc: string;
       features: string[];
       demoUser: string;
@@ -42,18 +42,17 @@ export const LandingPageView: React.FC = () => {
     siswa: {
       title: 'Portal Siswa Cerdas & Terkoneksi',
       roleBadge: 'Peserta Didik',
-      badgeColor: 'lp-badge-emerald',
-      desc: 'Membantu siswa memantau jadwal harian, nilai akademik, rekap kehadiran, dan menikmati transaksi cashless di kopsis serta kantin sekolah.',
+      desc: 'Membantu siswa memantau jadwal pelajaran, nilai akademik, rekap kehadiran harian, dan menikmati transaksi cashless di kopsis serta kantin sekolah.',
       features: [
         'Akses jadwal pelajaran & ruang kelas real-time',
         'Saldo digital terintegrasi untuk jajan kantin & belanja ATK',
-        'Rekap kehadiran presensi & status pelunasan SPP transparan',
+        'Rekap kehadiran presensi gerbang & status pelunasan SPP transparan',
       ],
       demoUser: 'Ahmad Pratama (XII RPL 1)',
       widgetTitle: 'Ringkasan Portal Siswa',
       widgetRows: [
         { label: 'Jadwal Hari Ini', value: 'Pemrograman Web (Lab 1)' },
-        { label: 'Presensi Bulan Ini', value: '98.5% Hadir' },
+        { label: 'Presensi Bulan Ini', value: '98.5% Hadir Tepat Waktu' },
         { label: 'Saldo Kantin & Kopsis', value: 'Rp 170.000' },
         { label: 'Status SPP', value: 'Lunas (November 2026)' },
       ],
@@ -61,8 +60,7 @@ export const LandingPageView: React.FC = () => {
     guru: {
       title: 'Portal Guru & Tenaga Pendidik Efisien',
       roleBadge: 'Dewan Guru',
-      badgeColor: 'lp-badge-pill',
-      desc: 'Memangkas beban administrasi manual agar guru dapat fokus membimbing dan memaksimalkan potensi setiap siswa di kelas.',
+      desc: 'Memangkas beban administrasi manual agar guru dapat fokus membimbing dan memaksimalkan potensi setiap siswa di dalam kelas.',
       features: [
         'Input nilai tugas, PTS, dan PAS langsung dalam hitungan menit',
         'Presensi digital kelas otomatis tersinkron dengan wali murid',
@@ -80,7 +78,6 @@ export const LandingPageView: React.FC = () => {
     kepsek: {
       title: 'Dashboard Eksekutif Kepala Sekolah',
       roleBadge: 'Kepemimpinan',
-      badgeColor: 'lp-badge-amber',
       desc: 'Pengambilan keputusan berbasis data akurat (Executive BI) mengenai kehadiran dewan pengajar, prestasi siswa, dan perputaran unit usaha sekolah.',
       features: [
         'Pantauan KPI kehadiran guru & siswa harian secara komprehensif',
@@ -98,580 +95,427 @@ export const LandingPageView: React.FC = () => {
     },
     petugas: {
       title: 'Tata Usaha & Administrasi Modern',
-      roleBadge: 'Administrasi & Sarpras',
-      badgeColor: 'lp-badge-pill',
-      desc: 'Otomatisasi buku induk siswa, penerbitan nomor surat keluar masuk, pencatatan SPP, dan inventaris fasilitas sarana prasarana sekolah.',
+      roleBadge: 'Administrasi TU',
+      desc: 'Otomatisasi buku induk siswa, penerbitan tanda bukti pembayaran SPP, dan pengisian saldo dompet digital siswa secara instan.',
       features: [
-        'Sinkronisasi data pokok siswa dan riwayat akademik terstruktur',
-        'Manajemen surat masuk, disposisi instan, dan arsip digital',
-        'Validasi tagihan SPP dan inventaris laboratorium komputer',
+        'Pencatatan pelunasan SPP digital dengan struk kuitansi instan',
+        'Loket top-up dompet digital siswa (alokasi Kopsis & Kantin)',
+        'Sinkronisasi data pokok siswa dan rombongan belajar',
       ],
-      demoUser: 'Siti Aminah, S.AP',
-      widgetTitle: 'Sistem Administrasi TU',
+      demoUser: 'Rina Wulandari, S.AP',
+      widgetTitle: 'Layanan Tata Usaha',
       widgetRows: [
-        { label: 'Surat Masuk/Keluar', value: '6 Dokumen Hari Ini' },
-        { label: 'Penerimaan SPP', value: 'Rp 63.000.000' },
-        { label: 'Siswa Lunas', value: '420 dari 452 Siswa' },
-        { label: 'Aset Komputer Lab', value: '114 Unit Kondisi Prima' },
+        { label: 'Penerimaan SPP Bulan Ini', value: 'Rp 63.000.000' },
+        { label: 'Siswa Lunas', value: '312 dari 348 Siswa' },
+        { label: 'Top-up E-Wallet Hari Ini', value: 'Rp 4.250.000' },
+        { label: 'Status Rekonsiliasi', value: 'Seimbang (Balance)' },
       ],
     },
     kopsis: {
       title: 'Koperasi Siswa (Kopsis) Smart POS',
-      roleBadge: 'Unit Usaha Sekolah',
-      badgeColor: 'lp-badge-amber',
-      desc: 'Point of Sale (POS) cerdas untuk penyediaan seragam, buku panduan, dan alat tulis dengan transaksi cepat tanpa uang tunai.',
+      roleBadge: 'Unit Usaha Edukasi',
+      desc: 'Kasir Point of Sale modern untuk pembelian alat tulis, seragam, dan buku cetak secara cashless dengan pengurangan stok real-time.',
       features: [
-        'Sistem kasir barcode & QRIS dengan saldo dompet siswa',
-        'Manajemen stok otomatis dengan peringatan stok menipis',
-        'Laporan laba rugi dan rekap transaksi harian transparan',
+        'Checkout instan via scan kartu/input NISN saldo Kopsis',
+        'Manajemen stok produk otomatis dengan concurrency protection',
+        'Rekap transaksi kasir dan mutasi inventaris harian',
       ],
-      demoUser: 'Rudi Hermawan (Kopsis)',
-      widgetTitle: 'Status Kasir Kopsis',
+      demoUser: 'Kasir Koperasi Sekolah',
+      widgetTitle: 'Ringkasan Kasir Kopsis',
       widgetRows: [
-        { label: 'Kasir Status', value: 'Online (Ready)' },
-        { label: 'Transaksi Hari Ini', value: '58 Transaksi' },
-        { label: 'Omset Penjualan', value: 'Rp 1.420.000' },
-        { label: 'Metode Non-Tunai', value: '72% Digital / QRIS' },
+        { label: 'Katalog Produk Aktif', value: '28 Item Barang' },
+        { label: 'Transaksi Hari Ini', value: '47 Transaksi' },
+        { label: 'Total Penjualan Hari Ini', value: 'Rp 1.420.000' },
+        { label: 'Metode Terbanyak', value: 'E-Wallet Siswa (82%)' },
       ],
     },
     kantin: {
-      title: 'Kantin Sehat Digital & Higienis',
-      roleBadge: 'Kantin Sekolah',
-      badgeColor: 'lp-badge-emerald',
-      desc: 'Mendukung asupan gizi bergizi bagi siswa dengan sistem pemesanan teratur saat istirahat dan pembayaran cashless yang higienis.',
+      title: 'Kantin Sehat Sekolah Terpadu',
+      roleBadge: 'Unit Usaha Sehat',
+      desc: 'Sistem pemesanan makanan dan minuman sehat siswa tanpa uang tunai fisik, menjaga kebersihan makanan dan mencegah kehilangan uang.',
       features: [
-        'Katalog menu makanan & minuman terdaftar per stand kantin',
-        'Pemesanan tanpa berdesakan saat jam istirahat sekolah',
-        'Pantauan higienitas makanan dan rekapan omset pedagang',
+        'Pembayaran makanan via Saldo Kantin siswa secara cepat',
+        'Manajemen menu makanan/minuman sehat per stand kantin',
+        'Bebas antrean panjang dan risiko uang palsu/kembalian',
       ],
-      demoUser: 'Ibu Titin (Kantin Stand 1)',
-      widgetTitle: 'Operasional Kantin Sehat',
+      demoUser: 'Pengelola Stand Kantin',
+      widgetTitle: 'Aktivitas Kantin Sehat',
       widgetRows: [
-        { label: 'Status Stan', value: 'Buka & Melayani' },
-        { label: 'Antrean Pesanan', value: '12 Porsi Dalam Proses' },
-        { label: 'Pesanan Selesai', value: '84 Porsi Hari Ini' },
-        { label: 'Omset Stan', value: 'Rp 1.680.000' },
+        { label: 'Menu Makanan & Minuman', value: '19 Menu Tersedia' },
+        { label: 'Pesanan Hari Ini', value: '124 Porsi' },
+        { label: 'Perputaran Saldo Kantin', value: 'Rp 2.180.000' },
+        { label: 'Stand Kantin Terdaftar', value: '3 Stand Aktif' },
       ],
     },
   };
 
-  const currentRole = roleShowcaseData[activeRoleTab];
+  const activeRoleData = roleShowcaseData[activeRoleTab] || roleShowcaseData.siswa;
 
   return (
     <div className="lp-wrapper">
-      {/* ------------------------------------------------------------------
-          1. Modern Navbar (Blurred Glass)
-         ------------------------------------------------------------------ */}
-      <nav className="lp-navbar">
-        <div className="lp-container lp-nav-inner">
+      {/* Decorative Atmosphere Glows (Novus & Flowize Style) */}
+      <div className="lp-bg-glow-orb-1" aria-hidden="true" />
+      <div className="lp-bg-glow-orb-2" aria-hidden="true" />
 
-          <ul className="lp-nav-links">
-            <li><a href="#keunggulan" className="lp-nav-item">Keunggulan</a></li>
-            <li><a href="#ekosistem" className="lp-nav-item">Modul Civitas</a></li>
-            <li><a href="#program" className="lp-nav-item">Program Unggulan</a></li>
-            <li><a href="#prestasi" className="lp-nav-item">Prestasi</a></li>
-            <li><a href="#testimoni" className="lp-nav-item">Testimoni</a></li>
-          </ul>
-
-          <div className="lp-nav-actions">
-            {user ? (
-              <Link to="/app" className="lp-btn-login">
-                <span>Buka Dashboard</span>
-                <ArrowRight size={15} />
-              </Link>
-            ) : (
-              <Link to="/login" className="lp-btn-login">
-                <span>Masuk Portal</span>
-                <ArrowRight size={15} />
-              </Link>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      {/* ------------------------------------------------------------------
-          2. Hero Section
-         ------------------------------------------------------------------ */}
-      <header className="lp-hero-section">
-        <div className="lp-container">
-          <div className="lp-hero-grid">
-            {/* Left Content */}
-            <div className="lp-hero-content">
-              <h1 className="lp-hero-title">
-                SteelSchool
-              </h1>
-
-              <p className="lp-hero-desc">
-                Solusi all-in-one terintegrasi yang menyatukan portal <strong>Siswa</strong>, <strong>Guru</strong>, <strong>Kepala Sekolah</strong>, <strong>Tata Usaha</strong>, <strong>Koperasi Siswa</strong>, hingga <strong>Kantin Sehat</strong> dalam satu pengalaman digital modern dan efisien.
-              </p>
-
-              <div className="lp-hero-cta-group">
-                <Link to="/login" className="lp-btn-primary">
-                  <span>Akses Portal Civitas</span>
-                  <ArrowRight size={16} />
-                </Link>
-              </div>
+      {/* Top Header Navbar with Tailwind & Shadcn styling */}
+      <header className="lp-header">
+        <div className="lp-container flex items-center justify-between w-full">
+          <Link to="/" className="lp-nav-brand">
+            <img src="/steelschool-shield.png" alt="SteelSchool" className="lp-nav-brand-logo" />
+            <div>
+              <div className="lp-nav-brand-title">SteelSchool</div>
+              <div className="lp-nav-brand-tagline">Ekosistem Sekolah Terpadu</div>
             </div>
+          </Link>
 
-            {/* Right Showcase: 3D Metallic Shield with Top-Down Studio Spotlight */}
-            <div className="lp-hero-shield-container">
-              <div className="lp-hero-spotlight-beam" aria-hidden="true" />
-              <div className="lp-hero-shield-wrapper">
-                <img
-                  src="/steelschool-shield.png"
-                  alt="SteelSchool 3D Metallic Emblem"
-                  className="lp-hero-shield-img"
-                />
-                <div className="lp-hero-shield-floor-shadow" aria-hidden="true" />
-              </div>
-            </div>
+          <nav>
+            <ul className="lp-nav-links">
+              <li><a href="#hero" className="lp-nav-link">Beranda</a></li>
+              <li><a href="#highlights" className="lp-nav-link">Keunggulan</a></li>
+              <li><a href="#roles" className="lp-nav-link">Simulasi Peran</a></li>
+              <li><a href="#features" className="lp-nav-link">Program</a></li>
+            </ul>
+          </nav>
 
+          <div className="flex items-center">
+            <Link to="/login" className="lp-nav-pill-cta">
+              <span>Masuk Portal</span>
+              <FiArrowRight className="w-4 h-4 shrink-0" />
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* ------------------------------------------------------------------
-          3. Metric Stats Bar
-         ------------------------------------------------------------------ */}
-      <section className="lp-metrics-section">
+      {/* Hero Section (Novus + Flowize AI 3D Tablet Showcase) */}
+      <section id="hero" className="lp-hero-section">
         <div className="lp-container">
-          <div className="lp-metrics-box">
-            <div className="lp-metric-item">
-              <div className="lp-metric-icon-circle bg-blue-50 text-blue-600">
-                <GraduationCap size={24} />
+          <div className="lp-hero-grid">
+            {/* Left Content */}
+            <div>
+              <div className="inline-flex items-center gap-2 mb-5">
+                <Badge variant="default" className="text-xs px-3.5 py-1.5 font-bold gap-2 bg-indigo-50 border-indigo-200/80 text-indigo-700 shadow-xs">
+                  <HiOutlineSparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
+                  <span>Kompetisi Inovasi Teknologi Pendidikan 2026</span>
+                </Badge>
               </div>
-              <div className="lp-metric-data">
-                <h3>1.250+</h3>
-                <p>Siswa & Siswi Aktif</p>
+
+              <h1 className="lp-hero-title">
+                Ekosistem Digital Sekolah{' '}
+                <span className="lp-hero-title-highlight">Cerdas & Terpadu</span>
+              </h1>
+
+              <p className="lp-hero-desc">
+                Satu platform terintegrasi untuk 9 civitas: manajemen akademik, presensi gerbang RFID, unit usaha kopsis & kantin cashless, hingga pemantauan eksekutif pimpinan sekolah.
+              </p>
+
+              <div className="lp-hero-buttons">
+                <Link
+                  to="/login"
+                  className="lp-hero-btn-primary"
+                >
+                  <span>Masuk ke Portal Sekolah</span>
+                  <FiArrowRight className="w-4 h-4 shrink-0" />
+                </Link>
+
+                <a
+                  href="#roles"
+                  className="lp-hero-btn-play"
+                >
+                  <div className="lp-hero-play-circle">
+                    <FiPlay className="w-3.5 h-3.5 ml-0.5 fill-current" />
+                  </div>
+                  <span className="lp-hero-play-text">
+                    Lihat Simulasi Peran
+                  </span>
+                </a>
               </div>
             </div>
 
-            <div className="lp-metric-item">
-              <div className="lp-metric-icon-circle bg-emerald-50 text-emerald-600">
-                <BookOpen size={24} />
-              </div>
-              <div className="lp-metric-data">
-                <h3>85+</h3>
-                <p>Guru & Tenaga Ahli</p>
-              </div>
-            </div>
+            {/* Right 3D Tablet Showcase (Novus & Flowize Mockup) */}
+            <div className="lp-hero-showcase">
+              <div className="lp-showcase-tablet">
+                <div className="lp-showcase-header">
+                  <div className="lp-showcase-brand">
+                    <img src="/steelschool-shield.png" alt="Shield" className="w-6 h-6 object-contain" />
+                    <span className="text-xs font-bold text-slate-900">SteelSchool Operational Hub</span>
+                  </div>
+                  <Badge variant="success" className="text-[10px] uppercase font-bold py-0.5 px-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-ping" />
+                    <span>Sistem Aktif</span>
+                  </Badge>
+                </div>
 
-            <div className="lp-metric-item">
-              <div className="lp-metric-icon-circle bg-amber-50 text-amber-600">
-                <Award size={24} />
-              </div>
-              <div className="lp-metric-data">
-                <h3>48+</h3>
-                <p>Prestasi Juara 2026</p>
-              </div>
-            </div>
+                <div className="lp-showcase-stats-grid">
+                  <div className="lp-mini-stat-card">
+                    <div className="lp-mini-stat-label">Total Civitas</div>
+                    <div className="lp-mini-stat-val">380+</div>
+                  </div>
+                  <div className="lp-mini-stat-card">
+                    <div className="lp-mini-stat-label">Kehadiran Gerbang</div>
+                    <div className="lp-mini-stat-val text-emerald-600">98.8%</div>
+                  </div>
+                  <div className="lp-mini-stat-card">
+                    <div className="lp-mini-stat-label">Saldo Cashless</div>
+                    <div className="lp-mini-stat-val text-blue-600">Aktif</div>
+                  </div>
+                </div>
 
-            <div className="lp-metric-item">
-              <div className="lp-metric-icon-circle bg-purple-50 text-purple-600">
-                <Building size={24} />
+                <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-200/80">
+                  <div className="text-xs font-bold text-slate-900 mb-2 flex items-center gap-1.5">
+                    <FiLayers className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Alur Ekosistem Waktu-Nyata</span>
+                  </div>
+                  <div className="text-xs text-slate-600 leading-relaxed space-y-1">
+                    <div className="flex items-center gap-1.5">
+                      <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span>Check-in Gerbang Otomatis via RFID/NISN</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span>Belanja Kopsis & Kantin via Dual-Balance Wallet</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span>Evaluasi Nilai Guru & Rekap SPP Terpusat</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="lp-metric-data">
-                <h3>100%</h3>
-                <p>Digitalisasi Sekolah</p>
+
+              {/* Floating Cards (Novus Style) */}
+              <div className="lp-floating-card-1">
+                <div className="lp-floating-icon bg-emerald-100 text-emerald-600">
+                  <FiCheckCircle className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">Presensi Gerbang</div>
+                  <div className="text-[11px] text-slate-500">Ahmad P. Hadir 06:45 WIB</div>
+                </div>
+              </div>
+
+              <div className="lp-floating-card-2">
+                <div className="lp-floating-icon bg-blue-100 text-blue-600">
+                  <RiShoppingCart2Line className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">Kopsis Smart POS</div>
+                  <div className="text-[11px] text-slate-500">Transaksi Saldo Sukses</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ------------------------------------------------------------------
-          4. Interactive 6-in-1 Ecosystem Spotlight
-         ------------------------------------------------------------------ */}
-      <section id="ekosistem" className="lp-ecosystem-section">
+      {/* Trust & Partnership Section */}
+      <section className="lp-trust-section">
+        <div className="lp-container">
+          <div className="lp-trust-label">Standar Integrasi & Kompatibilitas Ekosistem Pendidikan</div>
+          <div className="lp-trust-logos-row">
+            <div className="lp-trust-logo-item">
+              <FiGlobe className="w-4 h-4 text-blue-600" />
+              <span>Kemendikbudristek Dapodik</span>
+            </div>
+            <div className="lp-trust-logo-item">
+              <HiOutlineSparkles className="w-4 h-4 text-indigo-600" />
+              <span>Google for Education</span>
+            </div>
+            <div className="lp-trust-logo-item">
+              <HiOutlineShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Bank Indonesia QRIS</span>
+            </div>
+            <div className="lp-trust-logo-item">
+              <HiOutlineLockClosed className="w-4 h-4 text-purple-600" />
+              <span>ISO 27001 Data Security</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4-Grid Key Highlights (Flowize AI Style: 10x, 99.8%, 100%, Enterprise) */}
+      <section id="highlights" className="lp-highlights-section">
         <div className="lp-container">
           <div className="lp-section-header">
-            <span className="lp-badge-pill">Fitur Inti Ekosistem</span>
-            <h2 className="lp-section-title">Satu Platform, 6 Peran Civitas Terintegrasi</h2>
-            <p className="lp-section-subtitle">
-              Pilih peran di bawah ini untuk melihat bagaimana sistem mendukung setiap kebutuhan aktivitas sekolah secara spesifik dan terpadu.
+            <span className="lp-section-tag">Efisiensi Maksimal</span>
+            <h2 className="lp-section-title">Mengapa Memilih SteelSchool?</h2>
+            <p className="lp-section-desc">
+              Dirancang untuk mengatasi friksi konvensional di sekolah, dari antrean kasir hingga rekapitulasi penilaian guru.
             </p>
           </div>
 
-          {/* Interactive Role Tabs */}
-          <div className="lp-role-tab-selector">
+          <div className="lp-highlights-grid">
+            <div className="lp-highlight-card">
+              <div className="lp-highlight-metric">10x</div>
+              <div className="lp-highlight-title">Akselerasi Administrasi</div>
+              <p className="lp-highlight-text">
+                Pemangkasan jam kerja manual rekap rapor, buku induk tata usaha, dan penerbitan kuitansi SPP.
+              </p>
+            </div>
+
+            <div className="lp-highlight-card">
+              <div className="lp-highlight-metric text-emerald-600">99.8%</div>
+              <div className="lp-highlight-title">Akurasi Presensi Gerbang</div>
+              <p className="lp-highlight-text">
+                Deteksi otomatis waktu check-in satpam dengan kalkulasi menit keterlambatan yang objektif.
+              </p>
+            </div>
+
+            <div className="lp-highlight-card">
+              <div className="lp-highlight-metric text-purple-600">100%</div>
+              <div className="lp-highlight-title">Cashless Dual-Balance</div>
+              <p className="lp-highlight-text">
+                Pemisahan ketat saldo belanja Kopsis dan jajan Kantin agar uang saku edukasi siswa terarah.
+              </p>
+            </div>
+
+            <div className="lp-highlight-card">
+              <div className="lp-highlight-metric text-sky-600">RBAC</div>
+              <div className="lp-highlight-title">Keamanan Multi-Peran</div>
+              <p className="lp-highlight-text">
+                Setiap peran memiliki hak akses terisolasi ketat dengan enkripsi token API berstandar tinggi.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Role Simulator (Novus & Flowize Tabs) */}
+      <section id="roles" className="lp-roles-section">
+        <div className="lp-container">
+          <div className="lp-section-header">
+            <span className="lp-section-tag">Simulasi Peran Civitas</span>
+            <h2 className="lp-section-title">Satu Platform, Pengalaman Spesifik</h2>
+            <p className="lp-section-desc">
+              Pilih peran di bawah ini untuk melihat bagaimana antarmuka menyesuaikan dengan alur kerja masing-masing pengguna.
+            </p>
+          </div>
+
+          <div className="lp-role-tabs-nav">
             {[
-              { id: 'siswa', label: 'Siswa', icon: GraduationCap },
-              { id: 'guru', label: 'Guru', icon: BookOpen },
-              { id: 'kepsek', label: 'Kepala Sekolah', icon: Award },
-              { id: 'petugas', label: 'Tata Usaha (TU)', icon: FileSpreadsheet },
-              { id: 'kopsis', label: 'Koperasi (Kopsis)', icon: ShoppingBag },
-              { id: 'kantin', label: 'Kantin Sehat', icon: UtensilsCrossed },
+              { id: 'siswa', label: 'Siswa / Murid', icon: HiOutlineAcademicCap },
+              { id: 'guru', label: 'Dewan Guru', icon: HiOutlineBookOpen },
+              { id: 'kepsek', label: 'Kepala Sekolah', icon: RiAwardLine },
+              { id: 'petugas', label: 'Tata Usaha (TU)', icon: RiFileList3Line },
+              { id: 'kopsis', label: 'Koperasi Siswa', icon: RiShoppingCart2Line },
+              { id: 'kantin', label: 'Kantin Sehat', icon: RiRestaurantLine },
             ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeRoleTab === tab.id;
+              const TabIcon = tab.icon;
               return (
                 <button
                   key={tab.id}
-                  type="button"
                   onClick={() => setActiveRoleTab(tab.id)}
-                  className={`lp-role-tab-btn ${isActive ? 'is-active' : ''}`}
+                  className={`lp-role-tab-btn ${activeRoleTab === tab.id ? 'active' : ''}`}
+                  type="button"
                 >
-                  <Icon size={16} />
+                  <TabIcon className="w-4 h-4" />
                   <span>{tab.label}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Dynamic Role Card Presentation */}
-          <div className="lp-showcase-display-card">
-            <div className="lp-showcase-details">
-              <div className={`lp-badge-pill ${currentRole.badgeColor}`}>
-                <span>{currentRole.roleBadge}</span>
+          <div className="lp-role-display-card">
+            <div>
+              <div className="inline-block mb-3">
+                <Badge variant="primary" className="text-xs font-bold px-3 py-1">
+                  {activeRoleData.roleBadge}
+                </Badge>
               </div>
-              <h3>{currentRole.title}</h3>
-              <p>{currentRole.desc}</p>
+              <h3 className="lp-role-info-title">{activeRoleData.title}</h3>
+              <p className="lp-role-info-desc">{activeRoleData.desc}</p>
 
-              <ul className="lp-feature-checklist">
-                {currentRole.features.map((feat, idx) => (
-                  <li key={idx}>
-                    <Check size={16} className="lp-feature-check-icon" />
+              <div className="lp-role-features-list">
+                {activeRoleData.features.map((feat, idx) => (
+                  <div key={idx} className="lp-role-feature-item">
+                    <FiCheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div>
-                <Link to="/login" className="lp-btn-primary" style={{ padding: '10px 20px', fontSize: '13.5px' }}>
-                  <span>Uji Coba Demo Sebagai {currentRole.roleBadge}</span>
-                  <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
-
-            {/* Widget Interactive Preview */}
-            <div className="lp-showcase-widget">
-              <div className="lp-widget-header">
-                <span className="lp-widget-title">{currentRole.widgetTitle}</span>
-                <span className="text-xs font-semibold text-slate-400">Akun: {currentRole.demoUser}</span>
-              </div>
-              <div className="lp-widget-content">
-                {currentRole.widgetRows.map((row, i) => (
-                  <div key={i} className="lp-widget-row">
-                    <span>{row.label}</span>
-                    <strong>{row.value}</strong>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ------------------------------------------------------------------
-          5. Keunggulan Arsitektur Sistem (Why Choose Us)
-         ------------------------------------------------------------------ */}
-      <section id="keunggulan" className="lp-features-section">
-        <div className="lp-container">
-          <div className="lp-section-header">
-            <span className="lp-badge-pill">Nilai Tambah & Inovasi</span>
-            <h2 className="lp-section-title">Standar Baru Pendidikan Digital</h2>
-            <p className="lp-section-subtitle">
-              Dirancang dengan prinsip desain bersih, efisiensi waktu, dan transparansi data tanpa membebani civitas sekolah.
-            </p>
-          </div>
-
-          <div className="lp-features-grid">
-            <div className="lp-feature-card">
-              <div className="lp-feature-icon-box bg-blue-50 text-blue-600">
-                <Laptop size={24} />
-              </div>
-              <h4>All-in-One Centralized Hub</h4>
-              <p>
-                Menghilangkan fragmentasi aplikasi. Akademik, finansial SPP, koperasi, dan absensi terpusat dalam satu database terpadu.
-              </p>
-            </div>
-
-            <div className="lp-feature-card">
-              <div className="lp-feature-icon-box bg-emerald-50 text-emerald-600">
-                <TrendingUp size={24} />
-              </div>
-              <h4>Ekosistem Finansial 100% Cashless</h4>
-              <p>
-                Transaksi belanja alat tulis di Kopsis dan makan siang di kantin menggunakan saldo digital siswa untuk meminimalisir kehilangan uang tunai.
-              </p>
-            </div>
-
-            <div className="lp-feature-card">
-              <div className="lp-feature-icon-box bg-amber-50 text-amber-600">
-                <Award size={24} />
-              </div>
-              <h4>Executive BI & Pengawasan Real-time</h4>
-              <p>
-                Kepala Sekolah memiliki akses ke analitik kinerja dewan guru, rata-rata kehadiran rombel, dan evaluasi unit usaha sekolah.
-              </p>
-            </div>
-
-            <div className="lp-feature-card">
-              <div className="lp-feature-icon-box bg-purple-50 text-purple-600">
-                <ShieldCheck size={24} />
-              </div>
-              <h4>Keamanan Token & Akurasi Data</h4>
-              <p>
-                Didukung arsitektur REST API Laravel Sanctum berstandar industri dengan kontrol hak akses multi-role (RBAC) yang ketat.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------
-          6. Program Unggulan Sekolah
-         ------------------------------------------------------------------ */}
-      <section id="program" className="lp-programs-section">
-        <div className="lp-container">
-          <div className="lp-section-header">
-            <span className="lp-badge-pill">Kurikulum Unggul</span>
-            <h2 className="lp-section-title">Program Pembinaan Generasi Masa Depan</h2>
-            <p className="lp-section-subtitle">
-              Mengombinasikan penguasaan sains teknologi, pembentukan karakter luhur, dan inkubasi wirausaha mandiri.
-            </p>
-          </div>
-
-          <div className="lp-programs-grid">
-            <div className="lp-program-card">
-              <div>
-                <span className="lp-program-tag">Teknologi & Vokasi</span>
-                <h4>Lab Rekayasa Perangkat Lunak & AI</h4>
-                <p>
-                  Pusat pembelajaran komputasi modern dengan kurikulum berbasis industri web, mobile app development, dan kecerdasan buatan.
-                </p>
-              </div>
-              <div className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-midnight-navy)' }}>
-                <span>Fasilitas Lab Multimedia Terkini</span>
-                <Check size={14} />
-              </div>
-            </div>
-
-            <div className="lp-program-card">
-              <div>
-                <span className="lp-program-tag">Kewirausahaan</span>
-                <h4>Inkubator Bisnis & Kopsis Digital</h4>
-                <p>
-                  Melatih siswa mengelola bisnis nyata melalui praktik kasir retail digital, supply chain ATK, dan pencatatan akuntansi koperasi.
-                </p>
-              </div>
-              <div className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-midnight-navy)' }}>
-                <span>Praktik Nyata Berbasis Smart POS</span>
-                <Check size={14} />
-              </div>
-            </div>
-
-            <div className="lp-program-card">
-              <div>
-                <span className="lp-program-tag">Kesehatan & Karakter</span>
-                <h4>Gerakan Kantin Sehat & Bersih</h4>
-                <p>
-                  Standar higienitas ketat dengan menu bergizi bersertifikasi untuk menunjang daya konsentrasi belajar siswa sepanjang hari.
-                </p>
-              </div>
-              <div className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-midnight-navy)' }}>
-                <span>Pemesanan Pre-Order Tanpa Antre</span>
-                <Check size={14} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------
-          7. Prestasi & Rekognisi
-         ------------------------------------------------------------------ */}
-      <section id="prestasi" className="lp-features-section" style={{ background: '#f8fafc' }}>
-        <div className="lp-container">
-          <div className="lp-section-header">
-            <span className="lp-badge-pill">Jejak Prestasi</span>
-            <h2 className="lp-section-title">Pencapaian Gemilang Civitas Sekolah</h2>
-            <p className="lp-section-subtitle">
-              Bukti nyata dedikasi tenaga pendidik dan kerja keras siswa dalam berbagai ajang kompetisi regional dan nasional.
-            </p>
-          </div>
-
-          <div className="lp-features-grid">
-            <div className="lp-feature-card">
-              <span className="lp-badge-pill lp-badge-amber text-xs w-fit">Tingkat Nasional</span>
-              <h4>Medali Emas Olimpiade Sains & Informatika 2026</h4>
-              <p>Diraih oleh tim perwakilan siswa kelas XI dalam kategori Algoritma Pemrograman dan Basis Data.</p>
-            </div>
-
-            <div className="lp-feature-card">
-              <span className="lp-badge-pill lp-badge-emerald text-xs w-fit">Inovasi Lembaga</span>
-              <h4>Sekolah Rujukan Digitalisasi Terbaik Provinsi</h4>
-              <p>Penghargaan atas implementasi ekosistem terpadu bebas kertas dan cashless smart school.</p>
-            </div>
-
-            <div className="lp-feature-card">
-              <span className="lp-badge-pill lp-badge-pill text-xs w-fit">Karier & Lulusan</span>
-              <h4>98% Keterserapan Lulusan Perguruan Tinggi & Industri</h4>
-              <p>Alumni tersebar di kampus negeri unggulan dan perusahaan teknologi terkemuka.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------
-          8. Testimoni Civitas Sekolah
-         ------------------------------------------------------------------ */}
-      <section id="testimoni" className="lp-testimonials-section">
-        <div className="lp-container">
-          <div className="lp-section-header">
-            <span className="lp-badge-pill">Suara Civitas</span>
-            <h2 className="lp-section-title">Apa Kata Mereka Tentang Ekosistem Ini?</h2>
-            <p className="lp-section-subtitle">
-              Pengalaman nyata siswa, guru, dan pengelola yang merasakan kemudahan sistem terpadu setiap harinya.
-            </p>
-          </div>
-
-          <div className="lp-testimonials-grid">
-            <div className="lp-testimonial-card">
-              <div className="lp-star-rating" aria-label="Rating 5 dari 5 bintang">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={15} fill="var(--color-sunlit-yellow)" color="var(--color-sunlit-yellow)" />
-                ))}
-              </div>
-              <p className="lp-testimonial-quote">
-                "Jajan di kantin dan beli buku di Kopsis sekarang sangat cepat pakai saldo digital. Jadwal pelajaran dan nilai ujian juga langsung bisa dilihat di HP tanpa perlu tanya manual."
-              </p>
-              <div className="lp-testimonial-author">
-                <div className="lp-author-avatar">AP</div>
-                <div className="lp-author-info">
-                  <h5>Ahmad Pratama</h5>
-                  <span>Ketua OSIS / Siswa Kelas XII</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="lp-testimonial-card">
-              <div className="lp-star-rating" aria-label="Rating 5 dari 5 bintang">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={15} fill="var(--color-sunlit-yellow)" color="var(--color-sunlit-yellow)" />
-                ))}
-              </div>
-              <p className="lp-testimonial-quote">
-                "Sebagai guru, saya tidak perlu lagi membawa tumpukan buku nilai fisik. Presensi kelas otomatis terdata dan nilai ujian semester langsung tersusun rapi untuk rapor siswa."
-              </p>
-              <div className="lp-testimonial-author">
-                <div className="lp-author-avatar">BS</div>
-                <div className="lp-author-info">
-                  <h5>Budi Santoso, S.Pd</h5>
-                  <span>Guru Rekayasa Perangkat Lunak</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="lp-testimonial-card">
-              <div className="lp-star-rating" aria-label="Rating 5 dari 5 bintang">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={15} fill="var(--color-sunlit-yellow)" color="var(--color-sunlit-yellow)" />
-                ))}
-              </div>
-              <p className="lp-testimonial-quote">
-                "Platform ini memberikan visibilitas penuh bagi saya selaku pimpinan sekolah. Rekap kehadiran guru dan laporan omset unit kopsis dapat saya tinjau dalam satu dashboard eksekutif."
-              </p>
-              <div className="lp-testimonial-author">
-                <div className="lp-author-avatar">SK</div>
-                <div className="lp-author-info">
-                  <h5>Dr. H. Soekarno, M.Pd</h5>
-                  <span>Kepala Sekolah</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------
-          9. High Impact Call to Action (CTA)
-         ------------------------------------------------------------------ */}
-      <section className="lp-cta-section">
-        <div className="lp-container">
-          <div className="lp-cta-card">
-            <h2>Wujudkan Pengelolaan Sekolah Masa Depan Hari Ini</h2>
-            <p>
-              Bergabunglah dengan ekosistem digital terpadu untuk efisiensi akademik, transparansi unit usaha, dan kemudahan bagi seluruh civitas sekolah.
-            </p>
-            <div>
-              <Link to="/login" className="lp-btn-cta-white">
-                <span>Masuk ke Portal Sekolah Sekarang</span>
-                <ArrowRight size={18} />
+              <Link to="/login">
+                <Button size="sm" pill className="gap-2 text-xs font-bold">
+                  <span>Coba Masuk Akun Ini</span>
+                  <FiArrowRight className="w-3.5 h-3.5" />
+                </Button>
               </Link>
             </div>
+
+            <div className="lp-role-preview-widget">
+              <div className="lp-widget-header">
+                <span>{activeRoleData.widgetTitle}</span>
+                <span className="text-blue-600 font-bold">{activeRoleData.demoUser}</span>
+              </div>
+              {activeRoleData.widgetRows.map((row, idx) => (
+                <div key={idx} className="lp-widget-row">
+                  <span className="lp-widget-label">{row.label}</span>
+                  <span className="lp-widget-val">{row.value}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ------------------------------------------------------------------
-          10. Comprehensive Modern Footer
-         ------------------------------------------------------------------ */}
+      {/* Call to Action Banner */}
+      <div className="lp-container">
+        <div className="lp-cta-banner">
+          <h2 className="lp-cta-title">Siap Mentransformasi Sekolah Anda?</h2>
+          <p className="lp-cta-desc">
+            Bergabunglah dengan ekosistem digital terpadu untuk efisiensi akademik, transparansi unit usaha, dan kemudahan bagi seluruh civitas.
+          </p>
+          <Link to="/login">
+            <Button size="lg" pill variant="secondary" className="gap-2 text-slate-900 font-bold shadow-xl">
+              <span>Masuk ke Portal Sekolah Sekarang</span>
+              <FiArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Footer */}
       <footer className="lp-footer">
         <div className="lp-container">
           <div className="lp-footer-grid">
-            <div className="lp-footer-brand-col">
-              <div className="lp-brand-group">
-                <img src="/steelschool-shield.png" alt="SteelSchool Logo" className="lp-footer-shield-logo" />
-                <div className="lp-brand-text">
-                  <span className="lp-brand-name">SteelSchool</span>
-                  <span className="lp-brand-tagline">Ekosistem Sekolah Terpadu</span>
-                </div>
-              </div>
-              <p>
+            <div>
+              <div className="lp-footer-brand-title">SteelSchool</div>
+              <p className="leading-relaxed max-w-xs text-slate-400">
                 Platform digitalisasi sekolah modern yang mengintegrasikan akademik, tata usaha, koperasi siswa, dan kantin sehat berstandar nasional.
               </p>
             </div>
 
-            <div className="lp-footer-col">
-              <h5>Modul Civitas</h5>
+            <div>
+              <div className="lp-footer-heading">Modul Civitas</div>
               <ul className="lp-footer-links">
-                <li><Link to="/login">Portal Siswa</Link></li>
-                <li><Link to="/login">Portal Dewan Guru</Link></li>
-                <li><Link to="/login">Portal Kepala Sekolah</Link></li>
-                <li><Link to="/login">Portal Tata Usaha</Link></li>
-                <li><Link to="/login">Portal Kasir Kopsis</Link></li>
-                <li><Link to="/login">Portal Kantin Sehat</Link></li>
+                <li><Link to="/login" className="lp-footer-link">Portal Siswa</Link></li>
+                <li><Link to="/login" className="lp-footer-link">Portal Dewan Guru</Link></li>
+                <li><Link to="/login" className="lp-footer-link">Portal Kepala Sekolah</Link></li>
+                <li><Link to="/login" className="lp-footer-link">Portal Tata Usaha</Link></li>
               </ul>
             </div>
 
-            <div className="lp-footer-col">
-              <h5>Navigasi Halaman</h5>
+            <div>
+              <div className="lp-footer-heading">Unit Usaha</div>
               <ul className="lp-footer-links">
-                <li><a href="#keunggulan">Keunggulan Ekosistem</a></li>
-                <li><a href="#ekosistem">Simulasi 6 Peran</a></li>
-                <li><a href="#program">Program Unggulan</a></li>
-                <li><a href="#prestasi">Jejak Prestasi</a></li>
-                <li><a href="#testimoni">Testimoni Pengguna</a></li>
+                <li><Link to="/login" className="lp-footer-link">Koperasi Siswa (Kopsis)</Link></li>
+                <li><Link to="/login" className="lp-footer-link">Kantin Sehat</Link></li>
+                <li><Link to="/login" className="lp-footer-link">Presensi RFID Satpam</Link></li>
+                <li><Link to="/login" className="lp-footer-link">E-Library Perpustakaan</Link></li>
               </ul>
             </div>
 
-            <div className="lp-footer-col">
-              <h5>Kontak & Layanan</h5>
-              <ul className="lp-footer-links">
-                <li className="lp-footer-contact-item">
-                  <MapPin size={16} />
-                  <span>Jl. Pendidikan No. 45, Indonesia</span>
-                </li>
-                <li className="lp-footer-contact-item">
-                  <Phone size={16} />
-                  <span>(021) 8876-2026</span>
-                </li>
-                <li className="lp-footer-contact-item">
-                  <Mail size={16} />
-                  <span>info@steelschool.sch.id</span>
-                </li>
-                <li className="lp-footer-contact-item">
-                  <Clock size={16} />
-                  <span>Senin - Jumat, 07:00 - 16:00</span>
-                </li>
-              </ul>
+            <div>
+              <div className="lp-footer-heading">Kontak & Lokasi</div>
+              <p className="leading-relaxed text-slate-400">
+                Jl. Pendidikan No. 45, Indonesia<br />
+                Telepon: (021) 8876-2026<br />
+                Email: info@steelschool.sch.id
+              </p>
             </div>
           </div>
 
           <div className="lp-footer-bottom">
-            <span>&copy; {new Date().getFullYear()} SteelSchool Ekosistem Sekolah Terpadu. All rights reserved.</span>
+            <span>© 2026 SteelSchool Ekosistem Sekolah Terpadu. All rights reserved.</span>
             <span>Dirancang khusus untuk Kompetisi Inovasi Teknologi Pendidikan 2026</span>
           </div>
         </div>
@@ -679,3 +523,5 @@ export const LandingPageView: React.FC = () => {
     </div>
   );
 };
+
+export default LandingPageView;

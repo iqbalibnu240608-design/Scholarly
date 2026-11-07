@@ -8,12 +8,25 @@ import {
   KeyRound,
   Power,
   UserPlus,
-  Check,
-  X,
-  Search
+  Search,
+  Settings,
+  Filter,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { ROLE_LABELS, ROLE_BADGE_COLORS } from '../types/auth';
-import './EcosystemModals.css';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../components/ui/table';
+import { Dialog } from '../components/ui/dialog';
 
 interface AdminUser {
   id: number;
@@ -41,7 +54,6 @@ interface AdminData {
 export const AdminView: React.FC = () => {
   const [data, setData] = useState<AdminData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [notification, setNotification] = useState<string | null>(null);
   const [assigningUserId, setAssigningUserId] = useState<number | null>(null);
 
   // Filter & Search State
@@ -67,8 +79,9 @@ export const AdminView: React.FC = () => {
     try {
       const res = await apiClient.get('/school/admin');
       setData(res.data.data);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Gagal mengambil data admin', err);
+      toast.error('Gagal mengambil data admin dari server');
     } finally {
       setLoading(false);
     }
@@ -78,11 +91,6 @@ export const AdminView: React.FC = () => {
     fetchAdminData();
   }, []);
 
-  const showToast = (msg: string) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(null), 4000);
-  };
-
   const handleRoleChange = async (userId: number, newRoleName: string) => {
     setAssigningUserId(userId);
     try {
@@ -90,10 +98,10 @@ export const AdminView: React.FC = () => {
         user_id: userId,
         role: newRoleName,
       });
-      showToast(res.data.message);
+      toast.success(res.data.message || 'Role pengguna berhasil diperbarui.');
       await fetchAdminData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal mengubah role.');
+      toast.error(err.response?.data?.message || 'Gagal mengubah role.');
     } finally {
       setAssigningUserId(null);
     }
@@ -102,10 +110,10 @@ export const AdminView: React.FC = () => {
   const handleToggleStatus = async (userId: number) => {
     try {
       const res = await apiClient.post(`/admin/users/${userId}/toggle-status`);
-      showToast(res.data.message);
+      toast.success(res.data.message || 'Status akun berhasil diubah.');
       await fetchAdminData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal mengubah status akun.');
+      toast.error(err.response?.data?.message || 'Gagal mengubah status akun.');
     }
   };
 
@@ -123,10 +131,10 @@ export const AdminView: React.FC = () => {
       const res = await apiClient.post(`/admin/users/${resetTargetUser.id}/reset-password`, {
         password: resetPasswordVal,
       });
-      showToast(res.data.message);
+      toast.success(res.data.message || 'Kata sandi berhasil direset.');
       setShowResetModal(false);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal mereset kata sandi.');
+      toast.error(err.response?.data?.message || 'Gagal mereset kata sandi.');
     } finally {
       setSubmittingReset(false);
     }
@@ -143,19 +151,25 @@ export const AdminView: React.FC = () => {
         role_name: newRole,
         gender: newGender,
       });
-      showToast(res.data.message);
+      toast.success(res.data.message || 'Akun baru berhasil diterbitkan.');
       setShowAddModal(false);
       setNewName('');
       setNewNisn('');
       await fetchAdminData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal mendaftarkan akun baru.');
+      toast.error(err.response?.data?.message || 'Gagal mendaftarkan akun baru.');
     } finally {
       setSubmittingUser(false);
     }
   };
 
-  if (loading) return <div className="loading-container">Memuat modul Admin...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px] text-sm text-slate-500 font-medium">
+        Memuat modul Administrator Ekosistem...
+      </div>
+    );
+  }
 
   const usersList = data?.recent_users || [];
   const filteredUsers = usersList.filter((u) => {
@@ -171,289 +185,230 @@ export const AdminView: React.FC = () => {
   });
 
   return (
-    <div className="view-container">
-      {/* View Header */}
-      <div className="view-header">
-        <div>
-          <h2>⚙️ Portal Administrator & Pemantauan Sistem (SteelSchool)</h2>
-          <p>
-            Pantau akun civitas sekolah, daftarkan siswa dengan <strong>NISN</strong>, tentukan kata sandi dari admin, serta kelola hak akses role.
-          </p>
-        </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="btn-primary-action"
-          style={{ padding: '8px 16px', fontSize: '13px' }}
-        >
-          <UserPlus size={16} />
-          <span>+ Buat Akun Pengguna / Siswa</span>
-        </button>
-      </div>
-
-      {notification && (
-        <div className="p-3 mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg flex items-center gap-2">
-          <Check size={18} />
-          <span>{notification}</span>
-        </div>
-      )}
-
-      {/* System Health Cards */}
-      <div className="grid-cards-3">
-        <div className="feature-card">
-          <div className="card-top-icon text-indigo-600">
-            <Server size={22} />
+    <div className="space-y-6">
+      {/* View Header with NexaAdmin Design */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
+        <div className="flex items-start gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+            <Settings className="w-6 h-6" />
           </div>
-          <h4>Backend API Service</h4>
-          <div className="amount-display text-indigo-700">Laravel 12 (Sanctum)</div>
-          <p className="card-subtext">RESTful API Otentikasi Token & Multi-Role</p>
-        </div>
-
-        <div className="feature-card">
-          <div className="card-top-icon text-emerald-600">
-            <Database size={22} />
-          </div>
-          <h4>Database Ekosistem</h4>
-          <div className="amount-display text-emerald-700">MySQL 8.4</div>
-          <p className="card-subtext">Tabel: <code>users</code>, <code>roles</code>, <code>permissions</code></p>
-        </div>
-
-        <div className="feature-card">
-          <div className="card-top-icon text-purple-600">
-            <Users size={22} />
-          </div>
-          <h4>Total Pengguna</h4>
-          <div className="amount-display text-purple-700">{data?.total_users} Akun</div>
-          <p className="card-subtext">Siswa (NISN), Guru (NIP), Admin, dll.</p>
-        </div>
-      </div>
-
-      {/* Modal Pendaftaran Akun Baru (Popup Bersih & Scrollable) */}
-      {showAddModal && (
-        <div className="eco-modal-backdrop">
-          <div className="eco-modal-card">
-            <div className="eco-modal-header">
-              <h3>
-                <UserPlus size={18} className="text-indigo-600" />
-                Pendaftaran Akun Baru (Siswa / Staf)
-              </h3>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                <X size={20} />
-              </button>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant="primary" className="text-xs">
+                RBAC & User Management
+              </Badge>
+              <Badge variant="secondary" className="text-xs font-mono">
+                {usersList.length} Akun
+              </Badge>
             </div>
-
-            <form onSubmit={handleCreateUser} className="eco-modal-form">
-              <div className="eco-modal-body">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Nama Lengkap Siswa / Staf *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: Muhammad Rizky"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    className="w-full p-2 border rounded text-xs bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Nomor Identitas (NISN untuk Siswa / NIP / Username) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: 0098765432"
-                    value={newNisn}
-                    onChange={(e) => setNewNisn(e.target.value)}
-                    className="w-full p-2 border rounded text-xs bg-white font-mono"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Peran (Role) *</label>
-                    <select
-                      value={newRole}
-                      onChange={(e) => setNewRole(e.target.value)}
-                      className="w-full p-2 border rounded text-xs bg-white"
-                    >
-                      <option value="siswa">Siswa / Peserta Didik</option>
-                      <option value="guru">Guru / Pengajar</option>
-                      <option value="kepsek">Kepala Sekolah</option>
-                      <option value="petugas">Petugas Tata Usaha</option>
-                      <option value="kopsis">Petugas Koperasi</option>
-                      <option value="kantin">Pengelola Kantin</option>
-                      <option value="security">Petugas Keamanan / Satpam</option>
-                      <option value="perpustakaan">Petugas Perpustakaan</option>
-                      <option value="admin">Administrator Sistem</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Jenis Kelamin</label>
-                    <select
-                      value={newGender}
-                      onChange={(e) => setNewGender(e.target.value as 'L' | 'P')}
-                      className="w-full p-2 border rounded text-xs bg-white"
-                    >
-                      <option value="L">Laki-Laki (L)</option>
-                      <option value="P">Perempuan (P)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Kata Sandi Awal (Ditentukan oleh Admin) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Minimal 4 karakter"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full p-2 border rounded text-xs bg-white font-mono"
-                  />
-                  <span className="text-[11px] text-slate-500 mt-1 block">
-                    💡 Kata sandi ini diberikan langsung ke siswa/staf saat penyerahan akun.
-                  </span>
-                </div>
-              </div>
-
-              <div className="eco-modal-footer">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="btn-secondary-action"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingUser}
-                  className="btn-primary-action"
-                  style={{ opacity: submittingUser ? 0.6 : 1 }}
-                >
-                  {submittingUser ? 'Menyimpan...' : 'Simpan & Terbitkan Akun'}
-                </button>
-              </div>
-            </form>
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+              Portal Administrator & Kontrol Sistem
+            </h2>
+            <p className="text-xs md:text-sm text-slate-500 mt-0.5">
+              Kelola civitas sekolah, daftarkan siswa dengan <strong>NISN</strong>, tetapkan kata sandi, dan atur izin akses role.
+            </p>
           </div>
         </div>
-      )}
 
-      {/* Role Distribution Badges */}
-      <div className="overview-card mt-6">
-        <div className="card-header">
-          <h3>
-            <Shield size={18} className="inline mr-2 text-indigo-600" />
-            Distribusi Hak Akses Role
-          </h3>
-          <span className="badge-pill">Filter Cepat:</span>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => setSelectedRoleFilter('all')}
-            className={`px-3 py-1.5 rounded-lg border text-xs font-bold cursor-pointer ${
-              selectedRoleFilter === 'all'
-                ? 'bg-indigo-600 text-white border-indigo-700'
-                : 'bg-white text-slate-600 border-slate-200'
-            }`}
-          >
-            Semua Role ({usersList.length})
-          </button>
-          {data?.role_distribution.map((r) => {
-            const color = ROLE_BADGE_COLORS[r.role] || { bg: '#f1f5f9', border: '#cbd5e1', text: '#334155' };
-            const isActive = selectedRoleFilter === r.role;
-            return (
-              <button
-                key={r.role}
-                onClick={() => setSelectedRoleFilter(isActive ? 'all' : r.role)}
-                className="px-3 py-1.5 rounded-lg border flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
-                style={{
-                  backgroundColor: isActive ? color.text : color.bg,
-                  borderColor: color.border,
-                  color: isActive ? '#ffffff' : color.text,
-                }}
-              >
-                <span>{r.display_name}</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white text-slate-800 font-mono">
-                  {r.users_count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <Button
+          onClick={() => setShowAddModal(true)}
+          className="gap-2 shrink-0 rounded-xl"
+        >
+          <UserPlus className="w-4 h-4" />
+          <span>Buat Akun Baru</span>
+        </Button>
       </div>
 
-      {/* Users and Role Assignment Table */}
-      <div className="overview-card mt-6">
-        <div className="card-header">
-          <h3>Daftar Pengguna & Pemantauan Akun (NISN / Kredensial)</h3>
-          <div className="card-header-actions">
-            <div style={{ position: 'relative' }}>
-              <Search size={14} style={{ position: 'absolute', left: '10px', top: '9px', color: '#94a3b8' }} />
-              <input
+      {/* System Health Cards (NexaAdmin 3-Grid) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="border-indigo-100/80 bg-white">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Backend API Service
+            </CardTitle>
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Server className="w-4 h-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black text-indigo-700 tracking-tight">
+              Laravel 12
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Sanctum Bearer Token & Multi-Role RBAC
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-emerald-100/80 bg-white">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Database Ekosistem
+            </CardTitle>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Database className="w-4 h-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black text-emerald-700 tracking-tight">
+              MySQL 8.4
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Tabel: users, roles, wallets, presensi, spp
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-purple-100/80 bg-white">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Total Pengguna Aktif
+            </CardTitle>
+            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black text-purple-700 tracking-tight">
+              {data?.total_users || usersList.length} Akun
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Siswa (NISN), Guru (NIP), Admin & Staf
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Role Distribution Filter Badges */}
+      <Card className="border-slate-200/80">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-blue-600" />
+            <CardTitle className="text-sm font-bold text-slate-900">
+              Distribusi Hak Akses Role
+            </CardTitle>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+            <Filter className="w-3.5 h-3.5" />
+            <span>Filter Cepat</span>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setSelectedRoleFilter('all')}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                selectedRoleFilter === 'all'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
+              }`}
+            >
+              Semua Role ({usersList.length})
+            </button>
+            {data?.role_distribution.map((r) => {
+              const color = ROLE_BADGE_COLORS[r.role] || {
+                bg: '#f1f5f9',
+                border: '#cbd5e1',
+                text: '#334155',
+              };
+              const isActive = selectedRoleFilter === r.role;
+              return (
+                <button
+                  key={r.role}
+                  type="button"
+                  onClick={() => setSelectedRoleFilter(isActive ? 'all' : r.role)}
+                  className="px-3 py-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer"
+                  style={{
+                    backgroundColor: isActive ? color.text : color.bg,
+                    borderColor: color.border,
+                    color: isActive ? '#ffffff' : color.text,
+                  }}
+                >
+                  <span>{r.display_name}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/90 text-slate-800 font-mono font-bold">
+                    {r.users_count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Users and Role Assignment Table (NexaAdmin Style) */}
+      <Card className="border-slate-200/80">
+        <CardHeader className="pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <CardTitle className="text-base font-bold text-slate-900">
+              Daftar Pengguna & Pemantauan Akun
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Pencarian cepat berdasarkan nama, NISN, atau peranan
+            </CardDescription>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="relative w-full sm:w-64">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Input
                 type="text"
                 placeholder="Cari NISN, nama, role..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ paddingLeft: '30px', paddingRight: '12px', paddingTop: '5px', paddingBottom: '5px' }}
-                className="text-xs border rounded bg-white"
+                className="pl-9 h-9 text-xs"
               />
             </div>
-            <span className="badge-pill">{filteredUsers.length} Ditemukan</span>
+            <Badge variant="secondary" className="text-xs shrink-0 font-bold">
+              {filteredUsers.length} Ditemukan
+            </Badge>
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="table-responsive">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nama Pengguna</th>
-                <th>NISN / No. Identitas</th>
-                <th>Role Saat Ini</th>
-                <th>Status</th>
-                <th>Ubah Role</th>
-                <th style={{ minWidth: '100px' }}>Aksi Admin</th>
-              </tr>
-            </thead>
-            <tbody>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-16">ID</TableHead>
+                <TableHead>Nama Pengguna</TableHead>
+                <TableHead>NISN / Identitas</TableHead>
+                <TableHead>Role Saat Ini</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Ubah Role</TableHead>
+                <TableHead className="text-right">Aksi Admin</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredUsers.map((u) => (
-                <tr key={u.id}>
-                  <td>#{u.id}</td>
-                  <td>
-                    <strong>{u.name}</strong>
-                    {u.email && <div className="text-xs text-slate-400">{u.email}</div>}
-                  </td>
-                  <td>
-                    <span className="font-mono px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-xs">
+                <TableRow key={u.id}>
+                  <TableCell className="font-mono text-xs font-semibold text-slate-400">
+                    #{u.id}
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-bold text-slate-900 text-sm">{u.name}</div>
+                    {u.email && <div className="text-xs text-slate-400 font-mono">{u.email}</div>}
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-mono px-2 py-0.5 bg-slate-100 border border-slate-200/80 rounded-md text-xs font-medium text-slate-700">
                       {u.identifier_number || '-'}
                     </span>
-                  </td>
-                  <td>
-                    <span className="badge-pill">
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="primary" className="text-xs">
                       {ROLE_LABELS[u.role_name] || u.role_name}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`badge-pill text-xs font-semibold ${
-                        u.status === 'active'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-rose-100 text-rose-800'
-                      }`}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={u.status === 'active' ? 'success' : 'destructive'}
+                      className="text-[11px]"
                     >
                       {u.status === 'active' ? 'Aktif' : 'Nonaktif'}
-                    </span>
-                  </td>
-                  <td>
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     <select
-                      className="p-1 border rounded text-xs bg-white"
+                      className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50"
                       value={u.role_name}
                       disabled={assigningUserId === u.id}
                       onChange={(e) => handleRoleChange(u.id, e.target.value)}
@@ -468,92 +423,176 @@ export const AdminView: React.FC = () => {
                       <option value="security">Satpam</option>
                       <option value="perpustakaan">Perpustakaan</option>
                     </select>
-                  </td>
-                  <td>
-                    <div className="flex items-center gap-1">
-                      <button
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="inline-flex items-center gap-1.5 justify-end">
+                      <Button
+                        size="sm"
+                        variant={u.status === 'active' ? 'destructive' : 'success'}
                         onClick={() => handleToggleStatus(u.id)}
                         title={u.status === 'active' ? 'Nonaktifkan Akun' : 'Aktifkan Akun'}
-                        className={`p-1.5 rounded text-xs border cursor-pointer ${
-                          u.status === 'active'
-                            ? 'border-rose-200 text-rose-600 hover:bg-rose-50'
-                            : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'
-                        }`}
+                        className="h-8 w-8 p-0 rounded-lg"
                       >
-                        <Power size={13} />
-                      </button>
-                      <button
+                        <Power className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="subtle"
                         onClick={() => handleOpenResetModal(u.id, u.name)}
                         title="Reset Kata Sandi"
-                        className="p-1.5 rounded text-xs border border-indigo-200 text-indigo-600 hover:bg-indigo-50 cursor-pointer"
+                        className="h-8 w-8 p-0 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100"
                       >
-                        <KeyRound size={13} />
-                      </button>
+                        <KeyRound className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      {/* Modal Reset Password */}
-      {showResetModal && resetTargetUser && (
-        <div className="eco-modal-backdrop">
-          <div className="eco-modal-card" style={{ maxWidth: '440px' }}>
-            <div className="eco-modal-header">
-              <h3>
-                <KeyRound size={18} className="text-indigo-600" />
-                Reset Kata Sandi Pengguna
-              </h3>
-              <button
-                onClick={() => setShowResetModal(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <form onSubmit={handleExecuteResetPassword} className="eco-modal-form">
-              <div className="eco-modal-body">
-                <p className="text-xs text-slate-600">
-                  Perbarui kata sandi untuk <strong>{resetTargetUser.name}</strong>. Token login lama akan otomatis dicabut.
-                </p>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Kata Sandi Baru *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Minimal 4 karakter"
-                    value={resetPasswordVal}
-                    onChange={(e) => setResetPasswordVal(e.target.value)}
-                    className="w-full p-2 border rounded text-xs bg-white font-mono"
-                  />
-                </div>
-              </div>
-              <div className="eco-modal-footer">
-                <button
-                  type="button"
-                  onClick={() => setShowResetModal(false)}
-                  className="btn-secondary-action"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingReset}
-                  className="btn-primary-action"
-                  style={{ opacity: submittingReset ? 0.6 : 1 }}
-                >
-                  {submittingReset ? 'Memperbarui...' : 'Simpan Kata Sandi'}
-                </button>
-              </div>
-            </form>
+      {/* Modal Pendaftaran Akun Baru (Shadcn Dialog) */}
+      <Dialog
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Pendaftaran Akun Baru"
+        description="Terbitkan akun baru untuk civitas sekolah (Siswa dengan NISN, Guru dengan NIP, atau Staf)"
+      >
+        <form onSubmit={handleCreateUser} className="space-y-4 mt-2">
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">
+              Nama Lengkap Siswa / Staf *
+            </label>
+            <Input
+              type="text"
+              required
+              placeholder="Contoh: Muhammad Rizky"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+            />
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">
+              Nomor Identitas (NISN untuk Siswa / NIP / Username) *
+            </label>
+            <Input
+              type="text"
+              required
+              placeholder="Contoh: 0098765432"
+              value={newNisn}
+              onChange={(e) => setNewNisn(e.target.value)}
+              className="font-mono"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-1">
+                Peran (Role) *
+              </label>
+              <select
+                value={newRole}
+                onChange={(e) => setNewRole(e.target.value)}
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                <option value="siswa">Siswa / Peserta Didik</option>
+                <option value="guru">Guru / Pengajar</option>
+                <option value="kepsek">Kepala Sekolah</option>
+                <option value="petugas">Petugas Tata Usaha</option>
+                <option value="kopsis">Petugas Koperasi</option>
+                <option value="kantin">Pengelola Kantin</option>
+                <option value="security">Petugas Keamanan / Satpam</option>
+                <option value="perpustakaan">Petugas Perpustakaan</option>
+                <option value="admin">Administrator Sistem</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-1">
+                Jenis Kelamin
+              </label>
+              <select
+                value={newGender}
+                onChange={(e) => setNewGender(e.target.value as 'L' | 'P')}
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                <option value="L">Laki-Laki (L)</option>
+                <option value="P">Perempuan (P)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">
+              Kata Sandi Awal (Ditentukan oleh Admin) *
+            </label>
+            <Input
+              type="text"
+              required
+              placeholder="Minimal 4 karakter"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="font-mono"
+            />
+            <span className="text-[11px] text-slate-500 mt-1 block">
+              Kata sandi ini diberikan langsung ke siswa/staf saat penyerahan akun.
+            </span>
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAddModal(false)}
+            >
+              Batal
+            </Button>
+            <Button type="submit" disabled={submittingUser}>
+              {submittingUser ? 'Menyimpan...' : 'Simpan & Terbitkan Akun'}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
+
+      {/* Modal Reset Password (Shadcn Dialog) */}
+      <Dialog
+        open={showResetModal && !!resetTargetUser}
+        onClose={() => setShowResetModal(false)}
+        title="Reset Kata Sandi Pengguna"
+        description={resetTargetUser ? `Perbarui kata sandi untuk ${resetTargetUser.name}. Token login lama akan otomatis dicabut.` : ''}
+      >
+        <form onSubmit={handleExecuteResetPassword} className="space-y-4 mt-2">
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">
+              Kata Sandi Baru *
+            </label>
+            <Input
+              type="text"
+              required
+              placeholder="Minimal 4 karakter"
+              value={resetPasswordVal}
+              onChange={(e) => setResetPasswordVal(e.target.value)}
+              className="font-mono"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowResetModal(false)}
+            >
+              Batal
+            </Button>
+            <Button type="submit" disabled={submittingReset}>
+              {submittingReset ? 'Memperbarui...' : 'Simpan Kata Sandi'}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
     </div>
   );
 };

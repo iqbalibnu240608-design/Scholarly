@@ -1,954 +1,755 @@
-﻿/* ==========================================================================
-   SteelSchool - Sandland Sleep Style System
-   Warm cream sleep journal with deep navy nights & sunlit yellow accents
+/* ==========================================================================
+   SteelSchool Landing Page CSS — Reference-Aligned (Novus + Flowize AI)
+   Soft Lavender/Blue Atmosphere, Confident Typography, Floating 3D Showcase
    ========================================================================== */
 
-:root {
-  /* Sandland Sleep Palette Tokens */
-  --color-midnight-navy: #1a365d;
-  --color-midnight-navy-dark: #0f2341;
-  --color-midnight-navy-deep: #09172c;
-  --color-sunlit-yellow: #fae467;
-  --color-sunlit-yellow-hover: #f7dd4a;
-  --color-linen-cream: #f2ede8;
-  --color-paper-white: #ffffff;
-  --color-soft-vellum: #faf8f6;
-  --color-graphite: #3d3d3d;
-  --color-smoke: #666666;
-  --color-slate: #726f6d;
-  --color-charcoal: #191923;
-  --color-frost: #e6e6e6;
-  --color-ink-black: #000000;
-
-  /* Typography Font Families */
-  --font-sandland: 'DM Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-  /* Shapes & Radii per Sandland Tokens */
-  --radius-cards: 10px;
-  --radius-badges: 10px;
-  --radius-inputs: 4px;
-  --radius-buttons: 20px;
-  --radius-nav-pills: 20px;
-
-  /* Shadows per Sandland Tokens */
-  --shadow-md: rgba(0, 0, 0, 0.1) 0px 4px 12px 0px;
-  --shadow-lg: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px;
-  --shadow-subtle: rgba(0, 0, 0, 0.13) 0px 1px 0px 0px;
-  --shadow-yellow: rgba(250, 228, 103, 0.4) 0px 4px 16px 0px;
-}
-
-/* --------------------------------------------------------------------------
-   Page Canvas & Base Typography
-   -------------------------------------------------------------------------- */
 .lp-wrapper {
   min-height: 100vh;
   width: 100%;
-  background-color: var(--color-linen-cream);
-  color: var(--color-graphite);
-  font-family: var(--font-sandland);
+  background: linear-gradient(180deg, #f8fafd 0%, #eef2ff 50%, #f8fafc 100%);
+  color: #0f172a;
+  font-family: var(--font-sans);
   overflow-x: hidden;
   position: relative;
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+}
+
+/* Background Atmosphere Glows (Novus & Flowize AI) */
+.lp-bg-glow-orb-1 {
+  position: absolute;
+  top: -120px;
+  right: -100px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(224, 231, 255, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lp-bg-glow-orb-2 {
+  position: absolute;
+  top: 450px;
+  left: -150px;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(53, 109, 243, 0.15) 0%, rgba(224, 231, 255, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .lp-container {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 0 24px;
-}
-
-/* Section Header Block per Sandland Specifications */
-.lp-section-header {
-  text-align: center;
-  max-width: 700px;
-  margin: 0 auto 48px;
-}
-
-.lp-section-title {
-  font-size: 40px;
-  font-weight: 500;
-  color: var(--color-ink-black);
-  letter-spacing: -1.2px;
-  line-height: 1.15;
-  margin: 12px 0 10px;
-}
-
-.lp-section-subtitle {
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--color-smoke);
-  line-height: 1.6;
+  padding: 0 28px;
+  position: relative;
+  z-index: 10;
 }
 
 /* --------------------------------------------------------------------------
-   Badges per Sandland Tokens
+   Top Header Navigation (Novus Style)
    -------------------------------------------------------------------------- */
-.lp-badge-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: var(--radius-badges);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  background: var(--color-sunlit-yellow);
-  color: var(--color-ink-black);
-  border: none;
-}
-
-.lp-badge-amber {
-  background: var(--color-sunlit-yellow);
-  color: var(--color-ink-black);
-}
-
-.lp-badge-emerald {
-  background: #eef7ee;
-  color: #1e5a22;
-  border: 1px solid #d2ebd4;
-}
-
-/* --------------------------------------------------------------------------
-   1. Navigation Bar (Top-level Navigation atop Navy Hero)
-   -------------------------------------------------------------------------- */
-.lp-navbar {
-  position: sticky;
-  top: 0;
-  width: 100%;
-  background: rgba(16, 35, 62, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(230, 230, 230, 0.12);
-  z-index: 100;
-  transition: all 0.25s ease;
-}
-
-.lp-nav-inner {
-  height: 68px;
+.lp-header {
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: all 0.3s ease;
 }
 
-.lp-brand-group {
+.lp-nav-brand {
   display: flex;
   align-items: center;
   gap: 12px;
   text-decoration: none;
 }
 
-.lp-logo-svg {
-  width: 30px;
-  height: 30px;
+.lp-nav-brand-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(53, 109, 243, 0.25));
 }
 
-.lp-brand-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.lp-brand-name {
+.lp-nav-brand-title {
   font-size: 20px;
-  font-weight: 600;
-  color: var(--color-paper-white);
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.5px;
   line-height: 1.1;
 }
 
-.lp-brand-tagline {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--color-sunlit-yellow);
-  letter-spacing: 0.045em;
+.lp-nav-brand-tagline {
+  font-size: 11px;
+  font-weight: 600;
+  color: #356df3;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .lp-nav-links {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 32px;
   list-style: none;
 }
 
-.lp-nav-item {
-  font-size: 13.5px;
+.lp-nav-link {
+  font-size: 14px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.82);
+  color: #475569;
   text-decoration: none;
-  letter-spacing: 0.036em;
-  transition: color 0.15s ease;
+  transition: color 0.2s ease;
 }
 
-.lp-nav-item:hover {
-  color: var(--color-sunlit-yellow);
+.lp-nav-link:hover {
+  color: #356df3;
 }
 
-.lp-nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Ghost Nav Pill Button (Like "Take the Sleep Quiz") */
-.lp-btn-login {
+.lp-nav-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background-color: transparent;
-  color: var(--color-paper-white);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  padding: 8px 20px;
-  border-radius: var(--radius-buttons);
-  font-size: 13.5px;
-  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #356df3 0%, #4f46e5 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
+  box-shadow: 0 4px 14px rgba(53, 109, 243, 0.35);
   transition: all 0.2s ease;
 }
 
-.lp-btn-login:hover {
-  background-color: var(--color-sunlit-yellow);
-  color: var(--color-ink-black);
-  border-color: var(--color-sunlit-yellow);
-  box-shadow: var(--shadow-yellow);
+.lp-nav-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(53, 109, 243, 0.45);
 }
 
 /* --------------------------------------------------------------------------
-   2. Hero Section (Deep Midnight Navy Nights)
+   Hero Section (Novus + Flowize AI Style)
    -------------------------------------------------------------------------- */
 .lp-hero-section {
-  position: relative;
-  background-color: #040914;
-  background-image:
-    radial-gradient(ellipse 60% 55% at 75% 0%, rgba(255, 255, 255, 0.42) 0%, rgba(184, 212, 236, 0.20) 35%, transparent 65%),
-    radial-gradient(circle at 74% 45%, rgba(70, 115, 153, 0.32) 0%, transparent 60%),
-    radial-gradient(ellipse 90% 48% at 50% 100%, rgba(184, 212, 236, 0.35) 0%, rgba(70, 115, 153, 0.15) 50%, transparent 80%),
-    url('/hero-backdrop.jpg');
-  background-size: cover;
-  background-position: center bottom;
-  background-repeat: no-repeat;
-  color: var(--color-paper-white);
-  padding: 88px 0 94px;
-  overflow: hidden;
-}
-
-.lp-hero-section::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 78% 35%, rgba(184, 212, 236, 0.12) 0%, transparent 50%),
-              linear-gradient(180deg, rgba(4, 9, 20, 0.45) 0%, rgba(70, 115, 153, 0.08) 50%, rgba(184, 212, 236, 0.15) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.lp-hero-section .lp-container {
-  position: relative;
-  z-index: 2;
+  padding: 80px 0 60px;
 }
 
 .lp-hero-grid {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  align-items: center;
+  grid-template-columns: 1.1fr 1fr;
   gap: 48px;
-  min-height: 440px;
+  align-items: center;
 }
 
-.lp-hero-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.lp-hero-content .lp-badge-pill {
-  align-self: flex-start;
-  background: rgba(250, 228, 103, 0.15);
-  color: var(--color-sunlit-yellow);
-  border: 1px solid rgba(250, 228, 103, 0.35);
+/* Left Hero Content */
+.lp-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: #e0e7ff;
+  color: #4338ca;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  border: 1px solid rgba(79, 70, 229, 0.15);
 }
 
 .lp-hero-title {
-  font-size: 64px;
-  font-weight: 600;
-  color: var(--color-paper-white);
-  line-height: 1.05;
-  letter-spacing: -2px;
+  font-size: 52px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.12;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
 }
 
-.lp-hero-highlight {
-  color: var(--color-sunlit-yellow);
-  font-weight: 600;
+.lp-hero-title-highlight {
+  background: linear-gradient(135deg, #356df3 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .lp-hero-desc {
-  font-size: 16.5px;
-  color: rgba(255, 255, 255, 0.82);
-  line-height: 1.65;
-  max-width: 520px;
+  font-size: 18px;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 36px;
+  max-width: 540px;
 }
 
-.lp-hero-desc strong {
-  color: var(--color-paper-white);
-  font-weight: 600;
-}
-
-.lp-hero-cta-group {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 10px;
-}
-
-/* Primary CTA Button (Sunlit Yellow Pill per Sandland Specifications) */
-.lp-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background-color: var(--color-sunlit-yellow);
-  color: var(--color-ink-black);
-  padding: 13px 26px;
-  border-radius: var(--radius-buttons);
-  font-size: 14.5px;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: var(--shadow-md);
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.lp-btn-primary:hover {
-  background-color: var(--color-sunlit-yellow-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-yellow);
-}
-
-/* Secondary Button (Ghost Pill) */
-.lp-btn-outline {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background-color: transparent;
-  color: var(--color-paper-white);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  padding: 12px 24px;
-  border-radius: var(--radius-buttons);
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.lp-btn-outline:hover {
-  border-color: var(--color-sunlit-yellow);
-  color: var(--color-sunlit-yellow);
-  background-color: rgba(250, 228, 103, 0.08);
-}
-
-.lp-hero-trust-row {
+/* --------------------------------------------------------------------------
+   Hero Section Buttons (Precision Pill Buttons)
+   -------------------------------------------------------------------------- */
+.lp-hero-buttons {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-top: 8px;
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.65);
+  flex-wrap: wrap;
+  margin-bottom: 40px;
 }
 
-.lp-trust-item {
+/* Primary Hero Pill Button: Masuk ke Portal Sekolah */
+.lp-hero-btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: fit-content !important;
+  white-space: nowrap !important;
+  gap: 12px !important;
+  height: 52px !important;
+  padding: 0 32px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, #356DF3 0%, #3B82F6 50%, #4F46E5 100%) !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  user-select: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 25px -4px rgba(53, 109, 243, 0.35) !important;
+  transition: all 0.2s ease !important;
+}
+
+.lp-hero-btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 14px 30px -4px rgba(53, 109, 243, 0.45) !important;
+}
+
+.lp-hero-btn-primary:active {
+  transform: translateY(0) !important;
+}
+
+/* Secondary Play Pill Button: Lihat Simulasi Peran (Exact User Specs) */
+.lp-hero-btn-play {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  white-space: nowrap !important;
+  gap: 12px !important;
+  padding: 6px 24px 6px 8px !important;
+  height: 52px !important;
+  border-radius: 9999px !important;
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+  text-decoration: none !important;
+  user-select: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.lp-hero-btn-play:hover {
+  background: #ffffff !important;
+  border-color: #3b82f6 !important;
+  color: #2563eb !important;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.18) !important;
+  transform: translateY(-2px) !important;
+}
+
+.lp-hero-btn-play:active {
+  transform: translateY(0) !important;
+}
+
+.lp-hero-play-circle {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 9999px !important;
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.lp-hero-btn-play:hover .lp-hero-play-circle {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.lp-hero-play-text {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.2px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+/* Navbar CTA Button */
+.lp-nav-pill-cta {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: fit-content !important;
+  white-space: nowrap !important;
+  gap: 8px !important;
+  height: 44px !important;
+  padding: 0 24px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, #356DF3 0%, #4F46E5 100%) !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  user-select: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(53, 109, 243, 0.25) !important;
+  transition: all 0.2s ease !important;
+}
+
+.lp-nav-pill-cta:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(53, 109, 243, 0.35) !important;
+}
+
+.lp-nav-pill-cta:active {
+  transform: translateY(0) !important;
+}
+
+/* Right Hero Showcase Mockup (Novus & Flowize 3D Tablet) */
+.lp-hero-showcase {
+  position: relative;
+}
+
+.lp-showcase-tablet {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 25px 50px -12px rgba(53, 109, 243, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  padding: 24px;
+  position: relative;
+  z-index: 5;
+}
+
+.lp-showcase-header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+}
+
+.lp-showcase-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lp-showcase-badge-active {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.lp-trust-item svg {
-  color: var(--color-sunlit-yellow) !important;
-}
-
-/* --------------------------------------------------------------------------
-   3D Shield Showcase with Overhead Spotlight & Deep Studio Shadow
-   -------------------------------------------------------------------------- */
-.lp-hero-shield-container {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-/* Overhead white spotlight beam coming from the top down */
-.lp-hero-spotlight-beam {
-  position: absolute;
-  top: -140px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 480px;
-  height: 600px;
-  background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(210, 235, 255, 0.22) 35%, transparent 70%);
-  pointer-events: none;
-  filter: blur(14px);
-  z-index: 1;
-}
-
-.lp-hero-shield-wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  animation: lpShieldFloat 6s ease-in-out infinite;
-}
-
-.lp-hero-shield-img {
-  width: 100%;
-  max-width: 330px;
-  height: auto;
-  display: block;
-  /* Multi-layered 3D Studio Shadow: top specular rim + deep directional floor shadows */
-  filter: 
-    drop-shadow(0 -14px 28px rgba(255, 255, 255, 0.48))
-    drop-shadow(0 12px 22px rgba(4, 9, 20, 0.6))
-    drop-shadow(22px 34px 44px rgba(0, 0, 0, 0.8))
-    drop-shadow(-8px 16px 28px rgba(70, 115, 153, 0.35));
-  transform: perspective(1000px) rotateY(-5deg) rotateX(3deg);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
-}
-
-.lp-hero-shield-wrapper:hover .lp-hero-shield-img {
-  transform: perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1.04);
-  filter: 
-    drop-shadow(0 -18px 34px rgba(255, 255, 255, 0.6))
-    drop-shadow(0 16px 30px rgba(4, 9, 20, 0.7))
-    drop-shadow(26px 40px 52px rgba(0, 0, 0, 0.88))
-    drop-shadow(-10px 20px 32px rgba(70, 115, 153, 0.45));
-}
-
-/* Studio Floor Shadow Ellipse */
-.lp-hero-shield-floor-shadow {
-  width: 250px;
-  height: 26px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, rgba(4, 9, 20, 0.4) 45%, transparent 75%);
+.lp-showcase-pulse-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  margin-top: 14px;
-  filter: blur(8px);
+  background: #10b981;
 }
 
-@keyframes lpShieldFloat {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+.lp-showcase-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.lp-mini-stat-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.lp-mini-stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.lp-mini-stat-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Floating Mini Cards around Tablet */
+.lp-floating-card-1 {
+  position: absolute;
+  bottom: -24px;
+  left: -20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.12);
+  z-index: 10;
+  animation: floatSubtle 4s ease-in-out infinite;
+}
+
+.lp-floating-card-2 {
+  position: absolute;
+  top: 40px;
+  right: -24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.12);
+  z-index: 10;
+  animation: floatSubtle 4s ease-in-out infinite reverse;
+}
+
+@keyframes floatSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.lp-floating-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* --------------------------------------------------------------------------
-   3. Key Metrics Bar (Linen Cream Canvas with Paper White Card)
+   Trusted Logos / Mitra Edukasi (Novus & Flowize Standard)
    -------------------------------------------------------------------------- */
-.lp-metrics-section {
-  padding: 40px 0 60px;
-  background-color: var(--color-linen-cream);
+.lp-trust-section {
+  padding: 30px 0 60px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-.lp-metrics-box {
-  background: var(--color-paper-white);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-cards);
-  padding: 30px 36px;
-  box-shadow: var(--shadow-md);
+.lp-trust-label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 24px;
+}
+
+.lp-trust-logos-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.lp-trust-logo-item {
+  font-size: 15px;
+  font-weight: 700;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.lp-trust-logo-item:hover {
+  opacity: 1;
+  color: #0f172a;
+}
+
+/* --------------------------------------------------------------------------
+   4-Grid Feature Highlights (Flowize AI Style: 10x, 99.8%, etc.)
+   -------------------------------------------------------------------------- */
+.lp-highlights-section {
+  padding: 80px 0;
+}
+
+.lp-section-header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 52px;
+}
+
+.lp-section-tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #356df3;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.lp-section-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+
+.lp-section-desc {
+  font-size: 16px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.lp-highlights-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
 
-.lp-metric-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.lp-highlight-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 30px 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
 }
 
-.lp-metric-item:not(:last-child) {
-  border-right: 1px solid var(--color-frost);
-  padding-right: 20px;
+.lp-highlight-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -4px rgba(53, 109, 243, 0.12);
+  border-color: rgba(53, 109, 243, 0.3);
 }
 
-.lp-metric-icon-circle {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-cards);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: var(--color-soft-vellum) !important;
-  color: var(--color-midnight-navy) !important;
-  border: 1px solid var(--color-frost);
+.lp-highlight-metric {
+  font-size: 38px;
+  font-weight: 800;
+  color: #356df3;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 12px;
 }
 
-.lp-metric-data h3 {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--color-ink-black);
-  line-height: 1.1;
-  letter-spacing: -0.025em;
+.lp-highlight-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
 }
 
-.lp-metric-data p {
-  font-size: 12.5px;
-  color: var(--color-smoke);
-  font-weight: 500;
-  margin-top: 3px;
+.lp-highlight-text {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
 }
 
 /* --------------------------------------------------------------------------
-   4. Interactive 6-in-1 Ecosystem Spotlight
+   Role Simulator Section (Interactive Tab Showcase)
    -------------------------------------------------------------------------- */
-.lp-ecosystem-section {
-  padding: 72px 0 84px;
-  background: var(--color-linen-cream);
-  border-top: 1px solid var(--color-frost);
-  border-bottom: 1px solid var(--color-frost);
+.lp-roles-section {
+  padding: 60px 0 80px;
+  background: rgba(255, 255, 255, 0.6);
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.lp-role-tab-selector {
+.lp-role-tabs-nav {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 36px;
+  margin-bottom: 40px;
 }
 
 .lp-role-tab-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
-  background: var(--color-paper-white);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-buttons);
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--color-graphite);
+  padding: 10px 20px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .lp-role-tab-btn:hover {
-  background: var(--color-soft-vellum);
-  border-color: var(--color-slate);
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
-.lp-role-tab-btn.is-active {
-  background: var(--color-sunlit-yellow);
-  border-color: var(--color-sunlit-yellow);
-  color: var(--color-ink-black);
-  font-weight: 600;
-  box-shadow: var(--shadow-yellow);
+.lp-role-tab-btn.active {
+  background: #356df3;
+  border-color: #356df3;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(53, 109, 243, 0.35);
 }
 
-.lp-showcase-display-card {
-  background: var(--color-paper-white);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-cards);
-  padding: 40px;
+.lp-role-display-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 36px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 36px;
   align-items: center;
-  gap: 40px;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
 }
 
-.lp-showcase-details {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.lp-showcase-details h3 {
+.lp-role-info-title {
   font-size: 26px;
-  font-weight: 600;
-  color: var(--color-ink-black);
-  line-height: 1.25;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
 }
 
-.lp-showcase-details p {
-  font-size: 14.5px;
-  color: var(--color-graphite);
+.lp-role-info-desc {
+  font-size: 15px;
+  color: #64748b;
   line-height: 1.6;
+  margin-bottom: 24px;
 }
 
-.lp-feature-checklist {
-  list-style: none;
+.lp-role-features-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 6px 0 12px;
+  gap: 12px;
+  margin-bottom: 28px;
 }
 
-.lp-feature-checklist li {
+.lp-role-feature-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 500;
-  color: var(--color-graphite);
+  color: #334155;
 }
 
-.lp-feature-check-icon {
-  color: var(--color-midnight-navy) !important;
-  flex-shrink: 0;
-  margin-top: 3px;
-}
-
-/* Right Column: Sandland Dark Data Card (Dramatic Counterpoint for Science & Proof) */
-.lp-showcase-widget {
-  background: var(--color-midnight-navy);
-  border-radius: var(--radius-cards);
-  padding: 28px 24px;
-  box-shadow: var(--shadow-lg);
-  color: var(--color-paper-white);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.lp-role-preview-widget {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
 }
 
 .lp-widget-header {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 16px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  margin-bottom: 18px;
-}
-
-.lp-widget-title {
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--color-paper-white);
-  letter-spacing: -0.01em;
-}
-
-.lp-widget-header .lp-badge-pill {
-  background: var(--color-sunlit-yellow);
-  color: var(--color-ink-black);
-}
-
-.lp-widget-content {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
 .lp-widget-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-inputs);
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
   font-size: 13px;
 }
 
-.lp-widget-row span {
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 400;
+.lp-widget-row:last-child {
+  border-bottom: none;
 }
 
-.lp-widget-row strong {
-  color: var(--color-sunlit-yellow);
+.lp-widget-label {
+  color: #64748b;
+}
+
+.lp-widget-val {
   font-weight: 600;
+  color: #0f172a;
 }
 
 /* --------------------------------------------------------------------------
-   5. Keunggulan Arsitektur Sistem (Paper White Surface Break)
+   CTA & Footer Section (Clean Modern Novus Theme)
    -------------------------------------------------------------------------- */
-.lp-features-section {
-  padding: 80px 0;
-  background: var(--color-paper-white);
-}
-
-.lp-features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
-}
-
-.lp-feature-card {
-  background: var(--color-soft-vellum);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-cards);
-  padding: 28px 24px;
-  box-shadow: var(--shadow-subtle);
-  transition: all 0.25s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.lp-feature-card:hover {
-  transform: translateY(-2px);
-  background: var(--color-paper-white);
-  border-color: var(--color-midnight-navy);
-  box-shadow: var(--shadow-md);
-}
-
-.lp-feature-icon-box {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-cards);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-midnight-navy) !important;
-  color: var(--color-sunlit-yellow) !important;
-}
-
-.lp-feature-card h4 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-ink-black);
-  line-height: 1.3;
-}
-
-.lp-feature-card p {
-  font-size: 13.5px;
-  color: var(--color-graphite);
-  line-height: 1.6;
-}
-
-/* --------------------------------------------------------------------------
-   6. Program & Prestasi Unggulan (Linen Cream Surface)
-   -------------------------------------------------------------------------- */
-.lp-programs-section {
-  padding: 80px 0;
-  background: var(--color-linen-cream);
-  border-top: 1px solid var(--color-frost);
-}
-
-.lp-programs-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.lp-program-card {
-  background: var(--color-paper-white);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-cards);
-  padding: 28px 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 16px;
-  box-shadow: var(--shadow-md);
-  transition: all 0.2s ease;
-}
-
-.lp-program-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--color-midnight-navy);
-}
-
-.lp-program-tag {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-midnight-navy);
-}
-
-.lp-program-card h4 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-ink-black);
-  margin-top: 4px;
-}
-
-.lp-program-card p {
-  font-size: 13.5px;
-  color: var(--color-graphite);
-  line-height: 1.6;
-}
-
-/* --------------------------------------------------------------------------
-   7. Testimoni Civitas Sekolah (Paper White Canvas)
-   -------------------------------------------------------------------------- */
-.lp-testimonials-section {
-  padding: 80px 0;
-  background: var(--color-paper-white);
-  border-top: 1px solid var(--color-frost);
-}
-
-.lp-testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.lp-testimonial-card {
-  background: var(--color-soft-vellum);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-cards);
-  padding: 28px 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 18px;
-  box-shadow: var(--shadow-subtle);
-}
-
-/* 5 Yellow Stars in Testimonial Cards */
-.lp-star-rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--color-sunlit-yellow);
-}
-
-.lp-testimonial-quote {
-  font-size: 14.5px;
-  color: var(--color-ink-black);
-  font-style: italic;
-  line-height: 1.6;
-}
-
-.lp-testimonial-author {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-top: 14px;
-  border-top: 1px solid var(--color-frost);
-}
-
-.lp-author-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 9999px;
-  background: var(--color-midnight-navy);
-  color: var(--color-sunlit-yellow);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-.lp-author-info h5 {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--color-ink-black);
-}
-
-.lp-author-info span {
-  font-size: 11.5px;
-  color: var(--color-smoke);
-}
-
-/* --------------------------------------------------------------------------
-   8. High Impact CTA Banner (Midnight Navy Nocturnal Finish)
-   -------------------------------------------------------------------------- */
-.lp-cta-section {
-  padding: 60px 0 80px;
-  background: var(--color-linen-cream);
-}
-
-.lp-cta-card {
-  background: linear-gradient(175deg, #10233e 0%, #1a365d 60%, #09172c 100%);
-  border-radius: var(--radius-cards);
-  padding: 64px 48px;
-  color: var(--color-paper-white);
+.lp-cta-banner {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e3a8a 100%);
+  border-radius: 24px;
+  padding: 60px 40px;
   text-align: center;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  margin: 80px 0;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 20px 40px rgba(30, 27, 75, 0.25);
 }
 
-.lp-cta-card h2 {
-  font-size: 40px;
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: -1.44px;
-  max-width: 680px;
-  margin: 0 auto 16px;
-  color: var(--color-paper-white);
+.lp-cta-title {
+  font-size: 38px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  letter-spacing: -0.8px;
 }
 
-.lp-cta-card p {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 540px;
+.lp-cta-desc {
+  font-size: 17px;
+  color: #cbd5e1;
+  max-width: 600px;
   margin: 0 auto 32px;
 }
 
-/* Sunlit Yellow CTA Pill */
-.lp-btn-cta-white {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--color-sunlit-yellow);
-  color: var(--color-ink-black);
-  padding: 14px 32px;
-  border-radius: var(--radius-buttons);
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: var(--shadow-yellow);
-  transition: all 0.2s ease;
-}
-
-.lp-btn-cta-white:hover {
-  background: var(--color-sunlit-yellow-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(250, 228, 103, 0.55);
-}
-
-/* --------------------------------------------------------------------------
-   9. Footer (Charcoal Deep Surface)
-   -------------------------------------------------------------------------- */
 .lp-footer {
-  background: var(--color-charcoal);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 64px 0 32px;
-  color: rgba(255, 255, 255, 0.8);
+  background: #0f172a;
+  color: #94a3b8;
+  padding: 60px 0 32px;
+  font-size: 14px;
 }
 
 .lp-footer-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
-  gap: 40px;
+  gap: 36px;
   margin-bottom: 48px;
 }
 
-.lp-footer .lp-brand-name {
-  color: var(--color-paper-white);
+.lp-footer-brand-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12px;
 }
 
-.lp-footer .lp-brand-tagline {
-  color: var(--color-sunlit-yellow);
-}
-
-.lp-footer-brand-col p {
-  font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.65);
-  margin-top: 14px;
-  max-width: 320px;
-  line-height: 1.6;
-}
-
-.lp-footer-col h5 {
+.lp-footer-heading {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
+  color: #ffffff;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-sunlit-yellow);
-  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+  margin-bottom: 18px;
 }
 
 .lp-footer-links {
@@ -958,136 +759,53 @@
   gap: 10px;
 }
 
-.lp-footer-links a {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
+.lp-footer-link {
+  color: #94a3b8;
   text-decoration: none;
-  transition: color 0.15s;
+  transition: color 0.2s;
 }
 
-.lp-footer-links a:hover {
-  color: var(--color-sunlit-yellow);
-}
-
-.lp-footer-shield-logo {
-  width: 36px;
-  height: 42px;
-  object-fit: contain;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45));
-}
-
-.lp-footer-contact-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.lp-footer-contact-item svg {
-  color: var(--color-sunlit-yellow);
-  flex-shrink: 0;
+.lp-footer-link:hover {
+  color: #ffffff;
 }
 
 .lp-footer-bottom {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px;
 }
 
-/* --------------------------------------------------------------------------
-   Responsive Breakpoints
-   -------------------------------------------------------------------------- */
+/* Responsive Breakpoints */
 @media (max-width: 1024px) {
   .lp-hero-grid {
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 32px;
-    align-items: center;
+    grid-template-columns: 1fr;
+    gap: 40px;
   }
-  .lp-hero-shield-img {
-    max-width: 270px;
+  .lp-role-display-card {
+    grid-template-columns: 1fr;
   }
-  .lp-metrics-box {
+  .lp-highlights-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .lp-metric-item:nth-child(2) {
-    border-right: none;
-  }
-  .lp-showcase-display-card {
-    grid-template-columns: 1fr;
-  }
-  .lp-programs-grid,
-  .lp-testimonials-grid {
-    grid-template-columns: 1fr;
-  }
   .lp-footer-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .lp-hero-grid {
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 20px;
-    align-items: center;
+  .lp-hero-title {
+    font-size: 36px;
   }
-  .lp-hero-shield-img {
-    max-width: 210px;
+  .lp-highlights-grid {
+    grid-template-columns: 1fr;
   }
   .lp-nav-links {
     display: none;
   }
-  .lp-nav-inner {
-    justify-content: flex-end;
-  }
-  .lp-hero-title {
-    font-size: 36px;
-    letter-spacing: -1px;
-  }
-  .lp-metrics-box {
-    grid-template-columns: 1fr;
-  }
-  .lp-metric-item {
-    border-right: none !important;
-    padding-right: 0 !important;
-  }
-  .lp-cta-card {
-    padding: 40px 24px;
-  }
-  .lp-cta-card h2 {
-    font-size: 28px;
-    letter-spacing: -0.5px;
-  }
   .lp-footer-grid {
     grid-template-columns: 1fr;
-  }
-  .lp-footer-bottom {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-  }
-}
-
-@media (max-width: 520px) {
-  .lp-hero-grid {
-    grid-template-columns: 1fr;
-    text-align: center;
-    gap: 36px;
-  }
-  .lp-hero-content {
-    align-items: center;
-  }
-  .lp-hero-desc {
-    margin: 0 auto;
-  }
-  .lp-hero-cta-group {
-    justify-content: center;
-  }
-  .lp-hero-shield-img {
-    max-width: 200px;
   }
 }

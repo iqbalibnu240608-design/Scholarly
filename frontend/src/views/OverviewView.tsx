@@ -5,9 +5,7 @@ import { ROLE_LABELS } from '../types/auth';
 import {
   Users,
   GraduationCap,
-  Briefcase,
   Store,
-  Coffee,
   Building,
   Bell,
   ArrowRight,
@@ -17,8 +15,18 @@ import {
   BookOpen,
   Award,
   Calendar,
+  ShoppingBag,
+  UtensilsCrossed,
+  FileSpreadsheet,
+  BookMarked,
+  Shield,
+  Settings,
+  CreditCard,
+  TrendingUp,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 
 interface OverviewData {
   current_user: { name: string; role: string };
@@ -71,7 +79,6 @@ export const OverviewView: React.FC = () => {
         const res = await apiClient.get('/school/overview');
         setData(res.data);
 
-        // Jika user adalah siswa, ambil juga data wallet & presensi personal
         if (activeRole === 'siswa') {
           const [resWallet, resSiswa] = await Promise.all([
             apiClient.get('/wallet/balance').catch(() => null),
@@ -96,79 +103,95 @@ export const OverviewView: React.FC = () => {
     fetchOverview();
   }, [activeRole]);
 
-  // Daftar portal peran dengan batasan izin masing-masing
+  // Clean NexaAdmin role portal items with Lucide icons (No raw emoji)
   const allPortals = [
     {
       to: '/app/siswa',
-      icon: '🎓',
+      icon: GraduationCap,
+      iconBg: '#e0e7ff',
+      iconColor: '#356df3',
       title: isStudent ? 'Akademik & Nilai Saya' : 'Portal Siswa',
       desc: isStudent ? 'Lihat jadwal kelas, presensi, buku nilai & rapor' : 'Jadwal pelajaran, nilai, presensi & saldo digital',
       allowedRoles: ['admin', 'siswa', 'guru', 'kepsek', 'petugas'],
     },
     {
       to: '/app/kantin',
-      icon: '🍜',
-      title: isStudent || activeRole === 'guru' ? 'Pesan Kantin Sekolah' : 'Portal Kantin Sekolah',
+      icon: UtensilsCrossed,
+      iconBg: '#ffedd5',
+      iconColor: '#ea580c',
+      title: isStudent || activeRole === 'guru' ? 'Pesan Kantin Sekolah' : 'Kasir Kantin Sekolah',
       desc: isStudent || activeRole === 'guru' ? 'Pesan menu makanan & minuman secara cashless' : 'Kasir POS stan kantin & kelola menu makanan',
       allowedRoles: ['admin', 'kantin', 'siswa', 'guru'],
     },
     {
       to: '/app/kopsis',
-      icon: '🛒',
-      title: isStudent || activeRole === 'guru' ? 'Belanja Koperasi (Kopsis)' : 'Portal Koperasi (Kopsis)',
+      icon: ShoppingBag,
+      iconBg: '#fce7f3',
+      iconColor: '#db2777',
+      title: isStudent || activeRole === 'guru' ? 'Belanja Koperasi (Kopsis)' : 'Kasir Koperasi (Kopsis)',
       desc: isStudent || activeRole === 'guru' ? 'Beli alat tulis, seragam, & buku pelajaran sekolah' : 'Kasir POS koperasi, stok ATK & seragam sekolah',
       allowedRoles: ['admin', 'kopsis', 'siswa', 'guru'],
     },
     {
       to: '/app/petugas',
-      icon: '📋',
-      title: isStudent ? 'Layanan SPP & Administrasi' : 'Portal Petugas TU',
-      desc: isStudent ? 'Bayar tagihan SPP bulanan mandiri & cek riwayat kuitansi' : 'Buku induk, verifikasi pembayaran SPP & surat',
+      icon: FileSpreadsheet,
+      iconBg: '#d1fae5',
+      iconColor: '#059669',
+      title: isStudent ? 'Layanan SPP & Administrasi' : 'Portal Tata Usaha (TU)',
+      desc: isStudent ? 'Bayar tagihan SPP bulanan mandiri & cek riwayat kuitansi' : 'Buku induk, verifikasi pembayaran SPP & top-up wallet',
       allowedRoles: ['admin', 'petugas', 'siswa'],
     },
     {
       to: '/app/perpus',
-      icon: '📚',
+      icon: BookMarked,
+      iconBg: '#ede9fe',
+      iconColor: '#7c3aed',
       title: isStudent ? 'Perpustakaan (E-Library)' : 'Portal Perpustakaan',
-      desc: isStudent ? 'Pinjam buku pelajaran, modul, sastra & komik' : 'Katalog inventaris buku & sirkulasi peminjaman',
+      desc: isStudent ? 'Pinjam buku pelajaran, modul, sastra & referensi' : 'Katalog inventaris buku & sirkulasi peminjaman',
       allowedRoles: ['admin', 'perpustakaan', 'siswa', 'guru'],
     },
     {
       to: '/app/guru',
-      icon: '👨‍🏫',
-      title: 'Portal Guru',
-      desc: 'Input nilai evaluasi, absensi kelas & rekap pengajaran',
+      icon: BookOpen,
+      iconBg: '#e0f2fe',
+      iconColor: '#0284c7',
+      title: 'Portal Dewan Guru',
+      desc: 'Input nilai evaluasi (Tugas/UTS/UAS), absensi kelas & jurnal pengajaran',
       allowedRoles: ['admin', 'guru', 'kepsek'],
     },
     {
       to: '/app/kepsek',
-      icon: '🏫',
-      title: 'Portal Kepala Sekolah',
-      desc: 'Monitoring eksekutif, akreditasi & keuangan sekolah',
+      icon: Award,
+      iconBg: '#fef3c7',
+      iconColor: '#d97706',
+      title: 'Monitoring Kepala Sekolah',
+      desc: 'Monitoring eksekutif KPI, akreditasi & perputaran omset unit usaha',
       allowedRoles: ['admin', 'kepsek'],
     },
     {
       to: '/app/security',
-      icon: '🛡️',
-      title: 'Keamanan & Satpam',
-      desc: 'Gate check-in RFID gerbang, kalkulasi keterlambatan',
+      icon: Shield,
+      iconBg: '#e0e7ff',
+      iconColor: '#4338ca',
+      title: 'Presensi Gerbang Satpam',
+      desc: 'Gate check-in RFID gerbang sekolah, auto-kalkulasi menit keterlambatan',
       allowedRoles: ['admin', 'security'],
     },
     {
       to: '/app/admin',
-      icon: '⚙️',
+      icon: Settings,
+      iconBg: '#ede9fe',
+      iconColor: '#6366f1',
       title: 'Manajemen Sistem & Role',
-      desc: 'Kelola akun pengguna, hak akses & konfigurasi sistem',
+      desc: 'Kelola akun pengguna, reset sandi & konfigurasi hak akses RBAC',
       allowedRoles: ['admin'],
     },
   ];
 
-  // Filter modul yang hanya boleh diakses peran aktif
   const visiblePortals = allPortals.filter(
     (p) => isAdmin || p.allowedRoles.includes(activeRole)
   );
 
-  // Filter pengumuman sesuai target peran aktif atau untuk semua
   const visibleAnnouncements = (data?.announcements || []).filter(
     (ann) =>
       isAdmin ||
@@ -176,241 +199,250 @@ export const OverviewView: React.FC = () => {
       ann.target_role === activeRole
   );
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px] text-sm text-slate-500 font-medium">
+        Memuat data ekosistem sekolah...
+      </div>
+    );
+  }
+
   return (
-    <div className="view-container">
-      {/* Banner Selamat Datang */}
-      <section className="welcome-banner">
-        <div className="welcome-text">
-          <h2>
-            Selamat Datang, {user?.name || (isAdmin ? 'Administrator' : 'Pengguna')} 🎓
-          </h2>
-          {isStudent ? (
-            <p>
-              Akun Siswa Aktif: <strong className="text-indigo-700">{user?.name}</strong> • NISN:{' '}
-              <code>{user?.identifier_number || '0061234567'}</code> • Kelas: {studentStats.kelas}
+    <div className="space-y-6">
+      {/* Welcome Greeting Banner (Flowize AI Style: Soft lavender gradient, rounded-3xl) */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-white via-blue-50/40 to-indigo-50/40 border border-indigo-100/80 p-6 md:p-8 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100/80 text-blue-700 rounded-full text-xs font-bold mb-3">
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Sesi Aktif: {ROLE_LABELS[activeRole] || activeRole}</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Selamat Datang, {user?.name || (isAdmin ? 'Administrator' : 'Pengguna')}
+            </h2>
+            <p className="text-xs md:text-sm text-slate-600 mt-1">
+              {isStudent
+                ? `NISN: ${user?.identifier_number || '0061234567'} • Rombel Kelas: ${studentStats.kelas}`
+                : 'Ekosistem Sekolah Terpadu berjalan lancar dan terintegrasi secara real-time.'}
             </p>
-          ) : isAdmin ? (
-            <p>
-              Anda sedang mengelola sistem dalam mode{' '}
-              <strong className="text-indigo-700">Administrator Penuh</strong> (Akun: {user?.name}).
-            </p>
-          ) : (
-            <p>
-              Anda sedang mengakses portal sebagai{' '}
-              <strong className="text-indigo-700">{ROLE_LABELS[activeRole] || activeRole}</strong> (Akun: {user?.name}).
-            </p>
-          )}
-        </div>
-        <div className="system-chip">
-          {isAdmin ? (
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ShieldCheck size={14} /> Full Superuser Access
-            </span>
-          ) : (
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#1e40af' }}>
-              <UserCheck size={14} /> Akun: {ROLE_LABELS[activeRole] || activeRole}
-            </span>
-          )}
-        </div>
-      </section>
-
-      {/* Metric Cards Grid - Disesuaikan apakah Siswa atau Staff */}
-      {isStudent ? (
-        <section className="metrics-grid">
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-emerald-100 text-emerald-600">
-              <Coffee size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Saldo Kantin Anda</span>
-              <span className="metric-value">Rp {studentStats.saldo_kantin.toLocaleString('id-ID')}</span>
-            </div>
           </div>
 
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-orange-100 text-orange-600">
-              <Store size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Saldo Kopsis Anda</span>
-              <span className="metric-value">Rp {studentStats.saldo_kopsis.toLocaleString('id-ID')}</span>
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-blue-100 text-blue-600">
-              <CheckCircle2 size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Status Tagihan SPP</span>
-              <span className="metric-value" style={{ fontSize: '18px', color: '#16a34a' }}>
-                {studentStats.spp_status}
-              </span>
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-indigo-100 text-indigo-600">
-              <Calendar size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Jadwal Hari Ini</span>
-              <span className="metric-value">{studentStats.jadwal_count} Mapel</span>
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-purple-100 text-purple-600">
-              <BookOpen size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Tingkat Kehadiran</span>
-              <span className="metric-value">{studentStats.kehadiran}</span>
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-amber-100 text-amber-600">
-              <Award size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Rombongan Belajar</span>
-              <span className="metric-value">{studentStats.kelas}</span>
-            </div>
-          </div>
-        </section>
-      ) : (
-        <section className="metrics-grid">
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-blue-100 text-blue-600">
-              <GraduationCap size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Total Siswa Terdaftar</span>
-              <span className="metric-value">{data?.metrics.total_siswa ?? '1+'}</span>
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-emerald-100 text-emerald-600">
-              <Briefcase size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Guru & Tenaga Pendidik</span>
-              <span className="metric-value">{data?.metrics.total_guru ?? '1+'}</span>
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-purple-100 text-purple-600">
-              <Users size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Petugas TU & Staff</span>
-              <span className="metric-value">{data?.metrics.total_petugas ?? '1+'}</span>
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-amber-100 text-amber-600">
-              <Building size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Rombongan Kelas</span>
-              <span className="metric-value">{data?.metrics.total_kelas ?? '5'}</span>
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-orange-100 text-orange-600">
-              <Store size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Produk Kopsis</span>
-              <span className="metric-value">{data?.metrics.total_kopsis_products ?? '5'}</span>
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-icon-wrapper bg-cyan-100 text-cyan-600">
-              <Coffee size={24} />
-            </div>
-            <div className="metric-info">
-              <span className="metric-label">Menu Kantin</span>
-              <span className="metric-value">{data?.metrics.total_kantin_menus ?? '6'}</span>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Two Column Grid: Role Portals & Announcements */}
-      <div className="overview-columns">
-        {/* Left Column: Quick Navigation to Allowed Modules */}
-        <div className="overview-card">
-          <div className="card-header">
-            <h3>
-              {isAdmin
-                ? 'Navigasi Modul Peran (Seluruh Modul)'
-                : `Menu Akses: ${ROLE_LABELS[activeRole] || activeRole}`}
-            </h3>
-            <span className="badge-pill">
-              {isAdmin ? 'Semua Akses' : `${visiblePortals.length} Modul Terbuka`}
-            </span>
-          </div>
-
-          <div className="portal-links-grid">
-            {visiblePortals.map((portal) => (
-              <Link key={portal.to} to={portal.to} className="portal-tile">
-                <span className="portal-icon">{portal.icon}</span>
-                <div>
-                  <h4>{portal.title}</h4>
-                  <p>{portal.desc}</p>
-                </div>
-                <ArrowRight size={16} className="tile-arrow" />
-              </Link>
-            ))}
-          </div>
-
-          {!isAdmin && (
-            <div className="mt-4 p-3 rounded text-xs bg-slate-50 text-slate-600 border border-slate-200">
-              💡 <strong>Akun Riil Terhubung:</strong> Sesi Anda saat ini terhubung langsung ke akun{' '}
-              <strong>{user?.name}</strong> ({ROLE_LABELS[activeRole] || activeRole}).
-            </div>
-          )}
-        </div>
-
-        {/* Right Column: Papan Pengumuman Sekolah */}
-        <div className="overview-card">
-          <div className="card-header">
-            <h3>
-              <Bell size={18} className="inline mr-2 text-indigo-600" />
-              Papan Pengumuman Terpadu
-            </h3>
-            <span className="badge-pill text-xs">
-              {isAdmin ? 'Semua Pengumuman' : `Target: ${ROLE_LABELS[activeRole] || activeRole}`}
-            </span>
-          </div>
-          <div className="announcements-list">
-            {loading ? (
-              <p className="loading-state">Memuat pengumuman sekolah...</p>
-            ) : visibleAnnouncements.length > 0 ? (
-              visibleAnnouncements.map((ann) => (
-                <div key={ann.id} className="announcement-item">
-                  <div className="announcement-top">
-                    <h4>{ann.title}</h4>
-                    <span className="target-pill">Target: {ann.target_role.toUpperCase()}</span>
-                  </div>
-                  <p>{ann.content}</p>
-                </div>
-              ))
+          <div className="flex items-center gap-2">
+            {isAdmin ? (
+              <Badge variant="success" className="px-3.5 py-1.5 text-xs font-bold gap-1.5 rounded-full">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Full Admin Access</span>
+              </Badge>
             ) : (
-              <p className="empty-state">
-                Tidak ada pengumuman khusus untuk peran {ROLE_LABELS[activeRole] || activeRole} saat ini.
-              </p>
+              <Badge variant="outline" className="px-3.5 py-1.5 text-xs font-semibold gap-1.5 rounded-full bg-white text-slate-700">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>Status Terverifikasi</span>
+              </Badge>
             )}
           </div>
         </div>
       </div>
+
+      {/* NexaAdmin 4-Grid Key Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1 */}
+        <Card className="border-slate-200/80 hover:shadow-md transition-shadow">
+          <CardContent className="p-5 flex items-start justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                {isStudent ? 'Saldo Koperasi Siswa' : 'Total Siswa Terdaftar'}
+              </span>
+              <span className="text-2xl font-black text-slate-900 tracking-tight mt-1.5 block">
+                {isStudent
+                  ? `Rp ${studentStats.saldo_kopsis.toLocaleString('id-ID')}`
+                  : (data?.metrics?.total_siswa || 348)}
+              </span>
+              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-blue-600">
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span>{isStudent ? 'Siap Dibelanjakan' : '+12 Siswa Baru'}</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <GraduationCap className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 2 */}
+        <Card className="border-slate-200/80 hover:shadow-md transition-shadow">
+          <CardContent className="p-5 flex items-start justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                {isStudent ? 'Saldo Kantin Sehat' : 'Dewan Guru & Staf'}
+              </span>
+              <span className="text-2xl font-black text-slate-900 tracking-tight mt-1.5 block">
+                {isStudent
+                  ? `Rp ${studentStats.saldo_kantin.toLocaleString('id-ID')}`
+                  : (data?.metrics?.total_guru || 24)}
+              </span>
+              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-indigo-600">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{isStudent ? 'Bebas Tunai' : 'Aktif Mengajar'}</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+              {isStudent ? <UtensilsCrossed className="w-6 h-6" /> : <Users className="w-6 h-6" />}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 3 */}
+        <Card className="border-slate-200/80 hover:shadow-md transition-shadow">
+          <CardContent className="p-5 flex items-start justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                {isStudent ? 'Kehadiran Bulan Ini' : 'Rombongan Belajar'}
+              </span>
+              <span className="text-2xl font-black text-slate-900 tracking-tight mt-1.5 block">
+                {isStudent ? studentStats.kehadiran : (data?.metrics?.total_kelas || 12)}
+              </span>
+              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-600">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{isStudent ? 'Disiplin Tinggi' : 'Kelas X, XI, XII'}</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              {isStudent ? <Calendar className="w-6 h-6" /> : <Building className="w-6 h-6" />}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 4 */}
+        <Card className="border-slate-200/80 hover:shadow-md transition-shadow">
+          <CardContent className="p-5 flex items-start justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                {isStudent ? 'Status SPP Bulan Ini' : 'Unit Usaha Sekolah'}
+              </span>
+              <span className={`text-2xl font-black tracking-tight mt-1.5 block ${isStudent ? 'text-emerald-600' : 'text-slate-900'}`}>
+                {isStudent
+                  ? studentStats.spp_status
+                  : `${data?.metrics?.total_kopsis_products || 28} ATK / ${data?.metrics?.total_kantin_menus || 19} Menu`}
+              </span>
+              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-amber-600">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{isStudent ? 'Kuitansi Digital' : 'Kopsis & Kantin'}</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              {isStudent ? <CreditCard className="w-6 h-6" /> : <Store className="w-6 h-6" />}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Grid: Modul Civitas (NexaAdmin) + Papan Pengumuman (Flowize AI) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Modul Akses Cepat (Col span 2) */}
+        <Card className="lg:col-span-2 border-slate-200/80">
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <div>
+              <CardTitle className="text-base md:text-lg font-bold text-slate-900">
+                Modul Civitas Sekolah
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Pilih modul untuk mengelola operasional peran Anda
+              </CardDescription>
+            </div>
+            <Badge variant="primary" className="text-xs font-bold rounded-full">
+              {visiblePortals.length} Modul Tersedia
+            </Badge>
+          </CardHeader>
+
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {visiblePortals.map((portal, idx) => {
+                const PortalIcon = portal.icon;
+                return (
+                  <Link
+                    key={idx}
+                    to={portal.to}
+                    className="group flex flex-col justify-between p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-blue-400 hover:shadow-md transition-all duration-200"
+                  >
+                    <div>
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform"
+                        style={{
+                          backgroundColor: portal.iconBg,
+                          color: portal.iconColor,
+                        }}
+                      >
+                        <PortalIcon className="w-5 h-5" />
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                        {portal.title}
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                        {portal.desc}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600 mt-3 pt-2 border-t border-slate-100 group-hover:translate-x-1 transition-transform">
+                      <span>Buka Modul</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Papan Pengumuman Sekolah (Col span 1) */}
+        <Card className="border-slate-200/80">
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-blue-600" />
+              <CardTitle className="text-base font-bold text-slate-900">
+                Pengumuman Sekolah
+              </CardTitle>
+            </div>
+            <Badge variant="secondary" className="text-[11px] font-mono">
+              Live Feed
+            </Badge>
+          </CardHeader>
+
+          <CardContent className="space-y-3">
+            {visibleAnnouncements.length > 0 ? (
+              visibleAnnouncements.map((ann) => (
+                <div
+                  key={ann.id}
+                  className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:shadow-xs transition-all"
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <Badge variant="primary" className="text-[10px] uppercase font-bold py-0.5">
+                      {ann.target_role === 'all' ? 'Semua Civitas' : ann.target_role}
+                    </Badge>
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {new Date(ann.created_at).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                      })}
+                    </span>
+                  </div>
+                  <h5 className="text-xs font-bold text-slate-900 mb-1">
+                    {ann.title}
+                  </h5>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {ann.content}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="p-8 text-center text-xs text-slate-400">
+                Belum ada pengumuman baru untuk peran Anda.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
+
+export default OverviewView;

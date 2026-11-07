@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
+import { toast } from 'sonner';
 import {
   Clock,
   CheckCircle,
@@ -7,9 +8,21 @@ import {
   UserCheck,
   ScanLine,
   X,
-  History
+  History,
+  Shield,
 } from 'lucide-react';
-import './EcosystemModals.css';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../components/ui/table';
 
 interface AttendanceLog {
   id: number;
@@ -51,6 +64,7 @@ export const SecurityView: React.FC = () => {
       setStats(res.data.stats || { total_masuk: 0, tepat_waktu: 0, terlambat: 0 });
     } catch (err) {
       console.error('Error fetching security logs', err);
+      toast.error('Gagal mengambil riwayat presensi gerbang');
     }
   };
 
@@ -82,199 +96,286 @@ export const SecurityView: React.FC = () => {
         checkInTime: att.check_in_time,
       });
 
+      toast.success(
+        att.status === 'hadir'
+          ? `Presensi Berhasil: ${std.name} tepat waktu (${att.check_in_time})`
+          : `Presensi Terlambat: ${std.name} (${att.check_in_time})`
+      );
+
       await fetchTodayLogs();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'NISN / Kartu tidak terdaftar.');
+      toast.error(err.response?.data?.message || 'NISN / Kartu tidak terdaftar.');
     } finally {
       setScanning(false);
     }
   };
 
-  if (loading) return <div className="loading-container">Memuat modul Keamanan Gerbang...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px] text-sm text-slate-500 font-medium">
+        Memuat modul Keamanan Gerbang...
+      </div>
+    );
+  }
 
   return (
-    <div className="view-container">
+    <div className="space-y-6">
       {/* Header Halaman */}
-      <div className="view-header">
-        <div>
-          <h2>🛡️ Portal Keamanan & Presensi Gerbang (Satpam)</h2>
-          <p>Verifikasi kedatangan siswa, pemindaian kartu RFID/NISN, dan pemantauan keterlambatan sekolah.</p>
-        </div>
-        <div className="header-meta">
-          <span className="badge-status-paid">Pos Utama: Gerbang A</span>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
+        <div className="flex items-start gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+            <Shield className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant="primary" className="text-xs">
+                Keamanan & Presensi
+              </Badge>
+              <Badge variant="success" className="text-xs font-bold">
+                Pos Utama: Gerbang A
+              </Badge>
+            </div>
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+              Portal Keamanan & Gate Presensi RFID
+            </h2>
+            <p className="text-xs md:text-sm text-slate-500 mt-0.5">
+              Verifikasi kedatangan siswa, pemindaian kartu RFID/NISN, dan pencatatan keterlambatan.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Ringkasan Metrik Gerbang Hari Ini */}
-      <div className="grid-cards-3">
-        <div className="feature-card">
-          <div className="card-top-icon text-indigo-600">
-            <UserCheck size={22} />
-          </div>
-          <h4>Total Siswa Masuk</h4>
-          <div className="amount-display text-indigo-700">{stats.total_masuk} Siswa</div>
-          <p className="card-subtext">Gerbang dibuka mulai jam 06:15</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="border-indigo-100/80 bg-white">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Total Siswa Masuk
+            </CardTitle>
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <UserCheck className="w-4 h-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black text-indigo-700 tracking-tight">
+              {stats.total_masuk} Siswa
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Gerbang dibuka mulai jam 06:15 WIB
+            </p>
+          </CardContent>
+        </Card>
 
-        <div className="feature-card">
-          <div className="card-top-icon text-emerald-600">
-            <CheckCircle size={22} />
-          </div>
-          <h4>Hadir Tepat Waktu</h4>
-          <div className="amount-display text-emerald-700">{stats.tepat_waktu} Siswa</div>
-          <p className="card-subtext">Masuk sebelum jam 07:00 WIB</p>
-        </div>
+        <Card className="border-emerald-100/80 bg-white">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Hadir Tepat Waktu
+            </CardTitle>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <CheckCircle className="w-4 h-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black text-emerald-700 tracking-tight">
+              {stats.tepat_waktu} Siswa
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Masuk sebelum batas 07:00 WIB
+            </p>
+          </CardContent>
+        </Card>
 
-        <div className="feature-card">
-          <div className="card-top-icon text-amber-600">
-            <Clock size={22} />
-          </div>
-          <h4>Terlambat Hari Ini</h4>
-          <div className="amount-display text-amber-700">{stats.terlambat} Siswa</div>
-          <p className="card-subtext">Diberikan catatan pembinaan piket / BK</p>
-        </div>
+        <Card className="border-amber-100/80 bg-white">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Terlambat Hari Ini
+            </CardTitle>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-black text-amber-700 tracking-tight">
+              {stats.terlambat} Siswa
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Otomatis tercatat untuk evaluasi piket / BK
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Form Check-In Gerbang Utama */}
-      <div className="overview-card mt-6">
-        <div className="card-header">
-          <h3>
-            <ScanLine size={18} className="inline mr-2 text-indigo-600" />
-            Pemindaian Kartu Gerbang (RFID / Input NISN)
-          </h3>
-          <span className="badge-pill">Batas Masuk: 07:00 WIB</span>
-        </div>
-
-        {/* Alert Hasil Scan Terbaru */}
-        {checkinResult && (
-          <div
-            className={`p-4 mb-4 rounded-lg flex items-start gap-3 border ${
-              checkinResult.status === 'hadir'
-                ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
-                : 'bg-amber-50 border-amber-300 text-amber-900'
-            }`}
-          >
-            {checkinResult.status === 'hadir' ? (
-              <CheckCircle size={24} className="text-emerald-600 flex-shrink-0 mt-1" />
-            ) : (
-              <AlertTriangle size={24} className="text-amber-600 flex-shrink-0 mt-1" />
-            )}
-            <div className="flex-1">
-              <h4 className="font-bold text-sm">
-                {checkinResult.studentName} — {checkinResult.status === 'hadir' ? '✅ TEPAT WAKTU' : '⚠️ TERLAMBAT'}
-              </h4>
-              <p className="text-xs mt-1">
-                Waktu Kedatangan: <strong>{checkinResult.checkInTime}</strong> • {checkinResult.notes}
-              </p>
-            </div>
-            <button
-              onClick={() => setCheckinResult(null)}
-              className="text-slate-400 hover:text-slate-600 cursor-pointer"
-            >
-              <X size={18} />
-            </button>
+      <Card className="border-slate-200/80">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ScanLine className="w-4 h-4 text-blue-600" />
+            <CardTitle className="text-base font-bold text-slate-900">
+              Pemindaian Kartu Gerbang (RFID / Input NISN)
+            </CardTitle>
           </div>
-        )}
+          <Badge variant="secondary" className="text-xs font-bold">
+            Batas Masuk: 07:00 WIB
+          </Badge>
+        </CardHeader>
 
-        <div className="gate-scanner-box">
-          <form onSubmit={handleCheckin}>
-            <label className="text-xs font-bold text-slate-700 block mb-2">
+        <CardContent className="space-y-4">
+          {/* Alert Hasil Scan Terbaru */}
+          {checkinResult && (
+            <div
+              className={`p-4 rounded-2xl flex items-start gap-3 border transition-all ${
+                checkinResult.status === 'hadir'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                  : 'bg-amber-50 border-amber-200 text-amber-900'
+              }`}
+            >
+              {checkinResult.status === 'hadir' ? (
+                <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              )}
+              <div className="flex-1">
+                <h4 className="font-bold text-sm">
+                  {checkinResult.studentName} —{' '}
+                  <span
+                    className={
+                      checkinResult.status === 'hadir'
+                        ? 'text-emerald-700 font-extrabold'
+                        : 'text-amber-700 font-extrabold'
+                    }
+                  >
+                    {checkinResult.status === 'hadir' ? 'TEPAT WAKTU' : 'TERLAMBAT'}
+                  </span>
+                </h4>
+                <p className="text-xs mt-1">
+                  Waktu Kedatangan: <strong>{checkinResult.checkInTime}</strong> • {checkinResult.notes}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCheckinResult(null)}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          <form onSubmit={handleCheckin} className="space-y-3">
+            <label className="text-xs font-bold text-slate-700 block">
               Tempelkan Kartu RFID Siswa atau Masukkan NISN:
             </label>
-            <div className="gate-scan-group">
-              <input
+            <div className="flex gap-2">
+              <Input
                 type="text"
                 required
                 placeholder="Contoh: 0061234567"
                 value={studentNisn}
                 onChange={(e) => setStudentNisn(e.target.value)}
-                className="flex-1 p-2 border rounded text-xs bg-white font-mono"
+                className="font-mono text-sm"
               />
-              <button
-                type="submit"
-                disabled={scanning}
-                className="btn-primary-action"
-                style={{ padding: '8px 18px' }}
-              >
-                <ScanLine size={16} />
-                {scanning ? 'Memeriksa...' : 'Catat Presensi'}
-              </button>
+              <Button type="submit" disabled={scanning} className="gap-2 shrink-0 rounded-xl">
+                <ScanLine className="w-4 h-4" />
+                <span>{scanning ? 'Memeriksa...' : 'Catat Presensi'}</span>
+              </Button>
             </div>
 
-            <div className="quick-preset-container mt-3">
-              <span className="text-[11px] text-slate-500">Pilih Cepat Siswa Demo:</span>
+            <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+              <span className="text-[11px] text-slate-400 font-semibold">Pilih Cepat Siswa Demo:</span>
               <button
                 type="button"
                 onClick={() => setStudentNisn('0061234567')}
-                className={`quick-preset-btn ${studentNisn === '0061234567' ? 'active' : ''}`}
+                className={`px-2.5 py-1 rounded-xl border text-xs cursor-pointer transition-colors ${
+                  studentNisn === '0061234567'
+                    ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
+                    : 'bg-white border-slate-200 text-slate-600'
+                }`}
               >
                 Ahmad Pratama (0061234567)
               </button>
               <button
                 type="button"
                 onClick={() => setStudentNisn('0089876543')}
-                className={`quick-preset-btn ${studentNisn === '0089876543' ? 'active' : ''}`}
+                className={`px-2.5 py-1 rounded-xl border text-xs cursor-pointer transition-colors ${
+                  studentNisn === '0089876543'
+                    ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
+                    : 'bg-white border-slate-200 text-slate-600'
+                }`}
               >
                 Siti Rahmawati (0089876543)
               </button>
             </div>
           </form>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Tabel Log Kedatangan Gerbang Hari Ini */}
-      <div className="overview-card mt-6">
-        <div className="card-header">
-          <h3>
-            <History size={18} className="inline mr-2 text-indigo-600" />
-            Log Kedatangan Gerbang Hari Ini (MySQL: `attendances`)
-          </h3>
-          <span className="badge-pill bg-indigo-50 text-indigo-700">{logs.length} Riwayat Presensi</span>
-        </div>
-
-        <div className="table-responsive">
+      <Card className="border-slate-200/80">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <History className="w-4 h-4 text-blue-600" />
+            <CardTitle className="text-base font-bold text-slate-900">
+              Log Kedatangan Gerbang Hari Ini
+            </CardTitle>
+          </div>
+          <Badge variant="primary" className="text-xs font-mono">
+            {logs.length} Riwayat Presensi
+          </Badge>
+        </CardHeader>
+        <CardContent className="p-0">
           {logs.length === 0 ? (
-            <div className="p-4 text-center text-sm text-slate-500">
+            <div className="p-8 text-center text-xs text-slate-400">
               Belum ada data presensi hari ini. Silakan catat presensi siswa di atas.
             </div>
           ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Nama Siswa</th>
-                  <th>NISN</th>
-                  <th>Jam Kedatangan</th>
-                  <th>Status</th>
-                  <th>Keterangan / Tindak Lanjut</th>
-                  <th>Petugas Pos</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nama Siswa</TableHead>
+                  <TableHead>NISN</TableHead>
+                  <TableHead>Jam Kedatangan</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Keterangan / Tindak Lanjut</TableHead>
+                  <TableHead>Petugas Pos</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {logs.map((log) => (
-                  <tr key={log.id}>
-                    <td><strong>{log.user?.name || 'Siswa'}</strong></td>
-                    <td><code>{log.user?.identifier_number}</code></td>
-                    <td className="font-mono font-semibold">{log.check_in_time}</td>
-                    <td>
-                      <span
-                        className={`badge-pill text-xs font-bold ${
-                          log.status === 'hadir'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-amber-100 text-amber-800'
-                        }`}
+                  <TableRow key={log.id}>
+                    <TableCell className="font-bold text-slate-900">
+                      {log.user?.name || 'Siswa'}
+                    </TableCell>
+                    <TableCell>
+                      <code className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                        {log.user?.identifier_number}
+                      </code>
+                    </TableCell>
+                    <TableCell className="font-mono font-semibold text-slate-700">
+                      {log.check_in_time}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={log.status === 'hadir' ? 'success' : 'warning'}
+                        className="text-xs font-bold"
                       >
                         {log.status === 'hadir' ? 'Tepat Waktu' : `Terlambat ${log.minutes_late}m`}
-                      </span>
-                    </td>
-                    <td className="text-xs text-slate-600">{log.notes || '-'}</td>
-                    <td className="text-xs text-slate-500">{log.verifier?.name || 'Satpam Pos'}</td>
-                  </tr>
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-slate-600">
+                      {log.notes || '-'}
+                    </TableCell>
+                    <TableCell className="text-xs text-slate-500">
+                      {log.verifier?.name || 'Satpam Pos'}
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
+
+export default SecurityView;

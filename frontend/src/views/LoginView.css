@@ -1,516 +1,437 @@
-﻿/* ==========================================================================
-   SteelSchool - Sandland Sleep Style Login Page
-   Warm cream sleep journal canvas, deep midnight navy accents & sunlit yellow CTA
+/* ==========================================================================
+   SteelSchool Login CSS — Direct Reference Alignment (media_0b99dab5)
+   Modern Two-Column Split Modal Card with 3D Character Hero Banner
    ========================================================================== */
 
-:root {
-  /* Sandland Sleep Palette Tokens */
-  --color-midnight-navy: #1a365d;
-  --color-midnight-navy-dark: #0f2341;
-  --color-sunlit-yellow: #fae467;
-  --color-sunlit-yellow-hover: #f7dd4a;
-  --color-linen-cream: #f2ede8;
-  --color-paper-white: #ffffff;
-  --color-soft-vellum: #faf8f6;
-  --color-graphite: #3d3d3d;
-  --color-smoke: #666666;
-  --color-slate: #726f6d;
-  --color-charcoal: #191923;
-  --color-frost: #e6e6e6;
-  --color-ink-black: #000000;
-
-  --font-sandland: 'DM Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-  /* Shapes & Radii */
-  --radius-cards: 10px;
-  --radius-badges: 10px;
-  --radius-inputs: 4px;
-  --radius-buttons: 20px;
-
-  /* Shadows */
-  --shadow-md: rgba(0, 0, 0, 0.1) 0px 4px 12px 0px;
-  --shadow-lg: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px;
-  --shadow-yellow: rgba(250, 228, 103, 0.45) 0px 4px 16px 0px;
-}
-
-.steelschool-login-viewport {
+.login-screen-root {
   position: relative;
   min-height: 100vh;
   width: 100%;
-  background-color: var(--color-linen-cream);
+  background: #EEF1F6;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 32px 24px 24px;
-  overflow: hidden;
-  font-family: var(--font-sandland);
-  box-sizing: border-box;
-  color: var(--color-graphite);
+  padding: 32px 16px;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #0F172A;
 }
 
-/* --------------------------------------------------------------------------
-   Floating Decorative Background SVG Elements (Navy & Sunlit Accents)
-   -------------------------------------------------------------------------- */
-.bg-decorations-container {
+/* Subtle Purple / Lavender Aura in Top-Right Corner (from reference image) */
+.login-purple-aura {
   position: absolute;
-  inset: 0;
+  top: -80px;
+  right: -80px;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.22) 0%, rgba(192, 132, 252, 0.1) 40%, rgba(238, 241, 246, 0) 70%);
+  filter: blur(50px);
   pointer-events: none;
-  overflow: hidden;
   z-index: 1;
 }
 
-.decor-item {
-  position: absolute;
-  user-select: none;
-  opacity: 0.65;
-}
-
-/* Left side elements */
-.decor-star-top-left {
-  top: 6%;
-  left: 3%;
-  width: 150px;
-  height: 150px;
-  filter: drop-shadow(0 4px 12px rgba(26, 54, 93, 0.08));
-}
-
-.decor-planet-left {
-  top: 36%;
-  left: 4%;
-  width: 140px;
-  height: 140px;
-  filter: drop-shadow(0 4px 12px rgba(26, 54, 93, 0.12));
-}
-
-.decor-star-bottom-left {
-  bottom: 4%;
-  left: 3%;
-  width: 160px;
-  height: 160px;
-}
-
-/* Right side elements */
-.decor-sunburst-top-right {
-  top: 5%;
-  right: 3%;
-  width: 160px;
-  height: 160px;
-}
-
-.decor-lime-sparkle-right {
-  top: 22%;
-  right: 16%;
-  width: 44px;
-  height: 44px;
-  filter: drop-shadow(0 2px 8px rgba(250, 228, 103, 0.4));
-}
-
-.decor-pencil-right {
-  top: 40%;
-  right: 4%;
-  width: 200px;
-  height: 150px;
-  filter: drop-shadow(0 6px 14px rgba(26, 54, 93, 0.1));
-}
-
-.decor-star-bottom-right {
-  bottom: 2%;
-  right: 3%;
-  width: 160px;
-  height: 160px;
-}
-
-@media (max-width: 1024px) {
-  .decor-planet-left {
-    left: -20px;
-    transform: scale(0.8);
-  }
-  .decor-pencil-right {
-    right: -20px;
-    transform: scale(0.8);
-  }
-  .decor-lime-sparkle-right {
-    right: 8%;
-  }
-}
-
-@media (max-width: 768px) {
-  .decor-item {
-    display: none;
-  }
-}
-
-/* --------------------------------------------------------------------------
-   Header: Brand Logo & Title (Centred Outside Card)
-   -------------------------------------------------------------------------- */
-.steelschool-header {
+/* Master Centered Two-Column Container Modal */
+.login-master-container {
   position: relative;
   z-index: 10;
+  width: 100%;
+  max-width: 980px;
+  background: #FFFFFF;
+  border-radius: 36px;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(255, 255, 255, 0.9) inset;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .login-master-container {
+    flex-direction: row;
+    align-items: stretch;
+    padding: 24px;
+    gap: 32px;
+  }
+}
+
+/* ================= LEFT HERO CARD (ROYAL BLUE) ================= */
+.login-left-banner {
+  width: 100%;
+  background: linear-gradient(145deg, #4F58FB 0%, #464BE7 50%, #3D42DE 100%);
+  border-radius: 28px;
+  padding: 40px 36px 20px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 30px -8px rgba(79, 88, 251, 0.35);
+}
+
+@media (min-width: 768px) {
+  .login-left-banner {
+    width: 48%;
+    min-height: 560px;
+  }
+}
+
+.login-banner-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+  margin-bottom: 14px;
+}
+
+@media (min-width: 1024px) {
+  .login-banner-title {
+    font-size: 36px;
+  }
+}
+
+.login-banner-desc {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.55;
+  font-weight: 400;
+  max-width: 320px;
+}
+
+.login-banner-illustration-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin-top: 24px;
+}
+
+.login-3d-char-img {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 14px 20px rgba(15, 23, 42, 0.2));
+}
+
+/* ================= RIGHT FORM CONTAINER ================= */
+.login-right-form-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 8px 12px 4px;
+}
+
+@media (min-width: 768px) {
+  .login-right-form-wrap {
+    width: 52%;
+    padding: 20px 28px 20px 10px;
+  }
+}
+
+/* Brand Logo */
+.login-brand-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.login-brand-logo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.login-brand-logo-link:hover {
+  opacity: 0.9;
+}
+
+.login-brand-icon-drop {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #3B5CF6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(59, 92, 246, 0.3);
+}
+
+.login-brand-name {
+  font-size: 21px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.5px;
+}
+
+/* Welcome Text */
+.login-welcome-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+
+.login-welcome-subtitle {
+  font-size: 13.5px;
+  color: #94A3B8;
+  font-weight: 400;
+}
+
+/* Input Fields */
+.login-input-field {
+  width: 100%;
+  height: 50px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #0F172A;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.login-input-field::placeholder {
+  color: #94A3B8;
+  font-weight: 400;
+}
+
+.login-input-field:focus {
+  background: #FFFFFF;
+  border-color: #4F58FB;
+  box-shadow: 0 0 0 3px rgba(79, 88, 251, 0.12);
+}
+
+.login-password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-password-eye-btn {
+  position: absolute;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.login-password-eye-btn:hover {
+  color: #475569;
+}
+
+.login-forgot-link {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94A3B8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+}
+
+.login-forgot-link:hover {
+  color: #4F58FB;
+}
+
+/* Submit Button */
+.login-submit-btn {
+  width: 100%;
+  height: 50px;
+  background: #4D5DFB;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px -4px rgba(77, 93, 251, 0.4);
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.login-submit-btn:hover {
+  background: #3D4DEB;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -4px rgba(77, 93, 251, 0.5);
+}
+
+.login-submit-btn:active {
+  transform: translateY(0);
+}
+
+.login-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Divider */
+.login-divider-row {
+  display: flex;
+  align-items: center;
+  margin: 22px 0;
+}
+
+.login-divider-line {
+  flex: 1;
+  height: 1px;
+  background: #E2E8F0;
+}
+
+.login-divider-text {
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94A3B8;
+}
+
+/* Social Buttons */
+.login-social-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.login-social-btn {
+  height: 48px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 24px;
-}
-
-.brand-logo-svg {
-  width: 28px;
-  height: 28px;
-}
-
-.brand-name-text {
-  font-size: 24px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--color-ink-black);
-  letter-spacing: -0.025em;
-}
-
-/* --------------------------------------------------------------------------
-   Main Content Area & Centered Paper White Card
-   -------------------------------------------------------------------------- */
-.steelschool-main-content {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 440px;
-  margin: auto 0;
-}
-
-.steelschool-card {
-  width: 100%;
-  background: var(--color-paper-white);
-  border-radius: var(--radius-cards);
-  padding: 40px 36px 32px;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--color-frost);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.steelschool-card-header {
-  text-align: center;
-  margin-bottom: 26px;
-}
-
-.steelschool-card-title {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--color-ink-black);
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
-}
-
-.steelschool-card-subtitle {
-  font-size: 14px;
-  color: var(--color-smoke);
-  font-weight: 400;
-  line-height: 1.4;
-}
-
-/* --------------------------------------------------------------------------
-   Form Fields (Slate / Frost Border, 4px Radius per Sandland Tokens)
-   -------------------------------------------------------------------------- */
-.steelschool-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.steelschool-field-group {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-soft-vellum);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-inputs);
-  padding: 8px 14px;
-  transition: all 0.2s ease-in-out;
-}
-
-.steelschool-field-group:hover {
-  border-color: var(--color-slate);
-}
-
-.steelschool-field-group.is-focused {
-  border-color: var(--color-midnight-navy);
-  background: var(--color-paper-white);
-  box-shadow: 0 0 0 3px rgba(250, 228, 103, 0.4);
-}
-
-.steelschool-field-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-slate);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-  transition: color 0.2s;
-}
-
-.steelschool-field-group.is-focused .steelschool-field-label {
-  color: var(--color-midnight-navy);
-  font-weight: 600;
-}
-
-.steelschool-input-wrapper {
-  display: flex;
-  align-items: center;
-  position: relative;
-  width: 100%;
-}
-
-.steelschool-input {
-  width: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 14.5px;
-  color: var(--color-ink-black);
-  font-weight: 500;
-  padding: 0;
-  margin: 0;
-  font-family: inherit;
-}
-
-.steelschool-input::placeholder {
-  color: #a3a3a3;
-  font-weight: 400;
-}
-
-/* Password Eye Toggle Button */
-.steelschool-password-toggle {
-  background: none;
-  border: none;
-  padding: 4px;
-  margin-left: 8px;
+  color: #334155;
   cursor: pointer;
-  color: var(--color-smoke);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: color 0.15s, transform 0.1s;
-}
-
-.steelschool-password-toggle:hover {
-  color: var(--color-midnight-navy);
-}
-
-.steelschool-password-toggle:active {
-  transform: scale(0.92);
-}
-
-/* --------------------------------------------------------------------------
-   Submit Button & Forgot Password Link (Sunlit Yellow Pill CTA)
-   -------------------------------------------------------------------------- */
-.steelschool-btn-submit {
-  width: 100%;
-  height: 48px;
-  background-color: var(--color-sunlit-yellow);
-  color: var(--color-ink-black);
-  border: none;
-  border-radius: var(--radius-buttons);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 8px;
-  box-shadow: var(--shadow-md);
   transition: all 0.2s ease;
 }
 
-.steelschool-btn-submit:hover:not(:disabled) {
-  background-color: var(--color-sunlit-yellow-hover);
-  box-shadow: var(--shadow-yellow);
+.login-social-btn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
   transform: translateY(-1px);
 }
 
-.steelschool-btn-submit:active:not(:disabled) {
-  transform: translateY(1px);
+/* Demo Role Picker Drawer */
+.login-demo-drawer {
+  margin-top: 20px;
+  border: 1px solid #EEF2F6;
+  border-radius: 14px;
+  background: #F8FAFC;
+  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-.steelschool-btn-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.steelschool-forgot-link-wrapper {
-  text-align: center;
-  margin-top: 16px;
-}
-
-.steelschool-forgot-link {
-  color: var(--color-smoke);
-  font-size: 13.5px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.15s, text-decoration 0.15s;
-}
-
-.steelschool-forgot-link:hover {
-  color: var(--color-midnight-navy);
-  text-decoration: underline;
-}
-
-/* --------------------------------------------------------------------------
-   Error & Notification Alert
-   -------------------------------------------------------------------------- */
-.steelschool-alert-error {
-  background: #fff5f5;
-  border: 1px solid #fed7d7;
-  color: #9b2c2c;
+.login-demo-toggle-btn {
+  width: 100%;
   padding: 10px 14px;
-  border-radius: var(--radius-inputs);
-  font-size: 12.5px;
-  margin-bottom: 16px;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #4F58FB;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-demo-toggle-btn:hover {
+  background: #EFF6FF;
+}
+
+.login-demo-grid {
+  padding: 10px;
+  border-top: 1px solid #EEF2F6;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.login-demo-item {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-/* --------------------------------------------------------------------------
-   Collapsible Demo Roles Panel
-   -------------------------------------------------------------------------- */
-.steelschool-demo-drawer {
-  margin-top: 20px;
-  width: 100%;
+.login-demo-item:hover {
+  border-color: #3B82F6;
+  background: #F0F7FF;
 }
 
-.steelschool-demo-toggle-btn {
-  background: transparent;
-  border: 1px solid var(--color-frost);
-  color: var(--color-smoke);
+.login-demo-item.active {
+  border-color: #4D5DFB;
+  background: #EEF2FF;
+  box-shadow: 0 2px 6px rgba(77, 93, 251, 0.15);
+}
+
+.login-demo-icon-wrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Error Alert */
+.login-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #B91C1C;
   font-size: 12px;
   font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin: 0 auto;
-  padding: 6px 14px;
-  border-radius: var(--radius-buttons);
-  transition: all 0.2s;
+  margin-bottom: 14px;
 }
 
-.steelschool-demo-toggle-btn:hover {
-  background: var(--color-soft-vellum);
-  color: var(--color-midnight-navy);
-  border-color: var(--color-slate);
-}
-
-.steelschool-demo-pills-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-top: 12px;
-  padding: 12px;
-  background: var(--color-soft-vellum);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-cards);
-  animation: fadeIn 0.2s ease-in-out;
-}
-
-.steelschool-role-pill {
-  background: var(--color-paper-white);
-  border: 1px solid var(--color-frost);
-  border-radius: var(--radius-inputs);
-  padding: 8px 6px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-graphite);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  transition: all 0.18s ease;
-  text-align: center;
-}
-
-.steelschool-role-pill svg {
-  color: var(--color-midnight-navy);
-  transition: transform 0.18s ease, color 0.18s ease;
-}
-
-.steelschool-role-pill:hover {
-  border-color: var(--color-sunlit-yellow);
-  color: var(--color-ink-black);
-  background: var(--color-sunlit-yellow);
-  box-shadow: 0 4px 12px rgba(250, 228, 103, 0.45);
-  transform: translateY(-2px);
-}
-
-.steelschool-role-pill:hover svg {
-  color: var(--color-ink-black);
-  transform: scale(1.12);
-}
-.steelschool-back-link {
-  color: var(--color-smoke);
-  text-decoration: none;
-  font-size: 12.5px;
-  font-weight: 500;
+/* Back Link */
+.login-back-home-link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  transition: color 0.15s;
-}
-
-.steelschool-back-link:hover {
-  color: var(--color-midnight-navy);
-  text-decoration: underline;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* --------------------------------------------------------------------------
-   Footer: Copyright & Legal Links
-   -------------------------------------------------------------------------- */
-.steelschool-footer {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  padding-top: 20px;
-}
-
-.steelschool-footer-text {
-  font-size: 13px;
-  color: var(--color-smoke);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.footer-link {
-  color: var(--color-slate);
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #94A3B8;
   text-decoration: none;
-  transition: color 0.15s;
+  transition: color 0.2s;
 }
 
-.footer-link:hover {
-  color: var(--color-midnight-navy);
-}
-
-.footer-bullet {
-  color: #cbd5e1;
-  font-size: 14px;
+.login-back-home-link:hover {
+  color: #4D5DFB;
 }

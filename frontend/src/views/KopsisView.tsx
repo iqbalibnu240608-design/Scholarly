@@ -4,6 +4,8 @@ import { apiClient } from '../api/client';
 import {
   DollarSign,
   PackageCheck,
+  CheckCircle,
+  AlertCircle,
   PlusCircle,
   ShoppingCart,
   X,
@@ -321,14 +323,15 @@ export const KopsisView: React.FC = () => {
           <Receipt size={24} className="receipt-alert-icon" />
           <div className="receipt-alert-content">
             <div className="receipt-alert-title">
-              ✅ Bukti Belanja Koperasi: {lastReceipt.reference_no}
+              <CheckCircle className="w-4 h-4 text-emerald-600 inline mr-1.5" />
+              Bukti Belanja Koperasi: {lastReceipt.reference_no}
             </div>
             <div className="receipt-alert-desc">
               Total Pembayaran: <strong>Rp {Number(lastReceipt.total).toLocaleString('id-ID')}</strong> ({lastReceipt.method}) • Pembeli: {lastReceipt.customer}
               {lastReceipt.items && <div className="mt-1 text-xs">Item: {lastReceipt.items}</div>}
               {lastReceipt.instructions && (
                 <div className="mt-2 font-semibold text-emerald-800 p-2 bg-emerald-100 rounded">
-                  📦 {lastReceipt.instructions}
+                  <Sparkles size={14} className="inline mr-1 text-primary" /> {lastReceipt.instructions}
                 </div>
               )}
             </div>
@@ -392,7 +395,7 @@ export const KopsisView: React.FC = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`catalog-tab-btn ${selectedCategory === cat ? 'active' : ''}`}
               >
-                {cat === 'Alat Tulis' ? '✏️ Alat Tulis' : cat === 'Seragam' ? '👕 Seragam' : cat === 'Buku' ? '📚 Buku & Modul' : '🛍️ Semua Produk'}
+                {cat === 'Alat Tulis' ? 'Alat Tulis' : cat === 'Seragam' ? 'Seragam' : cat === 'Buku' ? 'Buku & Modul' : 'Semua Produk'}
               </button>
             ))}
           </div>
@@ -535,7 +538,7 @@ export const KopsisView: React.FC = () => {
         <>
           <div className="view-header">
             <div>
-              <h2>🛒 Portal Koperasi Siswa (Kopsis)</h2>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ShoppingBag size={24} style={{ color: '#356df3' }} /> Portal Koperasi Siswa (Kopsis)</h2>
               <p>Kelola inventaris seragam, alat tulis sekolah, dan operasional kasir harian.</p>
             </div>
             <div className="card-header-actions">
@@ -640,7 +643,7 @@ export const KopsisView: React.FC = () => {
                   ))}
                 </div>
                 <div className="mt-4 p-3 bg-orange-50 rounded text-xs text-orange-800 border border-orange-200">
-                  💡 Saldo ini langsung dapat dipakai untuk checkout perlengkapan ATK & seragam tanpa uang tunai.
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#0284c7' }} /> Saldo ini langsung dapat dipakai untuk checkout perlengkapan ATK & seragam tanpa uang tunai.</span>
                 </div>
               </div>
               <div className="eco-modal-footer">
@@ -734,7 +737,8 @@ export const KopsisView: React.FC = () => {
 
                   {walletBalance < cartTotal && (
                     <div className="mt-3 p-2 bg-amber-50 text-amber-800 rounded border border-amber-200">
-                      ⚠️ Saldo kopsis Anda kurang. Anda bisa <strong>Isi Saldo</strong> atau cukup klik opsi <strong>Bayar Tunai di Loket</strong> di atas!
+                      <AlertCircle className="w-4 h-4 text-amber-600 inline mr-1.5" />
+                      Saldo kopsis Anda kurang. Anda bisa <strong>Isi Saldo</strong> atau cukup klik opsi <strong>Bayar Tunai di Loket</strong> di atas!
                     </div>
                   )}
                 </div>
@@ -742,7 +746,7 @@ export const KopsisView: React.FC = () => {
 
               {paymentMethod === 'cash' && (
                 <div className="p-3 bg-emerald-50 text-emerald-800 rounded text-xs border border-emerald-200">
-                  💵 <strong>Bayar Tunai di Loket Kopsis:</strong> Nomor pesanan akan langsung dibuat. Siapkan uang tunai sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil barang di etalase koperasi.
+                  <Banknote size={16} className="inline mr-1 text-primary" /> <strong>Bayar Tunai di Loket Kopsis:</strong> Nomor pesanan akan langsung dibuat. Siapkan uang tunai sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil barang di etalase koperasi.
                 </div>
               )}
 

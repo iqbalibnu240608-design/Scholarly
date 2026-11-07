@@ -1,48 +1,55 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
-  ChevronDown,
-  ChevronUp,
-  AlertCircle,
-  ArrowLeft,
-  GraduationCap,
-  Settings,
-  BookOpen,
-  School,
-  ClipboardList,
-  ShoppingCart,
-  UtensilsCrossed,
-  Shield,
-  Library,
-} from 'lucide-react';
+  FiEye,
+  FiEyeOff,
+  FiAlertCircle,
+  FiChevronDown,
+  FiChevronUp,
+  FiArrowLeft,
+  FiCheckCircle,
+} from 'react-icons/fi';
+import {
+  HiOutlineAcademicCap,
+  HiOutlineBookOpen,
+  HiOutlineBuildingLibrary,
+  HiOutlineShieldCheck,
+  HiOutlineCog6Tooth,
+} from 'react-icons/hi2';
+import {
+  RiSchoolLine,
+  RiFileList3Line,
+  RiShoppingCart2Line,
+  RiRestaurantLine,
+} from 'react-icons/ri';
+import { FaFacebook } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 import './LoginView.css';
 
 export const LoginView: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Support login using NISN (students), NIP (teachers), or email/id (admin/staff)
   const [identifier, setIdentifier] = useState<string>('0061234567');
   const [password, setPassword] = useState<string>('password123');
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [inputFocused, setInputFocused] = useState<boolean>(false);
-  const [passwordFocused, setPasswordFocused] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showDemoRoles, setShowDemoRoles] = useState<boolean>(false);
 
   const demoAccounts = [
-    { label: 'Siswa 1 (NISN: 0061234567)', id: '0061234567', pwd: 'password123', icon: GraduationCap },
-    { label: 'Siswa 2 (NISN: 0089876543)', id: '0089876543', pwd: 'password123', icon: GraduationCap },
-    { label: 'Admin IT (ID: admin)', id: 'admin', pwd: 'admin123', icon: Settings },
-    { label: 'Guru (NIP: 19850315...)', id: '198503152010011002', pwd: 'password123', icon: BookOpen },
-    { label: 'Kepsek (NIP: 19700101...)', id: '197001011995031001', pwd: 'password123', icon: School },
-    { label: 'Petugas TU', id: '199008202015022003', pwd: 'password123', icon: ClipboardList },
-    { label: 'Kopsis', id: 'KOP-2026', pwd: 'password123', icon: ShoppingCart },
-    { label: 'Kantin', id: 'KTN-01', pwd: 'password123', icon: UtensilsCrossed },
-    { label: 'Satpam Gerbang', id: 'SEC-01', pwd: 'password123', icon: Shield },
-    { label: 'Perpustakaan', id: 'LIB-01', pwd: 'password123', icon: Library },
+    { role: 'Siswa 1', id: '0061234567', pwd: 'password123', icon: HiOutlineAcademicCap, bg: '#e0e7ff', color: '#356df3' },
+    { role: 'Siswa 2', id: '0089876543', pwd: 'password123', icon: HiOutlineAcademicCap, bg: '#e0e7ff', color: '#356df3' },
+    { role: 'Admin IT', id: 'admin', pwd: 'admin123', icon: HiOutlineCog6Tooth, bg: '#ede9fe', color: '#6366f1' },
+    { role: 'Guru', id: '198503152010011002', pwd: 'password123', icon: HiOutlineBookOpen, bg: '#e0f2fe', color: '#0284c7' },
+    { role: 'Kepsek', id: '197001011995031001', pwd: 'password123', icon: RiSchoolLine, bg: '#fef3c7', color: '#d97706' },
+    { role: 'Petugas TU', id: '199008202015022003', pwd: 'password123', icon: RiFileList3Line, bg: '#d1fae5', color: '#059669' },
+    { role: 'Kopsis', id: 'KOP-2026', pwd: 'password123', icon: RiShoppingCart2Line, bg: '#fce7f3', color: '#db2777' },
+    { role: 'Kantin', id: 'KTN-01', pwd: 'password123', icon: RiRestaurantLine, bg: '#ffedd5', color: '#ea580c' },
+    { role: 'Satpam', id: 'SEC-01', pwd: 'password123', icon: HiOutlineShieldCheck, bg: '#e0e7ff', color: '#4338ca' },
+    { role: 'Perpus', id: 'LIB-01', pwd: 'password123', icon: HiOutlineBuildingLibrary, bg: '#ede9fe', color: '#7c3aed' },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,329 +59,223 @@ export const LoginView: React.FC = () => {
 
     try {
       await login(identifier, password);
+      toast.success('Login berhasil! Mengalihkan ke portal sekolah...');
       navigate('/app');
     } catch (err: any) {
-      setError(
+      const msg =
         err.response?.data?.message ||
-          'Kredensial atau kata sandi tidak valid. Pastikan server backend dan MySQL aktif.'
-      );
+        'Kredensial atau kata sandi tidak valid. Pastikan backend server dan MySQL aktif.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectDemoAccount = (accId: string, accPwd?: string) => {
+  const handleSelectDemoAccount = (accRole: string, accId: string, accPwd?: string) => {
     setIdentifier(accId);
     setPassword(accPwd || 'password123');
+    toast.info(`Akun demo ${accRole} dipilih (${accId})`);
   };
 
   return (
-    <div className="steelschool-login-viewport">
-      {/* ------------------------------------------------------------------
-          Floating Decorative SVG Elements in Background (16:9 Desktop)
-         ------------------------------------------------------------------ */}
-      <div className="bg-decorations-container" aria-hidden="true">
-        {/* Top-Left Starburst */}
-        <div className="decor-item decor-star-top-left">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M100 0 L115 65 L175 35 L135 90 L200 100 L135 110 L175 165 L115 135 L100 200 L85 135 L25 165 L65 110 L0 100 L65 90 L25 35 L85 65 Z"
-              fill="#EAE4DC"
-            />
-          </svg>
-        </div>
+    <div className="login-screen-root">
+      {/* Subtle Purple Aura in Top-Right Corner */}
+      <div className="login-purple-aura" aria-hidden="true" />
 
-        {/* Left Planet with Midnight Navy Orbit Ring */}
-        <div className="decor-item decor-planet-left">
-          <svg viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M 28 85 C 10 105, 30 145, 110 135 C 170 127, 212 95, 195 72"
-              stroke="#1a365d"
-              strokeWidth="4"
-              strokeLinecap="round"
-              fill="none"
-              opacity="0.3"
-            />
-            {/* Planet Body */}
-            <defs>
-              <radialGradient id="planetGrad" cx="38%" cy="32%" r="68%">
-                <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="60%" stopColor="#FAF8F6" />
-                <stop offset="100%" stopColor="#E2E8F0" />
-              </radialGradient>
-              <filter id="planetShadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#1a365d" floodOpacity="0.12" />
-              </filter>
-            </defs>
-            <circle cx="110" cy="100" r="50" fill="url(#planetGrad)" filter="url(#planetShadow)" />
-            {/* Front half of tilted navy ring */}
-            <path
-              d="M 195 72 C 180 50, 120 70, 50 92 C 18 102, 10 115, 28 126 C 42 135, 75 138, 120 132 C 185 122, 215 95, 195 72 Z"
-              stroke="#1a365d"
-              strokeWidth="4"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </svg>
-        </div>
-
-        {/* Bottom-Left Starburst */}
-        <div className="decor-item decor-star-bottom-left">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M100 10 L120 75 L185 50 L145 105 L190 160 L125 140 L100 190 L75 140 L10 160 L55 105 L15 50 L80 75 Z"
-              fill="#EAE4DC"
-            />
-          </svg>
-        </div>
-
-        {/* Top-Right Sunburst with Fine Rays */}
-        <div className="decor-item decor-sunburst-top-right">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {Array.from({ length: 24 }).map((_, i) => (
-              <line
-                key={i}
-                x1="100"
-                y1="100"
-                x2={100 + 90 * Math.cos((i * 15 * Math.PI) / 180)}
-                y2={100 + 90 * Math.sin((i * 15 * Math.PI) / 180)}
-                stroke="#EAE4DC"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            ))}
-          </svg>
-        </div>
-
-        {/* Upper-Right Sunlit Yellow Sparkle */}
-        <div className="decor-item decor-lime-sparkle-right">
-          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M50 0 C50 32, 68 50, 100 50 C68 50, 50 68, 50 100 C50 68, 32 50, 0 50 C32 50, 50 32, 50 0 Z"
-              fill="#fae467"
-            />
-          </svg>
-        </div>
-
-        {/* Mid-Right Curved Pencil */}
-        <div className="decor-item decor-pencil-right">
-          <svg viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="pencilBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="60%" stopColor="#FAF8F6" />
-                <stop offset="100%" stopColor="#E6E6E6" />
-              </linearGradient>
-            </defs>
-            {/* Curved Pencil Arc */}
-            <path
-              d="M 25 105 C 50 120, 105 135, 145 105 C 185 75, 195 25, 160 10 C 130 -2, 100 30, 120 70 C 135 100, 180 115, 215 110"
-              stroke="url(#pencilBodyGrad)"
-              strokeWidth="26"
-              strokeLinecap="round"
-              fill="none"
-              opacity="0.95"
-            />
-            {/* Pencil Tip (Graphite & Yellow Wood) */}
-            <path d="M 22 96 L 2 108 L 26 118 Z" fill="#191923" />
-            <path d="M 26 96 L 22 96 L 26 118 L 36 116 Z" fill="#fae467" opacity="0.9" />
-            {/* Navy Accent Collar at Tail */}
-            <circle cx="215" cy="110" r="14" fill="#1a365d" />
-            <circle cx="205" cy="112" r="13" fill="#fae467" opacity="0.75" />
-          </svg>
-        </div>
-
-        {/* Bottom-Right Soft Starburst */}
-        <div className="decor-item decor-star-bottom-right">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M100 10 L125 75 L190 70 L140 115 L170 180 L110 145 L80 190 L60 130 L5 110 L65 75 Z"
-              fill="#EAE4DC"
-            />
-          </svg>
-        </div>
-      </div>
-
-      {/* ------------------------------------------------------------------
-          Header: Brand Logo & Title (Click to return to Landing Page)
-         ------------------------------------------------------------------ */}
-      <header className="steelschool-header">
-        <Link
-          to="/"
-          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}
-          title="Kembali ke Web Sekolah"
-        >
-          <img src="/steelschool-shield.png" alt="SteelSchool" style={{ width: "36px", height: "42px", objectFit: "contain" }} />
-          <span className="brand-name-text">SteelSchool</span>
-        </Link>
-      </header>
-
-      {/* ------------------------------------------------------------------
-          Login Card (Centered on Desktop)
-         ------------------------------------------------------------------ */}
-      <main className="steelschool-main-content">
-        <div className="steelschool-card">
-          <div className="steelschool-card-header">
-            <h1 className="steelschool-card-title">Sign in</h1>
-            <p className="steelschool-card-subtitle">
-              Masuk dengan <strong>NISN</strong> (Siswa) atau <strong>ID / Email</strong> (Staf & Admin).
+      {/* Main Two-Column Card Modal */}
+      <div className="login-master-container">
+        {/* ================= LEFT HERO CARD (BLUE) ================= */}
+        <div className="login-left-banner">
+          <div>
+            <h1 className="login-banner-title">
+              Simplify<br />
+              management with<br />
+              our dashboard
+            </h1>
+            <p className="login-banner-desc">
+              Simplify your e-commerce &amp; school management with our user friendly admin dashboard.
             </p>
           </div>
 
+          {/* 3D Character Illustration at desk with waving hands & laptop */}
+          <div className="login-banner-illustration-wrap">
+            <img
+              src="/login-3d-character.svg"
+              alt="3D Character at Desk"
+              className="login-3d-char-img"
+            />
+          </div>
+        </div>
+
+        {/* ================= RIGHT FORM CONTAINER ================= */}
+        <div className="login-right-form-wrap">
+          {/* Top Brand Logo */}
+          <div className="login-brand-header">
+            <Link to="/" className="login-brand-logo-link">
+              <div className="login-brand-icon-drop">
+                <HiOutlineShieldCheck className="w-5 h-5 text-white" />
+              </div>
+              <span className="login-brand-name">SteelSchool</span>
+            </Link>
+          </div>
+
+          {/* Welcome Text */}
+          <div className="mb-6">
+            <h2 className="login-welcome-title">Welcome Back</h2>
+            <p className="login-welcome-subtitle">Please Login to your account</p>
+          </div>
+
+          {/* Error Message */}
           {error && (
-            <div className="steelschool-alert-error" role="alert">
-              <AlertCircle size={16} />
+            <div className="login-error-alert" role="alert">
+              <FiAlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="steelschool-form">
-            {/* Input Identifier (NISN / NIP / Username / Email) */}
-            <div className={`steelschool-field-group ${inputFocused || identifier ? 'is-focused' : ''}`}>
-              <label className="steelschool-field-label" htmlFor="identifier-input">
-                NISN / ID Akun / Email
-              </label>
-              <div className="steelschool-input-wrapper">
-                <input
-                  id="identifier-input"
-                  type="text"
-                  required
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  onFocus={() => setInputFocused(true)}
-                  onBlur={() => setInputFocused(false)}
-                  placeholder="Contoh: 0061234567 atau admin"
-                  className="steelschool-input"
-                  autoComplete="username"
-                />
-              </div>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email / Identifier Input */}
+            <div>
+              <input
+                id="identifier"
+                type="text"
+                placeholder="Email or NISN / Username"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                required
+                className="login-input-field"
+              />
             </div>
 
-            {/* Input Password with Outlined Style & Eye Toggle */}
-            <div className={`steelschool-field-group ${passwordFocused || password ? 'is-focused' : ''}`}>
-              <label className="steelschool-field-label" htmlFor="password-input">
-                Password (dari Admin)
-              </label>
-              <div className="steelschool-input-wrapper">
+            {/* Password Input */}
+            <div>
+              <div className="login-password-container">
                 <input
-                  id="password-input"
+                  id="password"
                   type={showPassword ? 'text' : 'password'}
-                  required
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setPasswordFocused(true)}
-                  onBlur={() => setPasswordFocused(false)}
-                  placeholder="Password yang diberikan admin"
-                  className="steelschool-input"
-                  autoComplete="current-password"
+                  required
+                  className="login-input-field pr-11"
                 />
                 <button
                   type="button"
-                  className="steelschool-password-toggle"
+                  className="login-password-eye-btn"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   tabIndex={-1}
+                  aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
                 >
-                  {showPassword ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M2 12s3.5-6 10-6 10 6 10 6" />
-                      <line x1="3" y1="12" x2="1" y2="15" />
-                      <line x1="7" y1="14" x2="6" y2="18" />
-                      <line x1="12" y1="15" x2="12" y2="19" />
-                      <line x1="17" y1="14" x2="18" y2="18" />
-                      <line x1="21" y1="12" x2="23" y2="15" />
-                    </svg>
-                  )}
+                  {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {/* Forgot Password Right-Aligned */}
+              <div className="flex justify-end mt-2">
+                <button
+                  type="button"
+                  onClick={() => toast.info('Silakan hubungi Administrator TU Sekolah untuk reset password.')}
+                  className="login-forgot-link"
+                >
+                  Forgot Password
                 </button>
               </div>
             </div>
 
-            {/* Primary Sign In Button: Sunlit Yellow Pill per Sandland Specifications */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="steelschool-btn-submit"
+              className="login-submit-btn"
             >
-              {loading ? 'Memverifikasi...' : 'Masuk ke Sistem'}
+              {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
-          {/* Forgot Password Link */}
-          <div className="steelschool-forgot-link-wrapper">
-            <a
-              href="#forgot-password"
-              onClick={(e) => {
-                e.preventDefault();
-                alert('Silakan hubungi administrator sekolah untuk reset atau meminta kata sandi Anda.');
-              }}
-              className="steelschool-forgot-link"
-            >
-              Lupa kata sandi? Hubungi Admin
-            </a>
+          {/* Divider */}
+          <div className="login-divider-row">
+            <div className="login-divider-line" />
+            <span className="login-divider-text">or Login with</span>
+            <div className="login-divider-line" />
           </div>
 
-          {/* Discreet Collapsible Demo Roles Panel for Easy Testing */}
-          <div className="steelschool-demo-drawer">
+          {/* Social Buttons */}
+          <div className="login-social-row">
             <button
               type="button"
-              className="steelschool-demo-toggle-btn"
+              onClick={() => toast.info('Fitur SSO Facebook aktif dalam mode integrasi OAuth.')}
+              className="login-social-btn"
+            >
+              <FaFacebook className="w-5 h-5 text-[#1877F2]" />
+              <span>Facebook</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => toast.info('Fitur SSO Google aktif dalam mode integrasi Google for Education.')}
+              className="login-social-btn"
+            >
+              <FcGoogle className="w-5 h-5" />
+              <span>Google</span>
+            </button>
+          </div>
+
+          {/* Demo Accounts Quick-Picker Drawer */}
+          <div className="login-demo-drawer">
+            <button
+              type="button"
+              className="login-demo-toggle-btn"
               onClick={() => setShowDemoRoles(!showDemoRoles)}
             >
-              <span>Pilihan Akun Demo (Siswa via NISN, Admin, Staf)</span>
-              {showDemoRoles ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              <div className="flex items-center gap-1.5">
+                <FiCheckCircle className="w-3.5 h-3.5 text-blue-600" />
+                <span>Pilihan Cepat Akun Demo (10 Peran Civitas)</span>
+              </div>
+              {showDemoRoles ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
             </button>
 
             {showDemoRoles && (
-              <div className="steelschool-demo-pills-grid">
-                {demoAccounts.map((acc) => {
-                  const Icon = acc.icon;
+              <div className="login-demo-grid">
+                {demoAccounts.map((acc, idx) => {
+                  const AccIcon = acc.icon;
+                  const isSelected = identifier === acc.id;
                   return (
                     <button
-                      key={acc.id}
+                      key={idx}
                       type="button"
-                      className="steelschool-role-pill"
-                      onClick={() => handleSelectDemoAccount(acc.id, acc.pwd)}
-                      title={`Isi otomatis ${acc.label}`}
+                      onClick={() => handleSelectDemoAccount(acc.role, acc.id, acc.pwd)}
+                      className={`login-demo-item ${isSelected ? 'active' : ''}`}
                     >
-                      <Icon size={16} />
-                      <span>{acc.label}</span>
+                      <div
+                        className="login-demo-icon-wrap"
+                        style={{ background: acc.bg, color: acc.color }}
+                      >
+                        <AccIcon className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col overflow-hidden text-left leading-tight">
+                        <span className="text-xs font-bold text-slate-800 truncate">{acc.role}</span>
+                        <span className="text-[10px] text-slate-500 font-mono truncate">{acc.id}</span>
+                      </div>
                     </button>
                   );
                 })}
               </div>
             )}
           </div>
-        </div>
 
-        {/* Back Link to Landing Page */}
-        <div style={{ marginTop: '16px' }}>
-          <Link
-            to="/"
-            className="steelschool-back-link"
-          >
-            <ArrowLeft size={14} />
-            <span>Kembali ke Halaman Web Promosi Sekolah</span>
-          </Link>
+          {/* Back to Home Link */}
+          <div className="text-center mt-5">
+            <Link to="/" className="login-back-home-link">
+              <FiArrowLeft className="w-3.5 h-3.5" />
+              <span>Kembali ke Beranda Sekolah</span>
+            </Link>
+          </div>
         </div>
-      </main>
-
-      {/* ------------------------------------------------------------------
-          Footer: Copyright & Policy Links
-         ------------------------------------------------------------------ */}
-      <footer className="steelschool-footer">
-        <p className="steelschool-footer-text">
-          <span>&copy;SteelSchool 2026</span>
-          <span className="footer-bullet">&middot;</span>
-          <a href="#privacy" className="footer-link">Kebijakan Privasi</a>
-          <span className="footer-bullet">&middot;</span>
-          <a href="#terms" className="footer-link">Syarat & Ketentuan</a>
-        </p>
-      </footer>
+      </div>
     </div>
   );
 };
+
+export default LoginView;
