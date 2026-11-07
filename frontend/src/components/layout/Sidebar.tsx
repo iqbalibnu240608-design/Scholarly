@@ -92,7 +92,7 @@ export const Sidebar: React.FC = () => {
     <aside className="w-68 bg-[#2857e6] shrink-0 hidden md:flex flex-col justify-between text-white relative z-30 select-none min-h-screen sticky top-0 h-screen overflow-y-auto">
       <div className="relative z-10 pt-6">
         {/* Brand Header: "🔷 Smart SteelSchool" at top */}
-        <div className="flex items-center gap-3 pl-5 pr-4 mb-6">
+        <div className="flex items-center gap-3 pl-6 pr-4 mb-6">
           <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs shrink-0">
             <Sparkles className="w-4.5 h-4.5 text-white" />
           </div>
@@ -139,12 +139,12 @@ export const Sidebar: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Right Label Area: Putih Nyatu di Kanan, Melengkung di Kiri */}
+                    {/* Right Label Area: Putih Nyatu di Kanan, Melengkung di Kiri (Digeser ke Kanan Sedikit: pl-6) */}
                     <div
                       className={`flex-1 flex items-center h-full pr-3 tracking-tight transition-all ${
                         isActive
-                          ? 'sidebar-tab-merged font-black text-[14.5px] pl-4'
-                          : 'text-white/85 group-hover:text-white font-bold text-[14px] pl-4'
+                          ? 'sidebar-tab-merged font-black text-[14.5px] pl-6'
+                          : 'text-white/85 group-hover:text-white font-bold text-[14px] pl-6'
                       }`}
                     >
                       <span className="truncate">{item.label}</span>
@@ -169,8 +169,8 @@ export const Sidebar: React.FC = () => {
               <LogOut className="w-5 h-5 shrink-0" />
             </div>
           </div>
-          {/* Right Text */}
-          <div className="flex-1 text-left pl-4 pr-3 text-[14px] font-bold tracking-tight">
+          {/* Right Text (Digeser ke Kanan Sedikit: pl-6) */}
+          <div className="flex-1 text-left pl-6 pr-3 text-[14px] font-bold tracking-tight">
             <span>Keluar Sesi</span>
           </div>
         </button>
