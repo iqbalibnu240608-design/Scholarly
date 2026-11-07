@@ -96,9 +96,18 @@ html, body {
    -------------------------------------------------------------------------- */
 .app-container {
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
   background-color: var(--bg-page);
+  position: relative;
+  width: 100%;
+}
+
+.app-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
 }
 
 .app-body {

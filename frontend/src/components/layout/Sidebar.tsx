@@ -89,13 +89,10 @@ export const Sidebar: React.FC = () => {
   );
 
   return (
-    <aside className="w-68 bg-[#2857e6] shrink-0 hidden md:flex flex-col justify-between text-white relative z-30 select-none min-h-screen">
-      {/* Background Pill Rail for Icons on the Left (Matching Reference Visual) */}
-      <div className="absolute left-3.5 top-20 bottom-24 w-12 bg-[#4272f6] rounded-3xl pointer-events-none -z-0 shadow-inner" />
-
-      <div className="relative z-10 pt-5">
-        {/* Brand Header: "🔷 Smart" */}
-        <div className="flex items-center gap-3 pl-6 pr-4 mb-6">
+    <aside className="w-68 bg-[#2857e6] shrink-0 hidden md:flex flex-col justify-between text-white relative z-30 select-none min-h-screen sticky top-0 h-screen overflow-y-auto">
+      <div className="relative z-10 pt-6">
+        {/* Brand Header: "🔷 Smart SteelSchool" at top */}
+        <div className="flex items-center gap-3 pl-5 pr-4 mb-6">
           <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs shrink-0">
             <Sparkles className="w-4.5 h-4.5 text-white" />
           </div>
@@ -110,7 +107,10 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Navigation Items (Left Icon Strip + Right Text with Merged Active Tab) */}
-        <nav className="space-y-1.5">
+        <nav className="relative space-y-1">
+          {/* Continuous Lighter Blue Pill Rail behind the icons */}
+          <div className="absolute left-3 top-0 bottom-0 w-11 bg-[#3f6ef5] rounded-full pointer-events-none -z-0" />
+
           {visibleItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -118,33 +118,33 @@ export const Sidebar: React.FC = () => {
                 key={item.to}
                 to={item.to}
                 end={item.end}
-                className="relative flex items-center h-12 w-full group no-underline"
+                className="relative flex items-center h-[46px] w-full group no-underline"
               >
                 {({ isActive }) => (
                   <>
-                    {/* Left Icon Rail Segment */}
-                    <div className="w-16 shrink-0 flex items-center justify-center relative">
+                    {/* Left Icon Rail Segment - Perfectly Centered */}
+                    <div className="w-14 shrink-0 flex items-center justify-center relative h-full">
                       {/* Active Indicator: White vertical sliver on the very left */}
                       {isActive && (
-                        <span className="absolute left-0 w-1.5 h-6 bg-white rounded-r-full shadow-2xs" />
+                        <span className="absolute left-0 w-1.5 h-6 bg-white rounded-r-full shadow-2xs top-1/2 -translate-y-1/2" />
                       )}
-                      <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
-                          isActive
-                            ? 'bg-white/25 text-white shadow-2xs'
-                            : 'text-white/80 group-hover:text-white group-hover:bg-white/10'
-                        }`}
-                      >
-                        <Icon className="w-5 h-5 shrink-0" />
+                      <div className="w-8 h-8 flex items-center justify-center transition-all">
+                        <Icon
+                          className={`w-5 h-5 shrink-0 transition-transform ${
+                            isActive
+                              ? 'text-white scale-110 drop-shadow-xs'
+                              : 'text-white/80 group-hover:text-white'
+                          }`}
+                        />
                       </div>
                     </div>
 
                     {/* Right Label Area: Putih Nyatu di Kanan, Melengkung di Kiri */}
                     <div
-                      className={`flex-1 flex items-center h-full pl-3.5 pr-4 text-sm tracking-tight transition-all ${
+                      className={`flex-1 flex items-center h-full pr-3 tracking-tight transition-all ${
                         isActive
-                          ? 'sidebar-tab-merged font-black'
-                          : 'text-white/85 group-hover:text-white font-bold pl-4'
+                          ? 'sidebar-tab-merged font-black text-[14.5px] pl-4'
+                          : 'text-white/85 group-hover:text-white font-bold text-[14px] pl-4'
                       }`}
                     >
                       <span className="truncate">{item.label}</span>
@@ -161,16 +161,16 @@ export const Sidebar: React.FC = () => {
       <div className="relative z-10 pb-6 pt-3 border-t border-white/15">
         <button
           onClick={() => logout()}
-          className="relative flex items-center h-12 w-full group text-white/80 hover:text-white transition-colors"
+          className="relative flex items-center h-[46px] w-full group text-white/80 hover:text-white transition-colors"
         >
           {/* Left Icon */}
-          <div className="w-16 shrink-0 flex items-center justify-center">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center group-hover:bg-white/10 text-white/80 group-hover:text-white transition-all">
+          <div className="w-14 shrink-0 flex items-center justify-center h-full">
+            <div className="w-8 h-8 flex items-center justify-center text-white/80 group-hover:text-white transition-all">
               <LogOut className="w-5 h-5 shrink-0" />
             </div>
           </div>
           {/* Right Text */}
-          <div className="flex-1 text-left pl-3.5 pr-4 text-sm font-bold tracking-tight">
+          <div className="flex-1 text-left pl-4 pr-3 text-[14px] font-bold tracking-tight">
             <span>Keluar Sesi</span>
           </div>
         </button>

@@ -6,9 +6,9 @@ import { Sidebar } from './Sidebar';
 export const Layout: React.FC = () => {
   return (
     <div className="app-container">
-      <Navbar />
-      <div className="app-body">
-        <Sidebar />
+      <Sidebar />
+      <div className="app-content-wrapper">
+        <Navbar />
         <main className="app-main-content">
           <Outlet />
         </main>
@@ -16,3 +16,5 @@ export const Layout: React.FC = () => {
     </div>
   );
 };
+
+export default Layout;
