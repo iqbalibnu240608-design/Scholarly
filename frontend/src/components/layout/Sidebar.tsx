@@ -36,19 +36,19 @@ export const Sidebar: React.FC = () => {
     },
     {
       to: '/app/kantin',
-      label: 'Kantin',
+      label: 'Kantin Sekolah',
       icon: UtensilsCrossed,
       allowedRoles: ['admin', 'kantin', 'siswa', 'guru'],
     },
     {
       to: '/app/kopsis',
-      label: 'Koperasi',
+      label: 'Koperasi (Kopsis)',
       icon: ShoppingBag,
       allowedRoles: ['admin', 'kopsis', 'siswa', 'guru'],
     },
     {
       to: '/app/petugas',
-      label: 'Tata Usaha',
+      label: 'Tata Usaha & SPP',
       icon: FileSpreadsheet,
       allowedRoles: ['admin', 'petugas', 'siswa'],
     },
@@ -66,19 +66,19 @@ export const Sidebar: React.FC = () => {
     },
     {
       to: '/app/kepsek',
-      label: 'Monitoring',
+      label: 'Monitoring Kepsek',
       icon: Award,
       allowedRoles: ['admin', 'kepsek'],
     },
     {
       to: '/app/security',
-      label: 'Pos Satpam',
+      label: 'Gerbang Satpam',
       icon: Shield,
       allowedRoles: ['admin', 'security'],
     },
     {
       to: '/app/admin',
-      label: 'Admin Panel',
+      label: 'Manajemen Sistem',
       icon: Settings,
       allowedRoles: ['admin'],
     },
@@ -89,25 +89,25 @@ export const Sidebar: React.FC = () => {
   );
 
   return (
-    <aside className="w-60 bg-[#2857e6] p-5 shrink-0 hidden md:flex flex-col justify-between text-white shadow-lg">
+    <aside className="w-68 bg-[#2857e6] p-6 shrink-0 hidden md:flex flex-col justify-between text-white shadow-xl min-h-screen">
       <div>
-        {/* Brand Logo - Inspired by Reference "Smart" Logo */}
-        <div className="flex items-center gap-2.5 px-3 py-2 mb-6">
-          <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs">
-            <Sparkles className="w-4 h-4 text-white" />
+        {/* Brand Header - Matching Reference "Smart" Brand */}
+        <div className="flex items-center gap-3 px-2 py-2 mb-8">
+          <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-extrabold tracking-tight leading-none text-white">
-              SteelSchool
+            <h1 className="text-xl font-extrabold tracking-tight leading-none text-white">
+              Smart
             </h1>
-            <span className="text-[10px] font-semibold text-white/70 block mt-0.5">
-              Smart Ecosystem
+            <span className="text-xs font-semibold text-white/80 block mt-1">
+              SteelSchool Ecosystem
             </span>
           </div>
         </div>
 
-        {/* Navigation Items (White Pill for Active, Translucent for Inactive) */}
-        <nav className="space-y-1.5">
+        {/* Navigation Tab Kiri (Ukuran Tombol Lega, Jelas, & Nyaman Diklik) */}
+        <nav className="space-y-2">
           {visibleItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -116,17 +116,17 @@ export const Sidebar: React.FC = () => {
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-full text-xs font-semibold transition-all ${
+                  `flex items-center gap-3.5 px-5 py-3.5 rounded-2xl text-sm transition-all duration-200 ${
                     isActive
-                      ? 'bg-white text-[#2857e6] shadow-sm font-bold scale-[1.02]'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                      ? 'bg-white text-[#2857e6] shadow-md font-bold scale-[1.02]'
+                      : 'text-white/85 hover:text-white hover:bg-white/10 font-semibold'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#2857e6]' : 'text-white/80'}`} />
-                    <span>{item.label}</span>
+                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#2857e6]' : 'text-white/85'}`} />
+                    <span className="truncate">{item.label}</span>
                   </>
                 )}
               </NavLink>
@@ -135,16 +135,18 @@ export const Sidebar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Logout Action at Bottom (Matching Reference "Log Out") */}
-      <div className="pt-4 border-t border-white/15">
+      {/* Logout Action at Bottom - Spacious and Clear */}
+      <div className="pt-6 border-t border-white/20">
         <button
           onClick={() => logout()}
-          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-full text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+          className="w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-semibold text-white/85 hover:text-white hover:bg-white/10 transition-colors"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-5 h-5 shrink-0" />
           <span>Keluar Sesi</span>
         </button>
       </div>
     </aside>
   );
 };
+
+export default Sidebar;
