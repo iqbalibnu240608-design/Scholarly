@@ -23,6 +23,8 @@ import {
   Clock,
   MapPin,
   Check,
+  CalendarDays,
+  ExternalLink,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -54,22 +56,22 @@ interface ScheduleItem {
   status?: string;
 }
 
-// Circular Gauge Component matching the Reference Dashboard
+// Circular Gauge Component matching the Reference Dashboard with balanced sizing
 const CircularGauge: React.FC<{
   percentage: number;
   label: string;
   color: string;
   sublabel?: string;
 }> = ({ percentage, label, color, sublabel }) => {
-  const size = 52;
-  const strokeWidth = 4.5;
+  const size = 64;
+  const strokeWidth = 5.5;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-slate-50/70 border border-slate-100 hover:bg-white hover:border-blue-200 hover:shadow-xs transition-all">
-      <div className="relative inline-flex items-center justify-center mb-1.5" style={{ width: size, height: size }}>
+    <div className="flex flex-col items-center text-center p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100 hover:bg-white hover:border-blue-200 hover:shadow-xs transition-all">
+      <div className="relative inline-flex items-center justify-center mb-2" style={{ width: size, height: size }}>
         <svg className="transform -rotate-90" width={size} height={size}>
           <circle
             cx={size / 2}
@@ -89,17 +91,18 @@ const CircularGauge: React.FC<{
             strokeDashoffset={offset}
             strokeLinecap="round"
             fill="transparent"
+            className="transition-all duration-700 ease-out"
           />
         </svg>
-        <span className="absolute text-[11px] font-extrabold text-slate-800">
+        <span className="absolute text-xs md:text-sm font-black text-slate-900">
           {percentage}%
         </span>
       </div>
-      <span className="text-[11px] font-bold text-slate-800 leading-tight">
+      <span className="text-xs md:text-sm font-bold text-slate-800 leading-tight">
         {label}
       </span>
       {sublabel && (
-        <span className="text-[10px] text-slate-400 mt-0.5 font-medium">
+        <span className="text-[11px] text-slate-500 mt-0.5 font-medium">
           {sublabel}
         </span>
       )}
@@ -205,10 +208,11 @@ export const OverviewView: React.FC = () => {
       borderColor: '#bfdbfe',
       title: isStudent ? 'Akademik & Nilai Saya' : 'Portal Siswa',
       desc: isStudent
-        ? 'Jadwal kelas harian, presensi, rapor berkala & tugas mandiri'
-        : 'Jadwal pelajaran, nilai, presensi & saldo digital siswa',
-      buttonText: 'Buka Portal',
+        ? 'Jadwal pelajaran harian, presensi gerbang, buku nilai & rapor terpadu'
+        : 'Jadwal pelajaran, nilai, presensi & saldo digital siswa terdaftar',
+      buttonText: 'Buka Portal Siswa',
       allowedRoles: ['admin', 'siswa', 'guru', 'kepsek', 'petugas'],
+      tag: 'Akademik',
     },
     {
       to: '/app/kantin',
@@ -218,10 +222,11 @@ export const OverviewView: React.FC = () => {
       borderColor: '#bae6fd',
       title: isStudent || activeRole === 'guru' ? 'Pesan Makanan Kantin' : 'Kasir Stan Kantin',
       desc: isStudent || activeRole === 'guru'
-        ? 'Pesan aneka menu makanan lezat cashless dari saldo dompet Anda'
-        : 'Kelola menu stan kantin, stok, & antrean pesanan siswa',
+        ? 'Pesan aneka menu makanan lezat cashless dari saldo dompet digital Anda'
+        : 'Kelola daftar menu stan kantin, stok, & antrean transaksi siswa',
       buttonText: 'Menuju Kantin',
       allowedRoles: ['admin', 'kantin', 'siswa', 'guru'],
+      tag: 'Unit Usaha',
     },
     {
       to: '/app/kopsis',
@@ -231,10 +236,11 @@ export const OverviewView: React.FC = () => {
       borderColor: '#c7d2fe',
       title: isStudent || activeRole === 'guru' ? 'Koperasi Siswa (Kopsis)' : 'Kasir POS Koperasi',
       desc: isStudent || activeRole === 'guru'
-        ? 'Belanja perlengkapan alat tulis (ATK), atribut seragam & buku'
-        : 'Kasir POS penjualan langsung, inventaris ATK, & mutasi omset',
+        ? 'Belanja perlengkapan alat tulis kantor (ATK), seragam sekolah & modul'
+        : 'Kasir POS penjualan langsung, inventaris ATK, & rekapan mutasi omset',
       buttonText: 'Buka Koperasi',
       allowedRoles: ['admin', 'kopsis', 'siswa', 'guru'],
+      tag: 'Unit Usaha',
     },
     {
       to: '/app/petugas',
@@ -244,10 +250,11 @@ export const OverviewView: React.FC = () => {
       borderColor: '#99f6e4',
       title: isStudent ? 'Layanan SPP & Administrasi' : 'Tata Usaha (TU & SPP)',
       desc: isStudent
-        ? 'Cek status pembayaran SPP bulanan & kuitansi sah digital'
-        : 'Buku kas pembayaran SPP, arsip kwitansi, & verifikasi transaksi',
-      buttonText: 'Layanan TU',
+        ? 'Cek status pembayaran SPP bulanan & unduh kuitansi sah digital'
+        : 'Buku kas pembayaran SPP, arsip kwitansi, & verifikasi transaksi siswa',
+      buttonText: 'Layanan TU & SPP',
       allowedRoles: ['admin', 'petugas', 'siswa'],
+      tag: 'Administrasi',
     },
     {
       to: '/app/perpus',
@@ -257,10 +264,11 @@ export const OverviewView: React.FC = () => {
       borderColor: '#ddd6fe',
       title: isStudent ? 'Perpustakaan (E-Library)' : 'Portal Pustakawan',
       desc: isStudent
-        ? 'Katalog buku pelajaran, peminjaman 7/14 hari & countdown jatuh tempo'
-        : 'Inventaris koleksi buku rak, sirkulasi peminjaman, & pengembalian',
-      buttonText: 'E-Library',
+        ? 'Katalog buku pelajaran, peminjaman 7/14 hari & countdown jatuh tempo denda'
+        : 'Inventaris koleksi buku rak, sirkulasi peminjaman, & pengembalian buku',
+      buttonText: 'Buka E-Library',
       allowedRoles: ['admin', 'perpustakaan', 'siswa', 'guru'],
+      tag: 'Pustaka',
     },
     {
       to: '/app/guru',
@@ -269,9 +277,10 @@ export const OverviewView: React.FC = () => {
       iconColor: '#1d4ed8',
       borderColor: '#bfdbfe',
       title: 'Portal Dewan Guru',
-      desc: 'Input nilai evaluasi (Tugas/UH/PTS/PAS) & rekap absensi rombel',
+      desc: 'Input nilai evaluasi (Tugas/UH/PTS/PAS) & rekapitulasi absensi rombel kelas',
       buttonText: 'Portal Guru',
       allowedRoles: ['admin', 'guru', 'kepsek'],
+      tag: 'Pengajaran',
     },
     {
       to: '/app/kepsek',
@@ -280,9 +289,10 @@ export const OverviewView: React.FC = () => {
       iconColor: '#b45309',
       borderColor: '#fde68a',
       title: 'Monitoring Kepala Sekolah',
-      desc: 'Dashboard KPI eksekutif, rekap kehadiran sekolah & omset unit',
-      buttonText: 'Monitoring',
+      desc: 'Dashboard KPI eksekutif, rekap kehadiran sekolah & perputaran omset unit',
+      buttonText: 'Monitoring Kepsek',
       allowedRoles: ['admin', 'kepsek'],
+      tag: 'Manajerial',
     },
     {
       to: '/app/security',
@@ -291,9 +301,10 @@ export const OverviewView: React.FC = () => {
       iconColor: '#334155',
       borderColor: '#cbd5e1',
       title: 'Presensi Gerbang Satpam',
-      desc: 'Gate check-in RFID & NISN gerbang utama, deteksi keterlambatan',
-      buttonText: 'Pos Satpam',
+      desc: 'Gate check-in RFID & NISN gerbang utama, auto-deteksi keterlambatan siswa',
+      buttonText: 'Pos Gerbang Satpam',
       allowedRoles: ['admin', 'security'],
+      tag: 'Keamanan',
     },
     {
       to: '/app/admin',
@@ -302,9 +313,10 @@ export const OverviewView: React.FC = () => {
       iconColor: '#2563eb',
       borderColor: '#bfdbfe',
       title: 'Manajemen Sistem & Role',
-      desc: 'Manajemen master akun pengguna, penugasan role dinamis & log',
-      buttonText: 'Panel Admin',
+      desc: 'Manajemen master akun pengguna, penugasan role dinamis & audit trail log',
+      buttonText: 'Panel Administrator',
       allowedRoles: ['admin'],
+      tag: 'Sistem',
     },
   ];
 
@@ -331,74 +343,87 @@ export const OverviewView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* ============================================================== */}
-      {/* 1. GREETING HERO CARD (Reference Layout with 3D Character)    */}
+      {/* 1. GREETING HERO CARD (Sesuai Hirarki: Tombol Penting Lebih Besar) */}
       {/* ============================================================== */}
       <div className="relative overflow-hidden rounded-2xl bg-white border border-blue-100 p-6 md:p-8 shadow-xs">
         {/* Soft background blue ambient glow */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-blue-100/50 via-blue-50/20 to-transparent rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-100/50 via-blue-50/20 to-transparent rounded-full -mr-20 -mt-20 pointer-events-none"></div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="max-w-2xl">
             {/* Status Pill Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200/80 text-blue-700 rounded-full text-xs font-bold mb-3 shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 border border-blue-200/80 text-blue-700 rounded-full text-xs font-bold mb-3 shadow-xs">
               <UserCheck className="w-3.5 h-3.5 text-blue-600" />
               <span>
                 {isStudent
-                  ? `Siswa Aktif • ${studentStats.kelas}`
-                  : `Sesi: ${ROLE_LABELS[activeRole] || activeRole}`}
+                  ? `Siswa Aktif • Kelas ${studentStats.kelas}`
+                  : `Sesi Peran: ${ROLE_LABELS[activeRole] || activeRole}`}
               </span>
             </div>
 
-            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Halo, {user?.name || (isAdmin ? 'Administrator' : 'Civitas SteelSchool')}! 👋
             </h2>
-            <p className="text-xs md:text-sm text-slate-600 mt-1.5 leading-relaxed">
+            <p className="text-xs md:text-sm text-slate-600 mt-2 leading-relaxed">
               {isStudent
-                ? `Selamat datang kembali! Seluruh kegiatan akademik, presensi gerbang, dan transaksi dompet digital Anda telah tersinkronisasi otomatis.`
-                : 'Sistem operasional sekolah terpadu aktif. Akses seluruh data civitas, rombel, dan unit transaksi dengan aman.'}
+                ? `Selamat datang kembali di ekosistem sekolah! Seluruh kegiatan kelas hari ini, presensi gerbang, dan dompet digital Anda telah tersinkronisasi otomatis.`
+                : 'Sistem operasional sekolah terpadu aktif. Akses seluruh data civitas, rombel pembelajaran, dan unit usaha dengan aman dan terverifikasi.'}
             </p>
 
-            {/* Quick Micro-Pill Action Buttons (Refined Sizing, Tidak Kegedean) */}
-            <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-slate-100">
+            {/* ACTION ROW: Sesuai Hirarki (Tombol Paling Penting Lebih Besar) */}
+            <div className="flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-slate-100">
               {isStudent ? (
                 <>
-                  <Link to="/app/kantin" className="btn-primary-action text-xs" style={{ padding: '6px 14px' }}>
-                    <UtensilsCrossed size={13} /> Pesan Kantin
+                  {/* P0 / Primary Action - Tombol Utama Berukuran Paling Besar */}
+                  <Link to="/app/kantin" className="btn-hero-primary">
+                    <UtensilsCrossed size={16} />
+                    <span>Pesan Kantin</span>
+                    <ArrowRight size={14} />
                   </Link>
-                  <Link to="/app/kopsis" className="btn-secondary-action text-xs" style={{ padding: '6px 14px' }}>
-                    <ShoppingBag size={13} /> Belanja Kopsis
+
+                  {/* P1 / Secondary Action - Tombol Pendukung Berukuran Proporsional */}
+                  <Link to="/app/kopsis" className="btn-hero-secondary">
+                    <ShoppingBag size={15} />
+                    <span>Belanja Kopsis</span>
                   </Link>
-                  <Link to="/app/petugas" className="btn-secondary-action text-xs" style={{ padding: '6px 14px' }}>
-                    <CreditCard size={13} /> Bayar SPP
+                  <Link to="/app/petugas" className="btn-hero-secondary">
+                    <CreditCard size={15} />
+                    <span>Bayar SPP</span>
                   </Link>
-                  <Link to="/app/perpus" className="btn-secondary-action text-xs" style={{ padding: '6px 14px' }}>
-                    <BookMarked size={13} /> E-Library
+                  <Link to="/app/perpus" className="btn-hero-secondary">
+                    <BookMarked size={15} />
+                    <span>E-Library</span>
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link to="/app/siswa" className="btn-primary-action text-xs" style={{ padding: '6px 14px' }}>
-                    <GraduationCap size={13} /> Data Siswa
+                  {/* P0 / Primary Action untuk Staf / Admin */}
+                  <Link to="/app/siswa" className="btn-hero-primary">
+                    <GraduationCap size={16} />
+                    <span>Buka Data Siswa</span>
+                    <ArrowRight size={14} />
                   </Link>
-                  <Link to="/app/guru" className="btn-secondary-action text-xs" style={{ padding: '6px 14px' }}>
-                    <BookOpen size={13} /> Jurnal Guru
+                  <Link to="/app/guru" className="btn-hero-secondary">
+                    <BookOpen size={15} />
+                    <span>Jurnal Guru</span>
                   </Link>
-                  <Link to="/app/kantin" className="btn-secondary-action text-xs" style={{ padding: '6px 14px' }}>
-                    <UtensilsCrossed size={13} /> Stan Kantin
+                  <Link to="/app/kantin" className="btn-hero-secondary">
+                    <UtensilsCrossed size={15} />
+                    <span>Stan Kantin</span>
                   </Link>
                 </>
               )}
             </div>
           </div>
 
-          {/* 3D Character from Reference Asset */}
-          <div className="hidden md:flex items-center justify-center shrink-0 pr-2">
+          {/* 3D Character Illustration dari Referensi */}
+          <div className="hidden md:flex items-center justify-center shrink-0 pr-4">
             <div className="relative">
-              <div className="w-36 h-36 rounded-full bg-blue-100/60 absolute -bottom-1 -left-1 -z-10 filter blur-xs"></div>
+              <div className="w-40 h-40 rounded-full bg-blue-100/60 absolute -bottom-1 -left-1 -z-10 filter blur-xs"></div>
               <img
                 src="/login-3d-character.svg"
                 alt="3D Student Character"
-                className="w-36 h-36 lg:w-40 lg:h-40 object-contain drop-shadow-md select-none pointer-events-none transform hover:scale-105 transition-transform"
+                className="w-40 h-40 lg:w-44 lg:h-44 object-contain drop-shadow-md select-none pointer-events-none transform hover:scale-105 transition-transform"
               />
             </div>
           </div>
@@ -406,45 +431,45 @@ export const OverviewView: React.FC = () => {
       </div>
 
       {/* ============================================================== */}
-      {/* 2. ACADEMIC & PERFORMANCE GAUGES (Reference Pattern)           */}
+      {/* 2. ACADEMIC & PERFORMANCE GAUGES (Tipografi Presisi & Seimbang) */}
       {/* ============================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Large Score Card (Col Span 5) */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <span className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider">
                 {isStudent ? 'Indeks Kedisiplinan & Prestasi' : 'Statistik Civitas Terdaftar'}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
                 Semester Genap
               </span>
             </div>
 
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-3xl md:text-4xl font-extrabold text-blue-600 tracking-tight">
+            <div className="flex items-baseline gap-2.5 mt-2">
+              <span className="text-4xl md:text-5xl font-black text-blue-600 tracking-tight">
                 {isStudent ? studentStats.kehadiran : `${data?.metrics?.total_siswa || 348}`}
               </span>
-              <span className="text-xs font-semibold text-slate-500">
+              <span className="text-sm font-bold text-slate-700">
                 {isStudent ? 'Rata-Rata Kehadiran' : 'Siswa Aktif Terdata'}
               </span>
             </div>
 
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+            <p className="text-xs md:text-sm text-slate-600 mt-2.5 leading-relaxed">
               {isStudent
-                ? `Catatan presensi gerbang satpam dan kelas menunjukkan performa disiplin sangat baik (${studentStats.kehadiranPct}% hadir tepat waktu).`
-                : `Total ${data?.metrics?.total_guru || 24} tenaga pendidik dan ${data?.metrics?.total_kelas || 12} rombongan belajar aktif dalam sistem.`}
+                ? `Catatan presensi gerbang satpam dan kelas menunjukkan performa disiplin sangat baik (${studentStats.kehadiranPct}% hadir tepat waktu tanpa alpha).`
+                : `Total ${data?.metrics?.total_guru || 24} tenaga pendidik dan ${data?.metrics?.total_kelas || 12} rombongan belajar aktif terdata dalam sistem.`}
             </p>
           </div>
 
           {/* Micro Progress Bars */}
-          <div className="mt-4 pt-3 border-t border-slate-100 space-y-2">
+          <div className="mt-5 pt-4 border-t border-slate-100 space-y-3">
             <div>
-              <div className="flex justify-between text-[11px] font-semibold text-slate-600 mb-1">
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1.5">
                 <span>Ketepatan Waktu Presensi</span>
                 <span className="font-bold text-blue-600">{studentStats.kehadiran}</span>
               </div>
-              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-blue-600 rounded-full transition-all duration-700"
                   style={{ width: `${studentStats.kehadiranPct}%` }}
@@ -453,11 +478,11 @@ export const OverviewView: React.FC = () => {
             </div>
 
             <div>
-              <div className="flex justify-between text-[11px] font-semibold text-slate-600 mb-1">
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1.5">
                 <span>Penyelesaian Tugas & Evaluasi</span>
                 <span className="font-bold text-indigo-600">89.4%</span>
               </div>
-              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full bg-indigo-600 rounded-full" style={{ width: '89.4%' }}></div>
               </div>
             </div>
@@ -465,24 +490,24 @@ export const OverviewView: React.FC = () => {
         </div>
 
         {/* 4 Circular Gauges / Key Metrics (Col Span 7) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-3 mb-2 border-b border-slate-100">
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-3.5 mb-2 border-b border-slate-100">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                <TrendingUp className="w-4 h-4 text-blue-600" />
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <TrendingUp className="w-4.5 h-4.5 text-blue-600" />
                 <span>Indikator Performa & Saldo Layanan</span>
               </h3>
-              <p className="text-[11px] text-slate-500">Parameter harian terintegrasi otomatis</p>
+              <p className="text-xs text-slate-500 mt-0.5">Parameter harian terintegrasi otomatis dari basis data</p>
             </div>
             {isStudent && (
-              <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                <Check className="w-3 h-3" /> SPP {studentStats.spp_status}
+              <span className="text-xs font-bold text-emerald-700 flex items-center gap-1.5 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                <Check className="w-3.5 h-3.5 text-emerald-600" /> SPP {studentStats.spp_status}
               </span>
             )}
           </div>
 
           {/* 4 Radial Gauges matching Reference */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-1">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 my-2">
             <CircularGauge
               percentage={studentStats.kehadiranPct}
               label="Kehadiran"
@@ -509,19 +534,25 @@ export const OverviewView: React.FC = () => {
             />
           </div>
 
-          {/* Bottom Micro Summary Bar */}
-          <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1 font-semibold text-slate-700">
-                <ShoppingBag className="w-3.5 h-3.5 text-blue-600" />
-                Kopsis: <strong className="text-blue-600">Rp {studentStats.saldo_kopsis.toLocaleString('id-ID')}</strong>
+          {/* Bottom Summary Bar with Quick Action */}
+          <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs md:text-sm text-slate-600 gap-3">
+            <div className="flex items-center gap-4">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+                <ShoppingBag className="w-4 h-4 text-blue-600" />
+                Kopsis: <strong className="text-blue-600 font-bold">Rp {studentStats.saldo_kopsis.toLocaleString('id-ID')}</strong>
               </span>
-              <span className="inline-flex items-center gap-1 font-semibold text-slate-700">
-                <UtensilsCrossed className="w-3.5 h-3.5 text-sky-600" />
-                Kantin: <strong className="text-sky-600">Rp {studentStats.saldo_kantin.toLocaleString('id-ID')}</strong>
+              <span className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+                <UtensilsCrossed className="w-4 h-4 text-sky-600" />
+                Kantin: <strong className="text-sky-600 font-bold">Rp {studentStats.saldo_kantin.toLocaleString('id-ID')}</strong>
               </span>
             </div>
-            <span className="text-[11px] text-slate-400">Saldo Dompet Terverifikasi</span>
+            <Link
+              to="/app/kantin"
+              className="btn-compact-action text-xs font-bold"
+            >
+              <span>Transaksi Dompet</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
           </div>
         </div>
       </div>
@@ -532,17 +563,17 @@ export const OverviewView: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Modul Civitas Terpadu (Col span 7) */}
         <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs">
-          <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+          <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
             <div>
-              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-600" />
+              <h3 className="text-base md:text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-blue-600" />
                 <span>Modul Layanan Civitas</span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Pilih modul kerja sesuai hak akses peran Anda
+              <p className="text-xs md:text-sm text-slate-500 mt-0.5">
+                Pilih modul kerja sesuai hak akses peran Anda untuk mengelola aktivitas sekolah
               </p>
             </div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
               {visiblePortals.length} Modul Terbuka
             </span>
           </div>
@@ -553,43 +584,44 @@ export const OverviewView: React.FC = () => {
               return (
                 <div
                   key={idx}
-                  className="flex flex-col justify-between p-4 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:border-blue-400 hover:bg-white hover:shadow-md transition-all duration-200 group"
+                  className="flex flex-col justify-between p-5 rounded-2xl bg-slate-50/60 border border-slate-200/80 hover:border-blue-400 hover:bg-white hover:shadow-md transition-all duration-200 group"
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-2.5">
+                    {/* Header: Icon & Category Tag */}
+                    <div className="flex items-center justify-between mb-3">
                       <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center border shadow-xs"
+                        className="w-11 h-11 rounded-xl flex items-center justify-center border shadow-xs"
                         style={{
                           backgroundColor: portal.iconBg,
                           color: portal.iconColor,
                           borderColor: portal.borderColor,
                         }}
                       >
-                        <PortalIcon className="w-4 h-4" />
+                        <PortalIcon className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-blue-600 transition-colors">
-                        Aktif
+                      <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">
+                        {portal.tag}
                       </span>
                     </div>
 
-                    <h4 className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                    {/* Content: Title & Description */}
+                    <h4 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
                       {portal.title}
                     </h4>
-                    <p className="text-[11px] text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                    <p className="text-xs md:text-sm text-slate-600 mt-1.5 leading-relaxed line-clamp-2 min-h-[38px]">
                       {portal.desc}
                     </p>
                   </div>
 
-                  {/* Refined Pill Button (Tidak Kegedean, Sangat Jelas Tombol) */}
-                  <div className="mt-3.5 pt-2 border-t border-slate-100/80 flex items-center justify-between">
-                    <span className="text-[10px] font-semibold text-slate-400">Modul Terhubung</span>
+                  {/* Footer Action Row: Seimbang dan Tombol Jelas Terlihat */}
+                  <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-400">Modul Terhubung</span>
                     <Link
                       to={portal.to}
-                      className="btn-primary-action text-xs"
-                      style={{ padding: '5.5px 13px', fontSize: '11px' }}
+                      className="btn-primary-action"
                     >
                       <span>{portal.buttonText}</span>
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </div>
@@ -601,48 +633,48 @@ export const OverviewView: React.FC = () => {
         {/* Right Column: Schedule Timeline & Announcements (Col span 5) */}
         <div className="lg:col-span-5 space-y-6">
           {/* Jadwal Pelajaran Hari Ini (Matching Reference Schedule) */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200">
-                  <Calendar className="w-4 h-4" />
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200">
+                  <Calendar className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900">Jadwal Hari Ini</h4>
-                  <p className="text-[10px] text-slate-500">Agenda pembelajaran aktif</p>
+                  <h4 className="text-base font-bold text-slate-900">Jadwal Hari Ini</h4>
+                  <p className="text-xs text-slate-500">Agenda pembelajaran kelas</p>
                 </div>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                {schedules.length} Sesi
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                {schedules.length} Sesi Terjadwal
               </span>
             </div>
 
             {/* Schedule Cards List */}
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               {schedules.map((item, index) => {
                 const isActive = index === 0;
                 return (
                   <div
                     key={index}
-                    className={`p-3.5 rounded-xl transition-all ${
+                    className={`p-4 rounded-xl transition-all ${
                       isActive
                         ? 'bg-[#2857e6] text-white shadow-xs'
                         : 'bg-slate-50/70 border border-slate-200/70 hover:bg-white hover:border-blue-200'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2 mb-1">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
                       <div className="flex items-center gap-1.5">
                         <Clock className={`w-3.5 h-3.5 ${isActive ? 'text-white/80' : 'text-slate-400'}`} />
                         <span
-                          className={`text-[11px] font-bold ${
-                            isActive ? 'text-white' : 'text-slate-600'
+                          className={`text-xs font-bold ${
+                            isActive ? 'text-white' : 'text-slate-700'
                           }`}
                         >
                           {item.jam}
                         </span>
                       </div>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
                           isActive
                             ? 'bg-white/20 text-white border border-white/30'
                             : 'bg-slate-200/80 text-slate-700'
@@ -653,7 +685,7 @@ export const OverviewView: React.FC = () => {
                     </div>
 
                     <h5
-                      className={`text-xs font-bold tracking-tight ${
+                      className={`text-sm md:text-base font-bold tracking-tight ${
                         isActive ? 'text-white' : 'text-slate-900'
                       }`}
                     >
@@ -661,14 +693,14 @@ export const OverviewView: React.FC = () => {
                     </h5>
 
                     <div
-                      className={`flex items-center gap-3 text-[11px] mt-1 ${
-                        isActive ? 'text-white/80' : 'text-slate-500'
+                      className={`flex items-center gap-3 text-xs mt-1.5 ${
+                        isActive ? 'text-white/90' : 'text-slate-500'
                       }`}
                     >
-                      <span>{item.guru}</span>
+                      <span className="font-medium">{item.guru}</span>
                       <span>•</span>
                       <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
+                        <MapPin className="w-3.5 h-3.5" />
                         {item.ruang}
                       </span>
                     </div>
@@ -676,62 +708,73 @@ export const OverviewView: React.FC = () => {
                 );
               })}
             </div>
+
+            {/* Schedule View All Button */}
+            <div className="mt-4 pt-3 border-t border-slate-100">
+              <Link
+                to="/app/siswa"
+                className="btn-secondary-action w-full justify-center text-xs md:text-sm font-semibold"
+              >
+                <CalendarDays className="w-4 h-4 text-blue-600" />
+                <span>Lihat Seluruh Kalender Akademik</span>
+              </Link>
+            </div>
           </div>
 
           {/* Papan Pengumuman Sekolah */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200">
-                  <Bell className="w-4 h-4" />
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200">
+                  <Bell className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900">Pengumuman Sekolah</h4>
-                  <p className="text-[10px] text-slate-500">Pemberitahuan terpusat</p>
+                  <h4 className="text-base font-bold text-slate-900">Pengumuman Sekolah</h4>
+                  <p className="text-xs text-slate-500">Pemberitahuan terpusat civitas</p>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 Live
               </span>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               {visibleAnnouncements.length > 0 ? (
                 visibleAnnouncements.slice(0, 3).map((ann) => (
                   <div
                     key={ann.id}
-                    className="p-3 rounded-xl bg-slate-50/70 border border-slate-200/70 hover:bg-white hover:border-blue-200 transition-all"
+                    className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/70 hover:bg-white hover:border-blue-200 transition-all"
                   >
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="px-1.5 py-0.5 rounded text-[9px] uppercase font-bold bg-blue-100 text-blue-800">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="px-2 py-0.5 rounded text-[10px] md:text-xs uppercase font-bold bg-blue-100 text-blue-800">
                         {ann.target_role === 'all' ? 'Semua Civitas' : ann.target_role}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-medium">
+                      <span className="text-xs text-slate-400 font-medium">
                         {new Date(ann.created_at).toLocaleDateString('id-ID', {
                           day: 'numeric',
                           month: 'short',
                         })}
                       </span>
                     </div>
-                    <h5 className="text-xs font-bold text-slate-900 mb-0.5">
+                    <h5 className="text-sm font-bold text-slate-900 mb-1 leading-snug">
                       {ann.title}
                     </h5>
-                    <p className="text-[11px] text-slate-600 leading-relaxed line-clamp-2">
+                    <p className="text-xs md:text-sm text-slate-600 leading-relaxed line-clamp-2">
                       {ann.content}
                     </p>
                   </div>
                 ))
               ) : (
-                <div className="p-4 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                <div className="p-5 text-center text-xs md:text-sm text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                   Belum ada pengumuman baru untuk peran Anda.
                 </div>
               )}
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+            <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span>Status Ekosistem</span>
               <span className="font-semibold text-emerald-600 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-500" /> Tersinkronisasi
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Tersinkronisasi MySQL
               </span>
             </div>
           </div>
