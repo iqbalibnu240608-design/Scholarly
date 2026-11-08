@@ -274,7 +274,7 @@ export const SecurityView: React.FC = () => {
                 onChange={(e) => setStudentNisn(e.target.value)}
                 className="font-mono text-sm flex-1 min-w-[180px]"
               />
-              <Button type="submit" disabled={scanning} className="gap-2.5 shrink-0 px-6 text-xs font-bold">
+              <Button type="submit" disabled={scanning} className="shrink-0">
                 <ScanLine className="w-4 h-4" />
                 <span>{scanning ? 'Memeriksa...' : 'Catat Presensi'}</span>
               </Button>
@@ -285,7 +285,7 @@ export const SecurityView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStudentNisn('0061234567')}
-                className={`px-3.5 py-1.5 rounded-xl border text-xs cursor-pointer transition-colors ${
+                className={`px-4 py-1.5 rounded-full border text-xs cursor-pointer transition-colors ${
                   studentNisn === '0061234567'
                     ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
                     : 'bg-white border-slate-200 text-slate-600'
@@ -296,7 +296,7 @@ export const SecurityView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStudentNisn('0089876543')}
-                className={`px-3.5 py-1.5 rounded-xl border text-xs cursor-pointer transition-colors ${
+                className={`px-4 py-1.5 rounded-full border text-xs cursor-pointer transition-colors ${
                   studentNisn === '0089876543'
                     ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
                     : 'bg-white border-slate-200 text-slate-600'

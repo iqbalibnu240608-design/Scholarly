@@ -18,7 +18,6 @@ import {
   Mail,
   Building,
   Users,
-  MessageCircle,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';

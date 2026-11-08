@@ -493,7 +493,7 @@ export const PetugasView: React.FC = () => {
 
             <Button
               onClick={() => setShowSPPModal(true)}
-              className="gap-2.5 shrink-0 px-6 text-xs font-bold"
+              className="shrink-0"
             >
               <CreditCard className="w-4 h-4" />
               <span>Input Pembayaran SPP</span>

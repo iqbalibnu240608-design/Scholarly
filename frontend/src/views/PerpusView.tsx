@@ -440,7 +440,7 @@ export const PerpusView: React.FC = () => {
 
             <Button
               onClick={() => setShowAddBookModal(true)}
-              className="gap-2.5 shrink-0 px-6 text-xs font-bold"
+              className="shrink-0"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Tambah Koleksi Buku</span>

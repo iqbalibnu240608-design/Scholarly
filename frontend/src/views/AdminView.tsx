@@ -212,7 +212,7 @@ export const AdminView: React.FC = () => {
 
         <Button
           onClick={() => setShowAddModal(true)}
-          className="gap-2.5 shrink-0 px-6 text-xs font-bold"
+          className="shrink-0"
         >
           <UserPlus className="w-4 h-4" />
           <span>Buat Akun Baru</span>

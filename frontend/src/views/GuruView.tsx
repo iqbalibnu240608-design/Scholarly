@@ -202,7 +202,7 @@ export const GuruView: React.FC = () => {
 
         <Button
           onClick={() => setShowGradeModal(true)}
-          className="gap-2.5 shrink-0 px-6 text-xs font-bold"
+          className="shrink-0"
         >
           <FileText className="w-4 h-4" />
           <span>Input Nilai Evaluasi</span>
