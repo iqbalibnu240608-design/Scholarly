@@ -119,7 +119,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
   return (
     <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs gap-3">
       {/* Left: Mobile Toggle + Breadcrumb Identity + Flexible Search Bar */}
-      <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         {/* Mobile Hamburger Menu Toggle */}
         <button
           type="button"
@@ -130,23 +130,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
           <Menu className="w-5 h-5 shrink-0" />
         </button>
 
-        {/* Page Identity / Breadcrumb */}
-        <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 shrink-0 select-none">
+        {/* Page Identity / Breadcrumb - only on large desktop to prevent crowding */}
+        <div className="hidden xl:flex items-center gap-1.5 text-xs text-slate-500 shrink-0 select-none">
           <span className="font-medium text-slate-400">Portal</span>
           <span className="text-slate-300">/</span>
           <span className="font-extrabold text-slate-900">Dashboard</span>
         </div>
 
-        {/* Compact & Clean Search Input */}
-        <form onSubmit={handleSearchSubmit} className="relative w-40 sm:w-52 lg:w-64 shrink-0">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* Compact & Clean Search Input with generous icon padding */}
+        <form onSubmit={handleSearchSubmit} className="relative w-44 sm:w-56 md:w-64 shrink-0">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari modul, layanan..."
-            style={{ paddingLeft: '40px', paddingRight: '32px' }}
-            className="w-full h-9 bg-slate-100/80 border border-slate-200/70 rounded-xl text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-2xs"
+            placeholder="Cari modul..."
+            className="w-full h-9 pl-9 pr-8 bg-slate-100/80 border border-slate-200/70 rounded-xl text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-2xs"
           />
           {searchQuery && (
             <button
@@ -161,11 +160,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
       </div>
 
       {/* Right Controls: Beranda + Role Switcher + Notif + Profil */}
-      <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
-        {/* Tombol ke Beranda SteelSchool */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Tombol ke Beranda SteelSchool - hidden on compact screens */}
         <Link
           to="/"
-          className="h-9 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-2xs inline-flex items-center gap-2 leading-none shrink-0"
+          className="hidden lg:inline-flex h-9 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-2xs items-center gap-2 leading-none shrink-0"
           title="Buka Beranda Publik SteelSchool"
         >
           <img
@@ -173,7 +172,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             alt="SteelSchool Logo"
             className="w-4 h-4 object-contain shrink-0 block"
           />
-          <span className="hidden md:inline leading-none">Beranda</span>
+          <span className="leading-none">Beranda</span>
         </Link>
 
         {/* Role Switcher Pill */}
@@ -194,7 +193,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
           >
             {allRoles.map((r) => (
               <option key={r} value={r}>
-                {ROLE_LABELS[r] || r.toUpperCase()} {user?.role === r ? '(Akun Anda)' : ''}
+                {ROLE_LABELS[r] || r.toUpperCase()}
               </option>
             ))}
           </select>
