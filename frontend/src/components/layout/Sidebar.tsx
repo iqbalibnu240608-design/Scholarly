@@ -107,7 +107,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
       {/* Main Aside Navigation */}
       <aside
-        className={`w-[250px] bg-[#2857e6] shrink-0 text-white select-none overflow-y-auto transition-transform duration-300 z-50 ${
+        className={`w-[250px] bg-[#2857e6] shrink-0 text-white select-none overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden transition-transform duration-300 z-50 ${
           mobileOpen
             ? 'fixed inset-y-0 left-0 flex flex-col justify-between shadow-2xl translate-x-0'
             : 'hidden md:flex md:flex-col md:justify-between sticky top-0 h-screen'
@@ -143,7 +143,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
         </div>
 
         {/* Navigation Items (Left Icon Strip + Right Text with Merged Active Tab) */}
-        <div className="relative z-10 py-4 flex-1 overflow-y-auto">
+        <div className="relative z-10 py-4 flex-1 overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <nav className="relative space-y-2.5">
             {/* Continuous Lighter Blue Pill Rail behind the icons - Perfectly Coaxial at 28px Center */}
             <div className="absolute left-2 top-0 bottom-0 w-10 bg-[#3f6ef5] rounded-full pointer-events-none -z-0" />
