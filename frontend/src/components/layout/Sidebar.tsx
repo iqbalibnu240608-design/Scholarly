@@ -113,38 +113,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
             : 'hidden md:flex md:flex-col md:justify-between sticky top-0 h-screen'
         }`}
       >
-        <div className="relative z-10 pt-6">
-          {/* Brand Header: "Smart SteelSchool" + Mobile Close Button */}
-          <div className="flex items-center justify-between pl-6 pr-4 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs shrink-0">
-                <Sparkles className="w-4.5 h-4.5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-black tracking-tight leading-none text-white">
-                  Smart
-                </h1>
-                <span className="text-[10px] font-bold text-white/75 block mt-0.5 tracking-wider uppercase">
-                  SteelSchool
-                </span>
-              </div>
+        {/* Brand Header: Exactly h-16 (64px) for perfect symmetry with top Navbar */}
+        <div className="h-16 shrink-0 flex items-center justify-between px-5 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs shrink-0">
+              <Sparkles className="w-4.5 h-4.5 text-white" />
             </div>
-
-            {/* Mobile Close Button */}
-            {mobileOpen && (
-              <button
-                type="button"
-                onClick={onCloseMobile}
-                className="md:hidden p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white"
-                title="Tutup Menu"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
+            <div>
+              <h1 className="text-lg font-black tracking-tight leading-none text-white">
+                Smart
+              </h1>
+              <span className="text-[10px] font-bold text-white/75 block mt-0.5 tracking-wider uppercase">
+                SteelSchool
+              </span>
+            </div>
           </div>
 
-          {/* Navigation Items (Left Icon Strip + Right Text with Merged Active Tab) */}
-          <nav className="relative space-y-1">
+          {/* Mobile Close Button */}
+          {mobileOpen && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              className="md:hidden p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+              title="Tutup Menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {/* Navigation Items (Left Icon Strip + Right Text with Merged Active Tab) */}
+        <div className="relative z-10 py-4 flex-1 overflow-y-auto">
+          <nav className="relative space-y-2.5">
             {/* Continuous Lighter Blue Pill Rail behind the icons - Perfectly Coaxial at 28px Center */}
             <div className="absolute left-2 top-0 bottom-0 w-10 bg-[#3f6ef5] rounded-full pointer-events-none -z-0" />
 
