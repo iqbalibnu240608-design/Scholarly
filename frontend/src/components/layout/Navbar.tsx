@@ -118,7 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
 
   return (
     <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-      {/* Left: Hamburger Mobile Toggle + Search Input */}
+      {/* Left: Hamburger Mobile Toggle + Breadcrumb Identity + Search Input */}
       <div className="flex items-center gap-2.5 sm:gap-3">
         {/* Mobile Hamburger Menu Toggle */}
         <button
@@ -129,6 +129,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         >
           <Menu className="w-5 h-5 shrink-0" />
         </button>
+
+        {/* Page Identity / Breadcrumb */}
+        <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-500 mr-1 shrink-0">
+          <span className="font-medium text-slate-400">Portal</span>
+          <span className="text-slate-300">/</span>
+          <span className="font-extrabold text-slate-900">Dashboard</span>
+        </div>
 
         {/* Search Input with Enter Submit */}
         <form onSubmit={handleSearchSubmit} className="flex items-center relative">
