@@ -23,14 +23,14 @@ export const buttonVariants = cva(
           'bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 focus-visible:ring-emerald-500',
       },
       size: {
-        default: 'h-10 px-5 py-2.5',
-        sm: 'h-8 px-3.5 text-xs rounded-full',
-        lg: 'h-12 px-7 text-base rounded-full',
+        default: 'h-10 px-5 py-2.5 rounded-xl',
+        sm: 'h-8.5 px-4 text-xs rounded-xl',
+        lg: 'h-11 px-6 text-base rounded-xl',
         icon: 'h-8 w-8 p-0 rounded-full',
       },
       pill: {
-        true: 'rounded-full',
-        false: 'rounded-xl',
+        true: 'rounded-xl',
+        false: 'rounded-lg',
       },
     },
     defaultVariants: {

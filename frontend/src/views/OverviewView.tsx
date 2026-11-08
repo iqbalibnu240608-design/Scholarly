@@ -217,7 +217,7 @@ export const OverviewView: React.FC = () => {
           <div className="max-w-xl">
             {/* Role & Date Pill */}
             <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200/80 text-blue-700 rounded-full text-xs font-bold shadow-2xs leading-none">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 border border-blue-200/80 text-blue-700 rounded-lg text-xs font-bold shadow-2xs leading-none">
                 <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                 <span>
                   {isStudent
@@ -225,7 +225,7 @@ export const OverviewView: React.FC = () => {
                     : `Sistem Aktif • ${activeRole.toUpperCase()}`}
                 </span>
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-full text-xs font-semibold leading-none">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold leading-none">
                 <Calendar className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                 <span>
                   {new Date().toLocaleDateString('id-ID', {
@@ -446,7 +446,7 @@ export const OverviewView: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full shrink-0 ml-2">
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg shrink-0 ml-2">
                 Normal
               </span>
             </div>
@@ -493,7 +493,7 @@ export const OverviewView: React.FC = () => {
                   Pintasan langsung ke modul utama ekosistem digital SteelSchool.
                 </p>
               </div>
-              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full shrink-0">
+              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg shrink-0">
                 4 Modul Terhubung
               </span>
             </div>
@@ -662,7 +662,7 @@ export const OverviewView: React.FC = () => {
                 <h3 className="text-base font-extrabold text-slate-900">Jadwal Kelas Hari Ini</h3>
                 <span className="text-xs text-slate-500 font-medium">{schedules.length} Sesi Terjadwal</span>
               </div>
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-slate-700 bg-slate-100 shrink-0">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 shrink-0">
                 <Calendar className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                 <span>Hari Ini</span>
               </span>
@@ -695,7 +695,7 @@ export const OverviewView: React.FC = () => {
                         </span>
                       </div>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 leading-none ${
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-md shrink-0 leading-none ${
                           isActive
                             ? 'bg-white/20 text-white border border-white/30'
                             : 'bg-slate-200/70 text-slate-600'
@@ -744,7 +744,7 @@ export const OverviewView: React.FC = () => {
                 </h3>
                 <span className="text-xs text-slate-500 font-medium">Informasi Resmi Civitas</span>
               </div>
-              <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full shrink-0">
+              <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg shrink-0">
                 Terkini
               </span>
             </div>

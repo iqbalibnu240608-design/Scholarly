@@ -138,7 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari jadwal, modul, layanan..."
-            className="pl-9 pr-8 py-2 bg-slate-100/80 border border-slate-200/70 rounded-full text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all w-44 sm:w-64 md:w-80 shadow-2xs"
+            className="pl-9 pr-8 py-2 bg-slate-100/80 border border-slate-200/70 rounded-xl text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all w-44 sm:w-64 md:w-80 shadow-2xs"
           />
           {searchQuery && (
             <button
@@ -157,7 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         {/* Tombol ke Beranda SteelSchool */}
         <Link
           to="/"
-          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-2xs leading-none shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-2xs leading-none shrink-0"
           title="Buka Beranda Publik SteelSchool"
         >
           <img
@@ -169,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         </Link>
 
         {/* Role Switcher Pill */}
-        <div className="inline-flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1 bg-slate-50 border border-slate-200/80 rounded-full text-xs h-8 leading-none shrink-0">
+        <div className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs h-8.5 leading-none shrink-0">
           <span className="inline-flex items-center justify-center gap-1 text-slate-500 font-semibold text-[11px] leading-none shrink-0">
             {switching ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600 shrink-0" />
