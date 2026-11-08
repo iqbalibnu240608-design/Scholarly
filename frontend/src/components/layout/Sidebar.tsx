@@ -181,8 +181,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                       <div
                         className={`flex-1 flex items-center h-full pr-3 tracking-tight transition-all ${
                           isActive
-                            ? 'sidebar-tab-merged font-extrabold text-[14px] pl-6'
-                            : 'text-white/85 group-hover:text-white font-semibold text-[14px] pl-6'
+                            ? 'sidebar-tab-merged font-extrabold text-[14px] pl-8'
+                            : 'text-white/85 group-hover:text-white font-semibold text-[14px] pl-8'
                         }`}
                       >
                         <span className="truncate leading-none">{item.label}</span>
@@ -211,7 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
               </div>
             </div>
             {/* Right Text */}
-            <div className="flex-1 text-left pl-6 pr-3 text-[14px] font-bold tracking-tight">
+            <div className="flex-1 text-left pl-8 pr-3 text-[14px] font-bold tracking-tight">
               <span>Keluar Sesi</span>
             </div>
           </button>
