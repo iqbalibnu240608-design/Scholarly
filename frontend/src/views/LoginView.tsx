@@ -6,26 +6,11 @@ import {
   FiEye,
   FiEyeOff,
   FiAlertCircle,
-  FiChevronDown,
-  FiChevronUp,
   FiArrowLeft,
-  FiCheckCircle,
 } from 'react-icons/fi';
 import {
-  HiOutlineAcademicCap,
-  HiOutlineBookOpen,
-  HiOutlineBuildingLibrary,
   HiOutlineShieldCheck,
-  HiOutlineCog6Tooth,
 } from 'react-icons/hi2';
-import {
-  RiSchoolLine,
-  RiFileList3Line,
-  RiShoppingCart2Line,
-  RiRestaurantLine,
-} from 'react-icons/ri';
-import { FaFacebook } from 'react-icons/fa';
-import { FcGoogle } from 'react-icons/fc';
 import './LoginView.css';
 
 export const LoginView: React.FC = () => {
@@ -37,20 +22,7 @@ export const LoginView: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [showDemoRoles, setShowDemoRoles] = useState<boolean>(false);
 
-  const demoAccounts = [
-    { role: 'Siswa 1', id: '0061234567', pwd: 'password123', icon: HiOutlineAcademicCap, bg: '#e0e7ff', color: '#356df3' },
-    { role: 'Siswa 2', id: '0089876543', pwd: 'password123', icon: HiOutlineAcademicCap, bg: '#e0e7ff', color: '#356df3' },
-    { role: 'Admin IT', id: 'admin', pwd: 'admin123', icon: HiOutlineCog6Tooth, bg: '#ede9fe', color: '#6366f1' },
-    { role: 'Guru', id: '198503152010011002', pwd: 'password123', icon: HiOutlineBookOpen, bg: '#e0f2fe', color: '#0284c7' },
-    { role: 'Kepsek', id: '197001011995031001', pwd: 'password123', icon: RiSchoolLine, bg: '#fef3c7', color: '#d97706' },
-    { role: 'Petugas TU', id: '199008202015022003', pwd: 'password123', icon: RiFileList3Line, bg: '#d1fae5', color: '#059669' },
-    { role: 'Kopsis', id: 'KOP-2026', pwd: 'password123', icon: RiShoppingCart2Line, bg: '#fce7f3', color: '#db2777' },
-    { role: 'Kantin', id: 'KTN-01', pwd: 'password123', icon: RiRestaurantLine, bg: '#ffedd5', color: '#ea580c' },
-    { role: 'Satpam', id: 'SEC-01', pwd: 'password123', icon: HiOutlineShieldCheck, bg: '#e0e7ff', color: '#4338ca' },
-    { role: 'Perpus', id: 'LIB-01', pwd: 'password123', icon: HiOutlineBuildingLibrary, bg: '#ede9fe', color: '#7c3aed' },
-  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,11 +44,6 @@ export const LoginView: React.FC = () => {
     }
   };
 
-  const handleSelectDemoAccount = (accRole: string, accId: string, accPwd?: string) => {
-    setIdentifier(accId);
-    setPassword(accPwd || 'password123');
-    toast.info(`Akun demo ${accRole} dipilih (${accId})`);
-  };
 
   return (
     <div className="login-screen-root">
@@ -121,7 +88,7 @@ export const LoginView: React.FC = () => {
           </div>
 
           {/* Welcome Text */}
-          <div className="mb-6">
+          <div className="login-welcome-header">
             <h2 className="login-welcome-title">Welcome Back</h2>
             <p className="login-welcome-subtitle">Please Login to your account</p>
           </div>
@@ -135,9 +102,9 @@ export const LoginView: React.FC = () => {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="login-form">
             {/* Email / Identifier Input */}
-            <div>
+            <div className="login-input-group">
               <input
                 id="identifier"
                 type="text"
@@ -150,7 +117,7 @@ export const LoginView: React.FC = () => {
             </div>
 
             {/* Password Input */}
-            <div>
+            <div className="login-input-group">
               <div className="login-password-container">
                 <input
                   id="password"
@@ -173,7 +140,7 @@ export const LoginView: React.FC = () => {
               </div>
 
               {/* Forgot Password Right-Aligned */}
-              <div className="flex justify-end mt-2">
+              <div className="login-forgot-container">
                 <button
                   type="button"
                   onClick={() => toast.info('Silakan hubungi Administrator TU Sekolah untuk reset password.')}
@@ -194,79 +161,9 @@ export const LoginView: React.FC = () => {
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="login-divider-row">
-            <div className="login-divider-line" />
-            <span className="login-divider-text">or Login with</span>
-            <div className="login-divider-line" />
-          </div>
-
-          {/* Social Buttons */}
-          <div className="login-social-row">
-            <button
-              type="button"
-              onClick={() => toast.info('Fitur SSO Facebook aktif dalam mode integrasi OAuth.')}
-              className="login-social-btn"
-            >
-              <FaFacebook className="w-5 h-5 text-[#1877F2]" />
-              <span>Facebook</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => toast.info('Fitur SSO Google aktif dalam mode integrasi Google for Education.')}
-              className="login-social-btn"
-            >
-              <FcGoogle className="w-5 h-5" />
-              <span>Google</span>
-            </button>
-          </div>
-
-          {/* Demo Accounts Quick-Picker Drawer */}
-          <div className="login-demo-drawer">
-            <button
-              type="button"
-              className="login-demo-toggle-btn"
-              onClick={() => setShowDemoRoles(!showDemoRoles)}
-            >
-              <div className="flex items-center gap-1.5">
-                <FiCheckCircle className="w-3.5 h-3.5 text-blue-600" />
-                <span>Pilihan Cepat Akun Demo (10 Peran Civitas)</span>
-              </div>
-              {showDemoRoles ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
-            </button>
-
-            {showDemoRoles && (
-              <div className="login-demo-grid">
-                {demoAccounts.map((acc, idx) => {
-                  const AccIcon = acc.icon;
-                  const isSelected = identifier === acc.id;
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => handleSelectDemoAccount(acc.role, acc.id, acc.pwd)}
-                      className={`login-demo-item ${isSelected ? 'active' : ''}`}
-                    >
-                      <div
-                        className="login-demo-icon-wrap"
-                        style={{ background: acc.bg, color: acc.color }}
-                      >
-                        <AccIcon className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="flex flex-col overflow-hidden text-left leading-tight">
-                        <span className="text-xs font-bold text-slate-800 truncate">{acc.role}</span>
-                        <span className="text-[10px] text-slate-500 font-mono truncate">{acc.id}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
 
           {/* Back to Home Link */}
-          <div className="text-center mt-5">
+          <div className="login-back-home-wrap">
             <Link to="/" className="login-back-home-link">
               <FiArrowLeft className="w-3.5 h-3.5" />
               <span>Kembali ke Beranda Sekolah</span>

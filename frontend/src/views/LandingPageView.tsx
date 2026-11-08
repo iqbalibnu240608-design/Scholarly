@@ -15,7 +15,6 @@ import {
   RiShoppingCart2Line,
   RiRestaurantLine,
 } from 'react-icons/ri';
-import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import './LandingPageView.css';
 
@@ -384,11 +383,9 @@ export const LandingPageView: React.FC = () => {
                 ))}
               </div>
 
-              <Link to="/login">
-                <Button size="sm" pill className="gap-2 text-xs font-bold">
-                  <span>Coba Masuk Akun Ini</span>
-                  <FiArrowRight className="w-3.5 h-3.5" />
-                </Button>
+              <Link to="/login" className="lp-role-btn-cta">
+                <span>Coba Masuk Akun Ini</span>
+                <FiArrowRight className="w-4 h-4 shrink-0" />
               </Link>
             </div>
 
@@ -415,11 +412,9 @@ export const LandingPageView: React.FC = () => {
           <p className="lp-cta-desc">
             Bergabunglah dengan ekosistem digital terpadu untuk efisiensi akademik, transparansi unit usaha, dan kemudahan bagi seluruh civitas.
           </p>
-          <Link to="/login">
-            <Button size="lg" pill variant="secondary" className="gap-2 text-slate-900 font-bold shadow-xl">
-              <span>Masuk ke Portal Sekolah Sekarang</span>
-              <FiArrowRight className="w-4 h-4" />
-            </Button>
+          <Link to="/login" className="lp-cta-btn">
+            <span>Masuk ke Portal Sekolah Sekarang</span>
+            <FiArrowRight className="w-4 h-4 shrink-0" />
           </Link>
         </div>
       </div>

@@ -653,6 +653,38 @@
   color: #334155;
 }
 
+/* Role Showcase CTA Button: Coba Masuk Akun Ini */
+.lp-role-btn-cta {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: fit-content !important;
+  white-space: nowrap !important;
+  gap: 10px !important;
+  padding: 12px 28px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, #356df3 0%, #4f46e5 100%) !important;
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  user-select: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(53, 109, 243, 0.3) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.lp-role-btn-cta:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6px 20px rgba(53, 109, 243, 0.4) !important;
+  opacity: 0.96 !important;
+}
+
+.lp-role-btn-cta:active {
+  transform: translateY(0) !important;
+}
+
 .lp-role-preview-widget {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -720,6 +752,39 @@
   color: #cbd5e1;
   max-width: 600px;
   margin: 0 auto 32px;
+}
+
+/* Call To Action Banner Button: Masuk ke Portal Sekolah Sekarang */
+.lp-cta-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: fit-content !important;
+  white-space: nowrap !important;
+  gap: 10px !important;
+  padding: 12px 28px !important;
+  border-radius: 9999px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  user-select: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.lp-cta-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25) !important;
+  background: #f8fafc !important;
+  color: #1e1b4b !important;
+}
+
+.lp-cta-btn:active {
+  transform: translateY(0) !important;
 }
 
 .lp-footer {
