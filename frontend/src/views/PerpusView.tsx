@@ -209,14 +209,14 @@ export const PerpusView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* TAMPILAN 1: SISWA & GURU VIEW (E-LIBRARY KATALOG PINJAM) */}
       {!isLibrarianView ? (
         <>
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 text-white p-6 md:p-8 border border-emerald-900/50 shadow-xs">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
               <div>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-bold mb-2">
+                <div className="inline-flex items-center justify-center gap-2 px-3.5 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-[11px] font-bold mb-2">
                   <BookOpen className="w-3.5 h-3.5" />
                   <span>Perpustakaan Digital Sekolah</span>
                 </div>
@@ -440,7 +440,7 @@ export const PerpusView: React.FC = () => {
 
             <Button
               onClick={() => setShowAddBookModal(true)}
-              className="gap-2 shrink-0 rounded-xl"
+              className="gap-2.5 shrink-0 px-6 text-xs font-bold"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Tambah Koleksi Buku</span>

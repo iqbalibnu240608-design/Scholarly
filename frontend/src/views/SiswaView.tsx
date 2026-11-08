@@ -148,7 +148,7 @@ export const SiswaView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* View Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
         <div className="flex items-start gap-3.5">
@@ -184,7 +184,7 @@ export const SiswaView: React.FC = () => {
       </div>
 
       {/* Saldo Digital & SPP Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Card 1: Saldo Koperasi Siswa */}
         <Card className="border-indigo-100/80 bg-white flex flex-col justify-between">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -300,7 +300,7 @@ export const SiswaView: React.FC = () => {
       </div>
 
       {/* Jadwal & Presensi Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Jadwal Pelajaran */}
         <Card className="border-slate-200/80">
           <CardHeader className="pb-3 flex flex-row items-center justify-between">

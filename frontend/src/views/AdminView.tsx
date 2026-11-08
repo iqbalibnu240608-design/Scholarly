@@ -185,7 +185,7 @@ export const AdminView: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* View Header with NexaAdmin Design */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
         <div className="flex items-start gap-3.5">
@@ -212,7 +212,7 @@ export const AdminView: React.FC = () => {
 
         <Button
           onClick={() => setShowAddModal(true)}
-          className="gap-2 shrink-0 rounded-xl"
+          className="gap-2.5 shrink-0 px-6 text-xs font-bold"
         >
           <UserPlus className="w-4 h-4" />
           <span>Buat Akun Baru</span>
@@ -220,7 +220,7 @@ export const AdminView: React.FC = () => {
       </div>
 
       {/* System Health Cards (NexaAdmin 3-Grid) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="border-indigo-100/80 bg-white">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">

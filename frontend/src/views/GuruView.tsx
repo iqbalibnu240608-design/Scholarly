@@ -175,7 +175,7 @@ export const GuruView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header Halaman */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
         <div className="flex items-start gap-3.5">
@@ -202,7 +202,7 @@ export const GuruView: React.FC = () => {
 
         <Button
           onClick={() => setShowGradeModal(true)}
-          className="gap-2 shrink-0 rounded-xl"
+          className="gap-2.5 shrink-0 px-6 text-xs font-bold"
         >
           <FileText className="w-4 h-4" />
           <span>Input Nilai Evaluasi</span>
@@ -210,7 +210,7 @@ export const GuruView: React.FC = () => {
       </div>
 
       {/* Ringkasan Statistik */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="border-indigo-100/80 bg-white">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -276,7 +276,7 @@ export const GuruView: React.FC = () => {
       </div>
 
       {/* Kolom Jadwal & Aksi Cepat Guru */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Jadwal Pelajaran Guru (Col span 2) */}
         <Card className="lg:col-span-2 border-slate-200/80">
           <CardHeader className="pb-3 flex flex-row items-center justify-between">

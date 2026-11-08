@@ -119,7 +119,7 @@ export const SecurityView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header Halaman */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
         <div className="flex items-start gap-3.5">
@@ -146,7 +146,7 @@ export const SecurityView: React.FC = () => {
       </div>
 
       {/* Ringkasan Metrik Gerbang Hari Ini */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="border-indigo-100/80 bg-white">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -265,16 +265,16 @@ export const SecurityView: React.FC = () => {
             <label className="text-xs font-bold text-slate-700 block">
               Tempelkan Kartu RFID Siswa atau Masukkan NISN:
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-3">
               <Input
                 type="text"
                 required
                 placeholder="Contoh: 0061234567"
                 value={studentNisn}
                 onChange={(e) => setStudentNisn(e.target.value)}
-                className="font-mono text-sm"
+                className="font-mono text-sm flex-1 min-w-[180px]"
               />
-              <Button type="submit" disabled={scanning} className="gap-2 shrink-0 rounded-xl">
+              <Button type="submit" disabled={scanning} className="gap-2.5 shrink-0 px-6 text-xs font-bold">
                 <ScanLine className="w-4 h-4" />
                 <span>{scanning ? 'Memeriksa...' : 'Catat Presensi'}</span>
               </Button>
@@ -285,7 +285,7 @@ export const SecurityView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStudentNisn('0061234567')}
-                className={`px-2.5 py-1 rounded-xl border text-xs cursor-pointer transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl border text-xs cursor-pointer transition-colors ${
                   studentNisn === '0061234567'
                     ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
                     : 'bg-white border-slate-200 text-slate-600'
@@ -296,7 +296,7 @@ export const SecurityView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStudentNisn('0089876543')}
-                className={`px-2.5 py-1 rounded-xl border text-xs cursor-pointer transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl border text-xs cursor-pointer transition-colors ${
                   studentNisn === '0089876543'
                     ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
                     : 'bg-white border-slate-200 text-slate-600'

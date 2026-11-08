@@ -58,7 +58,7 @@ export const KepsekView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header Halaman */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
         <div className="flex items-start gap-3.5">
@@ -85,7 +85,7 @@ export const KepsekView: React.FC = () => {
       </div>
 
       {/* Grid 4 KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="border-indigo-100/80 bg-white">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -164,7 +164,7 @@ export const KepsekView: React.FC = () => {
       </div>
 
       {/* Grid: Laporan Strategis & Otoritas Disposisi */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 border-slate-200/80">
           <CardHeader className="pb-3 flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">

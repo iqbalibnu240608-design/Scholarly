@@ -179,10 +179,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
                       {/* Right Label Area: Putih Nyatu di Kanan, Melengkung di Kiri */}
                       <div
-                        className={`flex-1 flex items-center h-full pr-3 tracking-tight transition-all ${
+                        className={`flex-1 flex items-center h-full pr-3 tracking-tight transition-all sidebar-nav-label ${
                           isActive
-                            ? 'sidebar-tab-merged font-extrabold text-[14px] pl-11'
-                            : 'text-white/85 group-hover:text-white font-semibold text-[14px] pl-11'
+                            ? 'sidebar-tab-merged font-extrabold text-[14px]'
+                            : 'text-white/85 group-hover:text-white font-semibold text-[14px]'
                         }`}
                       >
                         <span className="truncate leading-none">{item.label}</span>
@@ -198,21 +198,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
         {/* Logout Action at Bottom */}
         <div className="relative z-10 pb-6 pt-3 border-t border-white/15">
           <button
+            type="button"
             onClick={() => {
               onCloseMobile?.();
               logout();
             }}
-            className="relative flex items-center h-[46px] w-full group text-white/80 hover:text-white transition-colors"
+            className="relative flex items-center h-[46px] w-full group text-white/80 hover:text-white transition-colors p-0 border-0 bg-transparent cursor-pointer no-underline"
           >
-            {/* Left Icon */}
-            <div className="w-14 shrink-0 flex items-center justify-center h-full">
+            {/* Left Icon Rail Segment - Exactly matching NavLink */}
+            <div className="w-14 shrink-0 flex items-center justify-center relative h-full">
               <div className="w-8 h-8 flex items-center justify-center text-white/80 group-hover:text-white transition-all">
                 <LogOut className="w-5 h-5 shrink-0" />
               </div>
             </div>
-            {/* Right Text */}
-            <div className="flex-1 text-left pl-11 pr-3 text-[14px] font-bold tracking-tight">
-              <span>Keluar Sesi</span>
+
+            {/* Right Label Area - Exactly matching NavLink */}
+            <div className="flex-1 flex items-center h-full pr-3 tracking-tight transition-all font-semibold text-[14px] sidebar-nav-label">
+              <span className="truncate leading-none">Keluar Sesi</span>
             </div>
           </button>
         </div>

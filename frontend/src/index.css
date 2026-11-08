@@ -170,6 +170,11 @@ html, body {
   z-index: 20;
 }
 
+/* Unified X-alignment for sidebar navigation labels and logout */
+.sidebar-nav-label {
+  padding-left: 36px !important;
+}
+
 .app-main-content {
   flex: 1;
   padding: 24px 28px;
@@ -515,11 +520,10 @@ button svg {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
-  padding: 20px;
+  padding: 24px;
   box-shadow: var(--shadow-card);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
 }
 
 .feature-card:hover {
@@ -574,7 +578,6 @@ button svg {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
-  overflow: hidden;
   box-shadow: var(--shadow-card);
 }
 

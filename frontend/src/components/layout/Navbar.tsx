@@ -117,41 +117,42 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-      {/* Left: Hamburger Mobile Toggle + Breadcrumb Identity + Search Input */}
-      <div className="flex items-center gap-2.5 sm:gap-3">
+    <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs gap-3">
+      {/* Left: Mobile Toggle + Breadcrumb Identity + Flexible Search Bar */}
+      <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
         {/* Mobile Hamburger Menu Toggle */}
         <button
           type="button"
           onClick={onToggleMobileMenu}
-          className="md:hidden w-8 h-8 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors inline-flex items-center justify-center p-0 shrink-0"
+          className="md:hidden w-9 h-9 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors inline-flex items-center justify-center p-0 shrink-0"
           title="Buka Navigasi Menu"
         >
           <Menu className="w-5 h-5 shrink-0" />
         </button>
 
         {/* Page Identity / Breadcrumb */}
-        <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-500 mr-1 shrink-0">
+        <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 shrink-0 select-none">
           <span className="font-medium text-slate-400">Portal</span>
           <span className="text-slate-300">/</span>
           <span className="font-extrabold text-slate-900">Dashboard</span>
         </div>
 
-        {/* Search Input with Enter Submit */}
-        <form onSubmit={handleSearchSubmit} className="flex items-center relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+        {/* Compact & Clean Search Input */}
+        <form onSubmit={handleSearchSubmit} className="relative w-40 sm:w-52 lg:w-64 shrink-0">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari jadwal, modul, layanan..."
-            className="pl-9 pr-8 py-2 bg-slate-100/80 border border-slate-200/70 rounded-xl text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all w-44 sm:w-64 md:w-80 shadow-2xs"
+            placeholder="Cari modul, layanan..."
+            style={{ paddingLeft: '40px', paddingRight: '32px' }}
+            className="w-full h-9 bg-slate-100/80 border border-slate-200/70 rounded-xl text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-2xs"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 text-slate-400 hover:text-slate-600 p-0.5"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -159,12 +160,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         </form>
       </div>
 
-      {/* Right Controls: Beranda Link + Role + Notif + Profil */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      {/* Right Controls: Beranda + Role Switcher + Notif + Profil */}
+      <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
         {/* Tombol ke Beranda SteelSchool */}
         <Link
           to="/"
-          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-2xs leading-none shrink-0"
+          className="h-9 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-2xs inline-flex items-center gap-2 leading-none shrink-0"
           title="Buka Beranda Publik SteelSchool"
         >
           <img
@@ -172,18 +173,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             alt="SteelSchool Logo"
             className="w-4 h-4 object-contain shrink-0 block"
           />
-          <span className="hidden sm:inline leading-none">Beranda SteelSchool</span>
+          <span className="hidden md:inline leading-none">Beranda</span>
         </Link>
 
         {/* Role Switcher Pill */}
-        <div className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs h-8.5 leading-none shrink-0">
-          <span className="inline-flex items-center justify-center gap-1 text-slate-500 font-semibold text-[11px] leading-none shrink-0">
+        <div className="h-9 px-2.5 sm:px-3 bg-slate-50 border border-slate-200/80 rounded-xl inline-flex items-center gap-1.5 shrink-0">
+          <span className="inline-flex items-center gap-1 text-slate-500 font-semibold text-[11px] leading-none shrink-0">
             {switching ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600 shrink-0" />
             ) : (
               <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
             )}
-            <span className="hidden lg:inline leading-none">Peran:</span>
+            <span className="hidden xl:inline leading-none">Peran:</span>
           </span>
           <select
             className="border-none bg-transparent text-xs font-bold text-blue-600 cursor-pointer outline-none pr-1 leading-none py-0 m-0"
@@ -207,12 +208,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
               setShowNotifications((prev) => !prev);
               setHasUnread(false);
             }}
-            className="relative w-8 h-8 rounded-full text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors inline-flex items-center justify-center p-0 shrink-0"
+            className="w-9 h-9 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors inline-flex items-center justify-center p-0 shrink-0 relative"
             title="Notifikasi Sekolah"
           >
             <Bell className="w-4 h-4 shrink-0" />
             {hasUnread && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-white"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-white"></span>
             )}
           </button>
 
@@ -259,16 +260,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
           )}
         </div>
 
+        {/* Vertical Divider */}
+        <div className="h-6 w-px bg-slate-200 shrink-0 mx-0.5 hidden sm:block"></div>
+
         {/* User Profile Avatar & Info */}
-        <div className="flex items-center gap-2.5 pl-2.5 border-l border-slate-200" title={user?.email || 'Pengguna Aktif'}>
-          <div className="w-8 h-8 rounded-full bg-[#2857e6] text-white flex items-center justify-center text-xs font-extrabold shadow-xs shrink-0">
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0" title={user?.email || 'Pengguna Aktif'}>
+          <div className="w-9 h-9 rounded-xl bg-[#2857e6] text-white flex items-center justify-center text-xs font-extrabold shadow-2xs shrink-0">
             {getInitials(user?.name)}
           </div>
-          <div className="hidden lg:flex flex-col text-left gap-0.5">
-            <span className="text-xs font-bold text-slate-900 max-w-[150px] truncate leading-none">
+          <div className="hidden lg:flex flex-col text-left">
+            <span className="text-xs font-bold text-slate-900 max-w-[120px] truncate leading-none">
               {user?.name || 'Civitas Sekolah'}
             </span>
-            <span className="text-[10.5px] font-medium text-slate-500 leading-none">
+            <span className="text-[10px] font-medium text-slate-500 leading-none mt-1">
               {ROLE_LABELS[activeRole] || activeRole}
             </span>
           </div>
@@ -276,7 +280,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             type="button"
             onClick={logout}
             title="Keluar dari Sesi"
-            className="w-8 h-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full shrink-0 inline-flex items-center justify-center transition-colors"
+            className="w-8 h-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg shrink-0 inline-flex items-center justify-center transition-colors"
           >
             <LogOut className="w-4 h-4 shrink-0" />
           </button>

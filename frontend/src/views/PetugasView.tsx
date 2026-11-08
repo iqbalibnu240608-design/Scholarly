@@ -276,7 +276,7 @@ export const PetugasView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Alert Receipt Notifikasi */}
       {lastReceipt && (
         <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-start gap-3 shadow-xs">
@@ -307,7 +307,7 @@ export const PetugasView: React.FC = () => {
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950 via-slate-900 to-purple-950 text-white p-6 md:p-8 border border-indigo-900/50 shadow-xs">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
               <div>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-bold mb-2">
+                <div className="inline-flex items-center justify-center gap-2 px-3.5 py-1 bg-purple-500/20 text-purple-300 rounded-full text-[11px] font-bold mb-2">
                   <Building className="w-3.5 h-3.5" />
                   <span>Tata Usaha & Keuangan SPP</span>
                 </div>
@@ -493,7 +493,7 @@ export const PetugasView: React.FC = () => {
 
             <Button
               onClick={() => setShowSPPModal(true)}
-              className="gap-2 shrink-0 rounded-xl"
+              className="gap-2.5 shrink-0 px-6 text-xs font-bold"
             >
               <CreditCard className="w-4 h-4" />
               <span>Input Pembayaran SPP</span>
