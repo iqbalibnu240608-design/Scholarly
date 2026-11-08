@@ -118,8 +118,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
 
   return (
     <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs gap-3">
-      {/* Left: Mobile Toggle + Breadcrumb Identity + Flexible Search Bar */}
-      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+      {/* Left: Mobile Toggle + Breadcrumb Identity + Dedicated Search Bar */}
+      <div className="flex items-center gap-3 sm:gap-4 flex-1 max-w-xl min-w-0 mr-4">
         {/* Mobile Hamburger Menu Toggle */}
         <button
           type="button"
@@ -130,24 +130,30 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
           <Menu className="w-5 h-5 shrink-0" />
         </button>
 
-        {/* Page Identity / Breadcrumb - only on large desktop to prevent crowding */}
-        <div className="hidden xl:flex items-center gap-1.5 text-xs text-slate-500 shrink-0 select-none">
-          <span className="font-medium text-slate-400">Portal</span>
-          <span className="text-slate-300">/</span>
-          <span className="font-extrabold text-slate-900">Dashboard</span>
+        {/* Clean Breadcrumb Navigation with explicit badge & spacing */}
+        <div className="hidden sm:inline-flex items-center gap-2 text-xs font-medium select-none shrink-0">
+          <span className="font-semibold text-slate-400 uppercase tracking-wider text-[11px]">Portal</span>
+          <span className="text-slate-300 font-normal">/</span>
+          <span className="font-bold text-slate-800 bg-slate-100 border border-slate-200/80 px-2.5 py-1 rounded-lg shadow-2xs">
+            Dashboard
+          </span>
         </div>
 
-        {/* Compact & Clean Search Input with generous icon padding */}
-        <form onSubmit={handleSearchSubmit} className="relative w-44 sm:w-56 md:w-64 shrink-0">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
+        {/* Subtle Vertical Separator */}
+        <div className="hidden sm:block h-5 w-px bg-slate-200 shrink-0 mx-0.5" />
+
+        {/* Dedicated Search Input with clear breathing room and no overlapping */}
+        <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-xs md:max-w-sm min-w-[170px]">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari modul..."
-            className="w-full h-9 pl-9 pr-8 bg-slate-100/80 border border-slate-200/70 rounded-xl text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-2xs"
+            placeholder="Cari modul atau layanan..."
+            style={{ paddingLeft: "40px", paddingRight: "36px", boxSizing: "border-box" }}
+            className="w-full h-9.5 pl-10 pr-9 bg-slate-100 hover:bg-slate-100/80 border border-slate-200 focus:border-blue-500 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/15 focus:bg-white transition-all shadow-2xs font-medium"
           />
-          {searchQuery && (
+          {searchQuery ? (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
@@ -155,6 +161,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             >
               <X className="w-3.5 h-3.5" />
             </button>
+          ) : (
+            <kbd className="hidden lg:inline-flex items-center text-[10px] text-slate-400 bg-white border border-slate-200/80 px-1.5 py-0.5 rounded-md absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none font-mono">
+              /
+            </kbd>
           )}
         </form>
       </div>
@@ -176,8 +186,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         </Link>
 
         {/* Role Switcher Pill */}
-        <div className="h-9 px-2.5 sm:px-3 bg-slate-50 border border-slate-200/80 rounded-xl inline-flex items-center gap-1.5 shrink-0">
-          <span className="inline-flex items-center gap-1 text-slate-500 font-semibold text-[11px] leading-none shrink-0">
+        <div className="h-9.5 px-3 bg-slate-50 hover:bg-blue-50/40 border border-slate-200/90 hover:border-blue-200/90 rounded-xl inline-flex items-center gap-1.5 shrink-0 transition-all shadow-2xs">
+          <span className="inline-flex items-center gap-1.5 text-slate-500 font-semibold text-[11px] leading-none shrink-0 select-none">
             {switching ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600 shrink-0" />
             ) : (
@@ -186,7 +196,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             <span className="hidden xl:inline leading-none">Peran:</span>
           </span>
           <select
-            className="border-none bg-transparent text-xs font-bold text-blue-600 cursor-pointer outline-none pr-1 leading-none py-0 m-0"
+            className="border-none bg-transparent text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer outline-none pl-1 pr-1.5 py-1 leading-none m-0 transition-colors"
             value={activeRole}
             onChange={handleRoleChange}
             disabled={switching}

@@ -143,10 +143,39 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
         </div>
 
         {/* Navigation Items (Left Icon Strip + Right Text with Merged Active Tab) */}
-        <div className="relative z-10 py-4 flex-1 overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <nav className="relative space-y-2.5">
-            {/* Continuous Lighter Blue Pill Rail behind the icons - Perfectly Coaxial at 28px Center */}
-            <div className="absolute left-2 top-0 bottom-0 w-10 bg-[#3f6ef5] rounded-full pointer-events-none -z-0" />
+        <div
+          className="relative z-10 flex-1 overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          style={{
+            paddingTop: '20px',
+            paddingBottom: '20px',
+            boxSizing: 'border-box',
+          }}
+        >
+          <nav
+            style={{
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              paddingTop: '14px',
+              paddingBottom: '14px',
+              boxSizing: 'border-box',
+            }}
+          >
+            {/* Continuous Lighter Blue Pill Rail behind the icons with symmetrical py-3.5 padding */}
+            <div
+              style={{
+                position: 'absolute',
+                left: '8px',
+                top: '0px',
+                bottom: '0px',
+                width: '44px',
+                backgroundColor: '#3f6ef5',
+                borderRadius: '22px',
+                pointerEvents: 'none',
+                zIndex: 0,
+              }}
+            />
 
             {visibleItems.map((item) => {
               const Icon = item.icon;
@@ -156,36 +185,93 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                   to={item.to}
                   end={item.end}
                   onClick={() => onCloseMobile?.()}
-                  className="relative flex items-center h-[46px] w-full group no-underline"
+                  style={{
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    height: '48px',
+                    width: '100%',
+                    textDecoration: 'none',
+                    zIndex: 1,
+                    boxSizing: 'border-box',
+                  }}
+                  className="group"
                 >
                   {({ isActive }) => (
                     <>
-                      {/* Left Icon Rail Segment - Perfectly Centered */}
-                      <div className="w-14 shrink-0 flex items-center justify-center relative h-full">
-                        {/* Active Indicator: White vertical sliver on the very left */}
+                      {/* Left Icon Rail Segment - Exactly 60px wide, Center = 30px (coaxial with 44px capsule at left 8px) */}
+                      <div
+                        style={{
+                          width: '60px',
+                          height: '48px',
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          position: 'relative',
+                        }}
+                      >
+                        {/* Active Indicator: White vertical sliver on the very left, center-aligned */}
                         {isActive && (
-                          <span className="absolute left-0 w-1.5 h-6 bg-white rounded-r-full shadow-2xs top-1/2 -translate-y-1/2" />
+                          <span
+                            style={{
+                              position: 'absolute',
+                              left: '0',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              width: '4px',
+                              height: '24px',
+                              backgroundColor: '#ffffff',
+                              borderTopRightRadius: '9999px',
+                              borderBottomRightRadius: '9999px',
+                              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                            }}
+                          />
                         )}
-                        <div className="w-8 h-8 flex items-center justify-center transition-all">
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
                           <Icon
-                            className={`w-5 h-5 shrink-0 transition-transform ${
-                              isActive
-                                ? 'text-white scale-110 drop-shadow-xs'
-                                : 'text-white/80 group-hover:text-white'
-                            }`}
+                            style={{
+                              width: '20px',
+                              height: '20px',
+                              flexShrink: 0,
+                              color: '#ffffff',
+                              opacity: isActive ? 1 : 0.85,
+                              transform: isActive ? 'scale(1.1)' : 'scale(1)',
+                              transition: 'all 0.2s ease',
+                            }}
                           />
                         </div>
                       </div>
 
                       {/* Right Label Area: Putih Nyatu di Kanan, Melengkung di Kiri */}
                       <div
-                        className={`flex-1 flex items-center h-full pr-3 tracking-tight transition-all sidebar-nav-label ${
-                          isActive
-                            ? 'sidebar-tab-merged font-extrabold text-[14px]'
-                            : 'text-white/85 group-hover:text-white font-semibold text-[14px]'
+                        className={`sidebar-nav-label ${
+                          isActive ? 'sidebar-tab-merged' : ''
                         }`}
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          height: '48px',
+                          paddingRight: '12px',
+                          color: isActive ? '#2857e6' : 'rgba(255, 255, 255, 0.9)',
+                          fontWeight: isActive ? 800 : 600,
+                          fontSize: '14px',
+                          boxSizing: 'border-box',
+                          transition: 'all 0.2s ease',
+                        }}
                       >
-                        <span className="truncate leading-none">{item.label}</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {item.label}
+                        </span>
                       </div>
                     </>
                   )}
@@ -203,18 +289,64 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
               onCloseMobile?.();
               logout();
             }}
-            className="relative flex items-center h-[46px] w-full group text-white/80 hover:text-white transition-colors p-0 border-0 bg-transparent cursor-pointer no-underline"
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              height: '48px',
+              width: '100%',
+              padding: 0,
+              border: 0,
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              textDecoration: 'none',
+              boxSizing: 'border-box',
+            }}
+            className="group text-white/80 hover:text-white transition-colors"
           >
             {/* Left Icon Rail Segment - Exactly matching NavLink */}
-            <div className="w-14 shrink-0 flex items-center justify-center relative h-full">
-              <div className="w-8 h-8 flex items-center justify-center text-white/80 group-hover:text-white transition-all">
-                <LogOut className="w-5 h-5 shrink-0" />
+            <div
+              style={{
+                width: '60px',
+                height: '48px',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <LogOut style={{ width: '20px', height: '20px', flexShrink: 0 }} />
               </div>
             </div>
 
             {/* Right Label Area - Exactly matching NavLink */}
-            <div className="flex-1 flex items-center h-full pr-3 tracking-tight transition-all font-semibold text-[14px] sidebar-nav-label">
-              <span className="truncate leading-none">Keluar Sesi</span>
+            <div
+              className="sidebar-nav-label"
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                height: '48px',
+                paddingRight: '12px',
+                color: 'rgba(255, 255, 255, 0.85)',
+                fontWeight: 600,
+                fontSize: '14px',
+                boxSizing: 'border-box',
+              }}
+            >
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                Keluar Sesi
+              </span>
             </div>
           </button>
         </div>

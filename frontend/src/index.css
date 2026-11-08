@@ -25,7 +25,7 @@
   --navy-light: #334155;
 
   /* Surfaces & Canvas (Soft Ice-White Canvas) */
-  --bg-page: #f4f7fc;
+  --bg-page: #f1f5f9;
   --bg-surface: #ffffff;
   --bg-subtle: #f8fafc;
   --bg-hover: #f1f5f9;
@@ -76,10 +76,8 @@
 }
 
 /* Base resets */
-* {
+*, ::before, ::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html, body {
