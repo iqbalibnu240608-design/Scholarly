@@ -107,10 +107,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
       {/* Main Aside Navigation */}
       <aside
-        className={`w-[250px] bg-[#2857e6] shrink-0 text-white select-none overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden transition-transform duration-300 z-50 ${
+        className={`w-[250px] bg-[#2857e6] shrink-0 text-white select-none transition-transform duration-300 z-50 ${
           mobileOpen
-            ? 'fixed inset-y-0 left-0 flex flex-col justify-between shadow-2xl translate-x-0'
-            : 'hidden md:flex md:flex-col md:justify-between sticky top-0 h-screen'
+            ? 'fixed inset-y-0 left-0 flex flex-col shadow-2xl translate-x-0 h-full'
+            : 'hidden md:flex md:flex-col sticky top-0 h-screen'
         }`}
       >
         {/* Brand Header: Exactly h-16 (64px) for perfect symmetry with top Navbar */}
@@ -143,10 +143,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
         </div>
 
         {/* Navigation Items (Left Icon Strip + Right Text with Merged Active Tab) */}
-        <div className="relative z-10 py-4 flex-1 overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <nav className="relative space-y-2.5">
+        <div className="relative z-10 py-3 flex-1 overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col">
+          <nav className="relative space-y-1.5 flex-1">
             {/* Continuous Lighter Blue Pill Rail behind the icons - Perfectly Coaxial at 28px Center */}
-            <div className="absolute left-2 top-0 bottom-0 w-10 bg-[#3f6ef5] rounded-full pointer-events-none -z-0" />
+            <div className="absolute left-2.5 top-0 bottom-0 w-9 bg-[#3f6ef5] rounded-full pointer-events-none -z-0" />
 
             {visibleItems.map((item) => {
               const Icon = item.icon;
@@ -156,7 +156,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                   to={item.to}
                   end={item.end}
                   onClick={() => onCloseMobile?.()}
-                  className="relative flex items-center h-[46px] w-full group no-underline"
+                  className="relative flex items-center h-[42px] w-full group no-underline"
                 >
                   {({ isActive }) => (
                     <>
@@ -181,8 +181,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                       <div
                         className={`flex-1 flex items-center h-full pr-3 tracking-tight transition-all sidebar-nav-label ${
                           isActive
-                            ? 'sidebar-tab-merged font-extrabold text-[14px]'
-                            : 'text-white/85 group-hover:text-white font-semibold text-[14px]'
+                            ? 'sidebar-tab-merged font-extrabold text-[13.5px]'
+                            : 'text-white/85 group-hover:text-white font-semibold text-[13.5px]'
                         }`}
                       >
                         <span className="truncate leading-none">{item.label}</span>
@@ -196,14 +196,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
         </div>
 
         {/* Logout Action at Bottom */}
-        <div className="relative z-10 pb-6 pt-3 border-t border-white/15">
+        <div className="relative z-10 pb-6 pt-3 border-t border-white/10 shrink-0">
           <button
             type="button"
             onClick={() => {
               onCloseMobile?.();
               logout();
             }}
-            className="relative flex items-center h-[46px] w-full group text-white/80 hover:text-white transition-colors p-0 border-0 bg-transparent cursor-pointer no-underline"
+            className="relative flex items-center h-[42px] w-full group text-white/80 hover:text-white transition-colors p-0 border-0 bg-transparent cursor-pointer no-underline"
           >
             {/* Left Icon Rail Segment - Exactly matching NavLink */}
             <div className="w-14 shrink-0 flex items-center justify-center relative h-full">
@@ -213,7 +213,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
             </div>
 
             {/* Right Label Area - Exactly matching NavLink */}
-            <div className="flex-1 flex items-center h-full pr-3 tracking-tight transition-all font-semibold text-[14px] sidebar-nav-label">
+            <div className="flex-1 flex items-center h-full pr-3 tracking-tight transition-all font-semibold text-[13.5px] sidebar-nav-label">
               <span className="truncate leading-none">Keluar Sesi</span>
             </div>
           </button>
