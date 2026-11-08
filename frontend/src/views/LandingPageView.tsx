@@ -2,15 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FiArrowRight,
-  FiPlay,
   FiCheckCircle,
   FiLayers,
-  FiGlobe,
 } from 'react-icons/fi';
 import {
-  HiOutlineSparkles,
-  HiOutlineShieldCheck,
-  HiOutlineLockClosed,
   HiOutlineAcademicCap,
   HiOutlineBookOpen,
 } from 'react-icons/hi2';
@@ -192,13 +187,6 @@ export const LandingPageView: React.FC = () => {
           <div className="lp-hero-grid">
             {/* Left Content */}
             <div>
-              <div className="inline-flex items-center gap-2 mb-5">
-                <Badge variant="default" className="text-xs px-3.5 py-1.5 font-bold gap-2 bg-indigo-50 border-indigo-200/80 text-indigo-700 shadow-xs">
-                  <HiOutlineSparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
-                  <span>Kompetisi Inovasi Teknologi Pendidikan 2026</span>
-                </Badge>
-              </div>
-
               <h1 className="lp-hero-title">
                 Ekosistem Digital Sekolah{' '}
                 <span className="lp-hero-title-highlight">Cerdas & Terpadu</span>
@@ -216,18 +204,6 @@ export const LandingPageView: React.FC = () => {
                   <span>Masuk ke Portal Sekolah</span>
                   <FiArrowRight className="w-4 h-4 shrink-0" />
                 </Link>
-
-                <a
-                  href="#roles"
-                  className="lp-hero-btn-play"
-                >
-                  <div className="lp-hero-play-circle">
-                    <FiPlay className="w-3.5 h-3.5 ml-0.5 fill-current" />
-                  </div>
-                  <span className="lp-hero-play-text">
-                    Lihat Simulasi Peran
-                  </span>
-                </a>
               </div>
             </div>
 
@@ -302,31 +278,6 @@ export const LandingPageView: React.FC = () => {
                   <div className="text-[11px] text-slate-500">Transaksi Saldo Sukses</div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust & Partnership Section */}
-      <section className="lp-trust-section">
-        <div className="lp-container">
-          <div className="lp-trust-label">Standar Integrasi & Kompatibilitas Ekosistem Pendidikan</div>
-          <div className="lp-trust-logos-row">
-            <div className="lp-trust-logo-item">
-              <FiGlobe className="w-4 h-4 text-blue-600" />
-              <span>Kemendikbudristek Dapodik</span>
-            </div>
-            <div className="lp-trust-logo-item">
-              <HiOutlineSparkles className="w-4 h-4 text-indigo-600" />
-              <span>Google for Education</span>
-            </div>
-            <div className="lp-trust-logo-item">
-              <HiOutlineShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Bank Indonesia QRIS</span>
-            </div>
-            <div className="lp-trust-logo-item">
-              <HiOutlineLockClosed className="w-4 h-4 text-purple-600" />
-              <span>ISO 27001 Data Security</span>
             </div>
           </div>
         </div>
