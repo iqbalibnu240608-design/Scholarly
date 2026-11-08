@@ -274,9 +274,15 @@ export const SecurityView: React.FC = () => {
                 onChange={(e) => setStudentNisn(e.target.value)}
                 className="font-mono text-sm flex-1 min-w-[180px]"
               />
-              <Button type="submit" disabled={scanning} className="shrink-0">
-                <ScanLine className="w-4 h-4" />
-                <span>{scanning ? 'Memeriksa...' : 'Catat Presensi'}</span>
+              <Button
+                type="submit"
+                disabled={scanning}
+                className="shrink-0 h-9 px-6 gap-1.5 text-[9.5px] font-bold tracking-wide"
+              >
+                <ScanLine className="w-3.5 h-3.5 shrink-0" />
+                <span className="text-[9.5px] font-bold leading-none">
+                  {scanning ? 'Memeriksa...' : 'Catat Presensi'}
+                </span>
               </Button>
             </div>
 
