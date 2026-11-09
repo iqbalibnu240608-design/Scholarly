@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { apiClient } from '../api/client';
+import { apiClient, getCachedData } from '../api/client';
 import {
   Calendar,
   Clock,
@@ -14,8 +14,9 @@ import {
   X,
   Mail,
   CheckCircle2,
-  Radio,
+  Wallet,
   Megaphone,
+  PlusCircle,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -59,8 +60,8 @@ interface TeacherContact {
 
 export const OverviewView: React.FC = () => {
   const { user, activeRole } = useAuth();
-  const [data, setData] = useState<OverviewData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<OverviewData | null>(() => getCachedData('/school/overview')?.data || getCachedData('/school/overview') || null);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/overview'));
 
   // Contact Modal State
   const [selectedTeacher, setSelectedTeacher] = useState<TeacherContact | null>(null);
@@ -190,7 +191,7 @@ export const OverviewView: React.FC = () => {
         const [resOverview, resWallet, resSiswa] = await Promise.all([
           apiClient.get('/school/overview').catch(() => null),
           apiClient.get('/wallet/balance').catch(() => null),
-          apiClient.get('/school/siswa').catch(() => null),
+          activeRole === 'siswa' ? apiClient.get('/school/siswa').catch(() => null) : Promise.resolve(null),
         ]);
 
         if (resOverview?.data) {
@@ -203,8 +204,8 @@ export const OverviewView: React.FC = () => {
         setStudentStats({
           kelas: siswaData?.kelas ?? 'XII RPL 1',
           waliKelas: siswaData?.wali_kelas ?? 'Drs. Budi Santoso',
-          saldoKopsis: walletData?.balance_kopsis ?? 75000,
-          saldoKantin: walletData?.balance_kantin ?? 45000,
+          saldoKopsis: Math.round(Number(walletData?.balance ?? walletData?.balance_kopsis ?? 75000)),
+          saldoKantin: Math.round(Number(walletData?.balance ?? walletData?.balance_kantin ?? 75000)),
           sppStatus: siswaData?.tagihan_spp?.status ?? 'Lunas',
           presensiGerbangJam: '06:48 WIB',
         });
@@ -238,7 +239,7 @@ export const OverviewView: React.FC = () => {
     toast.success(`${label} disalin ke clipboard!`);
   };
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div
         className="w-full max-w-[1540px] mx-auto py-20 flex flex-col items-center justify-center min-h-[400px]"
@@ -312,7 +313,7 @@ export const OverviewView: React.FC = () => {
           <div className="relative z-10 mt-4 pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <Link
               to={isStudent ? '/app/siswa' : '/app/admin'}
-              className="px-5 py-2.5 rounded-xl bg-white text-slate-900 font-bold text-xs inline-flex items-center justify-center gap-2 shadow-xs hover:bg-slate-100 group transition-all shrink-0"
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-blue-50 text-slate-900 hover:text-blue-900 font-bold text-xs inline-flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] group transition-all duration-200 shrink-0 cursor-pointer border border-white/80"
             >
               <span>{isStudent ? 'Buka Jadwal & Kelas' : 'Kelola Modul Administrator'}</span>
               <ArrowRight className="w-4 h-4 text-slate-900 group-hover:translate-x-1 transition-transform" />
@@ -408,104 +409,120 @@ export const OverviewView: React.FC = () => {
           <div
             className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 box-border"
           >
-            {/* E-Wallet Card 1: Saldo Kantin Digital */}
+            {/* E-Wallet Card Terpadu: Saldo Digital Siswa Universal */}
             <div
-              className="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-blue-300 transition-all flex flex-col justify-between box-border group"
+              className="sm:col-span-2 p-5 rounded-2xl border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/20 to-indigo-50/20 shadow-2xs hover:border-blue-300 transition-all flex flex-col justify-between box-border"
             >
               <div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                      <UtensilsCrossed className="w-4 h-4" />
+                    <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <Wallet className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="text-[13px] font-bold text-slate-900 m-0">
-                        Kantin Digital
+                      <h4 className="text-sm font-bold text-slate-900 m-0">
+                        {activeRole === 'guru'
+                          ? 'Saldo Digital Dewan Guru (Universal E-Wallet)'
+                          : activeRole === 'perpustakaan'
+                          ? 'Saldo Digital Petugas Perpustakaan'
+                          : 'Saldo Digital Siswa (Universal E-Wallet)'}
                       </h4>
-                      <span className="text-[10px] text-slate-400">E-Wallet Jajan Siswa</span>
+                      <span className="text-[11px] text-slate-400">
+                        {activeRole === 'guru'
+                          ? 'Terhubung ke NIP Guru • Berlaku di Kantin & Koperasi Sekolah'
+                          : activeRole === 'perpustakaan'
+                          ? 'Terhubung ke ID Staf Perpustakaan • Berlaku di Kantin & Koperasi'
+                          : 'Terhubung ke Kartu NISN • Berlaku di Kantin & Koperasi'}
+                      </span>
                     </div>
                   </div>
-                  <Radio className="w-4 h-4 text-slate-400 rotate-90" />
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60">
+                    Cashless Ekosistem
+                  </span>
                 </div>
 
-                <p className="font-mono text-[11px] text-slate-400 my-3 tracking-widest">
-                  ID KARTU: •••• 4829
-                </p>
-
-                <div className="my-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                    Sisa Saldo Jajan
-                  </span>
-                  <span className="font-mono text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
-                    Rp {studentStats.saldoKantin.toLocaleString('id-ID')}
-                  </span>
+                <div className="my-3 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Total Saldo Aktif
+                    </span>
+                    <span className="font-mono text-3xl font-black text-slate-900 tracking-tight">
+                      Rp {Math.round(Number(studentStats.saldoKopsis || 0)).toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    Satu saldo untuk jajan di stan kantin sehat dan belanja perlengkapan sekolah di koperasi.
+                  </p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 pt-3.5 border-t border-slate-100 mt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-4 border-t border-slate-200/70 mt-3">
+                {activeRole === 'guru' ? (
+                  <Link
+                    to="/app/guru"
+                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-xs hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
+                  >
+                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
+                    <span>Isi Saldo Guru</span>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
+                  </Link>
+                ) : activeRole === 'perpustakaan' ? (
+                  <Link
+                    to="/app/perpus"
+                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
+                  >
+                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
+                    <span>Isi Saldo Perpus</span>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
+                  </Link>
+                ) : activeRole === 'petugas' ? (
+                  <Link
+                    to="/app/petugas"
+                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
+                  >
+                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
+                    <span>Loket Verifikasi TU</span>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
+                  </Link>
+                ) : activeRole === 'kopsis' || activeRole === 'koperasi' || activeRole === 'pengelola_koperasi' ? (
+                  <Link
+                    to="/app/kopsis"
+                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs shadow-xs hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
+                  >
+                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
+                    <span>Kasir POS & Top-Up</span>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
+                  </Link>
+                ) : (
+                  <Link
+                    to="/app/siswa"
+                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs hover:shadow-md hover:shadow-blue-500/25 active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
+                  >
+                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
+                    <span>Isi Saldo Digital</span>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
+                  </Link>
+                )}
                 <Link
                   to="/app/kantin"
-                  className="flex-1 text-center py-2 px-3 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition-colors"
+                  className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200/90 hover:border-emerald-600 font-bold text-xs shadow-2xs hover:shadow-md hover:shadow-emerald-500/20 active:scale-[0.97] transition-all duration-200 cursor-pointer"
                 >
-                  Pesan Menu
-                </Link>
-                <Link
-                  to="/app/kantin"
-                  className="py-2 px-3.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition-colors"
-                >
-                  Top Up
-                </Link>
-              </div>
-            </div>
-
-            {/* E-Wallet Card 2: Saldo Koperasi Siswa */}
-            <div
-              className="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-blue-300 transition-all flex flex-col justify-between box-border group"
-            >
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                      <ShoppingBag className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-[13px] font-bold text-slate-900 m-0">
-                        Koperasi Siswa
-                      </h4>
-                      <span className="text-[10px] text-slate-400">E-Wallet Kopsis</span>
-                    </div>
+                  <div className="w-5 h-5 rounded-lg bg-emerald-100 group-hover:bg-emerald-500/40 flex items-center justify-center transition-colors">
+                    <UtensilsCrossed className="w-3 h-3 text-emerald-700 group-hover:text-white transition-colors" />
                   </div>
-                  <Radio className="w-4 h-4 text-slate-400 rotate-90" />
-                </div>
-
-                <p className="font-mono text-[11px] text-slate-400 my-3 tracking-widest">
-                  ID REKENING: •••• 9102
-                </p>
-
-                <div className="my-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                    Sisa Saldo Belanja
-                  </span>
-                  <span className="font-mono text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
-                    Rp {studentStats.saldoKopsis.toLocaleString('id-ID')}
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 pt-3.5 border-t border-slate-100 mt-3">
-                <Link
-                  to="/app/kopsis"
-                  className="flex-1 text-center py-2 px-3 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition-colors"
-                >
-                  Katalog Toko
+                  <span>Pesan Menu Kantin</span>
+                  <ArrowRight className="w-3.5 h-3.5 shrink-0 text-emerald-600 group-hover:text-white opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
                 </Link>
                 <Link
                   to="/app/kopsis"
-                  className="py-2 px-3.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition-colors"
+                  className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white border border-indigo-200/90 hover:border-indigo-600 font-bold text-xs shadow-2xs hover:shadow-md hover:shadow-indigo-500/20 active:scale-[0.97] transition-all duration-200 cursor-pointer"
                 >
-                  Top Up
+                  <div className="w-5 h-5 rounded-lg bg-indigo-100 group-hover:bg-indigo-500/40 flex items-center justify-center transition-colors">
+                    <ShoppingBag className="w-3 h-3 text-indigo-700 group-hover:text-white transition-colors" />
+                  </div>
+                  <span>Belanja di Kopsis</span>
+                  <ArrowRight className="w-3.5 h-3.5 shrink-0 text-indigo-600 group-hover:text-white opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
                 </Link>
               </div>
             </div>
@@ -551,11 +568,11 @@ export const OverviewView: React.FC = () => {
               </div>
 
               <Link
-                to="/app/siswa"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:text-blue-800 mt-4 group-hover:translate-x-1 transition-transform"
+                to={activeRole === 'guru' ? '/app/guru' : activeRole === 'kepsek' ? '/app/kepsek' : '/app/siswa'}
+                className="mt-4 inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer w-full sm:w-auto self-start group/btn"
               >
                 <span>Buka Modul Akademik</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
               </Link>
             </div>
 
@@ -581,10 +598,11 @@ export const OverviewView: React.FC = () => {
 
               <Link
                 to="/app/kantin"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 mt-4 group-hover:translate-x-1 transition-all"
+                className="mt-4 inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200/90 hover:border-emerald-600 font-bold text-xs shadow-2xs hover:shadow-xs active:scale-[0.97] transition-all duration-200 cursor-pointer w-full sm:w-auto self-start group/btn"
               >
-                <span>Buka Kantin</span>
-                <ArrowRight className="w-4 h-4" />
+                <UtensilsCrossed className="w-3.5 h-3.5" />
+                <span>Pesan Menu Kantin</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
               </Link>
             </div>
 
@@ -610,10 +628,11 @@ export const OverviewView: React.FC = () => {
 
               <Link
                 to="/app/kopsis"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 mt-4 group-hover:translate-x-1 transition-all"
+                className="mt-4 inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white border border-indigo-200/90 hover:border-indigo-600 font-bold text-xs shadow-2xs hover:shadow-xs active:scale-[0.97] transition-all duration-200 cursor-pointer w-full sm:w-auto self-start group/btn"
               >
+                <ShoppingBag className="w-3.5 h-3.5" />
                 <span>Katalog Koperasi</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
               </Link>
             </div>
 
@@ -639,10 +658,11 @@ export const OverviewView: React.FC = () => {
 
               <Link
                 to="/app/security"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 mt-4 group-hover:translate-x-1 transition-all"
+                className="mt-4 inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-900 text-slate-700 hover:text-white border border-slate-200 hover:border-slate-900 font-bold text-xs shadow-2xs hover:shadow-xs active:scale-[0.97] transition-all duration-200 cursor-pointer w-full sm:w-auto self-start group/btn"
               >
+                <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Cek Rekap Presensi</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
@@ -717,9 +737,10 @@ export const OverviewView: React.FC = () => {
           <div className="pt-4 mt-4 border-t border-slate-100">
             <Link
               to="/app/siswa"
-              className="w-full py-2.5 px-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs text-center border border-slate-200 block transition-colors"
+              className="w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold text-xs text-center border border-slate-200 hover:border-blue-200 shadow-2xs hover:shadow-xs active:scale-[0.98] flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer group"
             >
-              Lihat Jadwal Lengkap Mingguan →
+              <span>Lihat Jadwal Lengkap Mingguan</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
@@ -776,7 +797,7 @@ export const OverviewView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedTeacher(teacher)}
-                  className="shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1.5 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all cursor-pointer"
+                  className="shrink-0 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1.5 shadow-2xs hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 hover:shadow-xs active:scale-95 transition-all duration-150 cursor-pointer"
                 >
                   <Phone className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Kontak</span>

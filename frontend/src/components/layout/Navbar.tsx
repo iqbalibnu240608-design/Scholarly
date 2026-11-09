@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLE_LABELS, ROLE_HOME_ROUTES } from '../../types/auth';
+import { toast } from 'sonner';
 import {
   LogOut,
   Loader2,
@@ -76,11 +77,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
 
   const handleRoleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedRole = e.target.value;
+    if (selectedRole === activeRole) return;
     setSwitching(true);
+    const toastId = toast.loading(`Beralih ke peran ${ROLE_LABELS[selectedRole] || selectedRole}...`);
     try {
       await switchRolePreview(selectedRole);
       const targetRoute = ROLE_HOME_ROUTES[selectedRole] || '/app';
       navigate(targetRoute);
+      toast.success(`Berhasil beralih ke peran ${ROLE_LABELS[selectedRole] || selectedRole}`, { id: toastId });
+    } catch {
+      toast.error('Gagal beralih peran', { id: toastId });
     } finally {
       setSwitching(false);
     }

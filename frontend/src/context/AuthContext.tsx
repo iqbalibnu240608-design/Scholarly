@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User, RoleName } from '../types/auth';
-import { apiClient } from '../api/client';
+import { apiClient, clearApiCache } from '../api/client';
 
 interface AuthContextType {
   user: User | null;
@@ -82,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // Ignore network errors on logout
     } finally {
+      clearApiCache();
       localStorage.removeItem('school_auth_token');
       localStorage.removeItem('school_auth_user');
       setToken(null);
@@ -92,12 +93,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Otomatis menukar sesi akun aktif di backend ke user riil dari role yang dipilih
   const switchRolePreview = async (role: RoleName) => {
-    setActiveRole(role);
     try {
       const response = await apiClient.post('/auth/switch-role', { role });
       const { token: receivedToken, user: receivedUser } = response.data;
 
       if (receivedToken && receivedUser) {
+        clearApiCache();
         localStorage.setItem('school_auth_token', receivedToken);
         localStorage.setItem('school_auth_user', JSON.stringify(receivedUser));
         setToken(receivedToken);
@@ -106,6 +107,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err) {
       console.warn('Gagal beralih akun riil di backend, tetap menggunakan mode simulasi role', err);
+      clearApiCache();
+      setActiveRole(role);
     }
   };
 

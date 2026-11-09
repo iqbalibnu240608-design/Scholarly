@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { apiClient } from '../api/client';
+import { apiClient, getCachedData } from '../api/client';
 import { toast } from 'sonner';
 import {
   FileText,
@@ -16,6 +16,7 @@ import {
   Building,
   QrCode,
   ClipboardList,
+  Clock,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -30,6 +31,25 @@ import {
   TableCell,
 } from '../components/ui/table';
 import { Dialog } from '../components/ui/dialog';
+import { QRISUploadModal } from '../components/common/QRISUploadModal';
+import { getStoredQRIS } from '../utils/qris';
+
+interface PendingTopup {
+  id: number;
+  reference_no: string;
+  user_id: number;
+  type: string;
+  amount: number;
+  payment_method: string;
+  status: string;
+  description?: string;
+  created_at: string;
+  user?: {
+    id: number;
+    name: string;
+    identifier_number: string;
+  };
+}
 
 interface PetugasData {
   administrasi_surat: {
@@ -64,8 +84,8 @@ export const PetugasView: React.FC = () => {
   const { user, activeRole } = useAuth();
   const isStudentView = activeRole === 'siswa';
 
-  const [data, setData] = useState<PetugasData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<PetugasData | null>(() => getCachedData('/school/petugas')?.data || null);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/petugas'));
 
   // Student State
   const [walletBalance, setWalletBalance] = useState<number>(0);
@@ -82,6 +102,12 @@ export const PetugasView: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'wallet' | 'transfer' | 'qris'>('wallet');
   const [sppNotes, setSppNotes] = useState<string>('Pembayaran SPP Mandiri Siswa');
   const [submitting, setSubmitting] = useState<boolean>(false);
+
+  // Pending Topup State (Loket TU & Staff Administrasi)
+  const [pendingTopups, setPendingTopups] = useState<PendingTopup[]>([]);
+  const [processingTopupId, setProcessingTopupId] = useState<number | null>(null);
+  const [showQRISModal, setShowQRISModal] = useState<boolean>(false);
+  const [tuQris, setTuQris] = useState(() => getStoredQRIS('tu'));
 
   const [recentSPP, setRecentSPP] = useState<RecentSPP[]>([
     {
@@ -160,21 +186,66 @@ export const PetugasView: React.FC = () => {
     try {
       const res = await apiClient.get('/wallet/balance');
       if (res.data?.wallet) {
-        setWalletBalance(Number(res.data.wallet.balance_kopsis) || 0);
+        setWalletBalance(Number(res.data.wallet.balance ?? res.data.wallet.balance_kopsis) || 0);
       }
     } catch (err) {
       console.error('Error fetching wallet balance', err);
     }
   }, []);
 
+  const fetchPendingTopups = useCallback(async () => {
+    try {
+      const res = await apiClient.get('/wallet/pending-topups');
+      setPendingTopups(res.data?.pending_topups || []);
+    } catch (err) {
+      console.error('Error fetching pending topups', err);
+    }
+  }, []);
+
+  const handleApproveTopup = async (id: number) => {
+    setProcessingTopupId(id);
+    try {
+      const res = await apiClient.post(`/wallet/topup/${id}/approve`);
+      toast.success(res.data.message || 'Pengajuan top-up berhasil disetujui dan saldo aktif.');
+      await Promise.all([fetchPendingTopups(), fetchPetugasData()]);
+      window.dispatchEvent(new CustomEvent('topup-status-changed'));
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Gagal menyetujui pengajuan top-up.');
+    } finally {
+      setProcessingTopupId(null);
+    }
+  };
+
+  const handleRejectTopup = async (id: number) => {
+    const reason = prompt('Masukkan alasan penolakan top-up (opsional):', 'Uang tunai tidak sesuai / Dibatalkan');
+    if (reason === null) return;
+    setProcessingTopupId(id);
+    try {
+      const res = await apiClient.post(`/wallet/topup/${id}/reject`, { reason });
+      toast.info(res.data.message || 'Pengajuan top-up telah ditolak.');
+      await Promise.all([fetchPendingTopups(), fetchPetugasData()]);
+      window.dispatchEvent(new CustomEvent('topup-status-changed'));
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Gagal menolak pengajuan top-up.');
+    } finally {
+      setProcessingTopupId(null);
+    }
+  };
+
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([fetchPetugasData(), fetchStudentData(), fetchWalletBalance(), fetchSPPHistory()]);
+      await Promise.all([
+        fetchPetugasData(),
+        fetchStudentData(),
+        fetchWalletBalance(),
+        fetchSPPHistory(),
+        fetchPendingTopups(),
+      ]);
       setLoading(false);
     };
     init();
-  }, [fetchWalletBalance]);
+  }, [fetchWalletBalance, fetchPendingTopups, activeRole]);
 
   // Keep studentNisn synced with user
   useEffect(() => {
@@ -267,7 +338,7 @@ export const PetugasView: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="flex items-center justify-center min-h-[300px] text-sm text-slate-500 font-medium">
         Memuat modul Petugas Tata Usaha...
@@ -491,13 +562,23 @@ export const PetugasView: React.FC = () => {
               </div>
             </div>
 
-            <Button
-              onClick={() => setShowSPPModal(true)}
-              className="shrink-0"
-            >
-              <CreditCard className="w-4 h-4" />
-              <span>Input Pembayaran SPP</span>
-            </Button>
+            <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+              <Button
+                variant="outline"
+                onClick={() => setShowQRISModal(true)}
+                className="gap-1.5 text-xs rounded-xl border-purple-200 text-purple-700 hover:bg-purple-50"
+              >
+                <QrCode className="w-4 h-4 text-purple-600" />
+                <span>Upload QRIS Loket TU</span>
+              </Button>
+              <Button
+                onClick={() => setShowSPPModal(true)}
+                className="shrink-0"
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>Input Pembayaran SPP</span>
+              </Button>
+            </div>
           </div>
 
           {/* Metric Cards Petugas TU */}
@@ -559,6 +640,116 @@ export const PetugasView: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Antrean Persetujuan Top-Up Saldo Siswa (Loket TU) */}
+          <Card className="border-amber-200/90 bg-white overflow-hidden shadow-xs">
+            <CardHeader className="bg-gradient-to-r from-amber-50/80 via-orange-50/40 to-white border-b border-amber-100 pb-3.5 flex flex-row items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shadow-xs">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <span>Antrean Persetujuan Top-Up Saldo Siswa</span>
+                    {pendingTopups.length > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    )}
+                  </CardTitle>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Verifikasi setoran uang tunai siswa di loket TU dan setujui penambahan saldo e-wallet
+                  </p>
+                </div>
+              </div>
+              <Badge
+                variant={pendingTopups.length > 0 ? "warning" : "secondary"}
+                className="text-xs font-bold shrink-0"
+              >
+                {pendingTopups.length} Pengajuan Menunggu
+              </Badge>
+            </CardHeader>
+            <CardContent className="p-0">
+              {pendingTopups.length === 0 ? (
+                <div className="p-8 text-center text-xs text-slate-400">
+                  <CheckCircle className="w-8 h-8 text-emerald-400 mx-auto mb-2 opacity-80" />
+                  <p className="font-semibold text-slate-600">Semua pengajuan top-up telah diproses</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Tidak ada siswa yang menunggu verifikasi setoran saldo di loket TU saat ini.</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>No. Referensi</TableHead>
+                      <TableHead>Nama Pengaju</TableHead>
+                      <TableHead>NISN / NIP</TableHead>
+                      <TableHead>Metode</TableHead>
+                      <TableHead>Nominal Top-Up</TableHead>
+                      <TableHead>Waktu Pengajuan</TableHead>
+                      <TableHead className="text-right">Aksi Verifikasi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pendingTopups.map((pt) => (
+                      <TableRow key={pt.id} className="hover:bg-amber-50/30 transition-colors">
+                        <TableCell className="font-mono text-xs font-bold text-amber-700">
+                          {pt.reference_no}
+                        </TableCell>
+                        <TableCell className="font-bold text-slate-900">
+                          {pt.user?.name || 'Siswa / Guru'}
+                        </TableCell>
+                        <TableCell>
+                          <code className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                            {pt.user?.identifier_number || '-'}
+                          </code>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={pt.payment_method === 'qris' ? 'primary' : 'secondary'}
+                            className="text-[11px] gap-1"
+                          >
+                            {pt.payment_method === 'qris' ? 'QRIS' : 'Tunai'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-black text-emerald-700 font-mono text-sm">
+                          Rp {Number(pt.amount).toLocaleString('id-ID')}
+                        </TableCell>
+                        <TableCell className="text-xs text-slate-500">
+                          {new Date(pt.created_at).toLocaleString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="inline-flex items-center gap-1.5 justify-end">
+                            <Button
+                              size="sm"
+                              onClick={() => handleApproveTopup(pt.id)}
+                              disabled={processingTopupId === pt.id}
+                              className="h-8 gap-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              <span>{processingTopupId === pt.id ? 'Memproses...' : 'Setujui'}</span>
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleRejectTopup(pt.id)}
+                              disabled={processingTopupId === pt.id}
+                              className="h-8 gap-1 text-xs text-rose-600 border-rose-200 hover:bg-rose-50 hover:border-rose-300 rounded-xl"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              <span>Tolak</span>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Riwayat Pembayaran SPP Masuk */}
           <Card className="border-slate-200/80">
@@ -818,9 +1009,21 @@ export const PetugasView: React.FC = () => {
           )}
 
           {paymentMethod === 'qris' && (
-            <div className="p-3 bg-indigo-50 text-indigo-800 rounded-xl text-xs border border-indigo-200 text-center">
-              <QrCode className="w-8 h-8 mx-auto text-indigo-600 mb-1" />
-              <p className="font-bold">QRIS Pembayaran SPP Sekolah Resmi</p>
+            <div className="p-4 bg-indigo-50/70 text-indigo-900 rounded-2xl text-xs border border-indigo-200 text-center space-y-2.5">
+              <div className="w-36 h-36 mx-auto bg-white p-2 rounded-xl border border-indigo-200 shadow-xs flex items-center justify-center">
+                <img
+                  src={tuQris.imageUrl}
+                  alt="QRIS SPP Sekolah"
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+              <div>
+                <p className="font-bold text-xs text-indigo-950">{tuQris.merchantName}</p>
+                <p className="font-mono text-[10px] text-indigo-600">NMID: {tuQris.nmid}</p>
+              </div>
+              <p className="text-[11px] text-slate-600">
+                Scan barcode di atas dengan aplikasi m-Banking atau dompet digital (GoPay, OVO, Dana, BCA, dll).
+              </p>
             </div>
           )}
 
@@ -852,6 +1055,16 @@ export const PetugasView: React.FC = () => {
           </div>
         </form>
       </Dialog>
+
+      <QRISUploadModal
+        open={showQRISModal}
+        onClose={() => {
+          setShowQRISModal(false);
+          setTuQris(getStoredQRIS('tu'));
+        }}
+        type="tu"
+        onSaved={() => setTuQris(getStoredQRIS('tu'))}
+      />
     </div>
   );
 };

@@ -20,14 +20,15 @@ class LibraryController extends Controller
     public function getLibraryData(Request $request): JsonResponse
     {
         $user = $request->user();
-        $isLibrarianOrAdmin = in_array($user->role_name, ['perpustakaan', 'admin', 'guru']);
+        $rawRole = strtolower(trim($user->role_name ?? ''));
+        $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin'], true);
 
         $books = Book::latest()->get();
         $totalBooks = $books->count();
         $totalStock = $books->sum('stock');
 
         $activeLoansQuery = BookLoan::with('book', 'user:id,name,identifier_number', 'operator:id,name')
-            ->where('status', 'borrowed')
+            ->whereIn('status', ['borrowed', 'overdue'])
             ->latest();
 
         // Siswa hanya melihat buku yang dipinjam oleh dirinya sendiri
@@ -96,14 +97,19 @@ class LibraryController extends Controller
                 ], 422);
             }
 
-            // Tentukan peminjam
+            // Tentukan peminjam (Siswa hanya dapat meminjam atas nama dirinya sendiri)
+            $currentUser = $request->user();
             $borrower = null;
-            if (!empty($validated['student_identifier'])) {
-                $borrower = User::where('identifier_number', $validated['student_identifier'])->first();
-            }
 
-            if (!$borrower) {
-                $borrower = $request->user();
+            if (in_array($currentUser->role_name, ['perpustakaan', 'admin'], true)) {
+                if (!empty($validated['student_identifier'])) {
+                    $borrower = User::where('identifier_number', $validated['student_identifier'])->first();
+                }
+                if (!$borrower) {
+                    $borrower = $currentUser;
+                }
+            } else {
+                $borrower = $currentUser;
             }
 
             // Cek apakah siswa sudah meminjam buku yang sama dan belum dikembalikan
@@ -164,9 +170,21 @@ class LibraryController extends Controller
                 ], 422);
             }
 
+            $currentUser = $request->user();
+            $rawRole = strtolower(trim($currentUser->role_name ?? ''));
+            $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin'], true);
+
+            if (!$isLibrarianOrAdmin && (int)$loan->user_id !== (int)$currentUser->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki hak akses untuk mengembalikan buku pinjaman pengguna lain.',
+                ], 403);
+            }
+
             $today = Carbon::today();
             $dueDate = Carbon::parse($loan->due_date);
             $fine = 0;
+            $daysLate = 0;
 
             if ($today->gt($dueDate)) {
                 $daysLate = $today->diffInDays($dueDate);
@@ -181,7 +199,8 @@ class LibraryController extends Controller
             // Kembalikan stok buku
             $loan->book->increment('stock', 1);
 
-            $msg = "Buku '{$loan->book->title}' berhasil dikembalikan.";
+            $borrowerName = $loan->user?->name ?? 'Peminjam';
+            $msg = "Buku '{$loan->book->title}' berhasil dikembalikan oleh {$borrowerName}. Catatan pengembalian telah tersimpan di sistem perpustakaan.";
             if ($fine > 0) {
                 $msg .= " Terlambat {$daysLate} hari, dikenakan denda sebesar Rp " . number_format($fine, 0, ',', '.') . ".";
             }

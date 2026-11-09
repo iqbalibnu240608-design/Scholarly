@@ -34,12 +34,36 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Cari user berdasarkan NISN (identifier_number), email, atau nama/username
+        // Cari user berdasarkan NISN (identifier_number), email, nama, atau alias role/username
         $user = User::with('role.permissions')
             ->where(function ($query) use ($loginId) {
                 $query->where('identifier_number', $loginId)
                       ->orWhere('email', $loginId)
-                      ->orWhere('name', $loginId);
+                      ->orWhere('name', $loginId)
+                      ->orWhere('role_name', strtolower($loginId));
+
+                $lowId = strtolower($loginId);
+                if (in_array($lowId, ['kopsis', 'koperasi', 'pengelola_koperasi', 'pengelola koperasi', 'pengelola koperasi siswa'], true)) {
+                    $query->orWhere('role_name', 'kopsis');
+                }
+                if (in_array($lowId, ['kantin', 'pengelola_kantin', 'pengelola kantin'], true)) {
+                    $query->orWhere('role_name', 'kantin');
+                }
+                if (in_array($lowId, ['satpam', 'security', 'keamanan'], true)) {
+                    $query->orWhere('role_name', 'security');
+                }
+                if (in_array($lowId, ['perpus', 'perpustakaan'], true)) {
+                    $query->orWhere('role_name', 'perpustakaan');
+                }
+                if (in_array($lowId, ['petugas', 'tu', 'administrasi'], true)) {
+                    $query->orWhere('role_name', 'petugas');
+                }
+                if (in_array($lowId, ['kepsek', 'kepala sekolah', 'kepala_sekolah'], true)) {
+                    $query->orWhere('role_name', 'kepsek');
+                }
+                if (in_array($lowId, ['guru', 'pengajar', 'dewan guru'], true)) {
+                    $query->orWhere('role_name', 'guru');
+                }
             })
             ->first();
 
@@ -189,6 +213,23 @@ class AuthController extends Controller
         ]);
 
         $roleName = strtolower(trim($validated['role']));
+
+        $roleAliases = [
+            'koperasi' => 'kopsis',
+            'pengelola_koperasi' => 'kopsis',
+            'pengelola koperasi' => 'kopsis',
+            'pengelola koperasi siswa' => 'kopsis',
+            'satpam' => 'security',
+            'keamanan' => 'security',
+            'perpus' => 'perpustakaan',
+            'tu' => 'petugas',
+            'administrasi' => 'petugas',
+            'kepala_sekolah' => 'kepsek',
+            'kepala sekolah' => 'kepsek',
+        ];
+        if (isset($roleAliases[$roleName])) {
+            $roleName = $roleAliases[$roleName];
+        }
 
         // Cari pengguna pertama yang memiliki role tersebut di database
         $user = User::with('role.permissions')

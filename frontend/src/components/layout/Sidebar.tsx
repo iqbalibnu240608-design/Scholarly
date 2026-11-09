@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { apiClient } from '../../api/client';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -22,11 +23,43 @@ interface SidebarProps {
   onCloseMobile?: () => void;
 }
 
+interface NavItemConfig {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ style?: React.CSSProperties; className?: string }>;
+  allowedRoles: string[];
+  end?: boolean;
+}
+
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobile }) => {
   const { activeRole, logout } = useAuth();
   const isAdmin = activeRole === 'admin';
 
-  const navigationItems = [
+  const [notifications, setNotifications] = useState<Record<string, number>>({});
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await apiClient.get('/school/sidebar-notifications');
+      if (res.data?.success && res.data?.notifications) {
+        setNotifications(res.data.notifications);
+      }
+    } catch {
+      // Fallback silently if offline or token expired
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 25000);
+    const onTopupChange = () => fetchNotifications();
+    window.addEventListener('topup-status-changed', onTopupChange);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('topup-status-changed', onTopupChange);
+    };
+  }, [fetchNotifications]);
+
+  const navigationItems: NavItemConfig[] = [
     {
       to: '/app',
       label: 'Dashboard',
@@ -44,13 +77,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       to: '/app/kantin',
       label: 'Kantin Sekolah',
       icon: UtensilsCrossed,
-      allowedRoles: ['admin', 'kantin', 'siswa', 'guru'],
+      allowedRoles: ['admin', 'kantin', 'siswa', 'guru', 'perpustakaan'],
     },
     {
       to: '/app/kopsis',
-      label: 'Koperasi Siswa',
+      label: 'Koperasi Sekolah',
       icon: ShoppingBag,
-      allowedRoles: ['admin', 'kopsis', 'siswa', 'guru'],
+      allowedRoles: ['admin', 'kopsis', 'koperasi', 'pengelola_koperasi', 'siswa', 'guru', 'petugas', 'perpustakaan'],
     },
     {
       to: '/app/petugas',
@@ -94,6 +127,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
     (item) => isAdmin || item.allowedRoles.includes(activeRole)
   );
 
+  const getBadgeCount = (to: string): number => {
+    if (to === '/app/petugas') {
+      return Number(notifications.petugas) || 0;
+    }
+    if (to === '/app/kopsis') {
+      return Number(notifications.kopsis) || 0;
+    }
+    if (to === '/app/perpus') {
+      return Number(notifications.perpus) || 0;
+    }
+    if (to === '/app/kepsek') {
+      return Number(notifications.kepsek) || 0;
+    }
+    if (to === '/app/siswa') {
+      return Number(notifications.siswa) || 0;
+    }
+    if (to === '/app/guru') {
+      return Number(notifications.guru) || 0;
+    }
+    return 0;
+  };
+
   return (
     <>
       {/* Mobile Backdrop Overlay */}
@@ -108,9 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       {/* Main Aside Navigation */}
       <aside
         className={`w-[250px] bg-[#2857e6] shrink-0 text-white select-none overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden transition-transform duration-300 z-50 fixed inset-y-0 left-0 flex flex-col justify-between shadow-2xl md:static md:sticky md:top-0 md:h-screen md:shadow-none md:translate-x-0 ${
-          mobileOpen
-            ? 'translate-x-0'
-            : '-translate-x-full'
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand Header: Exactly h-16 (64px) for perfect symmetry with top Navbar */}
@@ -179,6 +232,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
             {visibleItems.map((item) => {
               const Icon = item.icon;
+              const badgeCount = getBadgeCount(item.to);
+
               return (
                 <NavLink
                   key={item.to}
@@ -199,7 +254,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                 >
                   {({ isActive }) => (
                     <>
-                      {/* Left Icon Rail Segment - Exactly 60px wide, Center = 30px (coaxial with 44px capsule at left 8px) */}
+                      {/* Left Icon Rail Segment */}
                       <div
                         style={{
                           width: '60px',
@@ -260,6 +315,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                           flex: 1,
                           display: 'flex',
                           alignItems: 'center',
+                          justifyContent: 'space-between',
                           height: '48px',
                           paddingRight: '12px',
                           color: isActive ? '#2857e6' : 'rgba(255, 255, 255, 0.9)',
@@ -272,6 +328,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {item.label}
                         </span>
+                        {badgeCount > 0 && (
+                          <span
+                            className={`ml-auto mr-1 px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 tracking-tight transition-transform duration-200 animate-pulse ${
+                              isActive
+                                ? 'bg-amber-500 text-white shadow-xs'
+                                : 'bg-amber-400 text-slate-950 shadow-xs'
+                            }`}
+                            title={`${badgeCount} pembaruan menunggu`}
+                          >
+                            {badgeCount > 99 ? '99+' : badgeCount}
+                          </span>
+                        )}
                       </div>
                     </>
                   )}

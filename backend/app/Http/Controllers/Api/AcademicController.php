@@ -24,7 +24,9 @@ class AcademicController extends Controller
             'feedback' => 'nullable|string',
         ]);
 
-        $student = User::where('identifier_number', $validated['student_identifier'])->first();
+        $student = User::where('identifier_number', $validated['student_identifier'])
+            ->where('role_name', 'siswa')
+            ->first();
         if (!$student) {
             return response()->json([
                 'success' => false,

@@ -104,17 +104,20 @@ export const App: React.FC = () => {
             <Route
               path="kopsis"
               element={
-                <RoleProtectedRoute allowedRoles={['kopsis', 'siswa', 'guru']}>
+                <RoleProtectedRoute allowedRoles={['kopsis', 'koperasi', 'pengelola_koperasi', 'siswa', 'guru', 'admin', 'petugas', 'perpustakaan']}>
                   <KopsisView />
                 </RoleProtectedRoute>
               }
             />
 
+            {/* Alias rute Koperasi */}
+            <Route path="koperasi" element={<Navigate to="/app/kopsis" replace />} />
+
             {/* Kantin Sekolah: Staff kasir & stand makanan, Siswa & Guru memesan makanan online */}
             <Route
               path="kantin"
               element={
-                <RoleProtectedRoute allowedRoles={['kantin', 'siswa', 'guru']}>
+                <RoleProtectedRoute allowedRoles={['kantin', 'siswa', 'guru', 'admin', 'perpustakaan', 'petugas']}>
                   <KantinView />
                 </RoleProtectedRoute>
               }
@@ -158,6 +161,7 @@ export const App: React.FC = () => {
           <Route path="/kepsek" element={<Navigate to="/app/kepsek" replace />} />
           <Route path="/petugas" element={<Navigate to="/app/petugas" replace />} />
           <Route path="/kopsis" element={<Navigate to="/app/kopsis" replace />} />
+          <Route path="/koperasi" element={<Navigate to="/app/kopsis" replace />} />
           <Route path="/kantin" element={<Navigate to="/app/kantin" replace />} />
           <Route path="/perpus" element={<Navigate to="/app/perpus" replace />} />
           <Route path="/security" element={<Navigate to="/app/security" replace />} />

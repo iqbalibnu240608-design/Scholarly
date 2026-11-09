@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicClass;
 use App\Models\Announcement;
 use App\Models\Attendance;
+use App\Models\BookLoan;
 use App\Models\KantinMenu;
 use App\Models\KopsisProduct;
 use App\Models\Role;
@@ -16,11 +17,57 @@ use App\Models\Wallet;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class SchoolEcosystemController extends Controller
 {
+    /**
+     * Dapatkan Counter Notifikasi Realtime untuk Seluruh Menu Sidebar
+     */
+    public function getSidebarNotifications(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $rawRole = strtolower(trim($user->role_name ?? ''));
+
+        // 1. Antrean Top-Up yang belum direspons (untuk Petugas TU, Kopsis, dan Admin)
+        $pendingTopupsTotal = Transaction::where('status', 'pending')
+            ->whereIn('type', ['topup_wallet', 'topup_kopsis', 'topup_kantin'])
+            ->count();
+
+        // 2. Perpustakaan: Buku terlambat (overdue) yang perlu penanganan loket
+        $today = Carbon::today();
+        $overdueLoansCount = BookLoan::where('status', 'overdue')
+            ->orWhere(function ($q) use ($today) {
+                $q->where('status', 'borrowed')->where('due_date', '<', $today);
+            })->count();
+
+        // 3. Kepala Sekolah: Disposisi persuratan pending
+        $disposisiPending = 2;
+
+        // 4. Status Pengajuan Top-up Pribadi yang masih pending
+        $myPendingTopup = Transaction::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->whereIn('type', ['topup_wallet', 'topup_kopsis', 'topup_kantin'])
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'notifications' => [
+                'petugas' => in_array($rawRole, ['admin', 'petugas'], true) ? $pendingTopupsTotal : 0,
+                'kopsis' => in_array($rawRole, ['admin', 'kopsis', 'koperasi', 'pengelola_koperasi'], true) ? $pendingTopupsTotal : 0,
+                'perpus' => in_array($rawRole, ['admin', 'perpustakaan'], true) ? $overdueLoansCount : 0,
+                'kepsek' => in_array($rawRole, ['admin', 'kepsek'], true) ? $disposisiPending : 0,
+                'siswa' => $rawRole === 'siswa' ? $myPendingTopup : 0,
+                'guru' => $rawRole === 'guru' ? $myPendingTopup : 0,
+                'my_pending_topup' => $myPendingTopup,
+                'total_pending_topups' => $pendingTopupsTotal,
+            ],
+        ]);
+    }
+
     /**
      * Get system-wide overview tailored for the logged in user's role
      */
@@ -28,16 +75,18 @@ class SchoolEcosystemController extends Controller
     {
         $user = $request->user();
 
-        // Ecosystem metrics
-        $metrics = [
-            'total_siswa' => User::where('role_name', 'siswa')->count(),
-            'total_guru' => User::where('role_name', 'guru')->count(),
-            'total_petugas' => User::where('role_name', 'petugas')->count(),
-            'total_kelas' => AcademicClass::count(),
-            'total_kopsis_products' => KopsisProduct::count(),
-            'total_kantin_menus' => KantinMenu::count(),
-            'active_roles_count' => Role::count(),
-        ];
+        // Ecosystem metrics (Cached for 30s for ultra-fast dashboard rendering)
+        $metrics = Cache::remember('ecosystem_metrics', 30, function () {
+            return [
+                'total_siswa' => User::where('role_name', 'siswa')->count(),
+                'total_guru' => User::where('role_name', 'guru')->count(),
+                'total_petugas' => User::where('role_name', 'petugas')->count(),
+                'total_kelas' => AcademicClass::count(),
+                'total_kopsis_products' => KopsisProduct::count(),
+                'total_kantin_menus' => KantinMenu::count(),
+                'active_roles_count' => Role::count(),
+            ];
+        });
 
         // Announcements relevant to this user
         $announcements = Announcement::where('is_published', true)
@@ -98,10 +147,18 @@ class SchoolEcosystemController extends Controller
         $className = $class?->name ?? 'XII RPL 1';
         $homeroom = $class?->homeroomTeacher?->name ?? 'Budi Santoso, S.Pd';
 
-        // 2. Saldo Dompet Digital Riil
+        // 2. Saldo Dompet Digital Riil (Konsisten 50.000 / 25.000 untuk pengguna siswa)
+        $targetUser = $user;
+        if ($user->role_name !== 'siswa') {
+            $demoStudent = User::where('role_name', 'siswa')->first();
+            if ($demoStudent) {
+                $targetUser = $demoStudent;
+            }
+        }
+
         $wallet = Wallet::firstOrCreate(
-            ['user_id' => $user->id],
-            ['balance_kopsis' => 100000, 'balance_kantin' => 50000]
+            ['user_id' => $targetUser->id],
+            ['balance_kopsis' => 50000, 'balance_kantin' => 25000]
         );
 
         // 3. Presensi Riil Bulan Ini
@@ -157,8 +214,8 @@ class SchoolEcosystemController extends Controller
                 'kelas' => $className,
                 'wali_kelas' => $homeroom,
                 'presensi_bulan_ini' => [
-                    'hadir' => $hadir ?: 22,
-                    'izin' => $izin ?: 1,
+                    'hadir' => $hadir,
+                    'izin' => $izin,
                     'sakit' => $sakit,
                     'alpha' => $alpha,
                     'persentase' => $percentage,
@@ -169,8 +226,9 @@ class SchoolEcosystemController extends Controller
                     ['jam' => '11:00 - 12:30', 'mapel' => 'Bahasa Inggris Kejuruan', 'guru' => 'Ahmad Fauzi, M.Pd', 'ruang' => 'Ruang 12'],
                 ],
                 'saldo_digital' => [
-                    'saldo_kopsis' => (float)$wallet->balance_kopsis,
-                    'saldo_kantin' => (float)$wallet->balance_kantin,
+                    'saldo_utama' => (float)($wallet->balance ?? $wallet->balance_kopsis),
+                    'saldo_kopsis' => (float)($wallet->balance ?? $wallet->balance_kopsis),
+                    'saldo_kantin' => (float)($wallet->balance ?? $wallet->balance_kantin),
                 ],
                 'tagihan_spp' => [
                     'status' => 'Lunas',
@@ -466,6 +524,13 @@ class SchoolEcosystemController extends Controller
      */
     public function toggleUserStatus(Request $request, $id): JsonResponse
     {
+        if ((int)$id === (int)$request->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak dapat menonaktifkan akun sendiri demi keamanan akses sistem.',
+            ], 422);
+        }
+
         $user = User::findOrFail($id);
         $user->status = ($user->status === 'active') ? 'inactive' : 'active';
         $user->save();
@@ -525,32 +590,56 @@ class SchoolEcosystemController extends Controller
             ], 404);
         }
 
-        if ($validated['payment_method'] === 'wallet') {
-            $wallet = Wallet::firstOrCreate(['user_id' => $student->id]);
-            if ($wallet->balance_kopsis < $validated['amount']) {
+        $currentUser = $request->user();
+
+        // Otorisasi: Siswa hanya dapat membayar SPP untuk akun sendiri & dilarang memalsukan pembayaran tunai mandiri
+        if ($currentUser->role_name === 'siswa') {
+            if ($student->id !== $currentUser->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Saldo siswa tidak mencukupi untuk pembayaran SPP.",
+                    'message' => 'Anda hanya berhak melakukan pembayaran tagihan SPP untuk akun milik sendiri.',
+                ], 403);
+            }
+            if ($validated['payment_method'] === 'cash') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pembayaran tunai wajib disetorkan langsung ke petugas di loket Tata Usaha.',
                 ], 422);
             }
-            $wallet->decrement('balance_kopsis', $validated['amount']);
         }
 
-        $trx = Transaction::create([
-            'reference_no' => 'SPP-' . strtoupper(Str::random(8)),
-            'user_id' => $student->id,
-            'type' => 'spp',
-            'amount' => $validated['amount'],
-            'payment_method' => $validated['payment_method'],
-            'description' => "Pembayaran SPP Bulan {$validated['month']} untuk {$student->name} (NISN: {$student->identifier_number})" . ($validated['notes'] ? " - " . $validated['notes'] : ""),
-            'operator_id' => $request->user()->id,
-        ]);
+        return DB::transaction(function () use ($validated, $student, $request) {
+            if ($validated['payment_method'] === 'wallet') {
+                $wallet = Wallet::lockForUpdate()->firstOrCreate(['user_id' => $student->id]);
+                $effectiveBalance = (float)($wallet->balance ?? $wallet->balance_kopsis ?? 0);
+                if ($effectiveBalance < $validated['amount']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Saldo E-Wallet siswa tidak mencukupi untuk pembayaran SPP.",
+                    ], 422);
+                }
+                $wallet->balance = $effectiveBalance - (float)$validated['amount'];
+                $wallet->balance_kopsis = $wallet->balance;
+                $wallet->balance_kantin = $wallet->balance;
+                $wallet->save();
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => "Pembayaran SPP untuk {$student->name} periode {$validated['month']} sebesar Rp " . number_format($validated['amount'], 0, ',', '.') . " berhasil dicatat.",
-            'transaction' => $trx,
-        ]);
+            $trx = Transaction::create([
+                'reference_no' => 'SPP-' . strtoupper(Str::random(8)),
+                'user_id' => $student->id,
+                'type' => 'spp',
+                'amount' => $validated['amount'],
+                'payment_method' => $validated['payment_method'],
+                'description' => "Pembayaran SPP Bulan {$validated['month']} untuk {$student->name} (NISN: {$student->identifier_number})" . ($validated['notes'] ? " - " . $validated['notes'] : ""),
+                'operator_id' => $request->user()->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Pembayaran SPP untuk {$student->name} periode {$validated['month']} sebesar Rp " . number_format($validated['amount'], 0, ',', '.') . " berhasil dicatat.",
+                'transaction' => $trx,
+            ]);
+        });
     }
 
     /**
@@ -563,7 +652,7 @@ class SchoolEcosystemController extends Controller
             ->where('type', 'spp')
             ->latest();
 
-        if ($user->role_name === 'siswa') {
+        if (!in_array($user->role_name, ['petugas', 'admin', 'kepsek'], true)) {
             $query->where('user_id', $user->id);
         }
 

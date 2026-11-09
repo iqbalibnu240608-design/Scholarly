@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { apiClient } from '../api/client';
+import { apiClient, getCachedData } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import {
   Shield,
   Users,
@@ -52,8 +53,9 @@ interface AdminData {
 }
 
 export const AdminView: React.FC = () => {
-  const [data, setData] = useState<AdminData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { activeRole } = useAuth();
+  const [data, setData] = useState<AdminData | null>(() => getCachedData('/school/admin')?.data || null);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/admin'));
   const [assigningUserId, setAssigningUserId] = useState<number | null>(null);
 
   // Filter & Search State
@@ -89,13 +91,14 @@ export const AdminView: React.FC = () => {
 
   useEffect(() => {
     fetchAdminData();
-  }, []);
+  }, [activeRole]);
 
   const handleRoleChange = async (userId: number, newRoleName: string) => {
     setAssigningUserId(userId);
     try {
       const res = await apiClient.post('/admin/assign-role', {
         user_id: userId,
+        role_name: newRoleName,
         role: newRoleName,
       });
       toast.success(res.data.message || 'Role pengguna berhasil diperbarui.');
@@ -163,7 +166,7 @@ export const AdminView: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="flex items-center justify-center min-h-[300px] text-sm text-slate-500 font-medium">
         Memuat modul Administrator Ekosistem...
@@ -172,11 +175,12 @@ export const AdminView: React.FC = () => {
   }
 
   const usersList = data?.recent_users || [];
+  const term = (searchTerm || '').toLowerCase();
   const filteredUsers = usersList.filter((u) => {
     const matchesSearch =
-      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (u.name || '').toLowerCase().includes(term) ||
       (u.identifier_number && u.identifier_number.includes(searchTerm)) ||
-      u.role_name.toLowerCase().includes(searchTerm.toLowerCase());
+      (u.role_name || '').toLowerCase().includes(term);
 
     const matchesRole =
       selectedRoleFilter === 'all' || u.role_name === selectedRoleFilter;
@@ -304,9 +308,9 @@ export const AdminView: React.FC = () => {
                   : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
               }`}
             >
-              Semua Role ({usersList.length})
+              Semua Role ({data?.total_users ?? usersList.length})
             </button>
-            {data?.role_distribution.map((r) => {
+            {(data?.role_distribution || []).map((r) => {
               const color = ROLE_BADGE_COLORS[r.role] || {
                 bg: '#f1f5f9',
                 border: '#cbd5e1',

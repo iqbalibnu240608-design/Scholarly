@@ -53,37 +53,55 @@ class POSController extends Controller
             // 2. Pemrosesan Metode Pembayaran (Saldo E-Wallet, Tunai, atau QRIS)
             $customer = null;
             if ($validated['payment_method'] === 'wallet') {
-                if (empty($validated['student_identifier'])) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'NISN siswa wajib disertakan untuk pembayaran saldo e-wallet.',
-                    ], 422);
-                }
-
-                $customer = User::where('identifier_number', $validated['student_identifier'])->first();
-                if (!$customer) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Siswa dengan NISN tersebut tidak ditemukan.',
-                    ], 404);
-                }
-
-                $wallet = Wallet::firstOrCreate(['user_id' => $customer->id]);
-                if ($wallet->balance_kopsis < $totalAmount) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Saldo Kopsis siswa tidak mencukupi. Saldo saat ini: Rp " . number_format($wallet->balance_kopsis, 0, ',', '.') . ", total belanja: Rp " . number_format($totalAmount, 0, ',', '.') . ".",
-                    ], 422);
-                }
-
-                // Potong saldo Kopsis
-                $wallet->decrement('balance_kopsis', $totalAmount);
-            } else {
-                if (!empty($validated['student_identifier'])) {
-                    $customer = User::where('identifier_number', $validated['student_identifier'])->first();
-                }
-                if (!$customer) {
+                $operatorRole = match (strtolower(trim($request->user()->role_name ?? ''))) {
+                    'koperasi', 'pengelola koperasi', 'pengelola_koperasi' => 'kopsis',
+                    default => strtolower(trim($request->user()->role_name ?? '')),
+                };
+                if (in_array($operatorRole, ['kopsis', 'petugas', 'admin'], true)) {
+                    if (!empty($validated['student_identifier'])) {
+                        $customer = User::where('identifier_number', $validated['student_identifier'])->first();
+                        if (!$customer) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Pengguna dengan NISN / NIP tersebut tidak ditemukan.',
+                            ], 404);
+                        }
+                    } else {
+                        // Jika kasir/staf berbelanja untuk dirinya sendiri (self-checkout)
+                        $customer = $request->user();
+                    }
+                } else {
+                    // Pembeli mandiri (Siswa, Guru, Pustakawan, dll.) hanya boleh memotong saldo akun miliknya sendiri
                     $customer = $request->user();
+                }
+
+                $wallet = Wallet::lockForUpdate()->firstOrCreate(
+                    ['user_id' => $customer->id],
+                    ['balance' => 0, 'balance_kopsis' => 0, 'balance_kantin' => 0]
+                );
+                $currentBalance = (float)($wallet->balance ?? $wallet->balance_kopsis ?? 0);
+                if ($currentBalance < $totalAmount) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Saldo E-Wallet siswa tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.') . ", total belanja: Rp " . number_format($totalAmount, 0, ',', '.') . ".",
+                    ], 422);
+                }
+
+                // Potong saldo universal e-wallet
+                $wallet->balance = $currentBalance - (float)$totalAmount;
+                $wallet->balance_kopsis = $wallet->balance;
+                $wallet->balance_kantin = $wallet->balance;
+                $wallet->save();
+            } else {
+                if ($request->user()->role_name === 'siswa') {
+                    $customer = $request->user();
+                } else {
+                    if (!empty($validated['student_identifier'])) {
+                        $customer = User::where('identifier_number', $validated['student_identifier'])->first();
+                    }
+                    if (!$customer) {
+                        $customer = $request->user();
+                    }
                 }
             }
 
@@ -143,36 +161,52 @@ class POSController extends Controller
 
             $customer = null;
             if ($validated['payment_method'] === 'wallet') {
-                if (empty($validated['student_identifier'])) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'NISN siswa wajib disertakan untuk pembayaran saldo e-wallet.',
-                    ], 422);
-                }
-
-                $customer = User::where('identifier_number', $validated['student_identifier'])->first();
-                if (!$customer) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Siswa dengan NISN tersebut tidak ditemukan.',
-                    ], 404);
-                }
-
-                $wallet = Wallet::firstOrCreate(['user_id' => $customer->id]);
-                if ($wallet->balance_kantin < $totalAmount) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Saldo Kantin siswa tidak mencukupi. Saldo saat ini: Rp " . number_format($wallet->balance_kantin, 0, ',', '.') . ", total pesanan: Rp " . number_format($totalAmount, 0, ',', '.') . ".",
-                    ], 422);
-                }
-
-                $wallet->decrement('balance_kantin', $totalAmount);
-            } else {
-                if (!empty($validated['student_identifier'])) {
-                    $customer = User::where('identifier_number', $validated['student_identifier'])->first();
-                }
-                if (!$customer) {
+                $operatorRole = strtolower(trim($request->user()->role_name ?? ''));
+                if (in_array($operatorRole, ['kantin', 'petugas', 'admin'], true)) {
+                    if (!empty($validated['student_identifier'])) {
+                        $customer = User::where('identifier_number', $validated['student_identifier'])->first();
+                        if (!$customer) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Pengguna dengan NISN / NIP tersebut tidak ditemukan.',
+                            ], 404);
+                        }
+                    } else {
+                        // Jika kasir/staf memesan makanan untuk dirinya sendiri (self-checkout)
+                        $customer = $request->user();
+                    }
+                } else {
+                    // Pembeli mandiri (Siswa, Guru, Pustakawan, dll.) hanya boleh memotong saldo akun miliknya sendiri
                     $customer = $request->user();
+                }
+
+                $wallet = Wallet::lockForUpdate()->firstOrCreate(
+                    ['user_id' => $customer->id],
+                    ['balance' => 0, 'balance_kopsis' => 0, 'balance_kantin' => 0]
+                );
+                $currentBalance = (float)($wallet->balance ?? $wallet->balance_kantin ?? 0);
+                if ($currentBalance < $totalAmount) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Saldo E-Wallet siswa tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.') . ", total pesanan: Rp " . number_format($totalAmount, 0, ',', '.') . ".",
+                    ], 422);
+                }
+
+                // Potong saldo universal e-wallet
+                $wallet->balance = $currentBalance - (float)$totalAmount;
+                $wallet->balance_kopsis = $wallet->balance;
+                $wallet->balance_kantin = $wallet->balance;
+                $wallet->save();
+            } else {
+                if ($request->user()->role_name === 'siswa') {
+                    $customer = $request->user();
+                } else {
+                    if (!empty($validated['student_identifier'])) {
+                        $customer = User::where('identifier_number', $validated['student_identifier'])->first();
+                    }
+                    if (!$customer) {
+                        $customer = $request->user();
+                    }
                 }
             }
 

@@ -53,16 +53,45 @@ class SecurityController extends Controller
             }
         }
 
-        $attendance = Attendance::updateOrCreate(
-            ['user_id' => $student->id, 'date' => $today],
-            [
-                'check_in_time' => $timeStr,
-                'status' => $status,
-                'minutes_late' => $minutesLate,
-                'verified_by' => $request->user()->id,
-                'notes' => $note,
-            ]
-        );
+        // Cek apakah siswa sudah memiliki catatan presensi hari ini
+        $existing = Attendance::where('user_id', $student->id)->where('date', $today)->first();
+        if ($existing) {
+            // Jika sudah hadir tepat waktu di pagi hari, jangan pernah timpa statusnya menjadi terlambat
+            if ($existing->status === 'hadir') {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Siswa {$student->name} sudah tercatat Hadir Tepat Waktu pukul {$existing->check_in_time}.",
+                    'student' => [
+                        'name' => $student->name,
+                        'nisn' => $student->identifier_number,
+                        'role' => $student->role_name,
+                    ],
+                    'attendance' => $existing,
+                ]);
+            }
+
+            // Jika sebelumnya tercatat dan discan ulang, pertahankan waktu pertama atau perbarui catatan
+            return response()->json([
+                'success' => true,
+                'message' => "Presensi gerbang siswa {$student->name} sudah tercatat hari ini (Status: {$existing->status}, Pukul {$existing->check_in_time}).",
+                'student' => [
+                    'name' => $student->name,
+                    'nisn' => $student->identifier_number,
+                    'role' => $student->role_name,
+                ],
+                'attendance' => $existing,
+            ]);
+        }
+
+        $attendance = Attendance::create([
+            'user_id' => $student->id,
+            'date' => $today,
+            'check_in_time' => $timeStr,
+            'status' => $status,
+            'minutes_late' => $minutesLate,
+            'verified_by' => $request->user()->id,
+            'notes' => $note,
+        ]);
 
         return response()->json([
             'success' => true,

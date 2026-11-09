@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { apiClient } from '../api/client';
+import { useAuth } from '../context/AuthContext';
+import { apiClient, getCachedData } from '../api/client';
 import { toast } from 'sonner';
 import {
   Award,
@@ -31,8 +32,9 @@ interface KepsekData {
 }
 
 export const KepsekView: React.FC = () => {
-  const [data, setData] = useState<KepsekData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { activeRole } = useAuth();
+  const [data, setData] = useState<KepsekData | null>(() => getCachedData('/school/kepsek')?.data || null);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/kepsek'));
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,9 +49,9 @@ export const KepsekView: React.FC = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [activeRole]);
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="flex items-center justify-center min-h-[300px] text-sm text-slate-500 font-medium">
         Memuat modul Kepala Sekolah...
@@ -71,7 +73,7 @@ export const KepsekView: React.FC = () => {
                 Pimpinan Eksekutif
               </Badge>
               <Badge variant="success" className="text-xs font-bold">
-                Akreditasi: {data?.ringkasan_eksekutif.status_akreditasi || 'A (Unggul)'}
+                Akreditasi: {(data?.ringkasan_eksekutif?.status_akreditasi || 'A (Unggul)') || 'A (Unggul)'}
               </Badge>
             </div>
             <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -97,7 +99,7 @@ export const KepsekView: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-indigo-700 tracking-tight">
-              {data?.ringkasan_eksekutif.kehadiran_guru_hari_ini || '100%'}
+              {(data?.ringkasan_eksekutif?.kehadiran_guru_hari_ini || '100%') || '100%'}
             </div>
             <p className="text-xs text-slate-500 mt-1">
               Disiplin dan absensi dewan guru optimal
@@ -116,7 +118,7 @@ export const KepsekView: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-emerald-700 tracking-tight">
-              {data?.ringkasan_eksekutif.kehadiran_siswa_hari_ini || '96.8%'}
+              {(data?.ringkasan_eksekutif?.kehadiran_siswa_hari_ini || '96.8%') || '96.8%'}
             </div>
             <p className="text-xs text-slate-500 mt-1">
               Akumulasi jenjang kelas X, XI, XII
@@ -135,7 +137,7 @@ export const KepsekView: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-amber-700 tracking-tight">
-              Rp {(data?.ringkasan_eksekutif.total_pendapatan_kopsis_bulan_ini ?? 0).toLocaleString('id-ID')}
+              Rp {(data?.ringkasan_eksekutif?.total_pendapatan_kopsis_bulan_ini ?? 0).toLocaleString('id-ID')}
             </div>
             <p className="text-xs text-slate-500 mt-1">
               Laba unit usaha koperasi siswa
@@ -154,7 +156,7 @@ export const KepsekView: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-blue-700 tracking-tight">
-              Rp {(data?.ringkasan_eksekutif.total_transaksi_kantin_hari_ini ?? 0).toLocaleString('id-ID')}
+              Rp {(data?.ringkasan_eksekutif?.total_transaksi_kantin_hari_ini ?? 0).toLocaleString('id-ID')}
             </div>
             <p className="text-xs text-slate-500 mt-1">
               Perputaran digital stan kantin sehat
@@ -178,7 +180,7 @@ export const KepsekView: React.FC = () => {
             </Badge>
           </CardHeader>
           <CardContent className="space-y-3">
-            {data?.laporan_strategis.map((item, idx) => (
+            {(data?.laporan_strategis || []).map((item, idx) => (
               <div
                 key={idx}
                 className="p-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 hover:bg-white hover:shadow-xs flex items-center justify-between transition-all"

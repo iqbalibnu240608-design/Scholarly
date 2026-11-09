@@ -16,6 +16,7 @@ class Transaction extends Model
         'type',
         'amount',
         'payment_method',
+        'status',
         'description',
         'operator_id',
     ];

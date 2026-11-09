@@ -23,8 +23,10 @@ class CheckRole
             ], 401);
         }
 
+        $rawRole = strtolower(trim($user->role_name ?? ''));
+
         // Admin always has full access to any role route
-        if ($user->role_name === 'admin') {
+        if ($rawRole === 'admin') {
             return $next($request);
         }
 
@@ -32,11 +34,23 @@ class CheckRole
         $allowedRoles = [];
         foreach ($roles as $roleGroup) {
             foreach (explode(',', $roleGroup) as $role) {
-                $allowedRoles[] = trim($role);
+                $allowedRoles[] = strtolower(trim($role));
             }
         }
 
-        if (!empty($allowedRoles) && !in_array($user->role_name, $allowedRoles, true)) {
+        $normalizedUserRole = match ($rawRole) {
+            'koperasi', 'pengelola koperasi', 'pengelola_koperasi' => 'kopsis',
+            default => $rawRole,
+        };
+
+        $normalizedAllowed = array_map(function ($r) {
+            return match ($r) {
+                'koperasi', 'pengelola koperasi', 'pengelola_koperasi' => 'kopsis',
+                default => $r,
+            };
+        }, $allowedRoles);
+
+        if (!empty($normalizedAllowed) && !in_array($normalizedUserRole, $normalizedAllowed, true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Role ' . $user->role_name . ' tidak memiliki akses ke endpoint ini.',

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { apiClient } from '../api/client';
+import { apiClient, getCachedData } from '../api/client';
 import {
   DollarSign,
   PackageCheck,
@@ -16,8 +16,11 @@ import {
   Sparkles,
   ShoppingBag,
   QrCode,
+  Clock,
 } from 'lucide-react';
 import './EcosystemModals.css';
+import { QRISUploadModal } from '../components/common/QRISUploadModal';
+import { getStoredQRIS } from '../utils/qris';
 
 interface KopsisProduct {
   id: number;
@@ -36,16 +39,38 @@ interface CartItem {
   quantity: number;
 }
 
+interface PendingTopup {
+  id: number;
+  reference_no: string;
+  user_id: number;
+  type: string;
+  amount: number;
+  payment_method: string;
+  status: string;
+  description?: string;
+  created_at: string;
+  user?: {
+    id: number;
+    name: string;
+    identifier_number: string;
+  };
+}
+
 interface RecentTransaction {
   id: number;
   reference_no: string;
+  type?: string;
   amount: number;
   payment_method: string;
+  status?: 'pending' | 'completed' | 'rejected' | 'failed' | string;
   description: string;
   created_at: string;
   user?: {
     name: string;
     identifier_number: string;
+  };
+  operator?: {
+    name: string;
   };
 }
 
@@ -62,11 +87,14 @@ interface KopsisData {
 
 export const KopsisView: React.FC = () => {
   const { user, activeRole } = useAuth();
-  const isCustomerView = activeRole === 'siswa' || activeRole === 'guru';
+  const normalizedRole = (activeRole || '').trim().toLowerCase();
+  const isKopsisStaff = ['kopsis', 'koperasi', 'pengelola_koperasi', 'admin'].includes(normalizedRole);
+  const isCustomerView = !isKopsisStaff;
+  const canManageTopups = ['kopsis', 'koperasi', 'pengelola_koperasi', 'admin', 'petugas'].includes(normalizedRole);
 
-  const [data, setData] = useState<KopsisData | null>(null);
+  const [data, setData] = useState<KopsisData | null>(() => getCachedData('/school/kopsis')?.data || null);
   const [recentTransactions, setRecentTransactions] = useState<RecentTransaction[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/kopsis'));
 
   // Student Wallet State
   const [walletBalance, setWalletBalance] = useState<number>(0);
@@ -80,6 +108,8 @@ export const KopsisView: React.FC = () => {
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
   const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash' | 'qris'>('wallet');
   const [processingOrder, setProcessingOrder] = useState<boolean>(false);
+  const [pendingTopups, setPendingTopups] = useState<PendingTopup[]>([]);
+  const [processingTopupId, setProcessingTopupId] = useState<number | null>(null);
 
   // Modal State: Tambah Barang (Staff/Admin)
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -91,6 +121,9 @@ export const KopsisView: React.FC = () => {
 
   // Modal State: Kasir POS Koperasi (Staff/Admin)
   const [showPOSModal, setShowPOSModal] = useState<boolean>(false);
+  const [showQRISModal, setShowQRISModal] = useState<boolean>(false);
+  const [kopsisQris, setKopsisQris] = useState(() => getStoredQRIS('kopsis'));
+  const [topupPaymentMethod, setTopupPaymentMethod] = useState<'cash' | 'qris'>('cash');
 
   // Modal State: Konfirmasi Checkout Siswa
   const [showStudentCheckoutModal, setShowStudentCheckoutModal] = useState<boolean>(false);
@@ -106,6 +139,47 @@ export const KopsisView: React.FC = () => {
     instructions?: string;
   } | null>(null);
 
+  const fetchPendingTopups = useCallback(async () => {
+    if (!canManageTopups) return;
+    try {
+      const res = await apiClient.get('/wallet/pending-topups');
+      setPendingTopups(res.data?.pending_topups || []);
+    } catch (err) {
+      console.error('Error fetching pending topups', err);
+    }
+  }, [canManageTopups]);
+
+  const handleApproveTopup = async (id: number) => {
+    setProcessingTopupId(id);
+    try {
+      const res = await apiClient.post(`/wallet/topup/${id}/approve`);
+      setSuccessMsg(res.data?.message || 'Top-up siswa berhasil disetujui!');
+      setTimeout(() => setSuccessMsg(null), 4000);
+      await Promise.all([fetchPendingTopups(), fetchKopsisData(), fetchRecentTransactions()]);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Gagal menyetujui top-up');
+    } finally {
+      setProcessingTopupId(null);
+    }
+  };
+
+  const handleRejectTopup = async (id: number) => {
+    const reason = window.prompt('Masukkan alasan penolakan (opsional):', 'Uang tunai belum diserahkan di kasir');
+    if (reason === null) return;
+
+    setProcessingTopupId(id);
+    try {
+      const res = await apiClient.post(`/wallet/topup/${id}/reject`, { reason });
+      setSuccessMsg(res.data?.message || 'Permohonan top-up telah ditolak.');
+      setTimeout(() => setSuccessMsg(null), 4000);
+      await fetchPendingTopups();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Gagal menolak top-up');
+    } finally {
+      setProcessingTopupId(null);
+    }
+  };
+
   const fetchKopsisData = async () => {
     try {
       const res = await apiClient.get('/school/kopsis');
@@ -119,9 +193,9 @@ export const KopsisView: React.FC = () => {
     try {
       const res = await apiClient.get('/wallet/transactions');
       const kopsisTrx = (res.data.transactions || []).filter(
-        (t: any) => t.type === 'purchase_kopsis'
+        (t: any) => t.type === 'purchase_kopsis' || t.type === 'topup_kopsis' || t.type === 'topup_wallet'
       );
-      setRecentTransactions(kopsisTrx.slice(0, 6));
+      setRecentTransactions(kopsisTrx.slice(0, 25));
     } catch (err) {
       console.error('Error fetching transactions', err);
     }
@@ -131,7 +205,7 @@ export const KopsisView: React.FC = () => {
     try {
       const res = await apiClient.get('/wallet/balance');
       if (res.data?.wallet) {
-        setWalletBalance(Number(res.data.wallet.balance_kopsis) || 0);
+        setWalletBalance(Number(res.data.wallet.balance ?? res.data.wallet.balance_kopsis) || 0);
       }
     } catch (err) {
       console.error('Error fetching wallet balance', err);
@@ -141,11 +215,15 @@ export const KopsisView: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([fetchKopsisData(), fetchRecentTransactions(), fetchWalletBalance()]);
+      const promises: Promise<any>[] = [fetchKopsisData(), fetchRecentTransactions(), fetchWalletBalance()];
+      if (canManageTopups) {
+        promises.push(fetchPendingTopups());
+      }
+      await Promise.all(promises);
       setLoading(false);
     };
     init();
-  }, [fetchWalletBalance]);
+  }, [fetchWalletBalance, activeRole, canManageTopups, fetchPendingTopups]);
 
   // Keep NISN in sync when active user switches
   useEffect(() => {
@@ -205,19 +283,31 @@ export const KopsisView: React.FC = () => {
   // Top Up Handler
   const handleTopup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user?.identifier_number) {
+      alert('Profil NISN Anda tidak ditemukan. Hubungi operator TU.');
+      return;
+    }
     setTopupSubmitting(true);
     try {
-      const targetNisn = user?.identifier_number || '0061234567';
-      await apiClient.post('/wallet/topup', {
-        identifier_number: targetNisn,
+      const res = await apiClient.post('/wallet/topup', {
+        identifier_number: user.identifier_number,
         amount: topupAmount,
-        target_wallet: 'kopsis',
-        notes: 'Top-up mandiri via simulasi e-wallet kopsis siswa',
+        payment_method: topupPaymentMethod,
+        target_wallet: 'universal',
+        notes: `Top-up mandiri via simulasi e-wallet kopsis (${topupPaymentMethod === 'qris' ? 'Scan QRIS' : 'Setor Kasir'})`,
       });
       await fetchWalletBalance();
+      await fetchRecentTransactions();
       setShowTopupModal(false);
-      setSuccessMsg(`Top-up sebesar Rp ${topupAmount.toLocaleString('id-ID')} berhasil ditambahkan ke Saldo Kopsis!`);
-      setTimeout(() => setSuccessMsg(null), 4000);
+      if (res.data?.status === 'pending') {
+        setSuccessMsg(
+          res.data.message ||
+            `Pengajuan top-up Rp ${topupAmount.toLocaleString('id-ID')} diajukan. Menunggu persetujuan kasir di loket.`
+        );
+      } else {
+        setSuccessMsg(`Top-up sebesar Rp ${topupAmount.toLocaleString('id-ID')} berhasil ditambahkan ke Saldo Kopsis!`);
+      }
+      setTimeout(() => setSuccessMsg(null), 5000);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Gagal melakukan top-up');
     } finally {
@@ -231,7 +321,7 @@ export const KopsisView: React.FC = () => {
 
     // Validasi saldo hanya jika metode yang dipilih adalah wallet
     if (paymentMethod === 'wallet' && walletBalance < cartTotal) {
-      alert('Saldo Kopsis Anda tidak mencukupi. Silakan lakukan Top Up atau gunakan opsi Bayar Tunai di Loket / QRIS.');
+      alert('Saldo E-Wallet Siswa tidak mencukupi. Silakan lakukan Top Up atau gunakan opsi Bayar Tunai di Loket / QRIS.');
       return;
     }
 
@@ -275,7 +365,11 @@ export const KopsisView: React.FC = () => {
       clearCart();
       setShowPOSModal(false);
       setShowStudentCheckoutModal(false);
-      await Promise.all([fetchKopsisData(), fetchRecentTransactions(), fetchWalletBalance()]);
+      const promises: Promise<any>[] = [fetchKopsisData(), fetchRecentTransactions(), fetchWalletBalance()];
+      if (canManageTopups) {
+        promises.push(fetchPendingTopups());
+      }
+      await Promise.all(promises);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Gagal memproses transaksi kopsis.');
     } finally {
@@ -310,10 +404,16 @@ export const KopsisView: React.FC = () => {
   // Filter produk berdasarkan kategori
   const filteredProducts = (data?.produk_populer || []).filter((p) => {
     if (selectedCategory === 'Semua') return true;
-    return p.category.toLowerCase().includes(selectedCategory.toLowerCase());
+    return (p.category || '').toLowerCase().includes(selectedCategory.toLowerCase());
   });
 
-  if (loading) return <div className="loading-container">Memuat modul Koperasi Siswa...</div>;
+  if (loading && !data) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px] text-sm text-slate-500 font-medium">
+        Memuat data modul Koperasi Siswa...
+      </div>
+    );
+  }
 
   return (
     <div className="view-container">
@@ -491,12 +591,15 @@ export const KopsisView: React.FC = () => {
                 <Sparkles size={18} className="inline mr-2 text-orange-500" />
                 Riwayat Pembelian Kopsis Saya
               </h3>
-              <span className="badge-pill">Terkini</span>
+              <span className="badge-pill bg-orange-50 text-orange-700 font-bold">
+                {recentTransactions.length} Transaksi Tercatat
+              </span>
             </div>
             <div className="table-responsive">
               {recentTransactions.length === 0 ? (
-                <div className="p-4 text-center text-sm text-slate-500">
-                  Belum ada transaksi belanja di Kopsis.
+                <div className="p-6 text-center text-sm text-slate-500">
+                  <Receipt size={32} className="mx-auto text-slate-400 mb-2 opacity-50" />
+                  Belum ada transaksi belanja di Kopsis untuk akun ini.
                 </div>
               ) : (
                 <table className="data-table">
@@ -507,6 +610,7 @@ export const KopsisView: React.FC = () => {
                       <th>Total Belanja</th>
                       <th>Metode</th>
                       <th>Waktu</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -516,12 +620,39 @@ export const KopsisView: React.FC = () => {
                         <td>{trx.description}</td>
                         <td><strong>Rp {Number(trx.amount).toLocaleString('id-ID')}</strong></td>
                         <td>
-                          <span className="badge-pill text-xs">
+                          <span className={`badge-pill text-xs font-semibold ${
+                            trx.payment_method === 'wallet'
+                              ? 'bg-blue-100 text-blue-800'
+                              : trx.payment_method === 'qris'
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-emerald-100 text-emerald-800'
+                          }`}>
                             {trx.payment_method === 'wallet' ? 'Saldo E-Wallet' : trx.payment_method === 'qris' ? 'QRIS' : 'Tunai'}
                           </span>
                         </td>
                         <td className="text-xs text-slate-500">
-                          {new Date(trx.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(trx.created_at).toLocaleString('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </td>
+                        <td>
+                          {trx.status === 'pending' ? (
+                            <span className="badge-pill text-xs font-bold bg-amber-100 text-amber-800">
+                              Menunggu Verifikasi
+                            </span>
+                          ) : trx.status === 'rejected' ? (
+                            <span className="badge-pill text-xs font-bold bg-rose-100 text-rose-800">
+                              Ditolak
+                            </span>
+                          ) : (
+                            <span className="badge-pill text-xs font-bold bg-emerald-100 text-emerald-800">
+                              Selesai
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -542,6 +673,9 @@ export const KopsisView: React.FC = () => {
               <p>Kelola inventaris seragam, alat tulis sekolah, dan operasional kasir harian.</p>
             </div>
             <div className="card-header-actions">
+              <button onClick={() => setShowQRISModal(true)} className="btn-secondary-action">
+                <QrCode size={16} /> Upload QRIS Kopsis
+              </button>
               <button onClick={() => setShowAddModal(true)} className="btn-secondary-action">
                 <PlusCircle size={16} /> Tambah Barang Baru
               </button>
@@ -557,23 +691,101 @@ export const KopsisView: React.FC = () => {
               <div className="card-top-icon text-orange-600"><DollarSign size={22} /></div>
               <h4>Total Omset Kasir Hari Ini</h4>
               <div className="amount-display">
-                Rp {(data?.transaksi_hari_ini.total_omset ?? 0).toLocaleString('id-ID')}
+                Rp {(data?.transaksi_hari_ini?.total_omset ?? 0).toLocaleString('id-ID')}
               </div>
-              <p className="card-subtext">Dari {data?.transaksi_hari_ini.total_transaksi ?? 0} total transaksi belanja</p>
+              <p className="card-subtext">Dari {data?.transaksi_hari_ini?.total_transaksi ?? 0} total transaksi belanja</p>
             </div>
 
             <div className="feature-card">
               <div className="card-top-icon text-indigo-600"><PackageCheck size={22} /></div>
               <h4>Pembayaran Non-Tunai</h4>
-              <div className="amount-display">{data?.transaksi_hari_ini.pembayaran_digital}</div>
+              <div className="amount-display">{data?.transaksi_hari_ini?.pembayaran_digital ?? '72%'}</div>
               <p className="card-subtext">Menggunakan kartu NISN / Saldo E-Wallet Kopsis & QRIS</p>
             </div>
 
             <div className="feature-card">
               <div className="card-top-icon text-emerald-600"><ShoppingCart size={22} /></div>
               <h4>Status Layanan Kasir</h4>
-              <div className="badge-status-paid">{data?.kasir_status}</div>
+              <div className="badge-status-paid">{data?.kasir_status ?? 'Online'}</div>
               <p className="card-subtext">Koneksi database inventaris realtime aktif</p>
+            </div>
+          </div>
+
+          {/* Antrean Verifikasi Top-Up Saldo Kopsis & Kantin */}
+          <div className="overview-card mt-6" style={{ borderColor: '#fde68a' }}>
+            <div className="card-header" style={{ backgroundColor: '#fffbeb', borderBottom: '1px solid #fef3c7' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={18} style={{ color: '#d97706' }} />
+                <h3 style={{ margin: 0, color: '#92400e' }}>Persetujuan & Verifikasi Top-Up Siswa</h3>
+              </div>
+              <span className="badge-pill" style={{ backgroundColor: pendingTopups.length > 0 ? '#fef3c7' : '#f1f5f9', color: pendingTopups.length > 0 ? '#b45309' : '#64748b', fontWeight: 'bold' }}>
+                {pendingTopups.length} Menunggu Verifikasi
+              </span>
+            </div>
+            <div className="table-responsive">
+              {pendingTopups.length === 0 ? (
+                <div className="p-6 text-center text-xs text-slate-400">
+                  <CheckCircle size={28} className="mx-auto text-emerald-500 mb-2 opacity-80" />
+                  Tidak ada permohonan top-up siswa yang menunggu verifikasi loket kasir saat ini.
+                </div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>No. Referensi</th>
+                      <th>Nama Siswa</th>
+                      <th>NISN</th>
+                      <th>Tujuan Dompet</th>
+                      <th>Nominal</th>
+                      <th>Waktu</th>
+                      <th style={{ textAlign: 'right' }}>Aksi Kasir</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pendingTopups.map((pt) => (
+                      <tr key={pt.id}>
+                        <td><code style={{ color: '#d97706', fontWeight: 'bold' }}>{pt.reference_no}</code></td>
+                        <td><strong>{pt.user?.name || 'Siswa'}</strong></td>
+                        <td><code style={{ fontSize: '11px', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{pt.user?.identifier_number || '-'}</code></td>
+                        <td>
+                          <span className="badge-pill text-xs" style={{ background: '#f8fafc', border: '1px solid #cbd5e1' }}>
+                            {pt.type === 'topup_wallet' ? 'Saldo Digital (Universal)' : pt.type === 'topup_kopsis' ? 'Koperasi Siswa' : 'Kantin Sehat'}
+                          </span>
+                        </td>
+                        <td><strong style={{ color: '#16a34a' }}>Rp {Number(pt.amount).toLocaleString('id-ID')}</strong></td>
+                        <td style={{ fontSize: '12px', color: '#64748b' }}>
+                          {new Date(pt.created_at).toLocaleString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: '6px' }}>
+                            <button
+                              onClick={() => handleApproveTopup(pt.id)}
+                              disabled={processingTopupId === pt.id}
+                              className="btn-success-action"
+                              style={{ padding: '4px 10px', fontSize: '11px' }}
+                            >
+                              <CheckCircle size={13} /> {processingTopupId === pt.id ? '...' : 'Setujui'}
+                            </button>
+                            <button
+                              onClick={() => handleRejectTopup(pt.id)}
+                              disabled={processingTopupId === pt.id}
+                              className="btn-secondary-action"
+                              style={{ padding: '4px 10px', fontSize: '11px', color: '#dc2626', borderColor: '#fca5a5' }}
+                            >
+                              <X size={13} /> Tolak
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
 
@@ -581,7 +793,7 @@ export const KopsisView: React.FC = () => {
           <div className="overview-card mt-6">
             <div className="card-header">
               <h3>Inventaris Produk & Stok Koperasi</h3>
-              <span className="badge-pill">{data?.produk_populer.length || 0} Barang Terdaftar</span>
+              <span className="badge-pill">{data?.produk_populer?.length || 0} Barang Terdaftar</span>
             </div>
             <div className="table-responsive">
               <table className="data-table">
@@ -595,7 +807,7 @@ export const KopsisView: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data?.produk_populer.map((prod) => (
+                  {(data?.produk_populer || []).map((prod) => (
                     <tr key={prod.id}>
                       <td><code>{prod.sku}</code></td>
                       <td><strong>{prod.name}</strong></td>
@@ -612,6 +824,101 @@ export const KopsisView: React.FC = () => {
               </table>
             </div>
           </div>
+
+          {/* Tabel Riwayat Transaksi & Penjualan Kasir Koperasi */}
+          <div className="overview-card mt-6">
+            <div className="card-header">
+              <h3>
+                <Receipt size={18} className="inline mr-2 text-orange-600" />
+                Riwayat Transaksi & Penjualan Kasir Koperasi
+              </h3>
+              <span className="badge-pill bg-orange-50 text-orange-700 font-bold">
+                {recentTransactions.length} Transaksi Tercatat
+              </span>
+            </div>
+            <div className="table-responsive">
+              {recentTransactions.length === 0 ? (
+                <div className="p-6 text-center text-sm text-slate-500">
+                  <Receipt size={32} className="mx-auto text-slate-400 mb-2 opacity-50" />
+                  Belum ada transaksi kasir koperasi yang tercatat.
+                </div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Kode Transaksi</th>
+                      <th>Pelanggan / Siswa</th>
+                      <th>Rincian Barang</th>
+                      <th>Total Belanja</th>
+                      <th>Metode Bayar</th>
+                      <th>Kasir / Petugas</th>
+                      <th>Waktu Transaksi</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentTransactions.map((trx) => (
+                      <tr key={trx.id}>
+                        <td><strong className="text-orange-600">{trx.reference_no}</strong></td>
+                        <td>
+                          <strong>{trx.user?.name || 'Siswa / Umum'}</strong>
+                          {trx.user?.identifier_number && (
+                            <div className="text-xs text-slate-500">NISN: {trx.user.identifier_number}</div>
+                          )}
+                        </td>
+                        <td>{trx.description}</td>
+                        <td><strong>Rp {Number(trx.amount).toLocaleString('id-ID')}</strong></td>
+                        <td>
+                          <span className={`badge-pill text-xs font-semibold ${
+                            trx.payment_method === 'wallet'
+                              ? 'bg-blue-100 text-blue-800'
+                              : trx.payment_method === 'qris'
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {trx.payment_method === 'wallet'
+                              ? 'Saldo E-Wallet'
+                              : trx.payment_method === 'qris'
+                              ? 'QRIS'
+                              : 'Tunai di Kasir'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="text-xs text-slate-600 font-medium">
+                            {trx.operator?.name || 'Petugas Koperasi'}
+                          </span>
+                        </td>
+                        <td className="text-xs text-slate-500">
+                          {new Date(trx.created_at).toLocaleString('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </td>
+                        <td>
+                          {trx.status === 'pending' ? (
+                            <span className="badge-pill text-xs font-bold bg-amber-100 text-amber-800">
+                              Menunggu Verifikasi
+                            </span>
+                          ) : trx.status === 'rejected' ? (
+                            <span className="badge-pill text-xs font-bold bg-rose-100 text-rose-800">
+                              Ditolak
+                            </span>
+                          ) : (
+                            <span className="badge-pill text-xs font-bold bg-emerald-100 text-emerald-800">
+                              Selesai
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
         </>
       )}
 
@@ -622,13 +929,13 @@ export const KopsisView: React.FC = () => {
         <div className="eco-modal-backdrop" onClick={() => setShowTopupModal(false)}>
           <div className="eco-modal-card" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
             <div className="eco-modal-header">
-              <h3><Wallet size={18} className="text-orange-500" /> Isi Saldo Kopsis</h3>
+              <h3><Wallet size={18} className="text-orange-500" /> Isi Saldo Digital E-Wallet</h3>
               <button onClick={() => setShowTopupModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
             <form onSubmit={handleTopup} className="eco-modal-form">
               <div className="eco-modal-body">
                 <p className="text-xs text-slate-600">
-                  Pilih nominal saldo yang ingin Anda tambahkan ke Saldo E-Wallet Koperasi Siswa:
+                  Pilih nominal saldo yang ingin Anda tambahkan ke Saldo Digital E-Wallet (dapat dipakai di Koperasi & Kantin):
                 </p>
                 <div className="topup-grid">
                   {[20000, 50000, 100000, 150000, 200000, 300000].map((amt) => (
@@ -642,9 +949,48 @@ export const KopsisView: React.FC = () => {
                     </button>
                   ))}
                 </div>
-                <div className="mt-4 p-3 bg-orange-50 rounded text-xs text-orange-800 border border-orange-200">
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Sparkles size={14} style={{ color: '#0284c7' }} /> Saldo ini langsung dapat dipakai untuk checkout perlengkapan ATK & seragam tanpa uang tunai.</span>
+                <div className="mt-3">
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Pilih Metode Pembayaran Top-Up:</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setTopupPaymentMethod('cash')}
+                      className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
+                        topupPaymentMethod === 'cash'
+                          ? 'border-orange-500 bg-orange-50 text-orange-800'
+                          : 'border-slate-200 bg-white text-slate-600'
+                      }`}
+                    >
+                      <Banknote size={15} /> Tunai di Kasir
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTopupPaymentMethod('qris')}
+                      className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
+                        topupPaymentMethod === 'qris'
+                          ? 'border-indigo-600 bg-indigo-50 text-indigo-800'
+                          : 'border-slate-200 bg-white text-slate-600'
+                      }`}
+                    >
+                      <QrCode size={15} /> Scan QRIS Kopsis
+                    </button>
+                  </div>
                 </div>
+
+                {topupPaymentMethod === 'qris' ? (
+                  <div className="mt-3 p-3 bg-indigo-50/70 rounded-xl text-xs text-indigo-900 border border-indigo-200 text-center space-y-1.5">
+                    <div className="w-32 h-32 mx-auto bg-white p-2 rounded-lg border border-indigo-200 flex items-center justify-center shadow-xs">
+                      <img src={kopsisQris.imageUrl} alt="QRIS Kopsis" className="max-h-full max-w-full object-contain" />
+                    </div>
+                    <div className="font-bold text-xs">{kopsisQris.merchantName}</div>
+                    <div className="text-[10px] text-indigo-600 font-mono">NMID: {kopsisQris.nmid}</div>
+                    <p className="text-[11px] text-slate-600">Scan via m-Banking/E-Wallet, lalu klik Konfirmasi Top Up di bawah.</p>
+                  </div>
+                ) : (
+                  <div className="mt-3 p-3 bg-orange-50 rounded text-xs text-orange-800 border border-orange-200">
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={14} style={{ color: '#d97706' }} /> <strong>Pemberitahuan:</strong> Pengajuan top-up berstatus pending. Saldo akan otomatis bertambah setelah Anda menyetorkan uang tunai ke kasir Koperasi atau loket TU.</span>
+                  </div>
+                )}
               </div>
               <div className="eco-modal-footer">
                 <button type="button" onClick={() => setShowTopupModal(false)} className="btn-secondary-action">
@@ -751,11 +1097,20 @@ export const KopsisView: React.FC = () => {
               )}
 
               {paymentMethod === 'qris' && (
-                <div className="p-3 bg-indigo-50 text-indigo-800 rounded text-xs border border-indigo-200 text-center">
-                  <QrCode size={48} className="mx-auto text-indigo-600 mb-2" />
-                  <p className="font-bold">QRIS Koperasi Siswa</p>
-                  <p className="text-xs text-slate-600 mt-1">
-                    Mendukung seluruh aplikasi dompet digital & mobile banking.
+                <div className="p-3.5 bg-indigo-50/80 text-indigo-900 rounded-xl text-xs border border-indigo-200 text-center space-y-2">
+                  <div className="w-40 h-40 mx-auto bg-white p-2 rounded-xl border border-indigo-200 shadow-xs flex items-center justify-center">
+                    <img
+                      src={kopsisQris.imageUrl}
+                      alt="QRIS Koperasi Siswa"
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-indigo-950">{kopsisQris.merchantName}</p>
+                    <p className="font-mono text-[11px] text-indigo-600 mt-0.5">NMID: {kopsisQris.nmid}</p>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    Scan via mobile banking atau dompet digital (GoPay, OVO, Dana, ShopeePay, BCA, dll).
                   </p>
                 </div>
               )}
@@ -822,7 +1177,7 @@ export const KopsisView: React.FC = () => {
               <div className="eco-form-group">
                 <label className="eco-form-label">Pilih Barang untuk Ditambahkan</label>
                 <div className="catalog-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
-                  {data?.produk_populer.map((prod) => (
+                  {(data?.produk_populer || []).map((prod) => (
                     <button
                       key={prod.id}
                       type="button"
@@ -988,6 +1343,16 @@ export const KopsisView: React.FC = () => {
           </div>
         </div>
       )}
+
+      <QRISUploadModal
+        open={showQRISModal}
+        onClose={() => {
+          setShowQRISModal(false);
+          setKopsisQris(getStoredQRIS('kopsis'));
+        }}
+        type="kopsis"
+        onSaved={() => setKopsisQris(getStoredQRIS('kopsis'))}
+      />
     </div>
   );
 };

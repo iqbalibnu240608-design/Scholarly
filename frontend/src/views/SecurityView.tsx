@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import {
   Clock,
@@ -42,6 +43,7 @@ interface AttendanceLog {
 }
 
 export const SecurityView: React.FC = () => {
+  const { activeRole } = useAuth();
   const [logs, setLogs] = useState<AttendanceLog[]>([
     {
       id: 1,
@@ -95,7 +97,7 @@ export const SecurityView: React.FC = () => {
 
   useEffect(() => {
     fetchTodayLogs();
-  }, []);
+  }, [activeRole]);
 
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
