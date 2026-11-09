@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\AcademicClass;
 use App\Models\Announcement;
 use App\Models\Attendance;
+use App\Models\Book;
+use App\Models\BookLoan;
 use App\Models\Grade;
 use App\Models\KantinMenu;
 use App\Models\KopsisProduct;
@@ -255,21 +257,32 @@ class DatabaseSeeder extends Seeder
             $classes['XII RPL 1']->update(['homeroom_teacher_id' => $users['guru']->id]);
         }
 
-        // 5. Initial Wallets (Dompet Digital Siswa)
+        // 5. Initial Wallets (Dompet Digital untuk Seluruh Civitas Akademika)
         $studentAhmad = User::where('identifier_number', '0061234567')->first();
-        if ($studentAhmad) {
-            Wallet::updateOrCreate(
-                ['user_id' => $studentAhmad->id],
-                ['balance_kopsis' => 125000, 'balance_kantin' => 65000]
-            );
-        }
-
         $studentSiti = User::where('identifier_number', '0089876543')->first();
-        if ($studentSiti) {
-            Wallet::updateOrCreate(
-                ['user_id' => $studentSiti->id],
-                ['balance_kopsis' => 80000, 'balance_kantin' => 45000]
-            );
+
+        $walletsToSeed = [
+            ['user' => $studentAhmad, 'amount' => 125000],
+            ['user' => $studentSiti, 'amount' => 80000],
+            ['user' => $users['guru'] ?? User::where('role_name', 'guru')->first(), 'amount' => 250000],
+            ['user' => $users['perpustakaan'] ?? User::where('role_name', 'perpustakaan')->first(), 'amount' => 100000],
+            ['user' => $users['petugas'] ?? User::where('role_name', 'petugas')->first(), 'amount' => 75000],
+            ['user' => $users['kopsis'] ?? User::where('role_name', 'kopsis')->first(), 'amount' => 50000],
+            ['user' => $users['kantin'] ?? User::where('role_name', 'kantin')->first(), 'amount' => 50000],
+            ['user' => $users['security'] ?? User::where('role_name', 'security')->first(), 'amount' => 50000],
+        ];
+
+        foreach ($walletsToSeed as $w) {
+            if ($w['user']) {
+                Wallet::updateOrCreate(
+                    ['user_id' => $w['user']->id],
+                    [
+                        'balance' => $w['amount'],
+                        'balance_kopsis' => $w['amount'],
+                        'balance_kantin' => $w['amount'],
+                    ]
+                );
+            }
         }
 
         // 6. Initial Announcements
@@ -411,52 +424,56 @@ class DatabaseSeeder extends Seeder
             $ktnId = $users['kantin']->id;
 
             // Top-up awal
-            Transaction::firstOrCreate(
+            Transaction::updateOrCreate(
                 ['reference_no' => 'TOPUP-INIT-01'],
                 [
                     'user_id' => $studentAhmad->id,
                     'type' => 'topup_kopsis',
                     'amount' => 150000,
                     'payment_method' => 'cash',
+                    'status' => 'approved',
                     'description' => 'Top-up saldo awal Kopsis siswa oleh Petugas TU',
                     'operator_id' => $tuId,
                 ]
             );
 
             // Belanja Kopsis
-            Transaction::firstOrCreate(
+            Transaction::updateOrCreate(
                 ['reference_no' => 'KOP-INIT-01'],
                 [
                     'user_id' => $studentAhmad->id,
                     'type' => 'purchase_kopsis',
                     'amount' => 25000,
                     'payment_method' => 'wallet',
+                    'status' => 'approved',
                     'description' => 'Belanja Kopsis: Buku Tulis Campus x2, Bolpoin Gel Hitam x2',
                     'operator_id' => $kopId,
                 ]
             );
 
             // Belanja Kantin
-            Transaction::firstOrCreate(
+            Transaction::updateOrCreate(
                 ['reference_no' => 'KTN-INIT-01'],
                 [
                     'user_id' => $studentAhmad->id,
                     'type' => 'purchase_kantin',
                     'amount' => 15000,
                     'payment_method' => 'wallet',
+                    'status' => 'approved',
                     'description' => 'Pesanan Kantin: Nasi Goreng Spesial Telur x1, Es Teh Manis Jumbo x1',
                     'operator_id' => $ktnId,
                 ]
             );
 
             // SPP Bulan Berjalan
-            Transaction::firstOrCreate(
+            Transaction::updateOrCreate(
                 ['reference_no' => 'SPP-INIT-01'],
                 [
                     'user_id' => $studentAhmad->id,
                     'type' => 'spp',
                     'amount' => 350000,
                     'payment_method' => 'cash',
+                    'status' => 'approved',
                     'description' => 'Pembayaran SPP Bulan ' . Carbon::now()->translatedFormat('F Y') . ' Lunas',
                     'operator_id' => $tuId,
                 ]
@@ -490,6 +507,84 @@ class DatabaseSeeder extends Seeder
                     ]
                 );
             }
+        }
+
+        // 13. Initial Library Books & Circulation (Perpustakaan Dewi Lestari)
+        $booksData = [
+            ['isbn' => '978-602-291-001-1', 'title' => 'Laskar Pelangi', 'author' => 'Andrea Hirata', 'publisher' => 'Bentang Pustaka', 'category' => 'Fiksi', 'stock' => 5, 'shelf_location' => 'Rak A-1 Novel'],
+            ['isbn' => '978-602-8758-26-0', 'title' => 'Matematika Diskrit & Algoritma', 'author' => 'Rinaldi Munir', 'publisher' => 'Informatika', 'category' => 'Pelajaran', 'stock' => 8, 'shelf_location' => 'Rak B-2 Sains'],
+            ['isbn' => '978-623-00-1234-5', 'title' => 'Pemrograman Web Modern (React & Laravel)', 'author' => 'Budi Raharjo', 'publisher' => 'Modula', 'category' => 'Teknologi', 'stock' => 6, 'shelf_location' => 'Rak C-1 Komputer'],
+            ['isbn' => '978-979-3062-79-2', 'title' => 'Bumi Manusia', 'author' => 'Pramoedya Ananta Toer', 'publisher' => 'Hasta Mitra', 'category' => 'Sastra', 'stock' => 4, 'shelf_location' => 'Rak A-2 Sejarah'],
+            ['isbn' => '978-979-011-890-1', 'title' => 'Fisika Dasar untuk Sains & Teknik', 'author' => 'Halliday & Resnick', 'publisher' => 'Erlangga', 'category' => 'Pelajaran', 'stock' => 7, 'shelf_location' => 'Rak B-1 Sains'],
+            ['isbn' => '978-602-02-9988-7', 'title' => 'Komik Sains Kuark: Eksplorasi Antariksa', 'author' => 'PT Kuark Internasional', 'publisher' => 'Elex Media', 'category' => 'Komik', 'stock' => 10, 'shelf_location' => 'Rak D-1 Komik'],
+            ['isbn' => '978-602-123-456-7', 'title' => 'Ensiklopedia Pengetahuan Umum Dunia', 'author' => 'National Geographic', 'publisher' => 'Gramedia', 'category' => 'Referensi', 'stock' => 3, 'shelf_location' => 'Rak E-1 Referensi'],
+        ];
+
+        foreach ($booksData as $b) {
+            Book::updateOrCreate(['isbn' => $b['isbn']], $b);
+        }
+
+        $perpusUser = $users['perpustakaan'] ?? User::where('role_name', 'perpustakaan')->first();
+        $book1 = Book::where('isbn', '978-602-291-001-1')->first();
+        $book2 = Book::where('isbn', '978-623-00-1234-5')->first();
+
+        if ($studentAhmad && $book1) {
+            BookLoan::updateOrCreate(
+                ['reference_no' => 'LIB-INIT-001'],
+                [
+                    'book_id' => $book1->id,
+                    'user_id' => $studentAhmad->id,
+                    'borrow_date' => Carbon::today()->subDays(2),
+                    'due_date' => Carbon::today()->addDays(5),
+                    'status' => 'borrowed',
+                    'fine_amount' => 0,
+                    'operator_id' => $perpusUser?->id,
+                ]
+            );
+        }
+
+        if ($studentAhmad && $book2) {
+            BookLoan::updateOrCreate(
+                ['reference_no' => 'LIB-INIT-002'],
+                [
+                    'book_id' => $book2->id,
+                    'user_id' => $studentAhmad->id,
+                    'borrow_date' => Carbon::today()->subDays(10),
+                    'due_date' => Carbon::today()->subDays(3),
+                    'status' => 'borrowed',
+                    'fine_amount' => 3000,
+                    'operator_id' => $perpusUser?->id,
+                ]
+            );
+        }
+
+        // 14. Initial Pending Top-Up Transactions (Demo Approval Loket TU & Notifikasi Badge)
+        if ($studentAhmad && isset($users['guru'])) {
+            Transaction::updateOrCreate(
+                ['reference_no' => 'TOPUP-PENDING-01'],
+                [
+                    'user_id' => $studentAhmad->id,
+                    'type' => 'topup_wallet',
+                    'amount' => 50000,
+                    'payment_method' => 'qris',
+                    'status' => 'pending',
+                    'description' => 'Top-up Saldo Digital Siswa via QRIS (Menunggu Verifikasi TU)',
+                    'operator_id' => null,
+                ]
+            );
+
+            Transaction::updateOrCreate(
+                ['reference_no' => 'TOPUP-PENDING-02'],
+                [
+                    'user_id' => $users['guru']->id,
+                    'type' => 'topup_wallet',
+                    'amount' => 100000,
+                    'payment_method' => 'cash',
+                    'status' => 'pending',
+                    'description' => 'Top-up Saldo Dewan Guru di Loket TU (Menunggu Verifikasi)',
+                    'operator_id' => null,
+                ]
+            );
         }
     }
 }
