@@ -117,9 +117,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs gap-3">
+    <header className="h-16 bg-white border-b border-slate-200/80 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs gap-2 sm:gap-3">
       {/* Left: Mobile Toggle + Breadcrumb Identity + Dedicated Search Bar */}
-      <div className="flex items-center gap-3 sm:gap-4 flex-1 max-w-xl min-w-0 mr-4">
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 max-w-xl min-w-0 mr-1 sm:mr-4">
         {/* Mobile Hamburger Menu Toggle */}
         <button
           type="button"
@@ -143,13 +143,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         <div className="hidden sm:block h-5 w-px bg-slate-200 shrink-0 mx-0.5" />
 
         {/* Dedicated Search Input with clear breathing room and no overlapping */}
-        <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-xs md:max-w-sm min-w-[170px]">
+        <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-xs md:max-w-sm min-w-0">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari modul atau layanan..."
+            placeholder="Cari modul..."
             style={{ paddingLeft: "40px", paddingRight: "36px", boxSizing: "border-box" }}
             className="w-full h-9.5 pl-10 pr-9 bg-slate-100 hover:bg-slate-100/80 border border-slate-200 focus:border-blue-500 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/15 focus:bg-white transition-all shadow-2xs font-medium"
           />
@@ -186,7 +186,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         </Link>
 
         {/* Role Switcher Pill */}
-        <div className="h-9.5 px-3 bg-slate-50 hover:bg-blue-50/40 border border-slate-200/90 hover:border-blue-200/90 rounded-xl inline-flex items-center gap-1.5 shrink-0 transition-all shadow-2xs">
+        <div className="h-9.5 px-2 sm:px-3 bg-slate-50 hover:bg-blue-50/40 border border-slate-200/90 hover:border-blue-200/90 rounded-xl inline-flex items-center gap-1 sm:gap-1.5 shrink-0 transition-all shadow-2xs">
           <span className="inline-flex items-center gap-1.5 text-slate-500 font-semibold text-[11px] leading-none shrink-0 select-none">
             {switching ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600 shrink-0" />
@@ -196,7 +196,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             <span className="hidden xl:inline leading-none">Peran:</span>
           </span>
           <select
-            className="border-none bg-transparent text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer outline-none pl-1 pr-1.5 py-1 leading-none m-0 transition-colors"
+            className="border-none bg-transparent text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer outline-none pl-0.5 sm:pl-1 pr-1 leading-none m-0 max-w-[72px] sm:max-w-none truncate transition-colors"
             value={activeRole}
             onChange={handleRoleChange}
             disabled={switching}
@@ -217,7 +217,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
               setShowNotifications((prev) => !prev);
               setHasUnread(false);
             }}
-            className="w-9 h-9 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors inline-flex items-center justify-center p-0 shrink-0 relative"
+            className={`w-9 h-9 rounded-xl transition-colors inline-flex items-center justify-center p-0 shrink-0 relative ${
+              showNotifications
+                ? 'bg-blue-50 text-blue-600 ring-2 ring-blue-500/20 shadow-xs'
+                : 'text-slate-500 hover:text-blue-600 hover:bg-slate-100'
+            }`}
             title="Notifikasi Sekolah"
           >
             <Bell className="w-4 h-4 shrink-0" />
@@ -226,9 +230,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             )}
           </button>
 
-          {/* Notifications Dropdown Panel */}
+          {/* Notifications Dropdown Panel — Positioned strictly BELOW the header */}
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200/90 shadow-xl py-3 z-50 animate-in fade-in slide-in-from-top-2">
+            <div className="fixed left-3 right-3 top-[68px] sm:absolute sm:left-auto sm:right-0 sm:top-[calc(100%+18px)] sm:w-96 bg-white rounded-2xl border border-slate-200/90 shadow-2xl py-3 z-50 animate-in fade-in slide-in-from-top-2">
               <div className="flex items-center justify-between px-4 pb-2.5 border-b border-slate-100">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-blue-600" />

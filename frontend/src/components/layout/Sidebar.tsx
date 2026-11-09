@@ -107,10 +107,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
       {/* Main Aside Navigation */}
       <aside
-        className={`w-[250px] bg-[#2857e6] shrink-0 text-white select-none overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden transition-transform duration-300 z-50 ${
+        className={`w-[250px] bg-[#2857e6] shrink-0 text-white select-none overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden transition-transform duration-300 z-50 fixed inset-y-0 left-0 flex flex-col justify-between shadow-2xl md:static md:sticky md:top-0 md:h-screen md:shadow-none md:translate-x-0 ${
           mobileOpen
-            ? 'fixed inset-y-0 left-0 flex flex-col justify-between shadow-2xl translate-x-0'
-            : 'hidden md:flex md:flex-col md:justify-between sticky top-0 h-screen'
+            ? 'translate-x-0'
+            : '-translate-x-full'
         }`}
       >
         {/* Brand Header: Exactly h-16 (64px) for perfect symmetry with top Navbar */}

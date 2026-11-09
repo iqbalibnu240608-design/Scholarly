@@ -254,14 +254,7 @@ export const OverviewView: React.FC = () => {
 
   return (
     <div
-      className="w-full max-w-[1540px] mx-auto"
-      style={{
-        width: '100%',
-        maxWidth: '1540px',
-        margin: '0 auto',
-        padding: '0 0 40px 0',
-        boxSizing: 'border-box',
-      }}
+      className="w-full max-w-[1540px] mx-auto pb-10 box-border"
     >
       {/* =========================================================================
           BARIS 1 (ATAS): 2 KOLOM ASIMETRIS
@@ -269,148 +262,46 @@ export const OverviewView: React.FC = () => {
           Kanan: Panel Ringkasan 'Status Civitas' (Presensi RFID 06:48 WIB & SPP)
           ========================================================================= */}
       <section
-        className="grid grid-cols-1 lg:grid-cols-12 items-stretch"
+        className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-4 sm:gap-5"
         style={{
-          display: 'grid',
-          gap: '20px',
           boxSizing: 'border-box',
         }}
       >
         {/* Kolom Kiri: Banner Hitam 'Selamat Datang, Ahmad' */}
         <div
-          className="lg:col-span-8 bg-[#0F172A] text-white"
-          style={{
-            padding: '28px 32px',
-            borderRadius: '16px',
-            backgroundColor: '#0F172A',
-            border: '1px solid #1E293B',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            position: 'relative',
-            overflow: 'hidden',
-            boxSizing: 'border-box',
-            boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
-          }}
+          className="lg:col-span-8 bg-[#0F172A] text-white p-5 sm:p-7 lg:p-8 rounded-2xl border border-slate-800 flex flex-col justify-between relative overflow-hidden box-border shadow-md"
         >
           {/* Subtle Ambient Glow */}
           <div
-            style={{
-              position: 'absolute',
-              top: '-30px',
-              right: '-30px',
-              width: '240px',
-              height: '240px',
-              backgroundColor: 'rgba(37, 99, 235, 0.15)',
-              borderRadius: '9999px',
-              filter: 'blur(50px)',
-              pointerEvents: 'none',
-            }}
+            className="absolute -top-8 -right-8 w-48 sm:w-60 h-48 sm:h-60 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"
           />
 
           {/* Top Badges */}
-          <div
-            style={{
-              position: 'relative',
-              zIndex: 10,
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '12px',
-              marginBottom: '16px',
-            }}
-          >
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '4px 12px',
-                  borderRadius: '9999px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                }}
-              >
-                <Calendar className="w-3.5 h-3.5 text-blue-300" style={{ width: '14px', height: '14px' }} />
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 mb-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-white/90 border border-white/15">
+                <Calendar className="w-3.5 h-3.5 text-blue-300 shrink-0" />
                 <span>T.A. 2026/2027 Ganjil</span>
               </span>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '4px 12px',
-                  borderRadius: '9999px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  textTransform: 'uppercase',
-                }}
-              >
-                <UserCheck className="w-3.5 h-3.5 text-blue-300" style={{ width: '14px', height: '14px' }} />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-white/90 border border-white/15 uppercase">
+                <UserCheck className="w-3.5 h-3.5 text-blue-300 shrink-0" />
                 <span>{isStudent ? 'Siswa Terverifikasi' : `Peran: ${activeRole}`}</span>
               </span>
             </div>
 
             {/* Live Status Chip */}
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '4px 12px',
-                borderRadius: '9999px',
-                fontSize: '11px',
-                fontWeight: 600,
-                backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                color: '#6ee7b7',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-              }}
-            >
-              <span
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '9999px',
-                  backgroundColor: '#34d399',
-                  display: 'inline-block',
-                }}
-                className="animate-pulse"
-              />
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse shrink-0" />
               <span>RFID Smart Gate: Terhubung</span>
             </span>
           </div>
 
           {/* Heading & Subtitle */}
-          <div style={{ position: 'relative', zIndex: 10, margin: '8px 0' }}>
-            <h2
-              style={{
-                fontSize: '28px',
-                fontWeight: 800,
-                color: '#ffffff',
-                lineHeight: 1.25,
-                letterSpacing: '-0.02em',
-                margin: '0 0 8px 0',
-              }}
-            >
+          <div className="relative z-10 my-2">
+            <h2 className="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-white leading-tight tracking-tight mb-2">
               Selamat Datang, {displayName}
             </h2>
-            <p
-              style={{
-                color: '#cbd5e1',
-                fontSize: '13px',
-                lineHeight: 1.6,
-                maxWidth: '620px',
-                margin: 0,
-              }}
-            >
+            <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed max-w-[620px] m-0">
               {isStudent
                 ? 'Portal terpadu Smart SteelSchool siap menemani aktivitas belajar Anda. Pantau jadwal kelas harian, kelola saldo dompet digital kantin & koperasi, serta verifikasi status presensi secara instan.'
                 : 'Pusat komando operasional ekosistem sekolah. Pantau aktivitas belajar mengajar, sinkronisasi kehadiran gerbang RFID, dan kelola administrasi civitas sekolah secara menyeluruh.'}
@@ -418,44 +309,17 @@ export const OverviewView: React.FC = () => {
           </div>
 
           {/* Tombol Putih 'Buka Jadwal & Kelas' */}
-          <div
-            style={{
-              position: 'relative',
-              zIndex: 10,
-              marginTop: '16px',
-              paddingTop: '16px',
-              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '12px',
-            }}
-          >
+          <div className="relative z-10 mt-4 pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <Link
               to={isStudent ? '/app/siswa' : '/app/admin'}
-              style={{
-                padding: '10px 20px',
-                borderRadius: '12px',
-                backgroundColor: '#ffffff',
-                color: '#0F172A',
-                fontWeight: 700,
-                fontSize: '12px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                textDecoration: 'none',
-                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease',
-              }}
-              className="hover:bg-slate-100 group"
+              className="px-5 py-2.5 rounded-xl bg-white text-slate-900 font-bold text-xs inline-flex items-center justify-center gap-2 shadow-xs hover:bg-slate-100 group transition-all shrink-0"
             >
               <span>{isStudent ? 'Buka Jadwal & Kelas' : 'Kelola Modul Administrator'}</span>
-              <ArrowRight className="w-4 h-4 text-slate-900 group-hover:translate-x-1 transition-transform" style={{ width: '16px', height: '16px' }} />
+              <ArrowRight className="w-4 h-4 text-slate-900 group-hover:translate-x-1 transition-transform" />
             </Link>
 
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#94a3b8' }}>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" style={{ width: '16px', height: '16px' }} />
+            <div className="inline-flex items-center gap-2 text-xs text-slate-400">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>Terverifikasi Sistem Smart Identity Card</span>
             </div>
           </div>
@@ -463,129 +327,63 @@ export const OverviewView: React.FC = () => {
 
         {/* Kolom Kanan: Panel 'Status Civitas' */}
         <div
-          className="lg:col-span-4"
-          style={{
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid #E2E8F0',
-            backgroundColor: '#FFFFFF',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxSizing: 'border-box',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-          }}
+          className="lg:col-span-4 p-5 sm:p-6 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between shadow-2xs box-border"
         >
           {/* Header Panel */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingBottom: '14px',
-              borderBottom: '1px solid #F1F5F9',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  backgroundColor: '#EFF6FF',
-                  color: '#2563EB',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 700,
-                }}
-              >
-                <ShieldCheck style={{ width: '18px', height: '18px' }} />
+          <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+                <ShieldCheck className="w-4.5 h-4.5" />
               </div>
               <div>
-                <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 m-0">
                   Status Civitas & Verifikasi
                 </h3>
-                <p style={{ fontSize: '11px', color: '#94A3B8', margin: '2px 0 0 0' }}>Presensi Gerbang & Finansial</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 m-0">Presensi Gerbang & Finansial</p>
               </div>
             </div>
-            <span
-              style={{
-                padding: '4px 8px',
-                borderRadius: '6px',
-                fontSize: '10px',
-                fontWeight: 800,
-                backgroundColor: '#ECFDF5',
-                color: '#047857',
-                border: '1px solid #A7F3D0',
-                textTransform: 'uppercase',
-              }}
-            >
+            <span className="px-2 py-1 rounded-md text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase shrink-0">
               Terverifikasi
             </span>
           </div>
 
           {/* Blok 1: Presensi Gerbang RFID */}
-          <div style={{ padding: '14px 0', borderBottom: '1px solid #F1F5F9' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94A3B8' }}>
+          <div className="py-3.5 border-b border-slate-100">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 Presensi Gerbang RFID
               </span>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '2px 8px',
-                  borderRadius: '9999px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  backgroundColor: '#D1FAE5',
-                  color: '#065F46',
-                }}
-              >
-                <CheckCircle2 style={{ width: '12px', height: '12px' }} />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                <CheckCircle2 className="w-3 h-3" />
                 <span>Tepat Waktu</span>
               </span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: 'monospace', fontSize: '24px', fontWeight: 900, color: '#0F172A' }}>
+            <div className="flex items-baseline justify-between">
+              <span className="font-mono text-2xl font-black text-slate-900">
                 {studentStats.presensiGerbangJam}
               </span>
-              <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B' }}>Gate 1 • Gerbang Utama</span>
+              <span className="text-[11px] font-semibold text-slate-500">Gate 1 • Gerbang Utama</span>
             </div>
           </div>
 
           {/* Blok 2: Status SPP */}
-          <div style={{ paddingTop: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94A3B8' }}>
+          <div className="pt-3.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 Status Pembayaran SPP
               </span>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '2px 8px',
-                  borderRadius: '9999px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  backgroundColor: '#DBEAFE',
-                  color: '#1E40AF',
-                }}
-              >
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
                 <span>Lunas (Bulan Berjalan)</span>
               </span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <div className="flex items-baseline justify-between">
               <div>
-                <span style={{ fontWeight: 700, fontSize: '14px', color: '#059669', display: 'block' }}>
+                <span className="font-bold text-sm text-emerald-600 block">
                   Periode November 2026
                 </span>
-                <span style={{ fontSize: '11px', color: '#94A3B8' }}>Bebas Tunggakan Administrasi</span>
+                <span className="text-[11px] text-slate-400">Bebas Tunggakan Administrasi</span>
               </div>
-              <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#64748B', backgroundColor: '#F1F5F9', padding: '3px 6px', borderRadius: '4px' }}>
+              <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                 Next: 10 Des 2026
               </span>
             </div>
@@ -600,121 +398,61 @@ export const OverviewView: React.FC = () => {
           Kolom 3 (Kanan 1/3): Panel 'Jadwal Kelas Hari Ini'
           ========================================================================= */}
       <section
-        className="grid grid-cols-1 lg:grid-cols-12 items-stretch"
-        style={{
-          display: 'grid',
-          gap: '20px',
-          marginTop: '24px',
-          boxSizing: 'border-box',
-        }}
+        className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-4 sm:gap-5 mt-5 sm:mt-6 box-border"
       >
         {/* Kolom Kiri 2/3: E-Wallet Cards & 4 Modul Akses Cepat */}
         <div
-          className="lg:col-span-8"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '20px',
-            boxSizing: 'border-box',
-          }}
+          className="lg:col-span-8 flex flex-col justify-between gap-4 sm:gap-5 box-border"
         >
           {/* Sub-Baris Atas: 2 Kartu Dompet Digital E-Wallet */}
           <div
-            className="grid grid-cols-1 sm:grid-cols-2"
-            style={{
-              display: 'grid',
-              gap: '20px',
-              boxSizing: 'border-box',
-            }}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 box-border"
           >
             {/* E-Wallet Card 1: Saldo Kantin Digital */}
             <div
-              style={{
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1px solid #E2E8F0',
-                backgroundColor: '#FFFFFF',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                boxSizing: 'border-box',
-              }}
-              className="hover:border-blue-300 transition-all group"
+              className="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-blue-300 transition-all flex flex-col justify-between box-border group"
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        backgroundColor: '#EFF6FF',
-                        color: '#2563EB',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <UtensilsCrossed style={{ width: '16px', height: '16px' }} />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <UtensilsCrossed className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                      <h4 className="text-[13px] font-bold text-slate-900 m-0">
                         Kantin Digital
                       </h4>
-                      <span style={{ fontSize: '10px', color: '#94A3B8' }}>E-Wallet Jajan Siswa</span>
+                      <span className="text-[10px] text-slate-400">E-Wallet Jajan Siswa</span>
                     </div>
                   </div>
-                  <Radio style={{ width: '16px', height: '16px', color: '#94A3B8', transform: 'rotate(90deg)' }} />
+                  <Radio className="w-4 h-4 text-slate-400 rotate-90" />
                 </div>
 
-                <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#94A3B8', margin: '14px 0 4px 0', letterSpacing: '0.1em' }}>
+                <p className="font-mono text-[11px] text-slate-400 my-3 tracking-widest">
                   ID KARTU: •••• 4829
                 </p>
 
-                <div style={{ margin: '4px 0 12px 0' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94A3B8', display: 'block' }}>
+                <div className="my-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                     Sisa Saldo Jajan
                   </span>
-                  <span style={{ fontFamily: 'monospace', fontSize: '26px', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
+                  <span className="font-mono text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
                     Rp {studentStats.saldoKantin.toLocaleString('id-ID')}
                   </span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '14px', borderTop: '1px solid #F1F5F9', marginTop: '12px' }}>
+              <div className="flex items-center gap-2 pt-3.5 border-t border-slate-100 mt-3">
                 <Link
                   to="/app/kantin"
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    backgroundColor: '#EFF6FF',
-                    color: '#1D4ED8',
-                    fontWeight: 700,
-                    fontSize: '12px',
-                    textDecoration: 'none',
-                  }}
-                  className="hover:bg-blue-100 transition-colors"
+                  className="flex-1 text-center py-2 px-3 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition-colors"
                 >
                   Pesan Menu
                 </Link>
                 <Link
                   to="/app/kantin"
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    backgroundColor: '#F1F5F9',
-                    color: '#334155',
-                    fontWeight: 700,
-                    fontSize: '12px',
-                    textDecoration: 'none',
-                  }}
-                  className="hover:bg-slate-200 transition-colors"
+                  className="py-2 px-3.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition-colors"
                 >
                   Top Up
                 </Link>
@@ -723,91 +461,49 @@ export const OverviewView: React.FC = () => {
 
             {/* E-Wallet Card 2: Saldo Koperasi Siswa */}
             <div
-              style={{
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1px solid #E2E8F0',
-                backgroundColor: '#FFFFFF',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                boxSizing: 'border-box',
-              }}
-              className="hover:border-blue-300 transition-all group"
+              className="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-blue-300 transition-all flex flex-col justify-between box-border group"
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        backgroundColor: '#EFF6FF',
-                        color: '#2563EB',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <ShoppingBag style={{ width: '16px', height: '16px' }} />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <ShoppingBag className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                      <h4 className="text-[13px] font-bold text-slate-900 m-0">
                         Koperasi Siswa
                       </h4>
-                      <span style={{ fontSize: '10px', color: '#94A3B8' }}>E-Wallet Kopsis</span>
+                      <span className="text-[10px] text-slate-400">E-Wallet Kopsis</span>
                     </div>
                   </div>
-                  <Radio style={{ width: '16px', height: '16px', color: '#94A3B8', transform: 'rotate(90deg)' }} />
+                  <Radio className="w-4 h-4 text-slate-400 rotate-90" />
                 </div>
 
-                <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#94A3B8', margin: '14px 0 4px 0', letterSpacing: '0.1em' }}>
+                <p className="font-mono text-[11px] text-slate-400 my-3 tracking-widest">
                   ID REKENING: •••• 9102
                 </p>
 
-                <div style={{ margin: '4px 0 12px 0' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94A3B8', display: 'block' }}>
+                <div className="my-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                     Sisa Saldo Belanja
                   </span>
-                  <span style={{ fontFamily: 'monospace', fontSize: '26px', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
+                  <span className="font-mono text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
                     Rp {studentStats.saldoKopsis.toLocaleString('id-ID')}
                   </span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '14px', borderTop: '1px solid #F1F5F9', marginTop: '12px' }}>
+              <div className="flex items-center gap-2 pt-3.5 border-t border-slate-100 mt-3">
                 <Link
                   to="/app/kopsis"
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    backgroundColor: '#EFF6FF',
-                    color: '#1D4ED8',
-                    fontWeight: 700,
-                    fontSize: '12px',
-                    textDecoration: 'none',
-                  }}
-                  className="hover:bg-blue-100 transition-colors"
+                  className="flex-1 text-center py-2 px-3 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition-colors"
                 >
                   Katalog Toko
                 </Link>
                 <Link
                   to="/app/kopsis"
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    backgroundColor: '#F1F5F9',
-                    color: '#334155',
-                    fontWeight: 700,
-                    fontSize: '12px',
-                    textDecoration: 'none',
-                  }}
-                  className="hover:bg-slate-200 transition-colors"
+                  className="py-2 px-3.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition-colors"
                 >
                   Top Up
                 </Link>
@@ -817,76 +513,38 @@ export const OverviewView: React.FC = () => {
 
           {/* Sub-Baris Bawah: 4 Modul Layanan & Akses Cepat */}
           <div
-            className="grid grid-cols-1 sm:grid-cols-2"
-            style={{
-              display: 'grid',
-              gap: '20px',
-              boxSizing: 'border-box',
-            }}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 box-border"
           >
-            {/* Featured Card: Portal Akademik & Penilaian (#EFF6FF / border #BFDBFE) */}
+            {/* Featured Card: Portal Akademik & Penilaian */}
             <div
-              style={{
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1px solid #BFDBFE',
-                backgroundColor: '#EFF6FF',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                boxSizing: 'border-box',
-              }}
-              className="hover:shadow-md transition-all group"
+              className="p-4 sm:p-5 rounded-xl border border-blue-200 bg-blue-50/70 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between box-border group"
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '10px',
-                      backgroundColor: '#2563EB',
-                      color: '#ffffff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <GraduationCap style={{ width: '20px', height: '20px' }} />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                    <GraduationCap className="w-5 h-5" />
                   </div>
-                  <span
-                    style={{
-                      fontSize: '10px',
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      padding: '3px 8px',
-                      borderRadius: '9999px',
-                      backgroundColor: '#2563EB',
-                      color: '#ffffff',
-                      letterSpacing: '0.05em',
-                    }}
-                  >
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-600 text-white tracking-wider">
                     Modul Utama
                   </span>
                 </div>
 
-                <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#1E3A8A', margin: '0 0 6px 0', letterSpacing: '-0.01em' }}>
+                <h4 className="text-[15px] font-extrabold text-blue-950 mb-1.5 tracking-tight">
                   Portal Akademik & Penilaian
                 </h4>
-                <p style={{ fontSize: '12px', color: '#1E40AF', margin: 0, lineHeight: 1.5 }}>
+                <p className="text-xs text-blue-900 m-0 leading-relaxed">
                   Pantau buku nilai, transkrip rapor semester terpadu, dan jadwal ujian CBT sekolah secara realtime.
                 </p>
 
                 {/* Micro Sub-Features */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: '#ffffff', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '2px 8px', borderRadius: '6px' }}>
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  <span className="text-[10px] font-bold bg-white text-blue-700 border border-blue-200 px-2 py-0.5 rounded-md">
                     Buku Nilai
                   </span>
-                  <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: '#ffffff', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '2px 8px', borderRadius: '6px' }}>
+                  <span className="text-[10px] font-bold bg-white text-blue-700 border border-blue-200 px-2 py-0.5 rounded-md">
                     Transkrip Rapor
                   </span>
-                  <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: '#ffffff', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '2px 8px', borderRadius: '6px' }}>
+                  <span className="text-[10px] font-bold bg-white text-blue-700 border border-blue-200 px-2 py-0.5 rounded-md">
                     Jadwal CBT
                   </span>
                 </div>
@@ -894,206 +552,97 @@ export const OverviewView: React.FC = () => {
 
               <Link
                 to="/app/siswa"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: '#1D4ED8',
-                  textDecoration: 'none',
-                  marginTop: '16px',
-                }}
-                className="group-hover:translate-x-1 transition-transform"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:text-blue-800 mt-4 group-hover:translate-x-1 transition-transform"
               >
                 <span>Buka Modul Akademik</span>
-                <ArrowRight style={{ width: '16px', height: '16px' }} />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
             {/* Modul 2: Kantin Digital */}
             <div
-              style={{
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1px solid #E2E8F0',
-                backgroundColor: '#FFFFFF',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                boxSizing: 'border-box',
-              }}
-              className="hover:border-blue-300 transition-all group"
+              className="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-blue-300 transition-all flex flex-col justify-between box-border group"
             >
               <div>
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    backgroundColor: '#EFF6FF',
-                    color: '#2563EB',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '12px',
-                  }}
-                >
-                  <UtensilsCrossed style={{ width: '20px', height: '20px' }} />
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 shrink-0">
+                  <UtensilsCrossed className="w-5 h-5" />
                 </div>
-                <h4 style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px 0' }}>
+                <h4 className="text-[15px] font-bold text-slate-900 mb-1.5">
                   Kantin Sehat Digital
                 </h4>
-                <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.5 }}>
+                <p className="text-xs text-slate-500 m-0 leading-relaxed">
                   Pesan makanan higienis tanpa antre, pre-order jam istirahat, dan transaksi cashless kartu pelajar.
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '11px', color: '#64748B' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#10B981', display: 'inline-block' }} />
+                <div className="flex items-center gap-1.5 mt-3 text-[11px] text-slate-500">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shrink-0" />
                   <span>Kantin Buka • 18 Menu Tersedia</span>
                 </div>
               </div>
 
               <Link
                 to="/app/kantin"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: '#334155',
-                  textDecoration: 'none',
-                  marginTop: '16px',
-                }}
-                className="hover:text-blue-600 group-hover:translate-x-1 transition-all"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 mt-4 group-hover:translate-x-1 transition-all"
               >
                 <span>Buka Kantin</span>
-                <ArrowRight style={{ width: '16px', height: '16px' }} />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
             {/* Modul 3: Koperasi Siswa */}
             <div
-              style={{
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1px solid #E2E8F0',
-                backgroundColor: '#FFFFFF',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                boxSizing: 'border-box',
-              }}
-              className="hover:border-blue-300 transition-all group"
+              className="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-blue-300 transition-all flex flex-col justify-between box-border group"
             >
               <div>
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    backgroundColor: '#EFF6FF',
-                    color: '#2563EB',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '12px',
-                  }}
-                >
-                  <ShoppingBag style={{ width: '20px', height: '20px' }} />
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 shrink-0">
+                  <ShoppingBag className="w-5 h-5" />
                 </div>
-                <h4 style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px 0' }}>
+                <h4 className="text-[15px] font-bold text-slate-900 mb-1.5">
                   Koperasi Siswa
                 </h4>
-                <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.5 }}>
+                <p className="text-xs text-slate-500 m-0 leading-relaxed">
                   Kebutuhan seragam resmi, atribut OSIS, buku paket kurikulum merdeka, dan alat tulis sekolah.
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '11px', color: '#64748B' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#2563EB', display: 'inline-block' }} />
+                <div className="flex items-center gap-1.5 mt-3 text-[11px] text-slate-500">
+                  <span className="w-2 h-2 rounded-full bg-blue-600 inline-block shrink-0" />
                   <span>Stok Seragam & Buku Siap</span>
                 </div>
               </div>
 
               <Link
                 to="/app/kopsis"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: '#334155',
-                  textDecoration: 'none',
-                  marginTop: '16px',
-                }}
-                className="hover:text-blue-600 group-hover:translate-x-1 transition-all"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 mt-4 group-hover:translate-x-1 transition-all"
               >
                 <span>Katalog Koperasi</span>
-                <ArrowRight style={{ width: '16px', height: '16px' }} />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
             {/* Modul 4: Presensi Digital & RFID */}
             <div
-              style={{
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1px solid #E2E8F0',
-                backgroundColor: '#FFFFFF',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                boxSizing: 'border-box',
-              }}
-              className="hover:border-blue-300 transition-all group"
+              className="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-blue-300 transition-all flex flex-col justify-between box-border group"
             >
               <div>
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    backgroundColor: '#EFF6FF',
-                    color: '#2563EB',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '12px',
-                  }}
-                >
-                  <ShieldCheck style={{ width: '20px', height: '20px' }} />
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
                 </div>
-                <h4 style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px 0' }}>
+                <h4 className="text-[15px] font-bold text-slate-900 mb-1.5">
                   Presensi & Kartu RFID
                 </h4>
-                <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.5 }}>
+                <p className="text-xs text-slate-500 m-0 leading-relaxed">
                   Rekapitulasi absensi 100% hadir, riwayat tap kartu gerbang otomatis, dan pengajuan surat izin online.
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '11px', color: '#64748B' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#10B981', display: 'inline-block' }} />
+                <div className="flex items-center gap-1.5 mt-3 text-[11px] text-slate-500">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shrink-0" />
                   <span>Gerbang Aktif: Gate 1 & 2</span>
                 </div>
               </div>
 
               <Link
                 to="/app/security"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: '#334155',
-                  textDecoration: 'none',
-                  marginTop: '16px',
-                }}
-                className="hover:text-blue-600 group-hover:translate-x-1 transition-all"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 mt-4 group-hover:translate-x-1 transition-all"
               >
                 <span>Cek Rekap Presensi</span>
-                <ArrowRight style={{ width: '16px', height: '16px' }} />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
@@ -1101,106 +650,60 @@ export const OverviewView: React.FC = () => {
 
         {/* Kolom Kanan 1/3: Panel 'Jadwal Kelas Hari Ini' */}
         <div
-          className="lg:col-span-4"
-          style={{
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid #E2E8F0',
-            backgroundColor: '#FFFFFF',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxSizing: 'border-box',
-          }}
+          className="lg:col-span-4 p-5 rounded-xl border border-slate-200 bg-white shadow-2xs flex flex-col justify-between box-border"
         >
           <div>
             {/* Header Jadwal */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingBottom: '14px',
-                borderBottom: '1px solid #F1F5F9',
-              }}
-            >
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div>
-                <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-                  <Clock style={{ width: '16px', height: '16px', color: '#2563EB' }} />
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 m-0">
+                  <Clock className="w-4 h-4 text-blue-600 shrink-0" />
                   <span>Jadwal Kelas Hari Ini</span>
                 </h3>
-                <p style={{ fontSize: '11px', color: '#94A3B8', margin: '2px 0 0 0' }}>Senin • Semester Ganjil</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 m-0">Senin • Semester Ganjil</p>
               </div>
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  color: '#1D4ED8',
-                  backgroundColor: '#EFF6FF',
-                  border: '1px solid #BFDBFE',
-                  padding: '2px 8px',
-                  borderRadius: '6px',
-                }}
-              >
+              <span className="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md shrink-0">
                 {studentStats.kelas}
               </span>
             </div>
 
             {/* List Kartu Per Mata Pelajaran Berlatar #F8FAFC */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+            <div className="flex flex-col gap-3 mt-4">
               {schedules.map((item, idx) => {
                 const isOngoing = item.status?.includes('Berlangsung') || idx === 0;
 
                 return (
                   <div
                     key={idx}
-                    style={{
-                      padding: '14px 16px',
-                      borderRadius: '10px',
-                      border: isOngoing ? '1px solid #BFDBFE' : '1px solid #E2E8F0',
-                      backgroundColor: isOngoing ? '#F0F7FF' : '#F8FAFC',
-                      boxSizing: 'border-box',
-                    }}
+                    className={`p-3.5 rounded-xl border box-border ${
+                      isOngoing ? 'border-blue-200 bg-blue-50/60' : 'border-slate-200 bg-slate-50/80'
+                    }`}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <span
-                        style={{
-                          fontFamily: 'monospace',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          color: '#334155',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                        }}
-                      >
-                        {isOngoing && <span style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#10B981', display: 'inline-block' }} className="animate-pulse" />}
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-mono text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                        {isOngoing && (
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse shrink-0" />
+                        )}
                         {item.jam}
                       </span>
                       <span
-                        style={{
-                          fontSize: '10px',
-                          fontWeight: 800,
-                          padding: '2px 8px',
-                          borderRadius: '9999px',
-                          backgroundColor: isOngoing ? '#D1FAE5' : '#E2E8F0',
-                          color: isOngoing ? '#065F46' : '#475569',
-                        }}
+                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                          isOngoing ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                        }`}
                       >
                         {item.status || 'Terjadwal'}
                       </span>
                     </div>
 
-                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px 0', lineHeight: 1.4 }}>
+                    <h4 className="text-[13px] font-bold text-slate-900 mb-1.5 leading-snug">
                       {item.mapel}
                     </h4>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#64748B' }}>
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: '8px' }}>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500">
+                      <span className="truncate pr-2">
                         {item.guru}
                       </span>
-                      <span style={{ fontWeight: 600, color: '#334155', backgroundColor: '#ffffff', border: '1px solid #E2E8F0', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', flexShrink: 0 }}>
+                      <span className="font-semibold text-slate-700 bg-white border border-slate-200 px-1.5 py-0.5 rounded text-[10px] shrink-0">
                         {item.ruang}
                       </span>
                     </div>
@@ -1211,24 +714,10 @@ export const OverviewView: React.FC = () => {
           </div>
 
           {/* Footer Action */}
-          <div style={{ paddingTop: '16px', marginTop: '16px', borderTop: '1px solid #F1F5F9' }}>
+          <div className="pt-4 mt-4 border-t border-slate-100">
             <Link
               to="/app/siswa"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '8px',
-                backgroundColor: '#F8FAFC',
-                color: '#334155',
-                fontWeight: 700,
-                fontSize: '12px',
-                textAlign: 'center',
-                border: '1px solid #E2E8F0',
-                display: 'block',
-                textDecoration: 'none',
-                boxSizing: 'border-box',
-              }}
-              className="hover:bg-slate-100 transition-colors"
+              className="w-full py-2.5 px-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs text-center border border-slate-200 block transition-colors"
             >
               Lihat Jadwal Lengkap Mingguan →
             </Link>
@@ -1242,127 +731,54 @@ export const OverviewView: React.FC = () => {
           Kanan: Agenda & Acara Sekolah (Padding: 20px, Border-radius: 12px)
           ========================================================================= */}
       <section
-        className="grid grid-cols-1 lg:grid-cols-2"
-        style={{
-          display: 'grid',
-          gap: '20px',
-          marginTop: '24px',
-          boxSizing: 'border-box',
-        }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 mt-5 sm:mt-6 box-border"
       >
         {/* Kolom Kiri: Guru Pengajar & Pembimbing */}
         <div
-          style={{
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid #E2E8F0',
-            backgroundColor: '#FFFFFF',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-            boxSizing: 'border-box',
-          }}
+          className="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-2xs box-border"
         >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingBottom: '14px',
-              borderBottom: '1px solid #F1F5F9',
-              marginBottom: '16px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  backgroundColor: '#EFF6FF',
-                  color: '#2563EB',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <GraduationCap style={{ width: '18px', height: '18px' }} />
+          <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-4.5 h-4.5" />
               </div>
               <div>
-                <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                <h3 className="text-sm font-bold text-slate-900 m-0">
                   Guru Pengajar & Pembimbing
                 </h3>
-                <p style={{ fontSize: '11px', color: '#94A3B8', margin: '2px 0 0 0' }}>Daftar pendidik aktif kelas Anda</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 m-0">Daftar pendidik aktif kelas Anda</p>
               </div>
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#94A3B8' }}>3 Pendidik</span>
+            <span className="text-xs font-semibold text-slate-400">3 Pendidik</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="flex flex-col gap-3">
             {teachersList.map((teacher, idx) => (
               <div
                 key={idx}
-                style={{
-                  padding: '12px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid #E2E8F0',
-                  backgroundColor: '#F8FAFC',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '12px',
-                  boxSizing: 'border-box',
-                }}
-                className="hover:border-blue-200 transition-all"
+                className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-slate-50/80 flex items-center justify-between gap-3 box-border hover:border-blue-200 transition-all"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-                  <div
-                    style={{
-                      width: '38px',
-                      height: '38px',
-                      borderRadius: '10px',
-                      backgroundColor: '#2563EB',
-                      color: '#ffffff',
-                      fontWeight: 900,
-                      fontSize: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0">
                     {teacher.initials}
                   </div>
-                  <div style={{ minWidth: 0 }}>
-                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div className="min-w-0">
+                    <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 m-0 truncate">
                       {teacher.name}
                     </h4>
-                    <p style={{ fontSize: '11px', color: '#64748B', margin: '2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <p className="text-[11px] text-slate-500 my-0.5 truncate">
                       {teacher.role}
                     </p>
-                    <span style={{ fontSize: '10px', color: '#94A3B8', display: 'block' }}>{teacher.ruang}</span>
+                    <span className="text-[10px] text-slate-400 block">{teacher.ruang}</span>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setSelectedTeacher(teacher)}
-                  style={{
-                    flexShrink: 0,
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #E2E8F0',
-                    color: '#334155',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                  className="hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700"
+                  className="shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1.5 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all cursor-pointer"
                 >
-                  <Phone style={{ width: '14px', height: '14px', color: '#059669' }} />
+                  <Phone className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Kontak</span>
                 </button>
               </div>
@@ -1372,111 +788,41 @@ export const OverviewView: React.FC = () => {
 
         {/* Kolom Kanan: Agenda & Acara Sekolah */}
         <div
-          style={{
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid #E2E8F0',
-            backgroundColor: '#FFFFFF',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-            boxSizing: 'border-box',
-          }}
+          className="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-2xs box-border"
         >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingBottom: '14px',
-              borderBottom: '1px solid #F1F5F9',
-              marginBottom: '16px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  backgroundColor: '#EFF6FF',
-                  color: '#2563EB',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Calendar style={{ width: '18px', height: '18px' }} />
+          <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <Calendar className="w-4.5 h-4.5" />
               </div>
               <div>
-                <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                <h3 className="text-sm font-bold text-slate-900 m-0">
                   Agenda & Acara Sekolah
                 </h3>
-                <p style={{ fontSize: '11px', color: '#94A3B8', margin: '2px 0 0 0' }}>Kalender kegiatan dan pengumuman resmi</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 m-0">Kalender kegiatan dan pengumuman resmi</p>
               </div>
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#94A3B8' }}>Semester Ganjil</span>
+            <span className="text-xs font-semibold text-slate-400">Semester Ganjil</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="flex flex-col gap-3">
             {schoolEvents.map((event) => (
               <div
                 key={event.id}
-                style={{
-                  padding: '12px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid #E2E8F0',
-                  backgroundColor: '#F8FAFC',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '14px',
-                  boxSizing: 'border-box',
-                }}
-                className="hover:border-blue-200 transition-all"
+                className="p-3 sm:p-3.5 rounded-xl border border-slate-200 bg-slate-50/80 flex items-center gap-3 sm:gap-3.5 box-border hover:border-blue-200 transition-all"
               >
                 {/* Date or Announcement Icon Badge */}
                 <div
-                  style={{
-                    width: '48px',
-                    height: '48px',
-                    minWidth: '48px',
-                    minHeight: '48px',
-                    borderRadius: '12px',
-                    backgroundColor: '#EFF6FF',
-                    border: '1px solid #BFDBFE',
-                    color: '#1D4ED8',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    boxSizing: 'border-box',
-                  }}
-                  className="w-12 h-12 shrink-0 rounded-xl"
+                  className="w-11 h-11 sm:w-12 sm:h-12 shrink-0 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex flex-col items-center justify-center"
                 >
                   {event.isAnnouncement || event.month === 'INFO' || isNaN(Number(event.day)) ? (
-                    <Megaphone style={{ width: '22px', height: '22px', color: '#1D4ED8' }} />
+                    <Megaphone className="w-5 h-5 text-blue-700" />
                   ) : (
                     <>
-                      <span
-                        style={{
-                          fontSize: '10px',
-                          fontWeight: 800,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          lineHeight: 1,
-                          color: '#2563EB',
-                        }}
-                      >
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider leading-none text-blue-600">
                         {event.month}
                       </span>
-                      <span
-                        style={{
-                          fontSize: '16px',
-                          fontWeight: 900,
-                          lineHeight: 1,
-                          marginTop: '2px',
-                          color: '#1D4ED8',
-                        }}
-                      >
+                      <span className="text-base font-black leading-none mt-0.5 text-blue-700">
                         {event.day}
                       </span>
                     </>
@@ -1484,19 +830,19 @@ export const OverviewView: React.FC = () => {
                 </div>
 
                 {/* Details */}
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 m-0 truncate">
                       {event.title}
                     </h4>
-                    <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', backgroundColor: '#ffffff', border: '1px solid #E2E8F0', color: '#475569', flexShrink: 0 }}>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-600 shrink-0">
                       {event.category}
                     </span>
                   </div>
-                  <p style={{ fontSize: '11px', color: '#64748B', margin: '3px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p className="text-[11px] text-slate-500 my-0.5 truncate">
                     {event.desc}
                   </p>
-                  <span style={{ fontSize: '10px', color: '#94A3B8', display: 'block' }}>
+                  <span className="text-[10px] text-slate-400 block truncate">
                     {event.time} • {event.location}
                   </span>
                 </div>
@@ -1511,190 +857,90 @@ export const OverviewView: React.FC = () => {
           ========================================================================= */}
       {selectedTeacher && (
         <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 50,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '16px',
-            backgroundColor: 'rgba(15, 23, 42, 0.6)',
-            backdropFilter: 'blur(4px)',
-          }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in"
         >
           <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '16px',
-              maxWidth: '420px',
-              width: '100%',
-              padding: '24px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-              border: '1px solid #E2E8F0',
-            }}
+            className="bg-white rounded-2xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95"
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingBottom: '12px',
-                borderBottom: '1px solid #F1F5F9',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <GraduationCap style={{ width: '20px', height: '20px', color: '#2563EB' }} />
-                <h3 style={{ fontWeight: 700, color: '#0F172A', fontSize: '14px', margin: 0 }}>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-blue-600" />
+                <h3 className="font-bold text-slate-900 text-sm m-0">
                   Informasi Kontak Pengajar
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedTeacher(null)}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  color: '#94A3B8',
-                  border: 'none',
-                  backgroundColor: 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                }}
-                className="hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                className="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X style={{ width: '16px', height: '16px' }} />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-              <div
-                style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '14px',
-                  backgroundColor: '#2563EB',
-                  color: '#ffffff',
-                  fontWeight: 900,
-                  fontSize: '20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto',
-                  boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)',
-                }}
-              >
+            <div className="mt-5 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white font-black text-xl flex items-center justify-center mx-auto shadow-sm">
                 {selectedTeacher.initials}
               </div>
-              <h4 style={{ fontWeight: 800, color: '#0F172A', fontSize: '16px', margin: '12px 0 2px 0' }}>
+              <h4 className="font-extrabold text-slate-900 text-base mt-3 mb-0.5">
                 {selectedTeacher.name}
               </h4>
-              <p style={{ fontSize: '12px', fontWeight: 600, color: '#2563EB', margin: 0 }}>
+              <p className="text-xs font-semibold text-blue-600 m-0">
                 {selectedTeacher.role}
               </p>
-              <p style={{ fontSize: '12px', color: '#94A3B8', margin: '2px 0 0 0' }}>
+              <p className="text-xs text-slate-400 mt-0.5 m-0">
                 {selectedTeacher.ruang}
               </p>
             </div>
 
-            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div
-                style={{
-                  padding: '12px',
-                  borderRadius: '10px',
-                  backgroundColor: '#F8FAFC',
-                  border: '1px solid #E2E8F0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px', color: '#334155', minWidth: 0 }}>
-                  <Phone style={{ width: '16px', height: '16px', color: '#059669', flexShrink: 0 }} />
-                  <span style={{ fontFamily: 'monospace', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div className="mt-5 flex flex-col gap-2.5">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div className="flex items-center gap-2.5 text-xs text-slate-700 min-w-0">
+                  <Phone className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="font-mono font-medium truncate">
                     {selectedTeacher.phone}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => copyContact(selectedTeacher.phone, 'Nomor WhatsApp')}
-                  style={{ fontSize: '11px', fontWeight: 700, color: '#2563EB', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', padding: 0 }}
-                  className="hover:underline"
+                  className="text-[11px] font-bold text-blue-600 hover:underline cursor-pointer p-0 border-0 bg-transparent shrink-0 ml-2"
                 >
                   Salin
                 </button>
               </div>
 
-              <div
-                style={{
-                  padding: '12px',
-                  borderRadius: '10px',
-                  backgroundColor: '#F8FAFC',
-                  border: '1px solid #E2E8F0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px', color: '#334155', minWidth: 0 }}>
-                  <Mail style={{ width: '16px', height: '16px', color: '#2563EB', flexShrink: 0 }} />
-                  <span style={{ fontFamily: 'monospace', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div className="flex items-center gap-2.5 text-xs text-slate-700 min-w-0">
+                  <Mail className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span className="font-mono font-medium truncate">
                     {selectedTeacher.email}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => copyContact(selectedTeacher.email, 'Alamat Email')}
-                  style={{ fontSize: '11px', fontWeight: 700, color: '#2563EB', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', padding: 0 }}
-                  className="hover:underline"
+                  className="text-[11px] font-bold text-blue-600 hover:underline cursor-pointer p-0 border-0 bg-transparent shrink-0 ml-2"
                 >
                   Salin
                 </button>
               </div>
             </div>
 
-            <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="mt-5 flex items-center gap-2.5">
               <a
                 href={`https://wa.me/${selectedTeacher.phone.replace(/[^0-9]/g, '')}`}
                 target="_blank"
                 rel="noreferrer"
-                style={{
-                  flex: 1,
-                  padding: '10px 16px',
-                  borderRadius: '10px',
-                  backgroundColor: '#059669',
-                  color: '#ffffff',
-                  fontWeight: 700,
-                  fontSize: '12px',
-                  textAlign: 'center',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  textDecoration: 'none',
-                }}
-                className="hover:bg-emerald-700 transition-colors"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs text-center inline-flex items-center justify-center gap-2 transition-colors"
               >
-                <Phone style={{ width: '14px', height: '14px' }} />
-                <span>Kirim Pesan WhatsApp</span>
+                <Phone className="w-3.5 h-3.5" />
+                <span>Kirim WhatsApp</span>
               </a>
               <button
                 type="button"
                 onClick={() => setSelectedTeacher(null)}
-                style={{
-                  padding: '10px 16px',
-                  borderRadius: '10px',
-                  backgroundColor: '#F1F5F9',
-                  color: '#334155',
-                  fontWeight: 700,
-                  fontSize: '12px',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-                className="hover:bg-slate-200 transition-colors"
+                className="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer border-0 transition-colors"
               >
                 Tutup
               </button>
