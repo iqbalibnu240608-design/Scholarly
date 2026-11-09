@@ -33,7 +33,7 @@ export const Layout: React.FC = () => {
             backgroundColor: '#f1f5f9',
           }}
         >
-          <ErrorBoundary key={location.pathname}>
+          <ErrorBoundary resetKey={location.pathname}>
             <Outlet />
           </ErrorBoundary>
         </main>

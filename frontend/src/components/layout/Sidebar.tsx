@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { apiClient } from '../../api/client';
@@ -123,9 +123,61 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
     },
   ];
 
-  const visibleItems = navigationItems.filter(
-    (item) => isAdmin || item.allowedRoles.includes(activeRole)
+  const visibleItems = useMemo(
+    () => navigationItems.filter((item) => isAdmin || item.allowedRoles.includes(activeRole)),
+    [isAdmin, activeRole]
   );
+
+  const routeEndpointMap: Record<string, string> = {
+    '/app': '/school/overview',
+    '/app/siswa': '/school/siswa',
+    '/app/kantin': '/school/kantin',
+    '/app/kopsis': '/school/kopsis',
+    '/app/petugas': '/school/petugas',
+    '/app/perpus': '/school/library',
+    '/app/guru': '/school/guru',
+    '/app/kepsek': '/school/kepsek',
+    '/app/admin': '/school/admin',
+  };
+
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const prefetchRoute = useCallback((to: string) => {
+    const endpoint = routeEndpointMap[to];
+    if (endpoint) {
+      apiClient.get(endpoint).catch(() => {});
+    }
+  }, []);
+
+  const handleMouseEnter = useCallback((to: string) => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    hoverTimerRef.current = setTimeout(() => {
+      prefetchRoute(to);
+    }, 75);
+  }, [prefetchRoute]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    // Staggered idle prefetching for top routes to avoid bottlenecking single-threaded dev server
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    visibleItems.slice(0, 4).forEach((item, index) => {
+      const timer = setTimeout(() => {
+        prefetchRoute(item.to);
+      }, 1500 + index * 400);
+      timers.push(timer);
+    });
+
+    return () => {
+      timers.forEach((t) => clearTimeout(t));
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    };
+  }, [visibleItems, prefetchRoute]);
 
   const getBadgeCount = (to: string): number => {
     if (to === '/app/petugas') {
@@ -239,6 +291,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                   key={item.to}
                   to={item.to}
                   end={item.end}
+                  onMouseEnter={() => handleMouseEnter(item.to)}
+                  onMouseLeave={handleMouseLeave}
+                  onTouchStart={() => prefetchRoute(item.to)}
                   onClick={() => onCloseMobile?.()}
                   style={{
                     position: 'relative',

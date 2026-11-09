@@ -64,14 +64,18 @@ export const saveStoredQRIS = (
   merchantName?: string,
   nmid?: string
 ) => {
-  if (type === 'tu') {
-    localStorage.setItem('tu_qris_image', imageUrl);
-    localStorage.setItem('school_qris_image', imageUrl);
-    if (merchantName) localStorage.setItem('tu_qris_name', merchantName);
-    if (nmid) localStorage.setItem('tu_qris_nmid', nmid);
-  } else {
-    localStorage.setItem('kopsis_qris_image', imageUrl);
-    if (merchantName) localStorage.setItem('kopsis_qris_name', merchantName);
-    if (nmid) localStorage.setItem('kopsis_qris_nmid', nmid);
+  try {
+    if (type === 'tu') {
+      localStorage.setItem('tu_qris_image', imageUrl);
+      localStorage.setItem('school_qris_image', imageUrl);
+      if (merchantName) localStorage.setItem('tu_qris_name', merchantName);
+      if (nmid) localStorage.setItem('tu_qris_nmid', nmid);
+    } else {
+      localStorage.setItem('kopsis_qris_image', imageUrl);
+      if (merchantName) localStorage.setItem('kopsis_qris_name', merchantName);
+      if (nmid) localStorage.setItem('kopsis_qris_nmid', nmid);
+    }
+  } catch (err) {
+    console.error('Gagal menyimpan QRIS ke penyimpanan lokal browser', err);
   }
 };

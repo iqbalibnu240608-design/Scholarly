@@ -208,6 +208,14 @@ class AuthController extends Controller
      */
     public function switchRole(Request $request): JsonResponse
     {
+        $currentUser = $request->user();
+        if (app()->environment('production') && ($currentUser->role_name ?? '') !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Peralihan peran langsung dibatasi hanya untuk Administrator pada lingkungan produksi.',
+            ], 403);
+        }
+
         $validated = $request->validate([
             'role' => 'required|string',
         ]);

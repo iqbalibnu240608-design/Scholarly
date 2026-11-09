@@ -32,10 +32,8 @@ class SchoolEcosystemController extends Controller
         $user = $request->user();
         $rawRole = strtolower(trim($user->role_name ?? ''));
 
-        // 1. Antrean Top-Up yang belum direspons (untuk Petugas TU, Kopsis, dan Admin)
-        $pendingTopupsTotal = Transaction::where('status', 'pending')
-            ->whereIn('type', ['topup_wallet', 'topup_kopsis', 'topup_kantin'])
-            ->count();
+        // 1. Antrean Top-Up (Dinonaktifkan: Sistem pembayaran beralih ke QRIS & Tunai langsung)
+        $pendingTopupsTotal = 0;
 
         // 2. Perpustakaan: Buku terlambat (overdue) yang perlu penanganan loket
         $today = Carbon::today();
@@ -47,11 +45,8 @@ class SchoolEcosystemController extends Controller
         // 3. Kepala Sekolah: Disposisi persuratan pending
         $disposisiPending = 2;
 
-        // 4. Status Pengajuan Top-up Pribadi yang masih pending
-        $myPendingTopup = Transaction::where('user_id', $user->id)
-            ->where('status', 'pending')
-            ->whereIn('type', ['topup_wallet', 'topup_kopsis', 'topup_kantin'])
-            ->count();
+        // 4. Status Pengajuan Top-up Pribadi (0 karena sistem saldo ditiadakan)
+        $myPendingTopup = 0;
 
         return response()->json([
             'success' => true,
@@ -147,7 +142,7 @@ class SchoolEcosystemController extends Controller
         $className = $class?->name ?? 'XII RPL 1';
         $homeroom = $class?->homeroomTeacher?->name ?? 'Budi Santoso, S.Pd';
 
-        // 2. Saldo Dompet Digital Riil (Konsisten 50.000 / 25.000 untuk pengguna siswa)
+        // 2. Saldo Dompet Digital (Dinonaktifkan: Sistem menggunakan Direct Payment QRIS & Tunai)
         $targetUser = $user;
         if ($user->role_name !== 'siswa') {
             $demoStudent = User::where('role_name', 'siswa')->first();
@@ -158,7 +153,7 @@ class SchoolEcosystemController extends Controller
 
         $wallet = Wallet::firstOrCreate(
             ['user_id' => $targetUser->id],
-            ['balance_kopsis' => 50000, 'balance_kantin' => 25000]
+            ['balance' => 0, 'balance_kopsis' => 0, 'balance_kantin' => 0]
         );
 
         // 3. Presensi Riil Bulan Ini
@@ -226,9 +221,11 @@ class SchoolEcosystemController extends Controller
                     ['jam' => '11:00 - 12:30', 'mapel' => 'Bahasa Inggris Kejuruan', 'guru' => 'Ahmad Fauzi, M.Pd', 'ruang' => 'Ruang 12'],
                 ],
                 'saldo_digital' => [
-                    'saldo_utama' => (float)($wallet->balance ?? $wallet->balance_kopsis),
-                    'saldo_kopsis' => (float)($wallet->balance ?? $wallet->balance_kopsis),
-                    'saldo_kantin' => (float)($wallet->balance ?? $wallet->balance_kantin),
+                    'saldo_utama' => 0.00,
+                    'saldo_kopsis' => 0.00,
+                    'saldo_kantin' => 0.00,
+                    'is_active' => false,
+                    'mode' => 'direct_payment',
                 ],
                 'tagihan_spp' => [
                     'status' => 'Lunas',
@@ -357,7 +354,7 @@ class SchoolEcosystemController extends Controller
 
         $totalTrx = $todayTrx->count();
         $totalOmset = $todayTrx->sum('amount');
-        $digitalTrx = $todayTrx->where('payment_method', 'wallet')->count();
+        $digitalTrx = $todayTrx->whereIn('payment_method', ['qris', 'wallet'])->count();
         $digitalPct = $totalTrx > 0 ? round(($digitalTrx / $totalTrx) * 100) . '%' : '72%';
         $cashPct = $totalTrx > 0 ? (100 - (int)$digitalPct) . '%' : '28%';
 
@@ -367,8 +364,8 @@ class SchoolEcosystemController extends Controller
             'data' => [
                 'kasir_status' => 'Online',
                 'transaksi_hari_ini' => [
-                    'total_transaksi' => $totalTrx ?: 58,
-                    'total_omset' => (float)$totalOmset ?: 1420000,
+                    'total_transaksi' => $totalTrx,
+                    'total_omset' => (float)$totalOmset,
                     'pembayaran_digital' => $digitalPct,
                     'pembayaran_tunai' => $cashPct,
                 ],
@@ -420,8 +417,8 @@ class SchoolEcosystemController extends Controller
             'data' => [
                 'status_kantin' => 'Buka',
                 'pesanan_aktif' => 3,
-                'pesanan_selesai_hari_ini' => $totalTrx ?: 84,
-                'omset_hari_ini' => (float)$totalOmset ?: 1680000,
+                'pesanan_selesai_hari_ini' => $totalTrx,
+                'omset_hari_ini' => (float)$totalOmset,
                 'daftar_menu' => $menus,
             ],
         ]);
@@ -503,12 +500,13 @@ class SchoolEcosystemController extends Controller
             'status' => 'active',
         ]);
 
-        // Jika siswa baru, otomatis buatkan dompet digital awal
+        // Inisialisasi relasi dompet digital (Saldo default 0 sesuai kebijakan direct payment QRIS/Cash)
         if ($user->role_name === 'siswa') {
             Wallet::create([
                 'user_id' => $user->id,
-                'balance_kopsis' => 50000,
-                'balance_kantin' => 25000,
+                'balance' => 0,
+                'balance_kopsis' => 0,
+                'balance_kantin' => 0,
             ]);
         }
 
@@ -608,35 +606,47 @@ class SchoolEcosystemController extends Controller
             }
         }
 
+        if ($validated['payment_method'] === 'wallet') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sistem saldo e-wallet telah ditiadakan sesuai kebijakan sekolah. Silakan gunakan metode pembayaran QRIS, Tunai (Cash), atau Transfer.',
+            ], 422);
+        }
+
         return DB::transaction(function () use ($validated, $student, $request) {
-            if ($validated['payment_method'] === 'wallet') {
-                $wallet = Wallet::lockForUpdate()->firstOrCreate(['user_id' => $student->id]);
-                $effectiveBalance = (float)($wallet->balance ?? $wallet->balance_kopsis ?? 0);
-                if ($effectiveBalance < $validated['amount']) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Saldo E-Wallet siswa tidak mencukupi untuk pembayaran SPP.",
-                    ], 422);
-                }
-                $wallet->balance = $effectiveBalance - (float)$validated['amount'];
-                $wallet->balance_kopsis = $wallet->balance;
-                $wallet->balance_kantin = $wallet->balance;
-                $wallet->save();
+            // Kunci row siswa untuk serialisasi transaksi SPP per siswa (Anti-Race Condition)
+            User::lockForUpdate()->find($student->id);
+
+            $normalizedMonth = trim($validated['month']);
+            $alreadyPaid = Transaction::where('user_id', $student->id)
+                ->where('type', 'spp')
+                ->where('status', 'approved')
+                ->where('description', 'like', "%Bulan {$normalizedMonth}%")
+                ->exists();
+
+            if ($alreadyPaid) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Tagihan SPP untuk {$student->name} periode {$normalizedMonth} sudah pernah lunas dibayarkan.",
+                ], 422);
             }
+
+            $paymentMethod = $validated['payment_method'];
 
             $trx = Transaction::create([
                 'reference_no' => 'SPP-' . strtoupper(Str::random(8)),
                 'user_id' => $student->id,
                 'type' => 'spp',
                 'amount' => $validated['amount'],
-                'payment_method' => $validated['payment_method'],
-                'description' => "Pembayaran SPP Bulan {$validated['month']} untuk {$student->name} (NISN: {$student->identifier_number})" . ($validated['notes'] ? " - " . $validated['notes'] : ""),
+                'payment_method' => $paymentMethod,
+                'status' => 'approved',
+                'description' => "Pembayaran SPP Bulan {$normalizedMonth} untuk {$student->name} (NISN: {$student->identifier_number})" . (!empty($validated['notes']) ? " - " . $validated['notes'] : ""),
                 'operator_id' => $request->user()->id,
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => "Pembayaran SPP untuk {$student->name} periode {$validated['month']} sebesar Rp " . number_format($validated['amount'], 0, ',', '.') . " berhasil dicatat.",
+                'message' => "Pembayaran SPP untuk {$student->name} periode {$normalizedMonth} sebesar Rp " . number_format($validated['amount'], 0, ',', '.') . " berhasil dicatat.",
                 'transaction' => $trx,
             ]);
         });

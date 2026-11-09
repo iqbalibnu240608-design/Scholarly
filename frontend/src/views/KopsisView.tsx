@@ -106,7 +106,7 @@ export const KopsisView: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
-  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash' | 'qris'>('wallet');
+  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash' | 'qris'>('qris');
   const [processingOrder, setProcessingOrder] = useState<boolean>(false);
   const [pendingTopups, setPendingTopups] = useState<PendingTopup[]>([]);
   const [processingTopupId, setProcessingTopupId] = useState<number | null>(null);

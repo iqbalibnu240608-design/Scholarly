@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { apiClient } from '../api/client';
+import { apiClient, getCachedData } from '../api/client';
 import {
   UtensilsCrossed,
   Coffee,
@@ -60,9 +60,9 @@ export const KantinView: React.FC = () => {
   const { user, activeRole } = useAuth();
   const isCustomerView = activeRole === 'siswa' || activeRole === 'guru';
 
-  const [data, setData] = useState<KantinData | null>(null);
+  const [data, setData] = useState<KantinData | null>(() => getCachedData('/school/kantin')?.data || null);
   const [recentOrders, setRecentOrders] = useState<RecentTransaction[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/kantin'));
 
   // Student Wallet State
   const [walletBalance, setWalletBalance] = useState<number>(0);
@@ -74,7 +74,7 @@ export const KantinView: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
-  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash' | 'qris'>('wallet');
+  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash' | 'qris'>('qris');
   const [processingOrder, setProcessingOrder] = useState<boolean>(false);
 
   // Modal State: Tambah Menu (Staff/Admin)
@@ -325,7 +325,7 @@ export const KantinView: React.FC = () => {
     return m.category.toLowerCase() === selectedCategory.toLowerCase();
   });
 
-  if (loading) return <div className="loading-container">Memuat modul Kantin Sekolah...</div>;
+  if (loading && !data) return <div className="loading-container">Memuat modul Kantin Sekolah...</div>;
 
   return (
     <div className="view-container">
@@ -1145,3 +1145,4 @@ export const KantinView: React.FC = () => {
     </div>
   );
 };
+

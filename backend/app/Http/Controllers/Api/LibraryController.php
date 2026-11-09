@@ -27,7 +27,12 @@ class LibraryController extends Controller
         $totalBooks = $books->count();
         $totalStock = $books->sum('stock');
 
-        $activeLoansQuery = BookLoan::with('book', 'user:id,name,identifier_number', 'operator:id,name')
+        $activeLoansQuery = BookLoan::with([
+            'book',
+            'user:id,name,identifier_number,academic_class_id,role_name',
+            'user.academicClass:id,name',
+            'operator:id,name'
+        ])
             ->whereIn('status', ['borrowed', 'overdue'])
             ->latest();
 
@@ -38,21 +43,30 @@ class LibraryController extends Controller
 
         $activeLoans = $activeLoansQuery->get();
 
-        // Update status terlambat (overdue) jika melebihi due_date
+        // Update status terlambat (overdue) & akumulasi denda harian
         $today = Carbon::today();
         foreach ($activeLoans as $loan) {
-            if (Carbon::parse($loan->due_date)->lt($today) && $loan->status === 'borrowed') {
-                $daysLate = $today->diffInDays(Carbon::parse($loan->due_date));
-                $loan->status = 'overdue';
-                $loan->fine_amount = $daysLate * 1000; // Denda Rp 1.000 / hari
-                $loan->save();
+            $dueDate = Carbon::parse($loan->due_date);
+            if ($today->gt($dueDate)) {
+                $daysLate = (int) abs($today->diffInDays($dueDate));
+                $newFine = $daysLate * 1000; // Denda Rp 1.000 / hari
+                if ($loan->status !== 'overdue' || (int)$loan->fine_amount !== (int)$newFine) {
+                    $loan->status = 'overdue';
+                    $loan->fine_amount = $newFine;
+                    $loan->save();
+                }
             }
         }
 
         $allBorrowedCount = BookLoan::where('status', 'borrowed')->count();
         $allOverdueCount = BookLoan::where('status', 'overdue')->count();
 
-        $recentLoansQuery = BookLoan::with('book', 'user:id,name,identifier_number')
+        $recentLoansQuery = BookLoan::with([
+            'book',
+            'user:id,name,identifier_number,academic_class_id,role_name',
+            'user.academicClass:id,name',
+            'operator:id,name'
+        ])
             ->latest()
             ->take(15);
 
@@ -65,7 +79,7 @@ class LibraryController extends Controller
             'data' => [
                 'metrics' => [
                     'total_judul_buku' => $totalBooks,
-                    'total_eksemplar' => $totalStock + $allBorrowedCount,
+                    'total_eksemplar' => $totalStock + $allBorrowedCount + $allOverdueCount,
                     'sedang_dipinjam' => $allBorrowedCount,
                     'terlambat_denda' => $allOverdueCount,
                 ],
@@ -104,8 +118,13 @@ class LibraryController extends Controller
             if (in_array($currentUser->role_name, ['perpustakaan', 'admin'], true)) {
                 if (!empty($validated['student_identifier'])) {
                     $borrower = User::where('identifier_number', $validated['student_identifier'])->first();
-                }
-                if (!$borrower) {
+                    if (!$borrower) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => "Pengguna dengan NISN / NIP '{$validated['student_identifier']}' tidak ditemukan.",
+                        ], 404);
+                    }
+                } else {
                     $borrower = $currentUser;
                 }
             } else {
@@ -152,12 +171,13 @@ class LibraryController extends Controller
     }
 
     /**
-     * Pengembalian Buku Perpustakaan
+     * Verifikasi & Eksekusi Pengembalian Buku Perpustakaan (Khusus Petugas Perpustakaan / Admin)
      */
     public function returnBook(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'loan_id' => 'required|exists:book_loans,id',
+            'notes' => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($validated, $request) {
@@ -166,7 +186,7 @@ class LibraryController extends Controller
             if ($loan->status === 'returned') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Buku ini sudah tercatat dikembalikan.',
+                    'message' => 'Buku ini sudah tercatat telah dikembalikan ke perpustakaan.',
                 ], 422);
             }
 
@@ -174,10 +194,13 @@ class LibraryController extends Controller
             $rawRole = strtolower(trim($currentUser->role_name ?? ''));
             $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin'], true);
 
-            if (!$isLibrarianOrAdmin && (int)$loan->user_id !== (int)$currentUser->id) {
+            $bookTitle = $loan->book?->title ?? 'Buku';
+
+            // Verifikasi Otoritas: Pengembalian fisik buku wajib diverifikasi langsung oleh petugas loket perpustakaan
+            if (!$isLibrarianOrAdmin) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Anda tidak memiliki hak akses untuk mengembalikan buku pinjaman pengguna lain.',
+                    'message' => "Pengembalian buku '{$bookTitle}' wajib diverifikasi oleh petugas perpustakaan. Silakan serahkan buku fisik ke meja loket sirkulasi perpustakaan.",
                 ], 403);
             }
 
@@ -187,28 +210,71 @@ class LibraryController extends Controller
             $daysLate = 0;
 
             if ($today->gt($dueDate)) {
-                $daysLate = $today->diffInDays($dueDate);
+                $daysLate = (int) abs($today->diffInDays($dueDate));
                 $fine = $daysLate * 1000;
             }
 
             $loan->status = 'returned';
             $loan->return_date = $today;
             $loan->fine_amount = $fine;
+            $loan->operator_id = $currentUser->id;
             $loan->save();
 
-            // Kembalikan stok buku
-            $loan->book->increment('stock', 1);
+            // Kembalikan stok fisik buku ke rak inventaris perpustakaan
+            $loan->book?->increment('stock', 1);
 
             $borrowerName = $loan->user?->name ?? 'Peminjam';
-            $msg = "Buku '{$loan->book->title}' berhasil dikembalikan oleh {$borrowerName}. Catatan pengembalian telah tersimpan di sistem perpustakaan.";
+            $msg = "Buku '{$bookTitle}' yang dipinjam oleh {$borrowerName} telah berhasil diverifikasi dan dikembalikan ke loket perpustakaan. Buku telah ditarik dari daftar pinjaman aktif.";
             if ($fine > 0) {
-                $msg .= " Terlambat {$daysLate} hari, dikenakan denda sebesar Rp " . number_format($fine, 0, ',', '.') . ".";
+                $msg .= " Terlambat {$daysLate} hari, dikenakan denda keterlambatan sebesar Rp " . number_format($fine, 0, ',', '.') . ".";
             }
 
             return response()->json([
                 'success' => true,
                 'message' => $msg,
-                'loan' => $loan,
+                'loan' => $loan->load('book', 'user', 'operator'),
+            ]);
+        });
+    }
+
+    /**
+     * Hapus / Tarik 1 Data Peminjaman dari Sirkulasi (Khusus Petugas Perpustakaan / Admin)
+     */
+    public function deleteLoan(Request $request, $id): JsonResponse
+    {
+        $currentUser = $request->user();
+        $rawRole = strtolower(trim($currentUser->role_name ?? ''));
+        $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin'], true);
+
+        if (!$isLibrarianOrAdmin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya petugas perpustakaan atau administrator yang berhak menarik/menghapus daftar sirkulasi peminjaman.',
+            ], 403);
+        }
+
+        return DB::transaction(function () use ($id) {
+            $loan = BookLoan::with('book', 'user')->lockForUpdate()->find($id);
+            if (!$loan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data peminjaman buku tidak ditemukan.',
+                ], 404);
+            }
+
+            // Jika buku belum dikembalikan, kembalikan stok buku ke rak
+            if (in_array($loan->status, ['borrowed', 'overdue'], true)) {
+                $loan->book?->increment('stock', 1);
+            }
+
+            $bookTitle = $loan->book?->title ?? 'Buku';
+            $borrowerName = $loan->user?->name ?? 'Peminjam';
+
+            $loan->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Peminjaman buku '{$bookTitle}' atas nama {$borrowerName} berhasil ditarik/dihapus dari daftar pinjaman perpustakaan.",
             ]);
         });
     }

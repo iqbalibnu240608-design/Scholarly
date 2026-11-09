@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/library/books', [LibraryController::class, 'addBook'])->middleware('role:perpustakaan,admin');
     Route::post('/library/borrow', [LibraryController::class, 'borrowBook']);
     Route::post('/library/return', [LibraryController::class, 'returnBook']);
+    Route::delete('/library/loans/{id}', [LibraryController::class, 'deleteLoan'])->middleware('role:perpustakaan,admin');
 
     // Modul Petugas TU (SPP)
     Route::post('/petugas/spp-payment', [SchoolEcosystemController::class, 'paySPP'])->middleware('role:petugas,admin,siswa');

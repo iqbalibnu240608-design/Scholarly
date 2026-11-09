@@ -50,15 +50,13 @@ class EcosystemFlowTest extends TestCase
     }
 
     /**
-     * Test Kasir Kopsis Checkout with Wallet Deduction
+     * Test Kasir Kopsis Checkout with Direct QRIS Payment
      */
-    public function test_kopsis_pos_checkout_with_wallet(): void
+    public function test_kopsis_pos_checkout_with_qris(): void
     {
         $kopsis = User::where('role_name', 'kopsis')->first();
         $siswa = User::where('identifier_number', '0061234567')->first();
         $product = KopsisProduct::first();
-
-        $initialWallet = Wallet::where('user_id', $siswa->id)->first()->balance_kopsis;
         $initialStock = $product->stock;
 
         $this->actingAs($kopsis, 'sanctum');
@@ -67,21 +65,38 @@ class EcosystemFlowTest extends TestCase
             'items' => [
                 ['product_id' => $product->id, 'quantity' => 2],
             ],
-            'payment_method' => 'wallet',
+            'payment_method' => 'qris',
             'student_identifier' => '0061234567',
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('success', true);
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('payment_method', 'qris');
 
         // Assert stock decrement
         $product->refresh();
         $this->assertEquals($initialStock - 2, $product->stock);
+    }
 
-        // Assert wallet decrement
-        $wallet = Wallet::where('user_id', $siswa->id)->first();
-        $expectedBalance = $initialWallet - ($product->price * 2);
-        $this->assertEquals($expectedBalance, $wallet->balance_kopsis);
+    /**
+     * Test Kasir Kopsis Checkout Rejects Deprecated Wallet Payment
+     */
+    public function test_kopsis_pos_checkout_rejects_wallet(): void
+    {
+        $kopsis = User::where('role_name', 'kopsis')->first();
+        $product = KopsisProduct::first();
+
+        $this->actingAs($kopsis, 'sanctum');
+
+        $response = $this->postJson('/api/kopsis/checkout', [
+            'items' => [
+                ['product_id' => $product->id, 'quantity' => 1],
+            ],
+            'payment_method' => 'wallet',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false);
     }
 
     /**

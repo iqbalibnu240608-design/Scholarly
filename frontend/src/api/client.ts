@@ -1,6 +1,10 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname
+    ? `http://${window.location.hostname}:8000/api`
+    : 'http://127.0.0.1:8000/api');
 
 const rawAxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -75,6 +79,11 @@ rawAxiosInstance.interceptors.response.use(
       } else if (url.includes('/library')) {
         clearApiCache('/library');
         clearApiCache('/school/library');
+      } else if (url.includes('/petugas') || url.includes('/spp')) {
+        clearApiCache('/petugas');
+        clearApiCache('/school/petugas');
+        clearApiCache('/school/siswa');
+        clearApiCache('/school/overview');
       } else if (url.includes('/attendance')) {
         clearApiCache('/attendance');
         clearApiCache('/school');
@@ -118,14 +127,18 @@ rawAxiosInstance.get = function <T = any, R = AxiosResponse<T>, D = any>(
     if (cached && now - cached.timestamp < ttl) {
       // Revalidate in background if older than 15s
       if (now - cached.timestamp > 15 * 1000 && !inFlightRequests.has(cacheKey)) {
-        originalGet<T>(url, {
+        const revalidatePromise = originalGet<T>(url, {
           ...config,
           headers: { ...config?.headers, 'x-skip-cache': 'true' },
         } as any)
           .then((fresh) => {
             memoryCache.set(cacheKey, { data: fresh.data, timestamp: Date.now() });
           })
-          .catch(() => {});
+          .catch(() => {})
+          .finally(() => {
+            inFlightRequests.delete(cacheKey);
+          });
+        inFlightRequests.set(cacheKey, revalidatePromise);
       }
 
       // Return cached response immediately (0ms latency)

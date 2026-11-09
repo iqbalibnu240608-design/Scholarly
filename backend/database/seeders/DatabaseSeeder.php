@@ -257,19 +257,19 @@ class DatabaseSeeder extends Seeder
             $classes['XII RPL 1']->update(['homeroom_teacher_id' => $users['guru']->id]);
         }
 
-        // 5. Initial Wallets (Dompet Digital untuk Seluruh Civitas Akademika)
+        // 5. Initial Wallets (Inisialisasi Saldo Default Rp 0 untuk Direct Payment QRIS & Tunai)
         $studentAhmad = User::where('identifier_number', '0061234567')->first();
         $studentSiti = User::where('identifier_number', '0089876543')->first();
 
         $walletsToSeed = [
-            ['user' => $studentAhmad, 'amount' => 125000],
-            ['user' => $studentSiti, 'amount' => 80000],
-            ['user' => $users['guru'] ?? User::where('role_name', 'guru')->first(), 'amount' => 250000],
-            ['user' => $users['perpustakaan'] ?? User::where('role_name', 'perpustakaan')->first(), 'amount' => 100000],
-            ['user' => $users['petugas'] ?? User::where('role_name', 'petugas')->first(), 'amount' => 75000],
-            ['user' => $users['kopsis'] ?? User::where('role_name', 'kopsis')->first(), 'amount' => 50000],
-            ['user' => $users['kantin'] ?? User::where('role_name', 'kantin')->first(), 'amount' => 50000],
-            ['user' => $users['security'] ?? User::where('role_name', 'security')->first(), 'amount' => 50000],
+            ['user' => $studentAhmad, 'amount' => 0],
+            ['user' => $studentSiti, 'amount' => 0],
+            ['user' => $users['guru'] ?? User::where('role_name', 'guru')->first(), 'amount' => 0],
+            ['user' => $users['perpustakaan'] ?? User::where('role_name', 'perpustakaan')->first(), 'amount' => 0],
+            ['user' => $users['petugas'] ?? User::where('role_name', 'petugas')->first(), 'amount' => 0],
+            ['user' => $users['kopsis'] ?? User::where('role_name', 'kopsis')->first(), 'amount' => 0],
+            ['user' => $users['kantin'] ?? User::where('role_name', 'kantin')->first(), 'amount' => 0],
+            ['user' => $users['security'] ?? User::where('role_name', 'security')->first(), 'amount' => 0],
         ];
 
         foreach ($walletsToSeed as $w) {
@@ -417,55 +417,55 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 11. Initial Transactions (Kopsis, Kantin, SPP, Topup)
+        // 11. Initial Direct Payment Transactions (Kopsis, Kantin, SPP via QRIS & Cash)
         if ($studentAhmad && isset($users['petugas']) && isset($users['kopsis']) && isset($users['kantin'])) {
             $tuId = $users['petugas']->id;
             $kopId = $users['kopsis']->id;
             $ktnId = $users['kantin']->id;
 
-            // Top-up awal
-            Transaction::updateOrCreate(
-                ['reference_no' => 'TOPUP-INIT-01'],
-                [
-                    'user_id' => $studentAhmad->id,
-                    'type' => 'topup_kopsis',
-                    'amount' => 150000,
-                    'payment_method' => 'cash',
-                    'status' => 'approved',
-                    'description' => 'Top-up saldo awal Kopsis siswa oleh Petugas TU',
-                    'operator_id' => $tuId,
-                ]
-            );
-
-            // Belanja Kopsis
+            // Belanja Kopsis via QRIS Langsung
             Transaction::updateOrCreate(
                 ['reference_no' => 'KOP-INIT-01'],
                 [
                     'user_id' => $studentAhmad->id,
                     'type' => 'purchase_kopsis',
                     'amount' => 25000,
-                    'payment_method' => 'wallet',
+                    'payment_method' => 'qris',
                     'status' => 'approved',
-                    'description' => 'Belanja Kopsis: Buku Tulis Campus x2, Bolpoin Gel Hitam x2',
+                    'description' => 'Belanja Kopsis (QRIS Langsung): Buku Tulis Campus x2, Bolpoin Gel Hitam x2',
                     'operator_id' => $kopId,
                 ]
             );
 
-            // Belanja Kantin
+            // Belanja Kantin via Tunai (Cash di Kasir Stan)
             Transaction::updateOrCreate(
                 ['reference_no' => 'KTN-INIT-01'],
                 [
                     'user_id' => $studentAhmad->id,
                     'type' => 'purchase_kantin',
                     'amount' => 15000,
-                    'payment_method' => 'wallet',
+                    'payment_method' => 'cash',
                     'status' => 'approved',
-                    'description' => 'Pesanan Kantin: Nasi Goreng Spesial Telur x1, Es Teh Manis Jumbo x1',
+                    'description' => 'Pesanan Kantin (Tunai di Kasir): Nasi Goreng Spesial Telur x1, Es Teh Manis Jumbo x1',
                     'operator_id' => $ktnId,
                 ]
             );
 
-            // SPP Bulan Berjalan
+            // Belanja Kantin via QRIS Langsung
+            Transaction::updateOrCreate(
+                ['reference_no' => 'KTN-INIT-02'],
+                [
+                    'user_id' => $studentAhmad->id,
+                    'type' => 'purchase_kantin',
+                    'amount' => 21000,
+                    'payment_method' => 'qris',
+                    'status' => 'approved',
+                    'description' => 'Pesanan Kantin (QRIS Langsung): Nasi Ayam Geprek Sambal Bawang x1, Jus Buah Segar x1',
+                    'operator_id' => $ktnId,
+                ]
+            );
+
+            // SPP Bulan Berjalan (Tunai di Loket TU)
             Transaction::updateOrCreate(
                 ['reference_no' => 'SPP-INIT-01'],
                 [
@@ -558,33 +558,5 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 14. Initial Pending Top-Up Transactions (Demo Approval Loket TU & Notifikasi Badge)
-        if ($studentAhmad && isset($users['guru'])) {
-            Transaction::updateOrCreate(
-                ['reference_no' => 'TOPUP-PENDING-01'],
-                [
-                    'user_id' => $studentAhmad->id,
-                    'type' => 'topup_wallet',
-                    'amount' => 50000,
-                    'payment_method' => 'qris',
-                    'status' => 'pending',
-                    'description' => 'Top-up Saldo Digital Siswa via QRIS (Menunggu Verifikasi TU)',
-                    'operator_id' => null,
-                ]
-            );
-
-            Transaction::updateOrCreate(
-                ['reference_no' => 'TOPUP-PENDING-02'],
-                [
-                    'user_id' => $users['guru']->id,
-                    'type' => 'topup_wallet',
-                    'amount' => 100000,
-                    'payment_method' => 'cash',
-                    'status' => 'pending',
-                    'description' => 'Top-up Saldo Dewan Guru di Loket TU (Menunggu Verifikasi)',
-                    'operator_id' => null,
-                ]
-            );
-        }
     }
 }

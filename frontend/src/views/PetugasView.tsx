@@ -99,7 +99,7 @@ export const PetugasView: React.FC = () => {
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
   const [sppMonth, setSppMonth] = useState<string>('Desember 2026');
   const [sppAmount, setSppAmount] = useState<string>('350000');
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'wallet' | 'transfer' | 'qris'>('wallet');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'wallet' | 'transfer' | 'qris'>('qris');
   const [sppNotes, setSppNotes] = useState<string>('Pembayaran SPP Mandiri Siswa');
   const [submitting, setSubmitting] = useState<boolean>(false);
 

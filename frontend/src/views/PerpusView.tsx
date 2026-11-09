@@ -492,7 +492,7 @@ export const PerpusView: React.FC = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-right">
-                                {isMyLoan || isLibrarianView ? (
+                                {isLibrarianView ? (
                                   <Button
                                     size="sm"
                                     variant="outline"
@@ -500,8 +500,12 @@ export const PerpusView: React.FC = () => {
                                     className="gap-1.5 text-xs rounded-xl font-bold border-emerald-300 text-emerald-700 bg-emerald-50/60 hover:bg-emerald-600 hover:text-white transition-all shadow-2xs"
                                   >
                                     <RotateCcw className="w-3.5 h-3.5" />
-                                    <span>{isLibrarianView ? 'Proses Loket' : 'Kembalikan Buku'}</span>
+                                    <span>Verifikasi Loket</span>
                                   </Button>
+                                ) : isMyLoan ? (
+                                  <Badge variant="outline" className="text-xs bg-slate-50 text-slate-600 border-slate-200">
+                                    Serahkan fisik ke loket
+                                  </Badge>
                                 ) : (
                                   <span className="text-xs text-slate-400 italic">Bukan Peminjam</span>
                                 )}

@@ -7,7 +7,6 @@ use App\Models\KantinMenu;
 use App\Models\KopsisProduct;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Models\Wallet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +15,7 @@ use Illuminate\Support\Str;
 class POSController extends Controller
 {
     /**
-     * Checkout Kasir Koperasi Siswa (Sesuai Flowchart Belanja Kopsis)
+     * Checkout Kasir Koperasi Siswa (Direct Payment: QRIS & Cash Langsung Tanpa Sistem Saldo)
      */
     public function checkoutKopsis(Request $request): JsonResponse
     {
@@ -24,104 +23,110 @@ class POSController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:kopsis_products,id',
             'items.*.quantity' => 'required|integer|min:1',
-            'payment_method' => 'required|in:wallet,cash,qris',
-            'student_identifier' => 'nullable|string', // NISN jika bayar saldo e-wallet
+            'payment_method' => 'required|string|in:qris,cash,tunai,wallet',
+            'student_identifier' => 'nullable|string', // NISN/NIP jika dicatat oleh kasir
         ]);
 
-        return DB::transaction(function () use ($validated, $request) {
+        $rawMethod = strtolower(trim($validated['payment_method']));
+        if ($rawMethod === 'wallet') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sistem saldo e-wallet telah ditiadakan sesuai kebijakan sekolah. Silakan gunakan metode pembayaran langsung menggunakan QRIS atau Tunai (Cash).',
+            ], 422);
+        }
+
+        $paymentMethod = match ($rawMethod) {
+            'cash', 'tunai' => 'cash',
+            default => 'qris',
+        };
+
+        $currentUser = $request->user();
+        $rawRole = strtolower(trim($currentUser->role_name ?? ''));
+        $normalizedRole = match ($rawRole) {
+            'koperasi', 'pengelola koperasi', 'pengelola_koperasi' => 'kopsis',
+            default => $rawRole,
+        };
+
+        // Keamanan Otorisasi: Pembayaran tunai fisik wajib diverifikasi oleh staf kasir
+        if ($paymentMethod === 'cash' && !in_array($normalizedRole, ['kopsis', 'admin', 'petugas'], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pembayaran tunai wajib disetorkan langsung di kasir Koperasi. Silakan pilih opsi QRIS untuk pemesanan digital mandiri.',
+            ], 422);
+        }
+
+        return DB::transaction(function () use ($validated, $paymentMethod, $request, $currentUser) {
+            // FASE 0: Agregasi kuantitas item per product_id untuk mencegah eksploitasi payload duplikat
+            $aggregated = [];
+            foreach ($validated['items'] as $item) {
+                $pId = (int)$item['product_id'];
+                $aggregated[$pId] = ($aggregated[$pId] ?? 0) + (int)$item['quantity'];
+            }
+
+            // Urutkan kunci ID secara konsisten untuk mencegah potensi InnoDB Deadlock pada concurrent requests
+            ksort($aggregated);
+
+            // FASE 1 (Two-Pass Validation): Kunci dan validasi total kebutuhan stok dengan Pessimistic Locking
+            $preparedItems = [];
+            foreach ($aggregated as $productId => $totalQty) {
+                $product = KopsisProduct::lockForUpdate()->find($productId);
+                if (!$product || $product->stock < $totalQty) {
+                    $stockAvailable = $product?->stock ?? 0;
+                    $productName = $product?->name ?? 'Produk';
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Stok produk '{$productName}' tidak mencukupi (permintaan: {$totalQty}, sisa: {$stockAvailable}). Transaksi dibatalkan.",
+                    ], 422);
+                }
+
+                $preparedItems[] = [
+                    'product' => $product,
+                    'quantity' => $totalQty,
+                    'subtotal' => $product->price * $totalQty,
+                ];
+            }
+
+            // FASE 2: Mutasi stok dan kalkulasi total belanja setelah SEMUA item terbukti memiliki stok aman
             $totalAmount = 0;
             $itemsDetail = [];
-
-            // 1. Validasi Stok & Hitung Total
-            foreach ($validated['items'] as $item) {
-                $product = KopsisProduct::lockForUpdate()->find($item['product_id']);
-                if ($product->stock < $item['quantity']) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Stok produk '{$product->name}' tidak mencukupi (sisa: {$product->stock}).",
-                    ], 422);
-                }
-
-                $subtotal = $product->price * $item['quantity'];
-                $totalAmount += $subtotal;
-                $itemsDetail[] = "{$product->name} x{$item['quantity']}";
-
-                // Kurangi stok barang
-                $product->decrement('stock', $item['quantity']);
+            foreach ($preparedItems as $entry) {
+                $entry['product']->decrement('stock', $entry['quantity']);
+                $totalAmount += $entry['subtotal'];
+                $itemsDetail[] = "{$entry['product']->name} x{$entry['quantity']}";
             }
 
-            // 2. Pemrosesan Metode Pembayaran (Saldo E-Wallet, Tunai, atau QRIS)
-            $customer = null;
-            if ($validated['payment_method'] === 'wallet') {
-                $operatorRole = match (strtolower(trim($request->user()->role_name ?? ''))) {
-                    'koperasi', 'pengelola koperasi', 'pengelola_koperasi' => 'kopsis',
-                    default => strtolower(trim($request->user()->role_name ?? '')),
-                };
-                if (in_array($operatorRole, ['kopsis', 'petugas', 'admin'], true)) {
-                    if (!empty($validated['student_identifier'])) {
-                        $customer = User::where('identifier_number', $validated['student_identifier'])->first();
-                        if (!$customer) {
-                            return response()->json([
-                                'success' => false,
-                                'message' => 'Pengguna dengan NISN / NIP tersebut tidak ditemukan.',
-                            ], 404);
-                        }
-                    } else {
-                        // Jika kasir/staf berbelanja untuk dirinya sendiri (self-checkout)
-                        $customer = $request->user();
-                    }
-                } else {
-                    // Pembeli mandiri (Siswa, Guru, Pustakawan, dll.) hanya boleh memotong saldo akun miliknya sendiri
-                    $customer = $request->user();
-                }
-
-                $wallet = Wallet::lockForUpdate()->firstOrCreate(
-                    ['user_id' => $customer->id],
-                    ['balance' => 0, 'balance_kopsis' => 0, 'balance_kantin' => 0]
-                );
-                $currentBalance = (float)($wallet->balance ?? $wallet->balance_kopsis ?? 0);
-                if ($currentBalance < $totalAmount) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Saldo E-Wallet siswa tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.') . ", total belanja: Rp " . number_format($totalAmount, 0, ',', '.') . ".",
-                    ], 422);
-                }
-
-                // Potong saldo universal e-wallet
-                $wallet->balance = $currentBalance - (float)$totalAmount;
-                $wallet->balance_kopsis = $wallet->balance;
-                $wallet->balance_kantin = $wallet->balance;
-                $wallet->save();
-            } else {
-                if ($request->user()->role_name === 'siswa') {
-                    $customer = $request->user();
-                } else {
-                    if (!empty($validated['student_identifier'])) {
-                        $customer = User::where('identifier_number', $validated['student_identifier'])->first();
-                    }
-                    if (!$customer) {
-                        $customer = $request->user();
-                    }
+            // Tentukan Pelanggan (Customer): Hanya staf kasir Koperasi yang boleh menginput atas nama NISN lain
+            $rawRole = strtolower(trim($currentUser->role_name ?? ''));
+            $isCashierStaff = in_array($rawRole, ['kopsis', 'koperasi', 'pengelola_koperasi', 'admin', 'petugas'], true);
+            $customer = $currentUser;
+            if ($isCashierStaff && !empty($validated['student_identifier'])) {
+                $targetUser = User::where('identifier_number', $validated['student_identifier'])->first();
+                if ($targetUser) {
+                    $customer = $targetUser;
                 }
             }
 
-            // 3. Catat Transaksi Pembelian
+            // Catat Transaksi Pembelian Langsung (Status: Approved / Lunas)
+            $methodLabel = $paymentMethod === 'qris' ? 'QRIS Langsung' : 'Tunai (Cash)';
             $trx = Transaction::create([
                 'reference_no' => 'KOP-' . strtoupper(Str::random(8)),
                 'user_id' => $customer->id,
                 'type' => 'purchase_kopsis',
                 'amount' => $totalAmount,
-                'payment_method' => $validated['payment_method'],
-                'description' => 'Belanja Kopsis: ' . implode(', ', $itemsDetail),
-                'operator_id' => $request->user()->id,
+                'payment_method' => $paymentMethod,
+                'status' => 'approved',
+                'description' => 'Belanja Kopsis (' . $methodLabel . '): ' . implode(', ', $itemsDetail),
+                'operator_id' => $currentUser->id,
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Transaksi kasir Kopsis berhasil diproses.',
+                'message' => $paymentMethod === 'qris'
+                    ? 'Pembayaran QRIS Kopsis berhasil diverifikasi. Transaksi selesai.'
+                    : 'Pembayaran tunai kasir Kopsis berhasil diterima. Transaksi selesai.',
                 'reference_no' => $trx->reference_no,
                 'total_amount' => $totalAmount,
-                'payment_method' => $validated['payment_method'],
+                'payment_method' => $paymentMethod,
                 'customer' => $customer->name,
                 'transaction' => $trx,
             ]);
@@ -129,7 +134,7 @@ class POSController extends Controller
     }
 
     /**
-     * Checkout Kasir Kantin Sekolah (Sesuai Flowchart Belanja Kantin)
+     * Checkout Kasir Kantin Sekolah (Direct Payment: QRIS & Cash Langsung Tanpa Sistem Saldo)
      */
     public function checkoutKantin(Request $request): JsonResponse
     {
@@ -137,95 +142,103 @@ class POSController extends Controller
             'items' => 'required|array|min:1',
             'items.*.menu_id' => 'required|exists:kantin_menus,id',
             'items.*.quantity' => 'required|integer|min:1',
-            'payment_method' => 'required|in:wallet,cash,qris',
+            'payment_method' => 'required|string|in:qris,cash,tunai,wallet',
             'student_identifier' => 'nullable|string',
         ]);
 
-        return DB::transaction(function () use ($validated, $request) {
+        $rawMethod = strtolower(trim($validated['payment_method']));
+        if ($rawMethod === 'wallet') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sistem saldo e-wallet telah ditiadakan sesuai kebijakan sekolah. Silakan gunakan metode pembayaran langsung menggunakan QRIS atau Tunai (Cash).',
+            ], 422);
+        }
+
+        $paymentMethod = match ($rawMethod) {
+            'cash', 'tunai' => 'cash',
+            default => 'qris',
+        };
+
+        $currentUser = $request->user();
+        $rawRole = strtolower(trim($currentUser->role_name ?? ''));
+
+        // Keamanan Otorisasi: Pembayaran tunai fisik wajib diverifikasi oleh staf pengelola kantin
+        if ($paymentMethod === 'cash' && !in_array($rawRole, ['kantin', 'admin', 'petugas'], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pembayaran tunai wajib disetorkan langsung di kasir stan Kantin. Silakan pilih opsi QRIS untuk pemesanan digital mandiri.',
+            ], 422);
+        }
+
+        return DB::transaction(function () use ($validated, $paymentMethod, $request, $currentUser) {
+            // FASE 0: Agregasi kuantitas menu per menu_id
+            $aggregated = [];
+            foreach ($validated['items'] as $item) {
+                $mId = (int)$item['menu_id'];
+                $aggregated[$mId] = ($aggregated[$mId] ?? 0) + (int)$item['quantity'];
+            }
+
+            ksort($aggregated);
+
+            // FASE 1 (Two-Pass Validation): Validasi ketersediaan menu terlebih dahulu
+            $preparedMenus = [];
+            foreach ($aggregated as $menuId => $totalQty) {
+                $menu = KantinMenu::lockForUpdate()->find($menuId);
+                if (!$menu || !$menu->is_available) {
+                    $menuName = $menu?->name ?? 'Pilihan';
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Menu '{$menuName}' saat ini sedang tutup / tidak tersedia. Pesanan dibatalkan.",
+                    ], 422);
+                }
+
+                $preparedMenus[] = [
+                    'menu' => $menu,
+                    'quantity' => $totalQty,
+                    'subtotal' => $menu->price * $totalQty,
+                ];
+            }
+
+            // FASE 2: Hitung total setelah seluruh menu terkonfirmasi tersedia
             $totalAmount = 0;
             $itemsDetail = [];
-
-            foreach ($validated['items'] as $item) {
-                $menu = KantinMenu::find($item['menu_id']);
-                if (!$menu->is_available) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Menu '{$menu->name}' saat ini berstatus tutup / tidak tersedia.",
-                    ], 422);
-                }
-
-                $subtotal = $menu->price * $item['quantity'];
-                $totalAmount += $subtotal;
-                $itemsDetail[] = "{$menu->name} x{$item['quantity']}";
+            foreach ($preparedMenus as $entry) {
+                $totalAmount += $entry['subtotal'];
+                $itemsDetail[] = "{$entry['menu']->name} x{$entry['quantity']}";
             }
 
-            $customer = null;
-            if ($validated['payment_method'] === 'wallet') {
-                $operatorRole = strtolower(trim($request->user()->role_name ?? ''));
-                if (in_array($operatorRole, ['kantin', 'petugas', 'admin'], true)) {
-                    if (!empty($validated['student_identifier'])) {
-                        $customer = User::where('identifier_number', $validated['student_identifier'])->first();
-                        if (!$customer) {
-                            return response()->json([
-                                'success' => false,
-                                'message' => 'Pengguna dengan NISN / NIP tersebut tidak ditemukan.',
-                            ], 404);
-                        }
-                    } else {
-                        // Jika kasir/staf memesan makanan untuk dirinya sendiri (self-checkout)
-                        $customer = $request->user();
-                    }
-                } else {
-                    // Pembeli mandiri (Siswa, Guru, Pustakawan, dll.) hanya boleh memotong saldo akun miliknya sendiri
-                    $customer = $request->user();
-                }
-
-                $wallet = Wallet::lockForUpdate()->firstOrCreate(
-                    ['user_id' => $customer->id],
-                    ['balance' => 0, 'balance_kopsis' => 0, 'balance_kantin' => 0]
-                );
-                $currentBalance = (float)($wallet->balance ?? $wallet->balance_kantin ?? 0);
-                if ($currentBalance < $totalAmount) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Saldo E-Wallet siswa tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.') . ", total pesanan: Rp " . number_format($totalAmount, 0, ',', '.') . ".",
-                    ], 422);
-                }
-
-                // Potong saldo universal e-wallet
-                $wallet->balance = $currentBalance - (float)$totalAmount;
-                $wallet->balance_kopsis = $wallet->balance;
-                $wallet->balance_kantin = $wallet->balance;
-                $wallet->save();
-            } else {
-                if ($request->user()->role_name === 'siswa') {
-                    $customer = $request->user();
-                } else {
-                    if (!empty($validated['student_identifier'])) {
-                        $customer = User::where('identifier_number', $validated['student_identifier'])->first();
-                    }
-                    if (!$customer) {
-                        $customer = $request->user();
-                    }
+            // Tentukan Pelanggan (Customer): Hanya staf kasir Kantin yang boleh menginput atas nama NISN lain
+            $rawRole = strtolower(trim($currentUser->role_name ?? ''));
+            $isCashierStaff = in_array($rawRole, ['kantin', 'admin', 'petugas'], true);
+            $customer = $currentUser;
+            if ($isCashierStaff && !empty($validated['student_identifier'])) {
+                $targetUser = User::where('identifier_number', $validated['student_identifier'])->first();
+                if ($targetUser) {
+                    $customer = $targetUser;
                 }
             }
 
+            // Catat Transaksi Pembelian Langsung (Status: Approved / Lunas)
+            $methodLabel = $paymentMethod === 'qris' ? 'QRIS Langsung' : 'Tunai (Cash)';
             $trx = Transaction::create([
                 'reference_no' => 'KTN-' . strtoupper(Str::random(8)),
                 'user_id' => $customer->id,
                 'type' => 'purchase_kantin',
                 'amount' => $totalAmount,
-                'payment_method' => $validated['payment_method'],
-                'description' => 'Pesanan Kantin: ' . implode(', ', $itemsDetail),
-                'operator_id' => $request->user()->id,
+                'payment_method' => $paymentMethod,
+                'status' => 'approved',
+                'description' => 'Pesanan Kantin (' . $methodLabel . '): ' . implode(', ', $itemsDetail),
+                'operator_id' => $currentUser->id,
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pesanan kantin berhasil diproses dan dikirim ke stan.',
+                'message' => $paymentMethod === 'qris'
+                    ? 'Pembayaran QRIS pesanan kantin berhasil dikonfirmasi. Pesanan diteruskan ke stan.'
+                    : 'Pembayaran tunai kasir kantin berhasil diterima. Pesanan diteruskan ke stan.',
                 'reference_no' => $trx->reference_no,
                 'total_amount' => $totalAmount,
-                'payment_method' => $validated['payment_method'],
+                'payment_method' => $paymentMethod,
                 'customer' => $customer->name,
                 'transaction' => $trx,
             ]);

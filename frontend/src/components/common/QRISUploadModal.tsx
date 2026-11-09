@@ -34,7 +34,7 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
     }
   }, [open, type]);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -43,19 +43,55 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
       return;
     }
 
-    if (file.size > 3 * 1024 * 1024) {
-      toast.error('Ukuran gambar maksimal 3MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Ukuran gambar maksimal 5MB.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      setImageUrl(base64);
-      setPreviewUrl(base64);
-      toast.success('Gambar barcode QRIS berhasil dimuat.');
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressedBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxDim = 400;
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > maxDim) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              }
+            } else {
+              if (height > maxDim) {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              resolve(event.target?.result as string);
+              return;
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.onerror = () => reject(new Error('Gagal memproses gambar'));
+          img.src = event.target?.result as string;
+        };
+        reader.onerror = () => reject(new Error('Gagal membaca file'));
+        reader.readAsDataURL(file);
+      });
+
+      setImageUrl(compressedBase64);
+      setPreviewUrl(compressedBase64);
+      toast.success('Gambar barcode QRIS berhasil dimuat dan dioptimalkan.');
+    } catch {
+      toast.error('Gagal memproses file gambar QRIS.');
+    }
   };
 
   const handleSave = (e: React.FormEvent) => {
