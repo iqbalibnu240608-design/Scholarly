@@ -367,19 +367,19 @@ export const KantinView: React.FC = () => {
       {isCustomerView ? (
         <>
           {/* Hero Saldo Banner */}
-          <div className="wallet-hero-banner">
-            <div className="wallet-hero-left">
+          <div className="wallet-hero-banner w-full max-w-full box-border">
+            <div className="wallet-hero-left w-full sm:w-auto">
               <h3>
-                <UtensilsCrossed size={20} className="text-amber-400" />
-                Pemesanan Makanan & Minuman Kantin
+                <UtensilsCrossed size={20} className="text-amber-400 shrink-0" />
+                <span>Pemesanan Makanan & Minuman Kantin</span>
               </h3>
               <p>
                 Pesan makanan lezat dengan berbagai metode pembayaran: Saldo Digital E-Wallet, Tunai di Stan, atau QRIS.
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="wallet-balance-box">
-                <Wallet size={20} className="text-sky-300" />
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+              <div className="wallet-balance-box w-full sm:w-auto flex-1">
+                <Wallet size={20} className="text-sky-300 shrink-0" />
                 <div>
                   <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>
                     Saldo Digital E-Wallet Anda
@@ -391,7 +391,7 @@ export const KantinView: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowTopupModal(true)}
-                className="btn-success-action"
+                className="btn-success-action w-full sm:w-auto justify-center"
                 style={{ padding: '10px 16px', fontSize: '13px' }}
               >
                 <PlusCircle size={16} /> Isi Saldo
@@ -400,16 +400,18 @@ export const KantinView: React.FC = () => {
           </div>
 
           {/* Kategori Filter Tabs */}
-          <div className="catalog-tabs">
-            {['Semua', 'Makanan', 'Minuman', 'Snack'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`catalog-tab-btn ${selectedCategory === cat ? 'active' : ''}`}
-              >
-                {cat === 'Makanan' ? 'Makanan' : cat === 'Minuman' ? 'Minuman' : cat === 'Snack' ? 'Snack' : 'Semua Menu'}
-              </button>
-            ))}
+          <div className="w-full max-w-full overflow-x-auto pb-2 mb-4 no-scrollbar">
+            <div className="catalog-tabs flex items-center gap-2 max-w-full m-0 p-0">
+              {['Semua', 'Makanan', 'Minuman', 'Snack'].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`catalog-tab-btn shrink-0 ${selectedCategory === cat ? 'active' : ''}`}
+                >
+                  {cat === 'Makanan' ? 'Makanan' : cat === 'Minuman' ? 'Minuman' : cat === 'Snack' ? 'Snack' : 'Semua Menu'}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Grid Menu Makanan Kantin */}

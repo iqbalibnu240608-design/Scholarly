@@ -10,7 +10,7 @@ export const Layout: React.FC = () => {
 
   return (
     <div
-      className="app-container bg-[#f1f5f9] min-h-screen"
+      className="app-container bg-[#f1f5f9] min-h-screen w-full max-w-full overflow-x-hidden"
       style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f1f5f9', width: '100%' }}
     >
       <Sidebar
@@ -18,15 +18,16 @@ export const Layout: React.FC = () => {
         onCloseMobile={() => setMobileMenuOpen(false)}
       />
       <div
-        className="app-content-wrapper bg-[#f1f5f9] min-h-screen"
+        className="app-content-wrapper bg-[#f1f5f9] min-h-screen w-full max-w-full overflow-x-hidden"
         style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, minHeight: '100vh', backgroundColor: '#f1f5f9' }}
       >
         <Navbar onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)} />
         <main
-          className="app-main-content bg-[#f1f5f9] p-3 sm:p-5 lg:p-6"
+          className="app-main-content bg-[#f1f5f9] p-3 sm:p-5 lg:p-6 w-full max-w-full overflow-x-hidden"
           style={{
             flex: 1,
             maxWidth: '1540px',
+            overflowX: 'hidden',
             margin: '0 auto',
             width: '100%',
             boxSizing: 'border-box',

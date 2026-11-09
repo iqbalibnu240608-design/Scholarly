@@ -13,7 +13,9 @@ import {
   ShoppingCart,
   UtensilsCrossed,
   PlusCircle,
-  GraduationCap,
+  Users,
+  User,
+  IdCard,
   Sparkles,
   Wallet,
   ArrowRight,
@@ -193,37 +195,51 @@ export const SiswaView: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* View Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
-        <div className="flex items-start gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
-            <GraduationCap className="w-6 h-6" />
+      {/* View Header Info Card (Horizontal Minimalis 3 Kolom) */}
+      <div className="bg-white rounded-2xl border border-slate-100 px-6 sm:px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0 shadow-2xs">
+        {/* Kolom 1 (Kelas) */}
+        <div className="flex items-center gap-3.5 flex-1">
+          <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="primary" className="text-xs">
-                Portal Siswa
-              </Badge>
-              <Badge variant="secondary" className="text-xs font-mono">
-                {activeRole === 'siswa' ? `NISN: ${user?.identifier_number || '0061234567'}` : `Akses Pemantauan: ${(activeRole || '').toUpperCase()}`}
-              </Badge>
-            </div>
-            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Portal Akademik & Kehadiran Siswa
-            </h2>
-            <p className="text-xs md:text-sm text-slate-500 mt-0.5">
-              Pantau jadwal kelas, rekap absensi harian, saldo digital cashless, dan buku nilai evaluasi.
-            </p>
+            <span className="text-sm text-slate-500 block">Kelas</span>
+            <span className="text-base font-bold text-slate-800 block">
+              {data?.kelas || 'XII RPL 1'}
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-center">
-          <Badge variant="secondary" className="px-3 py-1 text-xs font-bold">
-            Kelas: {data?.kelas}
-          </Badge>
-          <Badge variant="outline" className="px-3 py-1 text-xs font-semibold">
-            Wali: {data?.wali_kelas}
-          </Badge>
+        {/* Garis Pemisah 1 */}
+        <div className="hidden md:block h-10 w-px bg-slate-200 shrink-0 mx-6 lg:mx-8" />
+
+        {/* Kolom 2 (Wali Kelas) */}
+        <div className="flex items-center gap-3.5 flex-1">
+          <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <User className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-sm text-slate-500 block">Wali Kelas</span>
+            <span className="text-base font-bold text-slate-800 block">
+              {data?.wali_kelas || 'Budi Santoso, S.Pd'}
+            </span>
+          </div>
+        </div>
+
+        {/* Garis Pemisah 2 */}
+        <div className="hidden md:block h-10 w-px bg-slate-200 shrink-0 mx-6 lg:mx-8" />
+
+        {/* Kolom 3 (NISN) */}
+        <div className="flex items-center gap-3.5 flex-1">
+          <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <IdCard className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-sm text-slate-500 block">NISN</span>
+            <span className="text-base font-bold text-slate-800 block">
+              {user?.identifier_number || '0061234567'}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -366,7 +382,7 @@ export const SiswaView: React.FC = () => {
                 Jadwal Pelajaran Hari Ini
               </CardTitle>
             </div>
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="hidden md:inline-flex text-xs">
               {(data?.jadwal_hari_ini?.length || 0) || 0} Pertemuan
             </Badge>
           </CardHeader>
@@ -405,7 +421,7 @@ export const SiswaView: React.FC = () => {
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
               <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-100 text-center">
                 <span className="text-xl font-black text-emerald-700 block">
                   {data?.presensi_bulan_ini?.hadir ?? 0}
@@ -432,10 +448,7 @@ export const SiswaView: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-4 p-3 rounded-2xl bg-slate-50 border border-slate-200/60 text-xs text-slate-600 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
-              <span>Presensi otomatis terhubung dengan RFID gate gerbang satpam dan absensi kelas guru.</span>
-            </div>
+            
           </CardContent>
         </Card>
       </div>
@@ -455,9 +468,7 @@ export const SiswaView: React.FC = () => {
         </CardHeader>
         <CardContent className="p-0">
           {grades.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-400">
-              Belum ada nilai yang diinput oleh guru untuk semester ini.
-            </div>
+            null
           ) : (
             <Table>
               <TableHeader>

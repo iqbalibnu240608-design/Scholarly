@@ -320,7 +320,8 @@ export const PerpusView: React.FC = () => {
 
           {/* Search Bar & Kategori */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex gap-1.5 flex-wrap">
+            <div className="w-full sm:w-auto overflow-x-auto pb-1.5 no-scrollbar">
+              <div className="flex gap-1.5 flex-nowrap sm:flex-wrap">
               {['Semua', 'Pelajaran', 'Teknologi', 'Fiksi', 'Sastra', 'Komik', 'Referensi'].map((cat) => (
                 <button
                   key={cat}
@@ -334,6 +335,7 @@ export const PerpusView: React.FC = () => {
                   {cat}
                 </button>
               ))}
+              </div>
             </div>
 
             <div className="relative w-full sm:w-72">

@@ -405,8 +405,8 @@ export const LandingPageView: React.FC = () => {
         </div>
       </section>
 
-      {/* Call to Action Banner */}
-      <div className="lp-container">
+      {/* Call to Action Banner (Hidden on Mobile, Displayed on Desktop) */}
+      <div className="hidden md:block lp-container">
         <div className="lp-cta-banner">
           <h2 className="lp-cta-title">Siap Mentransformasi Sekolah Anda?</h2>
           <p className="lp-cta-desc">

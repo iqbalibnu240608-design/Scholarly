@@ -123,7 +123,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200/80 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs gap-2 sm:gap-3">
+    <header className="w-full max-w-full h-16 bg-white border-b border-slate-200/80 px-2.5 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs gap-1.5 sm:gap-3 box-border overflow-hidden">
       {/* Left: Mobile Toggle + Breadcrumb Identity + Dedicated Search Bar */}
       <div className="flex items-center gap-2 sm:gap-4 flex-1 max-w-xl min-w-0 mr-1 sm:mr-4">
         {/* Mobile Hamburger Menu Toggle */}
@@ -176,7 +176,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
       </div>
 
       {/* Right Controls: Beranda + Role Switcher + Notif + Profil */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         {/* Tombol ke Beranda SteelSchool - hidden on compact screens */}
         <Link
           to="/"
@@ -202,7 +202,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             <span className="hidden xl:inline leading-none">Peran:</span>
           </span>
           <select
-            className="border-none bg-transparent text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer outline-none pl-0.5 sm:pl-1 pr-1 leading-none m-0 max-w-[72px] sm:max-w-none truncate transition-colors"
+            className="border-none bg-transparent text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer outline-none pl-0.5 sm:pl-1 pr-1 leading-none m-0 max-w-[55px] xs:max-w-[70px] sm:max-w-none truncate transition-colors"
             value={activeRole}
             onChange={handleRoleChange}
             disabled={switching}
@@ -238,7 +238,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
 
           {/* Notifications Dropdown Panel — Positioned strictly BELOW the header */}
           {showNotifications && (
-            <div className="fixed left-3 right-3 top-[68px] sm:absolute sm:left-auto sm:right-0 sm:top-[calc(100%+18px)] sm:w-96 bg-white rounded-2xl border border-slate-200/90 shadow-2xl py-3 z-50 animate-in fade-in slide-in-from-top-2">
+            <div className="fixed left-3 right-3 top-[68px] sm:left-auto sm:right-6 sm:top-[68px] sm:w-96 bg-white rounded-2xl border border-slate-200/90 shadow-2xl py-3 z-50 animate-in fade-in slide-in-from-top-2">
               <div className="flex items-center justify-between px-4 pb-2.5 border-b border-slate-100">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-blue-600" />

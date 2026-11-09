@@ -16,7 +16,8 @@ import {
   CheckCircle2,
   Wallet,
   Megaphone,
-  PlusCircle,
+  Plus,
+
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -258,277 +259,95 @@ export const OverviewView: React.FC = () => {
       className="w-full max-w-[1540px] mx-auto pb-10 box-border"
     >
       {/* =========================================================================
-          BARIS 1 (ATAS): 2 KOLOM ASIMETRIS
-          Kiri: Banner Hitam 'Selamat Datang, Ahmad' (Deep Navy #0F172A)
-          Kanan: Panel Ringkasan 'Status Civitas' (Presensi RFID 06:48 WIB & SPP)
+          BARIS 1 & 2: 2 KOLOM UTAMA (BENTO GRID)
+          Kolom Kiri (2/3): Banner Hitam, Saldo Digital Siswa, 4 Modul Layanan
+          Kolom Kanan (1/3): Status Civitas & Verifikasi, Jadwal Kelas Hari Ini
           ========================================================================= */}
       <section
-        className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-4 sm:gap-5"
+        className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 box-border"
         style={{
           boxSizing: 'border-box',
         }}
       >
-        {/* Kolom Kiri: Banner Hitam 'Selamat Datang, Ahmad' */}
-        <div
-          className="lg:col-span-8 bg-[#0F172A] text-white p-5 sm:p-7 lg:p-8 rounded-2xl border border-slate-800 flex flex-col justify-between relative overflow-hidden box-border shadow-md"
-        >
-          {/* Subtle Ambient Glow */}
+        {/* Kolom Kiri 2/3 (lg:col-span-8): Banner, Saldo Digital, & 4 Modul */}
+        <div className="lg:col-span-8 flex flex-col gap-4 sm:gap-5 box-border">
+          {/* 1. Banner Hitam 'Selamat Datang, Ahmad' (Height proporsional h-auto, px-7 py-6) */}
           <div
-            className="absolute -top-8 -right-8 w-48 sm:w-60 h-48 sm:h-60 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"
-          />
-
-          {/* Top Badges */}
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 mb-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-white/90 border border-white/15">
-                <Calendar className="w-3.5 h-3.5 text-blue-300 shrink-0" />
-                <span>T.A. 2026/2027 Ganjil</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-white/90 border border-white/15 uppercase">
-                <UserCheck className="w-3.5 h-3.5 text-blue-300 shrink-0" />
-                <span>{isStudent ? 'Siswa Terverifikasi' : `Peran: ${activeRole}`}</span>
-              </span>
-            </div>
-
-            {/* Live Status Chip */}
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse shrink-0" />
-              <span>RFID Smart Gate: Terhubung</span>
-            </span>
-          </div>
-
-          {/* Heading & Subtitle */}
-          <div className="relative z-10 my-2">
-            <h2 className="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-white leading-tight tracking-tight mb-2">
-              Selamat Datang, {displayName}
-            </h2>
-            <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed max-w-[620px] m-0">
-              {isStudent
-                ? 'Portal terpadu Smart SteelSchool siap menemani aktivitas belajar Anda. Pantau jadwal kelas harian, kelola saldo dompet digital kantin & koperasi, serta verifikasi status presensi secara instan.'
-                : 'Pusat komando operasional ekosistem sekolah. Pantau aktivitas belajar mengajar, sinkronisasi kehadiran gerbang RFID, dan kelola administrasi civitas sekolah secara menyeluruh.'}
-            </p>
-          </div>
-
-          {/* Tombol Putih 'Buka Jadwal & Kelas' */}
-          <div className="relative z-10 mt-4 pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <Link
-              to={isStudent ? '/app/siswa' : '/app/admin'}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-blue-50 text-slate-900 hover:text-blue-900 font-bold text-xs inline-flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] group transition-all duration-200 shrink-0 cursor-pointer border border-white/80"
-            >
-              <span>{isStudent ? 'Buka Jadwal & Kelas' : 'Kelola Modul Administrator'}</span>
-              <ArrowRight className="w-4 h-4 text-slate-900 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <div className="inline-flex items-center gap-2 text-xs text-slate-400">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Terverifikasi Sistem Smart Identity Card</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Kolom Kanan: Panel 'Status Civitas' */}
-        <div
-          className="lg:col-span-4 p-5 sm:p-6 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between shadow-2xs box-border"
-        >
-          {/* Header Panel */}
-          <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
-                <ShieldCheck className="w-4.5 h-4.5" />
-              </div>
-              <div>
-                <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 m-0">
-                  Status Civitas & Verifikasi
-                </h3>
-                <p className="text-[11px] text-slate-400 mt-0.5 m-0">Presensi Gerbang & Finansial</p>
-              </div>
-            </div>
-            <span className="px-2 py-1 rounded-md text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase shrink-0">
-              Terverifikasi
-            </span>
-          </div>
-
-          {/* Blok 1: Presensi Gerbang RFID */}
-          <div className="py-3.5 border-b border-slate-100">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Presensi Gerbang RFID
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>Tepat Waktu</span>
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between">
-              <span className="font-mono text-2xl font-black text-slate-900">
-                {studentStats.presensiGerbangJam}
-              </span>
-              <span className="text-[11px] font-semibold text-slate-500">Gate 1 • Gerbang Utama</span>
-            </div>
-          </div>
-
-          {/* Blok 2: Status SPP */}
-          <div className="pt-3.5">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Status Pembayaran SPP
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                <span>Lunas (Bulan Berjalan)</span>
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between">
-              <div>
-                <span className="font-bold text-sm text-emerald-600 block">
-                  Periode November 2026
-                </span>
-                <span className="text-[11px] text-slate-400">Bebas Tunggakan Administrasi</span>
-              </div>
-              <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                Next: 10 Des 2026
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
-          BARIS 2 (TENGAH): 3 KOLOM BENTO GRID
-          margin-top: 24px (mt-6) antara banner hitam dengan barisan kartu di bawahnya
-          Kolom 1 & 2 (Kiri 2/3): Dompet Digital & 4 Modul Layanan
-          Kolom 3 (Kanan 1/3): Panel 'Jadwal Kelas Hari Ini'
-          ========================================================================= */}
-      <section
-        className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-4 sm:gap-5 mt-5 sm:mt-6 box-border"
-      >
-        {/* Kolom Kiri 2/3: E-Wallet Cards & 4 Modul Akses Cepat */}
-        <div
-          className="lg:col-span-8 flex flex-col justify-between gap-4 sm:gap-5 box-border"
-        >
-          {/* Sub-Baris Atas: 2 Kartu Dompet Digital E-Wallet */}
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 box-border"
+            className="bg-[#0F172A] text-white px-7 py-6 rounded-2xl border border-slate-800 flex flex-col h-auto relative overflow-hidden box-border shadow-md"
           >
-            {/* E-Wallet Card Terpadu: Saldo Digital Siswa Universal */}
+            {/* Subtle Ambient Glow */}
             <div
-              className="sm:col-span-2 p-5 rounded-2xl border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/20 to-indigo-50/20 shadow-2xs hover:border-blue-300 transition-all flex flex-col justify-between box-border"
-            >
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                      <Wallet className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 m-0">
-                        {activeRole === 'guru'
-                          ? 'Saldo Digital Dewan Guru (Universal E-Wallet)'
-                          : activeRole === 'perpustakaan'
-                          ? 'Saldo Digital Petugas Perpustakaan'
-                          : 'Saldo Digital Siswa (Universal E-Wallet)'}
-                      </h4>
-                      <span className="text-[11px] text-slate-400">
-                        {activeRole === 'guru'
-                          ? 'Terhubung ke NIP Guru • Berlaku di Kantin & Koperasi Sekolah'
-                          : activeRole === 'perpustakaan'
-                          ? 'Terhubung ke ID Staf Perpustakaan • Berlaku di Kantin & Koperasi'
-                          : 'Terhubung ke Kartu NISN • Berlaku di Kantin & Koperasi'}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60">
-                    Cashless Ekosistem
-                  </span>
-                </div>
+              className="absolute -top-8 -right-8 w-48 sm:w-60 h-48 sm:h-60 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"
+            />
 
-                <div className="my-3 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                      Total Saldo Aktif
-                    </span>
-                    <span className="font-mono text-3xl font-black text-slate-900 tracking-tight">
-                      Rp {Math.round(Number(studentStats.saldoKopsis || 0)).toLocaleString('id-ID')}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500">
-                    Satu saldo untuk jajan di stan kantin sehat dan belanja perlengkapan sekolah di koperasi.
-                  </p>
-                </div>
+            {/* Top Badges */}
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-white/90 border border-white/15">
+                  <Calendar className="w-3.5 h-3.5 text-blue-300 shrink-0" />
+                  <span>T.A. 2026/2027 Ganjil</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-white/90 border border-white/15 uppercase">
+                  <UserCheck className="w-3.5 h-3.5 text-blue-300 shrink-0" />
+                  <span>{isStudent ? 'Siswa Terverifikasi' : `Peran: ${activeRole}`}</span>
+                </span>
               </div>
 
-              {/* Action Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-4 border-t border-slate-200/70 mt-3">
-                {activeRole === 'guru' ? (
-                  <Link
-                    to="/app/guru"
-                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-xs hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
-                  >
-                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
-                    <span>Isi Saldo Guru</span>
-                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
-                  </Link>
-                ) : activeRole === 'perpustakaan' ? (
-                  <Link
-                    to="/app/perpus"
-                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
-                  >
-                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
-                    <span>Isi Saldo Perpus</span>
-                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
-                  </Link>
-                ) : activeRole === 'petugas' ? (
-                  <Link
-                    to="/app/petugas"
-                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
-                  >
-                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
-                    <span>Loket Verifikasi TU</span>
-                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
-                  </Link>
-                ) : activeRole === 'kopsis' || activeRole === 'koperasi' || activeRole === 'pengelola_koperasi' ? (
-                  <Link
-                    to="/app/kopsis"
-                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs shadow-xs hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
-                  >
-                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
-                    <span>Kasir POS & Top-Up</span>
-                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
-                  </Link>
-                ) : (
-                  <Link
-                    to="/app/siswa"
-                    className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs hover:shadow-md hover:shadow-blue-500/25 active:scale-[0.97] transition-all duration-200 cursor-pointer overflow-hidden"
-                  >
-                    <PlusCircle className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
-                    <span>Isi Saldo Digital</span>
-                    <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
-                  </Link>
-                )}
-                <Link
-                  to="/app/kantin"
-                  className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200/90 hover:border-emerald-600 font-bold text-xs shadow-2xs hover:shadow-md hover:shadow-emerald-500/20 active:scale-[0.97] transition-all duration-200 cursor-pointer"
-                >
-                  <div className="w-5 h-5 rounded-lg bg-emerald-100 group-hover:bg-emerald-500/40 flex items-center justify-center transition-colors">
-                    <UtensilsCrossed className="w-3 h-3 text-emerald-700 group-hover:text-white transition-colors" />
-                  </div>
-                  <span>Pesan Menu Kantin</span>
-                  <ArrowRight className="w-3.5 h-3.5 shrink-0 text-emerald-600 group-hover:text-white opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
-                </Link>
-                <Link
-                  to="/app/kopsis"
-                  className="group relative inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white border border-indigo-200/90 hover:border-indigo-600 font-bold text-xs shadow-2xs hover:shadow-md hover:shadow-indigo-500/20 active:scale-[0.97] transition-all duration-200 cursor-pointer"
-                >
-                  <div className="w-5 h-5 rounded-lg bg-indigo-100 group-hover:bg-indigo-500/40 flex items-center justify-center transition-colors">
-                    <ShoppingBag className="w-3 h-3 text-indigo-700 group-hover:text-white transition-colors" />
-                  </div>
-                  <span>Belanja di Kopsis</span>
-                  <ArrowRight className="w-3.5 h-3.5 shrink-0 text-indigo-600 group-hover:text-white opacity-0 -ml-1 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0 group-hover:translate-x-0.5" />
-                </Link>
-              </div>
+              {/* Live Status Chip */}
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse shrink-0" />
+                <span>RFID Smart Gate: Terhubung</span>
+              </span>
+            </div>
+
+            {/* Heading (mt-3.5 = 14px jarak proporsional dari baris badge) */}
+            <div className="relative z-10 mt-3.5">
+              <h2 className="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-white leading-tight tracking-tight m-0">
+                Selamat Datang, {displayName}
+              </h2>
             </div>
           </div>
 
-          {/* Sub-Baris Bawah: 4 Modul Layanan & Akses Cepat */}
+          {/* 2. Kartu Saldo Digital Siswa (Universal E-Wallet) - 1 Baris Horizontal Simpel */}
+          <div
+            className="px-7 py-5 rounded-2xl border border-blue-200/80 bg-white shadow-2xs hover:border-blue-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 box-border"
+          >
+            {/* Kiri: Ikon dompet biru, label TOTAL SALDO AKTIF, nominal */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Wallet className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                  TOTAL SALDO AKTIF
+                </span>
+                <span className="font-mono text-2xl sm:text-3xl font-black text-slate-900 tracking-tight block">
+                  Rp {Math.round(Number(studentStats.saldoKopsis || 0)).toLocaleString('id-ID')}
+                </span>
+              </div>
+            </div>
+
+            {/* Kanan: 1 tombol biru '+ Isi Saldo Digital' (w-fit px-6 py-3 rounded-full) */}
+            <Link
+              to={
+                activeRole === 'guru'
+                  ? '/app/guru'
+                  : activeRole === 'perpustakaan'
+                  ? '/app/perpus'
+                  : activeRole === 'petugas'
+                  ? '/app/petugas'
+                  : activeRole === 'kopsis' || activeRole === 'koperasi' || activeRole === 'pengelola_koperasi'
+                  ? '/app/kopsis'
+                  : '/app/siswa'
+              }
+              className="inline-flex items-center justify-center gap-1.5 w-fit px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-xs hover:shadow-md hover:shadow-blue-500/25 active:scale-[0.97] transition-all duration-200 cursor-pointer shrink-0 self-start sm:self-auto"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Isi Saldo Digital</span>
+            </Link>
+          </div>
+
+          {/* 3. Sub-Baris Bawah: 4 Modul Layanan & Akses Cepat */}
           <div
             className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 box-border"
           >
@@ -668,9 +487,76 @@ export const OverviewView: React.FC = () => {
           </div>
         </div>
 
-        {/* Kolom Kanan 1/3: Panel 'Jadwal Kelas Hari Ini' */}
+        {/* Kolom Kanan 1/3 (lg:col-span-4): Status Civitas & Jadwal Kelas */}
+        <div className="lg:col-span-4 flex flex-col gap-4 sm:gap-5 box-border">
+          {/* Kolom Kanan: Panel 'Status Civitas' */}
         <div
-          className="lg:col-span-4 p-5 rounded-xl border border-slate-200 bg-white shadow-2xs flex flex-col justify-between box-border"
+          className="p-5 sm:p-6 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between shadow-2xs box-border"
+        >
+          {/* Header Panel */}
+          <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+                <ShieldCheck className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 m-0">
+                  Status Civitas & Verifikasi
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-0.5 m-0">Presensi Gerbang & Finansial</p>
+              </div>
+            </div>
+            <span className="px-2 py-1 rounded-md text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase shrink-0">
+              Terverifikasi
+            </span>
+          </div>
+
+          {/* Blok 1: Presensi Gerbang RFID */}
+          <div className="py-3.5 border-b border-slate-100">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Presensi Gerbang RFID
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>Tepat Waktu</span>
+              </span>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="font-mono text-2xl font-black text-slate-900">
+                {studentStats.presensiGerbangJam}
+              </span>
+              <span className="text-[11px] font-semibold text-slate-500">Gate 1 • Gerbang Utama</span>
+            </div>
+          </div>
+
+          {/* Blok 2: Status SPP */}
+          <div className="pt-3.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Status Pembayaran SPP
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                <span>Lunas (Bulan Berjalan)</span>
+              </span>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="font-bold text-sm text-emerald-600 block">
+                  Periode November 2026
+                </span>
+                <span className="text-[11px] text-slate-400">Bebas Tunggakan Administrasi</span>
+              </div>
+              <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                Next: 10 Des 2026
+              </span>
+            </div>
+          </div>
+        </div>
+
+          {/* Kolom Kanan 1/3: Panel 'Jadwal Kelas Hari Ini' */}
+        <div
+          className="p-5 rounded-xl border border-slate-200 bg-white shadow-2xs flex flex-col justify-between box-border"
         >
           <div>
             {/* Header Jadwal */}
@@ -743,6 +629,7 @@ export const OverviewView: React.FC = () => {
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
+        </div>
         </div>
       </section>
 

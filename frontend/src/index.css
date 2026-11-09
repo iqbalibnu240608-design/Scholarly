@@ -80,8 +80,11 @@
   box-sizing: border-box;
 }
 
-html, body {
+html, body, #root {
   min-height: 100%;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   font-family: var(--font-sans);
   background-color: var(--bg-page);
   color: var(--text-main);
@@ -823,4 +826,26 @@ button svg {
   .wallet-balance-box {
     width: 100%;
   }
+}
+
+/* Universal mobile horizontal overflow locks */
+html, body, #root {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+}
+
+.app-container,
+.app-content-wrapper,
+.app-main-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+.table-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }

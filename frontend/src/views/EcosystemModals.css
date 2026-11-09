@@ -360,6 +360,8 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 4px;
   margin-bottom: 20px;
 }
@@ -534,3 +536,25 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
+
+@media (max-width: 640px) {
+  .wallet-hero-banner {
+    padding: 16px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .wallet-hero-left {
+    width: 100% !important;
+  }
+  .wallet-balance-box {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .btn-success-action {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .catalog-tabs {
+    padding-bottom: 6px !important;
+  }
+}

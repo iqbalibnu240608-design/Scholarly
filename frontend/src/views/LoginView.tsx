@@ -18,6 +18,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
+import studentLearningImg from '../assets/image_37.png';
 import './LoginView.css';
 
 interface HistoryAccount {
@@ -296,20 +297,25 @@ export const LoginView: React.FC = () => {
         <div className="login-left-banner">
           <div>
             <h1 className="login-banner-title">
-              Simplify<br />
-              management with<br />
-              our dashboard
+              <span className="hidden md:inline">
+                Kelola<br />
+                aktivitas sekolah<br />
+                dalam satu dasbor
+              </span>
+              <span className="md:hidden">
+                Kelola aktivitas sekolah dalam satu dasbor
+              </span>
             </h1>
             <p className="login-banner-desc">
-              Simplify your e-commerce &amp; school management with our user friendly admin dashboard.
+              Akses mudah ke layanan akademik, presensi RFID, dan transaksi cashless sekolah dalam satu akun terpusat.
             </p>
           </div>
 
-          {/* 3D Character Illustration at desk with waving hands & laptop */}
-          <div className="login-banner-illustration-wrap">
+          {/* Ilustrasi Siswa Belajar Baru */}
+          <div className="login-banner-illustration-wrap mt-8 lg:mt-10">
             <img
-              src="/login-3d-character.svg"
-              alt="3D Character at Desk"
+              src={studentLearningImg}
+              alt="Siswa Belajar di Meja Kelas"
               className="login-3d-char-img"
             />
           </div>
