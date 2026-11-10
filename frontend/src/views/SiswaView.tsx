@@ -9,6 +9,7 @@ import {
   CreditCard,
   CheckCircle2,
   BookOpen,
+  BookMarked,
   Award,
   ShoppingCart,
   UtensilsCrossed,
@@ -74,20 +75,23 @@ export const SiswaView: React.FC = () => {
   const [data, setData] = useState<SiswaData | null>(() => getCachedData('/school/siswa')?.data || null);
   const [grades, setGrades] = useState<GradeRecord[]>([]);
   const [averageScore, setAverageScore] = useState<number>(0);
+  const [borrowedBooks, setBorrowedBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/siswa'));
 
   // Top Up Modal State
   const fetchData = useCallback(async () => {
     try {
-      const [resSiswa, resGrades] = await Promise.all([
+      const [resSiswa, resGrades, resLibrary] = await Promise.all([
         apiClient.get('/school/siswa'),
         apiClient.get('/siswa/my-grades').catch(() => ({ data: { grades: [], average_score: 0 } })),
+        apiClient.get('/school/library').catch(() => ({ data: { data: { pinjaman_aktif: [] } } })),
       ]);
 
       const siswaData = resSiswa.data.data;
       setData(siswaData);
       setGrades(resGrades.data.grades || []);
       setAverageScore(resGrades.data.average_score || 0);
+      setBorrowedBooks(resLibrary.data?.data?.pinjaman_aktif || []);
 
           } catch (err) {
       console.error('Error fetching siswa data', err);
@@ -393,6 +397,67 @@ export const SiswaView: React.FC = () => {
       </Card>
 
       
+    
+      {/* Section Koleksi Buku Perpustakaan yang Sedang Dipinjam */}
+      <Card className="border-slate-200/80">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BookMarked className="w-4 h-4 text-emerald-600" />
+            <CardTitle className="text-base font-bold text-slate-900">
+              Buku Perpustakaan yang Sedang Dipinjam ({borrowedBooks.length})
+            </CardTitle>
+          </div>
+          <Link to="/app/perpus">
+            <Button size="sm" variant="outline" className="gap-1.5 text-xs rounded-xl">
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Buka E-Library</span>
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {borrowedBooks.length === 0 ? (
+            <div className="p-6 text-center text-xs text-slate-400 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+              Anda sedang tidak meminjam buku perpustakaan. Kunjungi portal perpustakaan untuk meminjam buku pelajaran atau referensi.
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              <div className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-xl text-xs text-emerald-900 flex items-start gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>Buku Tersimpan di Sistem:</strong> Ketika buku fisik diserahkan ke loket perpustakaan, petugas loket akan langsung menarik buku ini dari daftar pinjaman Anda. Anda tidak perlu request kembalikan mandiri.
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                {borrowedBooks.map((loan: any) => (
+                  <div
+                    key={loan.id}
+                    className="p-3.5 rounded-2xl bg-white border border-slate-200/80 hover:shadow-xs transition-all flex items-start justify-between gap-3"
+                  >
+                    <div>
+                      <div className="text-xs font-mono font-bold text-emerald-700 mb-0.5">
+                        {loan.reference_no}
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900 line-clamp-1">
+                        {loan.book?.title || 'Judul Buku'}
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {loan.book?.author || 'Penulis'} • Rak: {loan.book?.shelf_location || '-'}
+                      </p>
+                      <div className="mt-2 text-[11px] text-slate-600">
+                        Dipinjam: <strong>{loan.borrow_date}</strong> • Batas: <strong className={loan.status === 'overdue' ? 'text-rose-600' : 'text-slate-800'}>{loan.due_date}</strong>
+                      </div>
+                    </div>
+                    <Badge variant={loan.status === 'overdue' ? 'destructive' : 'success'} className="text-[10px] shrink-0 font-bold">
+                      {loan.status === 'overdue' ? 'Terlambat' : 'Dipinjam'}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
     </div>
   );
 };

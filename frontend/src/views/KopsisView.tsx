@@ -13,8 +13,11 @@ import {
   Sparkles,
   ShoppingBag,
   QrCode,
+  Search,
+  Trash2,
 } from 'lucide-react';
 import './EcosystemModals.css';
+import { toast } from 'sonner';
 import { QRISUploadModal } from '../components/common/QRISUploadModal';
 import { getStoredQRIS } from '../utils/qris';
 
@@ -78,7 +81,7 @@ export const KopsisView: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
-  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash' | 'qris'>('qris');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'qris'>('qris');
   const [processingOrder, setProcessingOrder] = useState<boolean>(false);
   // Modal State: Tambah Barang (Staff/Admin)
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -90,6 +93,9 @@ export const KopsisView: React.FC = () => {
 
   // Modal State: Kasir POS Koperasi (Staff/Admin)
   const [showPOSModal, setShowPOSModal] = useState<boolean>(false);
+  const [posSearch, setPosSearch] = useState<string>('');
+  const [posCategory, setPosCategory] = useState<string>('Semua');
+  const [cashTendered, setCashTendered] = useState<number>(0);
   const [showQRISModal, setShowQRISModal] = useState<boolean>(false);
   const [kopsisQris, setKopsisQris] = useState(() => getStoredQRIS('kopsis'));
   // Modal State: Konfirmasi Checkout Siswa
@@ -151,7 +157,7 @@ export const KopsisView: React.FC = () => {
       const existing = prev.find((item) => item.product_id === product.id);
       if (existing) {
         if (existing.quantity >= product.stock) {
-          alert(`Maksimal pembelian untuk ${product.name} adalah ${product.stock} item.`);
+          toast.error(`Maksimal pembelian untuk ${product.name} adalah ${product.stock} item.`);
           return prev;
         }
         return prev.map((item) =>
@@ -178,7 +184,7 @@ export const KopsisView: React.FC = () => {
           if (item.product_id === productId) {
             const newQty = item.quantity + delta;
             if (newQty > item.stock) {
-              alert(`Stok hanya tersedia ${item.stock} item.`);
+              toast.error(`Stok hanya tersedia ${item.stock} item.`);
               return item;
             }
             return newQty > 0 ? { ...item, quantity: newQty } : null;
@@ -189,6 +195,9 @@ export const KopsisView: React.FC = () => {
     );
   };
 
+  const removeFromCart = (productId: number) => {
+    setCart((prev) => prev.filter((item) => item.product_id !== productId));
+  };
   const clearCart = () => setCart([]);
   const cartTotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const cartTotalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -212,9 +221,7 @@ export const KopsisView: React.FC = () => {
       });
 
       const methodLabel =
-        paymentMethod === 'wallet'
-          ? 'Saldo Kopsis (Cashless)'
-          : paymentMethod === 'cash'
+        paymentMethod === 'cash'
           ? 'Tunai di Loket Kopsis'
           : 'QRIS / E-Money';
 
@@ -243,7 +250,7 @@ export const KopsisView: React.FC = () => {
 
       await Promise.all(promises);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal memproses transaksi kopsis.');
+      toast.error(err.response?.data?.message || 'Gagal memproses transaksi kopsis.');
     } finally {
       setProcessingOrder(false);
     }
@@ -269,7 +276,7 @@ export const KopsisView: React.FC = () => {
       await fetchKopsisData();
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menambahkan produk');
+      toast.error(err.response?.data?.message || 'Gagal menambahkan produk');
     }
   };
 
@@ -727,8 +734,35 @@ export const KopsisView: React.FC = () => {
               {/* Pilihan Metode Pembayaran */}
               <div className="eco-form-group">
                 <label className="eco-form-label font-bold">Pilih Cara Pembayaran:</label>
-                <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-                  </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('cash')}
+                    className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center ${
+                      paymentMethod === 'cash'
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-900 shadow-2xs font-bold'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Banknote size={22} className="mb-1 text-emerald-600" />
+                    <span className="font-bold text-xs">Bayar Tunai</span>
+                    <span className="text-[11px] text-slate-500 mt-0.5">Bayar di Loket Kopsis</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('qris')}
+                    className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center ${
+                      paymentMethod === 'qris'
+                        ? 'bg-indigo-50 border-indigo-500 text-indigo-900 shadow-2xs font-bold'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <QrCode size={22} className="mb-1 text-indigo-600" />
+                    <span className="font-bold text-xs">QRIS Instan</span>
+                    <span className="text-[11px] text-slate-500 mt-0.5">Scan QRIS Koperasi</span>
+                  </button>
+                </div>
               </div>
 
               {/* Informasi Sesuai Metode */}
@@ -784,103 +818,258 @@ export const KopsisView: React.FC = () => {
       {/* ============================================================== */}
       {showPOSModal && (
         <div className="eco-modal-backdrop" onClick={() => setShowPOSModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '640px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="eco-modal-header">
-              <h3><ShoppingCart size={18} className="text-indigo-600" /> Kasir POS Koperasi Siswa</h3>
+          <div className="eco-modal-card" style={{ maxWidth: '880px', width: '95%' }} onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header bg-slate-50 border-b border-slate-200">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center font-bold">
+                  <ShoppingCart size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">Mesin Kasir POS Koperasi Siswa</h3>
+                  <p className="text-xs text-slate-500">Layanan penjualan perlengkapan sekolah dengan Tunai atau QRIS</p>
+                </div>
+              </div>
               <button onClick={() => setShowPOSModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
-            <div className="eco-modal-body">
-              <div className="eco-form-group">
-                <label className="eco-form-label">Identitas Pembeli (NISN Siswa)</label>
-                <input
-                  type="text"
-                  value={studentNisn}
-                  onChange={(e) => setStudentNisn(e.target.value)}
-                  placeholder="Masukkan NISN Siswa..."
-                  className="eco-form-input"
-                />
-              </div>
 
-              <div className="eco-form-group">
-                <label className="eco-form-label">Pilih Barang untuk Ditambahkan</label>
-                <div className="catalog-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
-                  {(data?.produk_populer || []).map((prod) => (
-                    <button
-                      key={prod.id}
-                      type="button"
-                      onClick={() => addToCart(prod)}
-                      className="p-2 border rounded text-left hover:bg-slate-50 transition"
-                    >
-                      <div className="font-bold text-xs">{prod.name}</div>
-                      <div className="text-xs text-orange-600 font-semibold">Rp {Number(prod.price).toLocaleString('id-ID')}</div>
-                      <div className="text-xs text-slate-500">Stok: {prod.stock}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {cart.length > 0 && (
-                <div className="p-3 bg-slate-50 rounded border border-slate-200">
-                  <table className="pos-cart-table">
-                    <thead>
-                      <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Subtotal</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cart.map((item) => (
-                        <tr key={item.product_id}>
-                          <td>{item.name}</td>
-                          <td>
-                            <div className="pos-qty-controls">
-                              <button onClick={() => updateQuantity(item.product_id, -1)} className="pos-qty-btn">-</button>
-                              <span>{item.quantity}</span>
-                              <button onClick={() => updateQuantity(item.product_id, 1)} className="pos-qty-btn">+</button>
-                            </div>
-                          </td>
-                          <td><strong>Rp {(item.price * item.quantity).toLocaleString('id-ID')}</strong></td>
-                        </tr>
+            <div className="eco-modal-body p-4 sm:p-5 overflow-y-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                {/* Kolom Kiri 7/12: Katalog Produk Kopsis POS */}
+                <div className="lg:col-span-7 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="relative flex-1">
+                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Cari nama barang atau SKU..."
+                        value={posSearch}
+                        onChange={(e) => setPosSearch(e.target.value)}
+                        className="eco-form-input text-xs pl-8 h-8"
+                      />
+                    </div>
+                    <div className="flex gap-1">
+                      {['Semua', 'Alat Tulis', 'Seragam', 'Buku'].map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setPosCategory(cat)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                            posCategory === cat
+                              ? 'bg-orange-600 text-white shadow-2xs'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        >
+                          {cat}
+                        </button>
                       ))}
-                    </tbody>
-                  </table>
-                  <div className="pos-total-row">
-                    <span>Total Pembayaran:</span>
-                    <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
+                    </div>
+                  </div>
+
+                  {/* Grid Produk POS */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
+                    {(data?.produk_populer || [])
+                      .filter((p) => {
+                        const matchCat = posCategory === 'Semua' || p.category.toLowerCase() === posCategory.toLowerCase();
+                        const matchQ = p.name.toLowerCase().includes(posSearch.toLowerCase()) || p.sku.toLowerCase().includes(posSearch.toLowerCase());
+                        return matchCat && matchQ;
+                      })
+                      .map((prod) => (
+                        <button
+                          key={prod.id}
+                          type="button"
+                          onClick={() => addToCart(prod)}
+                          className="p-2.5 border border-slate-200 rounded-xl text-left bg-white hover:border-orange-400 hover:shadow-xs transition-all flex flex-col justify-between group cursor-pointer"
+                        >
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight block">
+                              {prod.sku} • {prod.category}
+                            </span>
+                            <div className="font-bold text-xs text-slate-900 group-hover:text-orange-600 transition-colors line-clamp-2">
+                              {prod.name}
+                            </div>
+                          </div>
+                          <div className="mt-2 pt-1 border-t border-slate-100 flex items-center justify-between">
+                            <div>
+                              <div className="font-extrabold text-xs text-orange-700">
+                                Rp {Number(prod.price).toLocaleString('id-ID')}
+                              </div>
+                              <div className="text-[10px] text-slate-400">
+                                Stok: {prod.stock}
+                              </div>
+                            </div>
+                            <span className="w-5 h-5 rounded-md bg-orange-50 text-orange-600 flex items-center justify-center text-xs font-bold group-hover:bg-orange-600 group-hover:text-white transition">
+                              +
+                            </span>
+                          </div>
+                        </button>
+                      ))}
                   </div>
                 </div>
-              )}
 
-              <div className="eco-form-group">
-                <label className="eco-form-label">Metode Pembayaran Kasir</label>
-                <div className="payment-method-selector">
-<button
-                    type="button"
-                    onClick={() => setPaymentMethod('cash')}
-                    className={`payment-method-btn ${paymentMethod === 'cash' ? 'selected' : ''}`}
-                  >
-                    <Banknote size={16} /> Tunai (Cash)
-                  </button>
+                {/* Kolom Kanan 5/12: Struk Kasir & Pembayaran */}
+                <div className="lg:col-span-5 flex flex-col justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                  <div className="space-y-3">
+                    {/* Input NISN Pelanggan */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-700">NISN / Nama Pelanggan</label>
+                      <input
+                        type="text"
+                        value={studentNisn}
+                        onChange={(e) => setStudentNisn(e.target.value)}
+                        placeholder="Contoh: 0061234567"
+                        className="eco-form-input text-xs font-mono h-8 bg-white"
+                      />
+                    </div>
+
+                    {/* Rincian Pesanan Aktif */}
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] font-bold text-slate-500 uppercase flex justify-between">
+                        <span>Keranjang Belanja ({cart.reduce((a, b) => a + b.quantity, 0)})</span>
+                        {cart.length > 0 && (
+                          <button type="button" onClick={clearCart} className="text-rose-600 hover:underline">
+                            Reset
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="max-h-[160px] overflow-y-auto space-y-1 pr-1 bg-white p-2 rounded-xl border border-slate-200">
+                        {cart.length === 0 ? (
+                          <div className="text-center py-6 text-xs text-slate-400">
+                            Pilih produk di samping untuk menambahkan ke struk
+                          </div>
+                        ) : (
+                          cart.map((item) => (
+                            <div key={item.product_id} className="flex items-center justify-between py-1 text-xs border-b border-slate-100 last:border-0">
+                              <div className="flex-1 min-w-0 pr-2">
+                                <div className="font-semibold text-slate-800 truncate">{item.name}</div>
+                                <div className="text-[10px] text-slate-500 font-mono">
+                                  Rp {item.price.toLocaleString('id-ID')}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.product_id, -1)}
+                                  className="w-5 h-5 rounded bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs"
+                                >
+                                  -
+                                </button>
+                                <span className="font-bold text-xs w-4 text-center">{item.quantity}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.product_id, 1)}
+                                  className="w-5 h-5 rounded bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs"
+                                >
+                                  +
+                                </button>
+                                <span className="font-bold text-xs text-orange-700 ml-1">
+                                  Rp {(item.price * item.quantity).toLocaleString('id-ID')}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeFromCart(item.product_id)}
+                                  className="p-1 text-slate-400 hover:text-rose-600 ml-0.5"
+                                  title="Hapus"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Total Tagihan */}
+                    <div className="p-2.5 bg-orange-950 text-white rounded-xl flex items-center justify-between">
+                      <span className="text-xs font-semibold text-orange-200">Total Tagihan:</span>
+                      <span className="text-lg font-black tracking-tight">Rp {cartTotal.toLocaleString('id-ID')}</span>
+                    </div>
+
+                    {/* Pilihan Metode Bayar Kasir */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-700">Metode Pembayaran</label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('cash')}
+                          className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            paymentMethod === 'cash'
+                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+                              : 'bg-white text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          <Banknote size={14} /> Tunai
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('qris')}
+                          className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            paymentMethod === 'qris'
+                              ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                              : 'bg-white text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          <QrCode size={14} /> QRIS
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Jika Tunai: Quick Money & Hitung Kembalian */}
+                    {paymentMethod === 'cash' && cartTotal > 0 && (
+                      <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-700">Uang Diterima:</span>
+                          <input
+                            type="number"
+                            value={cashTendered || ''}
+                            onChange={(e) => setCashTendered(Number(e.target.value))}
+                            placeholder={String(cartTotal)}
+                            className="eco-form-input text-xs font-mono h-7 w-28 text-right bg-slate-50"
+                          />
+                        </div>
+                        <div className="flex gap-1 pt-1 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={() => setCashTendered(cartTotal)}
+                            className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700"
+                          >
+                            Uang Pas
+                          </button>
+                          {[10000, 20000, 50000, 100000].map((amt) => (
+                            <button
+                              key={amt}
+                              type="button"
+                              onClick={() => setCashTendered(amt)}
+                              className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700"
+                            >
+                              {amt >= 1000 ? `${amt / 1000}rb` : amt}
+                            </button>
+                          ))}
+                        </div>
+                        {cashTendered > 0 && (
+                          <div className={`p-1.5 rounded-lg flex items-center justify-between font-bold ${
+                            cashTendered >= cartTotal ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'
+                          }`}>
+                            <span>{cashTendered >= cartTotal ? 'Kembalian:' : 'Kurang:'}</span>
+                            <span>Rp {Math.abs(cashTendered - cartTotal).toLocaleString('id-ID')}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tombol Eksekusi Transaksi POS */}
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod('qris')}
-                    className={`payment-method-btn ${paymentMethod === 'qris' ? 'selected' : ''}`}
+                    onClick={() => handleCheckout(false)}
+                    disabled={processingOrder || cart.length === 0}
+                    className="w-full btn-success-action py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"
                   >
-                    <QrCode size={16} /> QRIS
+                    {processingOrder ? 'Memproses...' : `Selesaikan Transaksi (Rp ${cartTotal.toLocaleString('id-ID')})`}
                   </button>
                 </div>
               </div>
-            </div>
-            <div className="eco-modal-footer">
-              <button onClick={() => setShowPOSModal(false)} className="btn-secondary-action">Batal</button>
-              <button
-                onClick={() => handleCheckout(false)}
-                disabled={processingOrder || cart.length === 0}
-                className="btn-success-action"
-              >
-                {processingOrder ? 'Memproses...' : `Selesaikan Transaksi (Rp ${cartTotal.toLocaleString('id-ID')})`}
-              </button>
             </div>
           </div>
         </div>
@@ -891,73 +1080,106 @@ export const KopsisView: React.FC = () => {
       {/* ============================================================== */}
       {showAddModal && (
         <div className="eco-modal-backdrop" onClick={() => setShowAddModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="eco-modal-header">
-              <h3><PlusCircle size={18} className="text-orange-600" /> Tambah Barang Kopsis</h3>
+          <div className="eco-modal-card" style={{ maxWidth: '460px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header bg-slate-50 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center font-bold">
+                  <PlusCircle size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">Tambah Barang Koperasi</h3>
+                  <p className="text-xs text-slate-500">Daftarkan inventaris ATK, seragam, atau buku baru</p>
+                </div>
+              </div>
               <button onClick={() => setShowAddModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
             <form onSubmit={handleCreateProduct} className="eco-modal-form">
-              <div className="eco-modal-body">
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Kode SKU / Barcode</label>
+              <div className="eco-modal-body p-5 space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Kode SKU / Barcode</label>
                   <input
                     type="text"
                     value={sku}
                     onChange={(e) => setSku(e.target.value)}
                     placeholder="Contoh: ATK-009"
                     required
-                    className="eco-form-input"
+                    className="eco-form-input text-xs font-mono"
                   />
                 </div>
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Nama Barang</label>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Nama Barang / Produk</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Contoh: Buku Tulis Campus 58 Lembar"
                     required
-                    className="eco-form-input"
+                    className="eco-form-input text-xs"
                   />
                 </div>
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Kategori</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="eco-form-input"
-                  >
-                    <option value="Alat Tulis">Alat Tulis</option>
-                    <option value="Seragam">Seragam</option>
-                    <option value="Buku">Buku</option>
-                  </select>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Kategori Barang</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Alat Tulis', 'Seragam', 'Buku', 'Aksesoris', 'Lainnya'].map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setCategory(cat)}
+                        className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all text-center ${
+                          category === cat
+                            ? 'bg-orange-600 text-white border-orange-600 shadow-xs'
+                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Harga Satuan (Rp)</label>
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold text-slate-700">Harga Satuan (Rp)</label>
+                    {price && Number(price) > 0 && (
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        Rp {Number(price).toLocaleString('id-ID')}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder="Contoh: 6500"
                     required
-                    className="eco-form-input"
+                    min="500"
+                    step="500"
+                    className="eco-form-input text-xs font-mono"
                   />
                 </div>
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Jumlah Stok</label>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Jumlah Stok Fisik</label>
                   <input
                     type="number"
                     value={stock}
                     onChange={(e) => setStock(e.target.value)}
                     placeholder="Contoh: 100"
                     required
-                    className="eco-form-input"
+                    min="1"
+                    className="eco-form-input text-xs font-mono"
                   />
                 </div>
               </div>
-              <div className="eco-modal-footer">
-                <button type="button" onClick={() => setShowAddModal(false)} className="btn-secondary-action">Batal</button>
-                <button type="submit" className="btn-primary-action">Simpan Barang</button>
+              <div className="eco-modal-footer p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+                <button type="button" onClick={() => setShowAddModal(false)} className="btn-secondary-action text-xs">
+                  Batal
+                </button>
+                <button type="submit" className="btn-primary-action text-xs font-bold px-4 py-2">
+                  Simpan Barang
+                </button>
               </div>
             </form>
           </div>

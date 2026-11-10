@@ -11,6 +11,8 @@ import {
   BookMarked,
   RotateCcw,
   Sparkles,
+  Trash2,
+  Info,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -189,6 +191,20 @@ export const PerpusView: React.FC = () => {
     }
   };
 
+  // Handle Tarik / Hapus Peminjaman Buku oleh Petugas Perpustakaan
+  const handleDeleteLoan = async (loanId: number, bookTitle: string, borrowerName: string) => {
+    if (!window.confirm(`Konfirmasi Tarik Buku:\n\nApakah Anda yakin ingin menarik buku "${bookTitle}" yang dipinjam oleh ${borrowerName} dan menghapusnya dari daftar pinjaman aktif siswa?`)) {
+      return;
+    }
+    try {
+      const res = await apiClient.delete(`/library/loans/${loanId}`);
+      toast.success(res.data.message || 'Peminjaman buku berhasil ditarik dan stok dikembalikan.');
+      await fetchLibraryData();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Gagal menarik peminjaman buku.');
+    }
+  };
+
   // Filter Buku berdasarkan search query & kategori
   const filteredBooks = (data?.katalog_buku || []).filter((book) => {
     const matchCategory =
@@ -362,6 +378,14 @@ export const PerpusView: React.FC = () => {
                     Batas Waktu: 7 Hari
                   </Badge>
                 </CardHeader>
+                <div className="px-6 pb-2">
+                  <div className="p-3 bg-blue-50/80 border border-blue-200/80 rounded-xl text-xs text-blue-900 flex items-start gap-2.5">
+                    <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Alur Pengembalian Buku:</strong> Untuk mengembalikan buku, cukup bawa buku fisik ke meja loket sirkulasi perpustakaan. Petugas loket akan langsung memverifikasi dan menarik buku ini dari daftar pinjaman Anda. Anda <u>tidak perlu mengajukan permohonan kembalikan mandiri</u>.
+                    </div>
+                  </div>
+                </div>
                 <CardContent className="p-0">
                   {myActiveLoans.length === 0 ? (
                     <div className="p-8 text-center text-xs text-slate-400">
@@ -615,15 +639,27 @@ export const PerpusView: React.FC = () => {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="success"
-                            onClick={() => handleReturnBook(loan.id)}
-                            className="gap-1 text-xs rounded-xl"
-                          >
-                            <RotateCcw className="w-3.5 h-3.5" />
-                            <span>Proses Kembali</span>
-                          </Button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="success"
+                              onClick={() => handleReturnBook(loan.id)}
+                              className="gap-1.5 text-xs rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                              title="Tandai buku telah dikembalikan di loket (otomatis menghapus dari daftar siswa)"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                              <span>Tarik & Tandai Selesai</span>
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteLoan(loan.id, loan.book?.title || 'Buku', loan.user?.name || 'Siswa')}
+                              className="text-xs rounded-xl text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                              title="Tarik dan batalkan pinjaman dari sistem"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

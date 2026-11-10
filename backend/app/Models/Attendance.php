@@ -14,9 +14,11 @@ class Attendance extends Model
         'user_id',
         'date',
         'check_in_time',
+        'check_out_time',
         'status',
         'minutes_late',
         'verified_by',
+        'check_out_verified_by',
         'notes',
     ];
 
@@ -33,5 +35,10 @@ class Attendance extends Model
     public function verifier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function checkOutVerifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'check_out_verified_by');
     }
 }

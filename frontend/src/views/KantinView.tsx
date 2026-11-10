@@ -13,7 +13,13 @@ import {
   Sparkles,
   QrCode,
   Store,
+  Trash2,
+  ArrowRight,
+  Search,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { QRISUploadModal } from '../components/common/QRISUploadModal';
+import { getStoredQRIS } from '../utils/qris';
 import './EcosystemModals.css';
 
 interface KantinMenu {
@@ -75,14 +81,12 @@ export const KantinView: React.FC = () => {
   const [price, setPrice] = useState<string>('');
   const [stallName, setStallName] = useState<string>('Stand 1 Bu Titin');
 
-  // Modal State: Pengaturan / Upload QRIS Stan (Staff Kantin)
-  const [showQrisSettingsModal, setShowQrisSettingsModal] = useState<boolean>(false);
-  const [qrisStallName, setQrisStallName] = useState<string>(() => {
-    return localStorage.getItem('kantin_qris_stall') || 'Kantin Sehat Bu Titin - Stand 1';
-  });
-  const [qrisImage, setQrisImage] = useState<string>(() => {
-    return localStorage.getItem('kantin_qris_image') || '';
-  });
+  const [showQRISModal, setShowQRISModal] = useState<boolean>(false);
+  const [kantinQris, setKantinQris] = useState(() => getStoredQRIS('kantin'));
+  const [showCartModal, setShowCartModal] = useState<boolean>(false);
+  const [posSearch, setPosSearch] = useState<string>('');
+  const [posCategory, setPosCategory] = useState<string>('Semua');
+  const [cashTendered, setCashTendered] = useState<number>(0);
 
   // Modal State: Kasir POS (Staff/Admin)
   const [showPOSModal, setShowPOSModal] = useState<boolean>(false);
@@ -177,25 +181,8 @@ export const KantinView: React.FC = () => {
   const cartTotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const cartTotalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Save QRIS Settings
-  const handleSaveQrisSettings = (e: React.FormEvent) => {
-    e.preventDefault();
-    localStorage.setItem('kantin_qris_stall', qrisStallName);
-    localStorage.setItem('kantin_qris_image', qrisImage);
-    setShowQrisSettingsModal(false);
-    setSuccessMsg('Pengaturan & Gambar QRIS Stan Kantin berhasil diperbarui!');
-    setTimeout(() => setSuccessMsg(null), 3000);
-  };
-
-  const handleQrisFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setQrisImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const removeFromCart = (menuId: number) => {
+    setCart((prev) => prev.filter((item) => item.menu_id !== menuId));
   };
 
   // Checkout Handler (Siswa & Kasir)
@@ -242,7 +229,7 @@ export const KantinView: React.FC = () => {
       setShowStudentCheckoutModal(false);
       await Promise.all([fetchKantinData(), fetchRecentTransactions()]);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal memproses pesanan kantin.');
+      toast.error(err.response?.data?.message || 'Gagal memproses pesanan kantin.');
     } finally {
       setProcessingOrder(false);
     }
@@ -265,7 +252,7 @@ export const KantinView: React.FC = () => {
       await fetchKantinData();
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menambahkan menu');
+      toast.error(err.response?.data?.message || 'Gagal menambahkan menu');
     }
   };
 
@@ -404,20 +391,32 @@ export const KantinView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button
+                  type="button"
+                  onClick={() => setShowCartModal(true)}
+                  className="btn-secondary-action"
+                  style={{ background: '#1e293b', color: '#ffffff', borderColor: '#334155', padding: '8px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <ShoppingCart size={15} />
+                  <span>Lihat Keranjang ({cartTotalQty})</span>
+                </button>
+                <button
+                  type="button"
                   onClick={clearCart}
                   className="btn-secondary-action"
-                  style={{ background: '#334155', color: '#ffffff', borderColor: '#475569', padding: '8px 14px' }}
+                  style={{ background: '#334155', color: '#ffffff', borderColor: '#475569', padding: '8px 12px' }}
+                  title="Kosongkan Keranjang"
                 >
                   Batal
                 </button>
                 <button
+                  type="button"
                   onClick={() => setShowStudentCheckoutModal(true)}
                   className="btn-success-action"
-                  style={{ padding: '8px 20px', fontSize: '13px' }}
+                  style={{ padding: '8px 18px', fontSize: '13px' }}
                 >
-                  <ShoppingCart size={16} /> Pilih Pembayaran & Checkout (Rp {cartTotal.toLocaleString('id-ID')})
+                  <span>Checkout (Rp {cartTotal.toLocaleString('id-ID')})</span>
                 </button>
               </div>
             </div>
@@ -482,7 +481,7 @@ export const KantinView: React.FC = () => {
             </div>
             <div className="card-header-actions">
               <button
-                onClick={() => setShowQrisSettingsModal(true)}
+                onClick={() => setShowQRISModal(true)}
                 className="btn-secondary-action"
                 title="Atur QRIS Stan Kantin"
               >
@@ -628,170 +627,243 @@ export const KantinView: React.FC = () => {
       )}
 
       {/* ============================================================== */}
-      {/* MODAL: PENGATURAN / UPLOAD QRIS STAN (STAFF KANTIN)             */}
+      {/* MODAL: KERANJANG PESANAN KANTIN (DAFTAR ITEM DIPESAN)          */}
       {/* ============================================================== */}
-      {showQrisSettingsModal && (
-        <div className="eco-modal-backdrop" onClick={() => setShowQrisSettingsModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '480px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="eco-modal-header">
-              <h3><QrCode size={18} className="text-indigo-600" /> Pengaturan QRIS Stan Kantin</h3>
-              <button onClick={() => setShowQrisSettingsModal(false)} className="btn-close-modal"><X size={18} /></button>
+      {showCartModal && (
+        <div className="eco-modal-backdrop" onClick={() => setShowCartModal(false)}>
+          <div className="eco-modal-card" style={{ maxWidth: '540px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header bg-slate-50 border-b border-slate-200">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                  <ShoppingCart size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">Keranjang Pesanan Makanan</h3>
+                  <p className="text-xs text-slate-500">Periksa dan atur menu kantin sebelum checkout</p>
+                </div>
+              </div>
+              <button onClick={() => setShowCartModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
-            <form onSubmit={handleSaveQrisSettings} className="eco-modal-form">
-              <div className="eco-modal-body">
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Nama Stan Kantin (Merchant Name)</label>
-                  <input
-                    type="text"
-                    value={qrisStallName}
-                    onChange={(e) => setQrisStallName(e.target.value)}
-                    placeholder="Contoh: Kantin Sehat Bu Titin - Stand 1"
-                    required
-                    className="eco-form-input"
-                  />
-                </div>
 
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Upload Gambar Barcode QRIS Stan</label>
-                  <div className="flex flex-col gap-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleQrisFileChange}
-                      className="eco-form-input text-xs"
-                    />
-                    <span className="text-xs text-slate-500">Atau masukkan URL gambar barcode QRIS:</span>
-                    <input
-                      type="url"
-                      value={qrisImage}
-                      onChange={(e) => setQrisImage(e.target.value)}
-                      placeholder="https://... atau biarkan kosong untuk barcode standar"
-                      className="eco-form-input text-xs"
-                    />
+            <div className="eco-modal-body p-4 sm:p-5 space-y-4">
+              {cart.length === 0 ? (
+                <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  <UtensilsCrossed size={36} className="mx-auto text-slate-300 mb-2" />
+                  <p className="text-sm font-bold text-slate-700">Keranjang Masih Kosong</p>
+                  <p className="text-xs text-slate-400 mt-1">Pilih menu makanan atau minuman favorit Anda dari daftar kantin.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
+                    {cart.map((item) => (
+                      <div
+                        key={item.menu_id}
+                        className="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-emerald-300 transition-all gap-3"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-sm text-slate-900 truncate">{item.name}</h4>
+                          <div className="text-xs text-slate-500 mt-0.5">
+                            Rp {item.price.toLocaleString('id-ID')} / porsi
+                          </div>
+                          <div className="text-xs font-bold text-emerald-700 mt-1">
+                            Subtotal: Rp {(item.price * item.quantity).toLocaleString('id-ID')}
+                          </div>
+                        </div>
+
+                        {/* Qty & Remove Controls */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 overflow-hidden shadow-2xs">
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.menu_id, -1)}
+                              className="w-7 h-7 flex items-center justify-center font-bold text-slate-600 hover:bg-slate-200 transition"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center text-xs font-bold text-slate-900">{item.quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.menu_id, 1)}
+                              className="w-7 h-7 flex items-center justify-center font-bold text-slate-600 hover:bg-slate-200 transition"
+                            >
+                              +
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeFromCart(item.menu_id)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                            title="Hapus dari keranjang"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
 
-                {/* Preview QRIS */}
-                <div className="p-3 bg-slate-50 border rounded text-center">
-                  <div className="text-xs font-semibold text-slate-600 mb-2">Preview QRIS yang Dilihat Siswa:</div>
-                  {qrisImage ? (
-                    <img
-                      src={qrisImage}
-                      alt="QRIS Stan Preview"
-                      style={{ maxWidth: '160px', maxHeight: '160px', margin: '0 auto', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                    />
-                  ) : (
-                    <div style={{ padding: '16px', background: '#ffffff', display: 'inline-block', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
-                      <QrCode size={120} className="text-indigo-700" />
+                  {/* Ringkasan Total */}
+                  <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5 text-xs">
+                    <div className="flex justify-between text-slate-600">
+                      <span>Total Porsi ({cartTotalQty} item):</span>
+                      <span className="font-semibold text-slate-800">Rp {cartTotal.toLocaleString('id-ID')}</span>
                     </div>
-                  )}
-                  <div className="mt-2 font-bold text-xs text-slate-800">{qrisStallName}</div>
-                  <div className="text-xs text-slate-500">NMID: ID1029384756910 • A.N {qrisStallName}</div>
-                </div>
-              </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-200 text-sm font-bold">
+                      <span className="text-slate-900">Total Tagihan:</span>
+                      <span className="text-base text-emerald-700">Rp {cartTotal.toLocaleString('id-ID')}</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
-              <div className="eco-modal-footer">
-                <button type="button" onClick={() => setShowQrisSettingsModal(false)} className="btn-secondary-action">
-                  Batal
+            <div className="eco-modal-footer flex items-center justify-between p-4 bg-slate-50 border-t border-slate-200">
+              <button
+                type="button"
+                onClick={clearCart}
+                disabled={cart.length === 0}
+                className="btn-secondary-action text-xs text-rose-600 border-rose-200 hover:bg-rose-50"
+              >
+                Kosongkan Keranjang
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCartModal(false)}
+                  className="btn-secondary-action text-xs"
+                >
+                  Tutup
                 </button>
-                <button type="submit" className="btn-success-action">
-                  Simpan Pengaturan QRIS
+                <button
+                  type="button"
+                  disabled={cart.length === 0}
+                  onClick={() => {
+                    setShowCartModal(false);
+                    setShowStudentCheckoutModal(true);
+                  }}
+                  className="btn-success-action gap-1.5 text-xs font-bold px-4 py-2"
+                >
+                  <span>Pilih Metode & Checkout</span>
+                  <ArrowRight size={14} />
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
 
+      {/* ============================================================== */}
       {/* MODAL: KONFIRMASI CHECKOUT SISWA (DENGAN MULTI-PAYMENT & QRIS)  */}
       {/* ============================================================== */}
       {showStudentCheckoutModal && (
         <div className="eco-modal-backdrop" onClick={() => setShowStudentCheckoutModal(false)}>
           <div className="eco-modal-card" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="eco-modal-header">
-              <h3><ShoppingCart size={18} className="text-emerald-600" /> Konfirmasi & Metode Pembayaran</h3>
+            <div className="eco-modal-header bg-slate-50 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                  <ShoppingCart size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">Konfirmasi Pembayaran Kantin</h3>
+                  <p className="text-xs text-slate-500">Pilih metode pembayaran Tunai di stan atau scan QRIS</p>
+                </div>
+              </div>
               <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
-            <div className="eco-modal-body">
+            <div className="eco-modal-body p-5 space-y-4">
               {/* Rincian Pesanan */}
-              <div className="p-3 bg-slate-50 rounded border border-slate-200">
-                <div className="text-xs text-slate-500 font-semibold mb-2 uppercase">Rincian Item:</div>
-                {cart.map((item) => (
-                  <div key={item.menu_id} className="flex justify-between text-xs py-1 border-b border-slate-200">
-                    <span>{item.name} x{item.quantity}</span>
-                    <strong>Rp {(item.price * item.quantity).toLocaleString('id-ID')}</strong>
-                  </div>
-                ))}
-                <div className="flex justify-between text-sm font-bold pt-2 mt-1">
-                  <span>Total Tagihan:</span>
-                  <span className="text-indigo-600">Rp {cartTotal.toLocaleString('id-ID')}</span>
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="text-xs text-slate-500 font-bold mb-2 uppercase tracking-wider">Rincian Menu yang Dipesan:</div>
+                <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                  {cart.map((item) => (
+                    <div key={item.menu_id} className="flex justify-between text-xs py-1 border-b border-slate-100 last:border-0">
+                      <span>{item.name} <strong className="text-slate-500 font-mono">x{item.quantity}</strong></span>
+                      <strong className="text-slate-800">Rp {(item.price * item.quantity).toLocaleString('id-ID')}</strong>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center text-sm font-black pt-2.5 mt-2 border-t border-slate-200">
+                  <span className="text-slate-900">Total Tagihan:</span>
+                  <span className="text-emerald-700 text-base">Rp {cartTotal.toLocaleString('id-ID')}</span>
                 </div>
               </div>
 
               {/* Pilihan Metode Pembayaran Fleksibel */}
-              <div className="eco-form-group">
-                <label className="eco-form-label font-bold">Pilih Cara Pembayaran:</label>
-                <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Pilih Cara Pembayaran:</label>
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('cash')}
-                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'cash' ? 'selected' : ''}`}
+                    className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center ${
+                      paymentMethod === 'cash'
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-900 shadow-2xs font-bold'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
                   >
-                    <Banknote size={20} className="mb-1 text-emerald-600" />
+                    <Banknote size={22} className="mb-1 text-emerald-600" />
                     <span className="font-bold text-xs">Bayar Tunai</span>
-                    <span className="text-xs text-slate-500 mt-1">Bayar di Stan</span>
+                    <span className="text-[11px] text-slate-500 mt-0.5">Bayar di Loket Stan</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('qris')}
-                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'qris' ? 'selected' : ''}`}
+                    className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center ${
+                      paymentMethod === 'qris'
+                        ? 'bg-indigo-50 border-indigo-500 text-indigo-900 shadow-2xs font-bold'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
                   >
-                    <QrCode size={20} className="mb-1 text-indigo-600" />
+                    <QrCode size={22} className="mb-1 text-indigo-600" />
                     <span className="font-bold text-xs">QRIS Instan</span>
-                    <span className="text-xs text-slate-500 mt-1">Scan QR Stan</span>
+                    <span className="text-[11px] text-slate-500 mt-0.5">Scan QRIS Stan</span>
                   </button>
                 </div>
               </div>
 
               {/* Informasi Sesuai Metode yang Dipilih */}
               {paymentMethod === 'cash' && (
-                <div className="p-3 bg-emerald-50 text-emerald-800 rounded text-xs border border-emerald-200">
-                  <Banknote size={16} className="inline mr-1 text-primary" /> <strong>Bayar Tunai di Stan:</strong> Nomor pesanan akan langsung dibuat. Bawa uang pas sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil makanan di stan.
+                <div className="p-3 bg-emerald-50 text-emerald-900 rounded-2xl text-xs border border-emerald-200 space-y-1">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <Banknote size={16} className="text-emerald-700" /> Bayar Tunai di Stan Kantin (Cash)
+                  </div>
+                  <p className="text-slate-600">
+                    Nomor pesanan Anda akan langsung dibuat. Silakan siapkan uang pas sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil makanan di stan.
+                  </p>
                 </div>
               )}
 
               {paymentMethod === 'qris' && (
-                <div className="p-3 bg-indigo-50 text-indigo-800 rounded text-xs border border-indigo-200 text-center">
-                  <div className="text-xs font-semibold text-indigo-900 mb-2">Scan QRIS Stan untuk Bayar:</div>
-                  {qrisImage ? (
+                <div className="p-3.5 bg-indigo-50/80 text-indigo-900 rounded-2xl text-xs border border-indigo-200 text-center space-y-2">
+                  <div className="w-40 h-40 mx-auto bg-white p-2 rounded-xl border border-indigo-200 shadow-xs flex items-center justify-center">
                     <img
-                      src={qrisImage}
-                      alt="QRIS Stan Kantin"
-                      style={{ maxWidth: '140px', maxHeight: '140px', margin: '0 auto 8px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                      src={kantinQris.imageUrl}
+                      alt="QRIS Kantin Sekolah"
+                      className="max-h-full max-w-full object-contain"
                     />
-                  ) : (
-                    <div style={{ padding: '12px', background: '#ffffff', display: 'inline-block', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '8px' }}>
-                      <QrCode size={100} className="text-indigo-700" />
-                    </div>
-                  )}
-                  <p className="font-bold text-xs text-indigo-950">{qrisStallName}</p>
-                  <p className="text-xs text-slate-600 mt-1">
-                    Nominal: <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> • Mendukung GoPay, OVO, Dana, ShopeePay & BCA.
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-indigo-950">{kantinQris.merchantName}</p>
+                    <p className="font-mono text-[11px] text-indigo-600 mt-0.5">NMID: {kantinQris.nmid}</p>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    Scan via mobile banking atau dompet digital (GoPay, OVO, Dana, ShopeePay, BCA, dll).
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="eco-modal-footer">
-              <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-secondary-action">
+            <div className="eco-modal-footer p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+              <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-secondary-action text-xs">
                 Batal
               </button>
 
               <button
                 onClick={() => handleCheckout(true)}
                 disabled={processingOrder}
-                className="btn-success-action"
+                className="btn-success-action text-xs font-bold px-4 py-2"
               >
                 {processingOrder
                   ? 'Memproses...'
@@ -805,107 +877,249 @@ export const KantinView: React.FC = () => {
       )}
 
       {/* ============================================================== */}
-      {/* MODAL: KASIR POS KANTIN (STAFF/ADMIN)                           */}
+      {/* MODAL: KASIR POS STAN KANTIN (STAFF / OPERATOR)                 */}
       {/* ============================================================== */}
       {showPOSModal && (
         <div className="eco-modal-backdrop" onClick={() => setShowPOSModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '640px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="eco-modal-header">
-              <h3><ShoppingCart size={18} className="text-indigo-600" /> Kasir POS Stan Kantin</h3>
+          <div className="eco-modal-card" style={{ maxWidth: '880px', width: '95%' }} onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header bg-slate-50 border-b border-slate-200">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                  <ShoppingCart size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">Mesin Kasir POS Stan Kantin</h3>
+                  <p className="text-xs text-slate-500">Layanan pesanan langsung dengan Tunai atau QRIS</p>
+                </div>
+              </div>
               <button onClick={() => setShowPOSModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
-            <div className="eco-modal-body">
-              <div className="eco-form-group">
-                <label className="eco-form-label">Identitas Pembeli (NISN Siswa)</label>
-                <input
-                  type="text"
-                  value={studentNisn}
-                  onChange={(e) => setStudentNisn(e.target.value)}
-                  placeholder="Masukkan NISN Siswa..."
-                  className="eco-form-input"
-                />
-              </div>
 
-              <div className="eco-form-group">
-                <label className="eco-form-label">Pilih Menu untuk Ditambahkan ke Pesanan</label>
-                <div className="catalog-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
-                  {data?.daftar_menu.map((menu) => (
-                    <button
-                      key={menu.id}
-                      type="button"
-                      onClick={() => addToCart(menu)}
-                      className="p-2 border rounded text-left hover:bg-slate-50 transition"
-                    >
-                      <div className="font-bold text-xs">{menu.name}</div>
-                      <div className="text-xs text-indigo-600 font-semibold">Rp {Number(menu.price).toLocaleString('id-ID')}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {cart.length > 0 && (
-                <div className="p-3 bg-slate-50 rounded border border-slate-200">
-                  <table className="pos-cart-table">
-                    <thead>
-                      <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Subtotal</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cart.map((item) => (
-                        <tr key={item.menu_id}>
-                          <td>{item.name}</td>
-                          <td>
-                            <div className="pos-qty-controls">
-                              <button onClick={() => updateQuantity(item.menu_id, -1)} className="pos-qty-btn">-</button>
-                              <span>{item.quantity}</span>
-                              <button onClick={() => updateQuantity(item.menu_id, 1)} className="pos-qty-btn">+</button>
-                            </div>
-                          </td>
-                          <td><strong>Rp {(item.price * item.quantity).toLocaleString('id-ID')}</strong></td>
-                        </tr>
+            <div className="eco-modal-body p-4 sm:p-5 overflow-y-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                {/* Kolom Kiri 7/12: Katalog Menu POS */}
+                <div className="lg:col-span-7 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="relative flex-1">
+                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Cari menu kantin..."
+                        value={posSearch}
+                        onChange={(e) => setPosSearch(e.target.value)}
+                        className="eco-form-input text-xs pl-8 h-8"
+                      />
+                    </div>
+                    <div className="flex gap-1">
+                      {['Semua', 'Makanan', 'Minuman', 'Snack'].map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setPosCategory(cat)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                            posCategory === cat
+                              ? 'bg-indigo-600 text-white shadow-2xs'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        >
+                          {cat}
+                        </button>
                       ))}
-                    </tbody>
-                  </table>
-                  <div className="pos-total-row">
-                    <span>Total Pembayaran:</span>
-                    <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
+                    </div>
+                  </div>
+
+                  {/* Grid Menu POS */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
+                    {(data?.daftar_menu || [])
+                      .filter((m) => {
+                        const matchCat = posCategory === 'Semua' || m.category.toLowerCase() === posCategory.toLowerCase();
+                        const matchQ = m.name.toLowerCase().includes(posSearch.toLowerCase()) || m.stall_name.toLowerCase().includes(posSearch.toLowerCase());
+                        return matchCat && matchQ;
+                      })
+                      .map((menu) => (
+                        <button
+                          key={menu.id}
+                          type="button"
+                          onClick={() => addToCart(menu)}
+                          className="p-2.5 border border-slate-200 rounded-xl text-left bg-white hover:border-indigo-400 hover:shadow-xs transition-all flex flex-col justify-between group cursor-pointer"
+                        >
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight block">
+                              {menu.category}
+                            </span>
+                            <div className="font-bold text-xs text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2">
+                              {menu.name}
+                            </div>
+                          </div>
+                          <div className="mt-2 pt-1 border-t border-slate-100 flex items-center justify-between">
+                            <span className="font-extrabold text-xs text-indigo-700">
+                              Rp {Number(menu.price).toLocaleString('id-ID')}
+                            </span>
+                            <span className="w-5 h-5 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold group-hover:bg-indigo-600 group-hover:text-white transition">
+                              +
+                            </span>
+                          </div>
+                        </button>
+                      ))}
                   </div>
                 </div>
-              )}
 
-              <div className="eco-form-group">
-                <label className="eco-form-label">Metode Pembayaran Kasir</label>
-                <div className="payment-method-selector">
+                {/* Kolom Kanan 5/12: Struk Kasir & Pembayaran */}
+                <div className="lg:col-span-5 flex flex-col justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                  <div className="space-y-3">
+                    {/* Input NISN Pelanggan */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-700">NISN / Nama Pelanggan</label>
+                      <input
+                        type="text"
+                        value={studentNisn}
+                        onChange={(e) => setStudentNisn(e.target.value)}
+                        placeholder="Contoh: 0061234567"
+                        className="eco-form-input text-xs font-mono h-8 bg-white"
+                      />
+                    </div>
 
+                    {/* Rincian Pesanan Aktif */}
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] font-bold text-slate-500 uppercase flex justify-between">
+                        <span>Item Pesanan ({cartTotalQty})</span>
+                        {cart.length > 0 && (
+                          <button type="button" onClick={clearCart} className="text-rose-600 hover:underline">
+                            Reset
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="max-h-[160px] overflow-y-auto space-y-1 pr-1 bg-white p-2 rounded-xl border border-slate-200">
+                        {cart.length === 0 ? (
+                          <div className="text-center py-6 text-xs text-slate-400">
+                            Pilih menu di samping untuk menambahkan ke struk
+                          </div>
+                        ) : (
+                          cart.map((item) => (
+                            <div key={item.menu_id} className="flex items-center justify-between py-1 text-xs border-b border-slate-100 last:border-0">
+                              <div className="flex-1 min-w-0 pr-2">
+                                <div className="font-semibold text-slate-800 truncate">{item.name}</div>
+                                <div className="text-[10px] text-slate-500 font-mono">
+                                  Rp {item.price.toLocaleString('id-ID')}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.menu_id, -1)}
+                                  className="w-5 h-5 rounded bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs"
+                                >
+                                  -
+                                </button>
+                                <span className="font-bold text-xs w-4 text-center">{item.quantity}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.menu_id, 1)}
+                                  className="w-5 h-5 rounded bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs"
+                                >
+                                  +
+                                </button>
+                                <span className="font-bold text-xs text-indigo-700 ml-1">
+                                  Rp {(item.price * item.quantity).toLocaleString('id-ID')}
+                                </span>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Total Tagihan */}
+                    <div className="p-2.5 bg-indigo-900 text-white rounded-xl flex items-center justify-between">
+                      <span className="text-xs font-semibold text-indigo-200">Total Tagihan:</span>
+                      <span className="text-lg font-black tracking-tight">Rp {cartTotal.toLocaleString('id-ID')}</span>
+                    </div>
+
+                    {/* Pilihan Metode Bayar Kasir */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-700">Metode Pembayaran</label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('cash')}
+                          className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            paymentMethod === 'cash'
+                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+                              : 'bg-white text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          <Banknote size={14} /> Tunai
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('qris')}
+                          className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            paymentMethod === 'qris'
+                              ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                              : 'bg-white text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          <QrCode size={14} /> QRIS
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Jika Tunai: Quick Money & Hitung Kembalian */}
+                    {paymentMethod === 'cash' && cartTotal > 0 && (
+                      <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-700">Uang Diterima:</span>
+                          <input
+                            type="number"
+                            value={cashTendered || ''}
+                            onChange={(e) => setCashTendered(Number(e.target.value))}
+                            placeholder={String(cartTotal)}
+                            className="eco-form-input text-xs font-mono h-7 w-28 text-right bg-slate-50"
+                          />
+                        </div>
+                        <div className="flex gap-1 pt-1 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={() => setCashTendered(cartTotal)}
+                            className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700"
+                          >
+                            Uang Pas
+                          </button>
+                          {[10000, 20000, 50000, 100000].map((amt) => (
+                            <button
+                              key={amt}
+                              type="button"
+                              onClick={() => setCashTendered(amt)}
+                              className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700"
+                            >
+                              {amt >= 1000 ? `${amt / 1000}rb` : amt}
+                            </button>
+                          ))}
+                        </div>
+                        {cashTendered > 0 && (
+                          <div className={`p-1.5 rounded-lg flex items-center justify-between font-bold ${
+                            cashTendered >= cartTotal ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'
+                          }`}>
+                            <span>{cashTendered >= cartTotal ? 'Kembalian:' : 'Kurang:'}</span>
+                            <span>Rp {Math.abs(cashTendered - cartTotal).toLocaleString('id-ID')}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tombol Eksekusi Transaksi POS */}
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod('cash')}
-                    className={`payment-method-btn ${paymentMethod === 'cash' ? 'selected' : ''}`}
+                    onClick={() => handleCheckout(false)}
+                    disabled={processingOrder || cart.length === 0}
+                    className="w-full btn-success-action py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"
                   >
-                    <Banknote size={16} /> Tunai (Cash)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('qris')}
-                    className={`payment-method-btn ${paymentMethod === 'qris' ? 'selected' : ''}`}
-                  >
-                    <QrCode size={16} /> QRIS
+                    {processingOrder ? 'Memproses...' : `Selesaikan Transaksi (Rp ${cartTotal.toLocaleString('id-ID')})`}
                   </button>
                 </div>
               </div>
-            </div>
-            <div className="eco-modal-footer">
-              <button onClick={() => setShowPOSModal(false)} className="btn-secondary-action">Batal</button>
-              <button
-                onClick={() => handleCheckout(false)}
-                disabled={processingOrder || cart.length === 0}
-                className="btn-success-action"
-              >
-                {processingOrder ? 'Memproses...' : `Selesaikan Pesanan (Rp ${cartTotal.toLocaleString('id-ID')})`}
-              </button>
             </div>
           </div>
         </div>
@@ -916,68 +1130,111 @@ export const KantinView: React.FC = () => {
       {/* ============================================================== */}
       {showAddModal && (
         <div className="eco-modal-backdrop" onClick={() => setShowAddModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="eco-modal-header">
-              <h3><PlusCircle size={18} className="text-indigo-600" /> Tambah Menu Stan Kantin</h3>
+          <div className="eco-modal-card" style={{ maxWidth: '460px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header bg-slate-50 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                  <PlusCircle size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">Tambah Menu Stan Kantin</h3>
+                  <p className="text-xs text-slate-500">Daftarkan menu makanan, minuman, atau camilan baru</p>
+                </div>
+              </div>
               <button onClick={() => setShowAddModal(false)} className="btn-close-modal"><X size={18} /></button>
             </div>
             <form onSubmit={handleCreateMenu} className="eco-modal-form">
-              <div className="eco-modal-body">
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Nama Menu</label>
+              <div className="eco-modal-body p-5 space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Nama Menu Makanan / Minuman</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Contoh: Nasi Goreng Spesial"
+                    placeholder="Contoh: Nasi Ayam Bakar Sambal Matah"
                     required
-                    className="eco-form-input"
+                    className="eco-form-input text-xs"
                   />
                 </div>
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Kategori</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="eco-form-input"
-                  >
-                    <option value="Makanan">Makanan</option>
-                    <option value="Minuman">Minuman</option>
-                    <option value="Snack">Snack</option>
-                  </select>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Kategori Menu</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Makanan', 'Minuman', 'Snack'].map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setCategory(cat)}
+                        className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                          category === cat
+                            ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Harga Satuan (Rp)</label>
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold text-slate-700">Harga Satuan (Rp)</label>
+                    {price && Number(price) > 0 && (
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        Rp {Number(price).toLocaleString('id-ID')}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder="Contoh: 12000"
                     required
-                    className="eco-form-input"
+                    min="500"
+                    step="500"
+                    className="eco-form-input text-xs font-mono"
                   />
                 </div>
-                <div className="eco-form-group">
-                  <label className="eco-form-label">Stan Penjual</label>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Stan Penjual / Penyedia</label>
                   <input
                     type="text"
                     value={stallName}
                     onChange={(e) => setStallName(e.target.value)}
                     placeholder="Contoh: Stand 1 Bu Titin"
                     required
-                    className="eco-form-input"
+                    className="eco-form-input text-xs"
                   />
                 </div>
               </div>
-              <div className="eco-modal-footer">
-                <button type="button" onClick={() => setShowAddModal(false)} className="btn-secondary-action">Batal</button>
-                <button type="submit" className="btn-primary-action">Simpan Menu</button>
+              <div className="eco-modal-footer p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+                <button type="button" onClick={() => setShowAddModal(false)} className="btn-secondary-action text-xs">
+                  Batal
+                </button>
+                <button type="submit" className="btn-primary-action text-xs font-bold px-4 py-2">
+                  Simpan Menu
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* QRIS Upload Modal (Kantin) */}
+      <QRISUploadModal
+        open={showQRISModal}
+        onClose={() => {
+          setShowQRISModal(false);
+          setKantinQris(getStoredQRIS('kantin'));
+        }}
+        type="kantin"
+        onSaved={() => setKantinQris(getStoredQRIS('kantin'))}
+      />
     </div>
   );
 };
 
+export default KantinView;

@@ -12,6 +12,7 @@ import {
   ClipboardList,
   FolderUp,
   MessageSquare,
+  Lock,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -65,6 +66,21 @@ export const GuruView: React.FC = () => {
   const [score, setScore] = useState<string>('90');
   const [feedback, setFeedback] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [shakingBtn, setShakingBtn] = useState<'header' | 'quick' | null>(null);
+
+  const isTeacher = activeRole === 'guru' || activeRole === 'admin';
+
+  const handleOpenGradeModal = (source: 'header' | 'quick') => {
+    if (!isTeacher) {
+      setShakingBtn(source);
+      setTimeout(() => setShakingBtn(null), 500);
+      toast.warning(
+        'Akses Ditolak: Kepala Sekolah hanya memiliki hak pantau (Read-Only). Input nilai hanya dapat dilakukan oleh Dewan Guru Pengampu.'
+      );
+      return;
+    }
+    setShowGradeModal(true);
+  };
 
   const [recentGrades, setRecentGrades] = useState<SubmittedGrade[]>([
     {
@@ -126,6 +142,10 @@ export const GuruView: React.FC = () => {
 
   const handleSubmitGrade = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isTeacher) {
+      toast.error('Akses Ditolak: Hanya Dewan Guru pengampu yang diizinkan menyimpan nilai.');
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await apiClient.post('/guru/grades', {
@@ -201,19 +221,25 @@ export const GuruView: React.FC = () => {
           </div>
         </div>
 
-        {activeRole === 'guru' ? (
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {!isTeacher && (
+            <Badge variant="secondary" className="text-xs py-1.5 px-3 hidden sm:inline-flex">
+              Supervisi Kepala Sekolah (Read-Only)
+            </Badge>
+          )}
           <Button
-            onClick={() => setShowGradeModal(true)}
-            className="shrink-0"
+            onClick={() => handleOpenGradeModal('header')}
+            className={`shrink-0 transition-all duration-200 ${
+              !isTeacher
+                ? 'bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 border border-slate-300 hover:border-red-300 cursor-not-allowed shadow-none'
+                : ''
+            } ${shakingBtn === 'header' ? 'animate-shake-rejection border-red-500 ring-2 ring-red-400 text-red-600 bg-red-50' : ''}`}
+            title={!isTeacher ? 'Akses Ditolak: Khusus Dewan Guru Pengampu' : 'Input Nilai Evaluasi'}
           >
-            <FileText className="w-4 h-4" />
+            {!isTeacher ? <Lock className="w-4 h-4 text-amber-600" /> : <FileText className="w-4 h-4" />}
             <span>Input Nilai Evaluasi</span>
           </Button>
-        ) : (
-          <Badge variant="secondary" className="text-xs py-1.5 px-3">
-            Supervisi Kepala Sekolah (Read-Only)
-          </Badge>
-        )}
+        </div>
       </div>
 
       {/* Ringkasan Statistik */}
@@ -343,12 +369,25 @@ export const GuruView: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-2.5">
             <Button
-              variant="default"
-              onClick={() => setShowGradeModal(true)}
-              className="w-full justify-start gap-2.5 text-xs h-11 rounded-xl"
+              variant={!isTeacher ? 'outline' : 'default'}
+              onClick={() => handleOpenGradeModal('quick')}
+              className={`w-full justify-start gap-2.5 text-xs h-11 rounded-xl transition-all duration-200 ${
+                !isTeacher
+                  ? 'border-slate-300 text-slate-600 hover:border-red-300 hover:text-red-700 hover:bg-red-50/70 cursor-not-allowed'
+                  : ''
+              } ${shakingBtn === 'quick' ? 'animate-shake-rejection border-red-500 ring-2 ring-red-400 text-red-600 bg-red-50' : ''}`}
             >
-              <FileText className="w-4 h-4" />
-              <span>Input Nilai Tugas & Ujian</span>
+              {!isTeacher ? (
+                <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+              ) : (
+                <FileText className="w-4 h-4 shrink-0" />
+              )}
+              <span className="font-semibold">Input Nilai Tugas & Ujian</span>
+              {!isTeacher && (
+                <span className="ml-auto text-[10px] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                  Read-Only
+                </span>
+              )}
             </Button>
             <Button
               variant="outline"

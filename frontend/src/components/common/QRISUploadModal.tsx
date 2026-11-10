@@ -9,8 +9,10 @@ import { toast } from 'sonner';
 interface QRISUploadModalProps {
   open: boolean;
   onClose: () => void;
-  type: 'tu' | 'kopsis';
+  type: 'tu' | 'kopsis' | 'kantin';
   onSaved?: () => void;
+  storeKey?: string;
+  merchantTitle?: string;
 }
 
 export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
@@ -76,6 +78,8 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
               resolve(event.target?.result as string);
               return;
             }
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
             resolve(canvas.toDataURL('image/jpeg', 0.85));
           };
@@ -98,33 +102,45 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
     e.preventDefault();
     const finalImage = imageUrl.trim() || previewUrl || DEFAULT_QRIS_SVG;
     saveStoredQRIS(type, finalImage, merchantName, nmid);
-    toast.success(
-      `Pengaturan barcode QRIS ${type === 'tu' ? 'Loket TU / Sekolah' : 'Koperasi Siswa'} berhasil disimpan!`
-    );
-    if (onSaved) onSaved();
+    toast.success(`Pengaturan QRIS ${type.toUpperCase()} berhasil disimpan!`);
+    onSaved?.();
     onClose();
   };
 
-  const modalTitle =
-    type === 'tu'
-      ? 'Pengaturan & Upload Barcode QRIS Loket TU'
-      : 'Pengaturan & Upload Barcode QRIS Koperasi Siswa';
+  const getTitle = () => {
+    if (type === 'kantin') return 'Upload Barcode QRIS Stan Kantin';
+    if (type === 'kopsis') return 'Upload Barcode QRIS Koperasi Sekolah';
+    return 'Upload Barcode QRIS Loket TU & SPP';
+  };
 
-  const modalDesc =
-    type === 'tu'
-      ? 'Upload gambar barcode QRIS resmi sekolah untuk pembayaran SPP dan top-up saldo digital siswa/guru.'
-      : 'Upload gambar barcode QRIS stan Koperasi untuk transaksi belanja dan top-up saldo.';
+  const getDescription = () => {
+    if (type === 'kantin') {
+      return 'Upload barcode QRIS resmi stan kantin sekolah. Siswa dapat langsung memindai QRIS ini saat memesan makanan tanpa tunai.';
+    }
+    if (type === 'kopsis') {
+      return 'Upload barcode QRIS resmi koperasi sekolah untuk pembayaran instan perlengkapan dan seragam siswa.';
+    }
+    return 'Upload barcode QRIS resmi sekolah untuk pembayaran SPP dan tagihan administrasi.';
+  };
 
   return (
-    <Dialog open={open} onClose={onClose} title={modalTitle} description={modalDesc}>
-      <form onSubmit={handleSave} className="space-y-4 mt-2">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={getTitle()}
+      description={getDescription()}
+    >
+      <form onSubmit={handleSave} className="space-y-4 pt-1">
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700">Nama Merchant / Toko Resmi</label>
+          <label className="text-xs font-bold text-slate-700">
+            {type === 'kantin' ? 'Nama Stan / Merchant Kantin' : type === 'kopsis' ? 'Nama Toko / Koperasi' : 'Nama Merchant QRIS'}
+          </label>
           <Input
+            type="text"
+            required
             value={merchantName}
             onChange={(e) => setMerchantName(e.target.value)}
-            placeholder={type === 'tu' ? 'SMK BINA MANDIRI - LOKET TU' : 'KOPERASI SISWA BINA MANDIRI'}
-            required
+            placeholder={type === 'kantin' ? 'Contoh: KANTIN SEHAT BU TITIN - STAND 1' : 'Contoh: KOPERASI SISWA STILLSCHOOL'}
             className="text-xs"
           />
         </div>
@@ -132,10 +148,11 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-slate-700">Nomor National Merchant ID (NMID)</label>
           <Input
+            type="text"
+            required
             value={nmid}
             onChange={(e) => setNmid(e.target.value)}
-            placeholder="ID1029384756910"
-            required
+            placeholder="Contoh: ID2026889955441"
             className="text-xs font-mono"
           />
         </div>
@@ -175,7 +192,7 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
         {/* Live Preview Container */}
         <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center">
           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-            Preview QRIS yang Dilihat Siswa & Guru
+            Preview QRIS yang Dilihat Siswa & Pelanggan
           </div>
           <div className="inline-block p-3 bg-white rounded-xl border border-slate-200 shadow-xs">
             {previewUrl ? (

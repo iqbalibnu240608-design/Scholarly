@@ -228,12 +228,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
             <div
               style={{
                 position: 'absolute',
-                left: '8px',
+                left: '5px',
                 top: '0px',
                 bottom: '0px',
-                width: '44px',
+                width: '42px',
                 backgroundColor: '#3f6ef5',
-                borderRadius: '22px',
+                borderRadius: '21px',
                 pointerEvents: 'none',
                 zIndex: 0,
               }}
@@ -267,7 +267,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                       {/* Left Icon Rail Segment */}
                       <div
                         style={{
-                          width: '60px',
+                          width: '52px',
                           height: '48px',
                           flexShrink: 0,
                           display: 'flex',
@@ -374,7 +374,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
             {/* Left Icon Rail Segment - Exactly matching NavLink */}
             <div
               style={{
-                width: '60px',
+                width: '52px',
                 height: '48px',
                 flexShrink: 0,
                 display: 'flex',
