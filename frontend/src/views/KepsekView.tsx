@@ -168,14 +168,16 @@ export const KepsekView: React.FC = () => {
       {/* Grid: Laporan Strategis & Otoritas Disposisi */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 border-slate-200/80">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-blue-600" />
-              <CardTitle className="text-base font-bold text-slate-900">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <Award className="w-5 h-5" />
+              </div>
+              <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                 Laporan Strategis & Kebijakan Sekolah
               </CardTitle>
             </div>
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
               Tinjauan Eksekutif
             </Badge>
           </CardHeader>
@@ -200,11 +202,16 @@ export const KepsekView: React.FC = () => {
         </Card>
 
         <Card className="border-slate-200/80">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-bold text-slate-900">
-              Persetujuan & Disposisi
-            </CardTitle>
-            <Badge variant="secondary" className="text-xs font-bold">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-5 h-5" />
+              </div>
+              <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                Persetujuan & Disposisi
+              </CardTitle>
+            </div>
+            <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
               Otoritas Kepsek
             </Badge>
           </CardHeader>

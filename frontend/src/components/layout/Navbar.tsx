@@ -11,7 +11,6 @@ import {
   Bell,
   Menu,
   Check,
-  Sparkles,
   X,
 } from 'lucide-react';
 
@@ -241,7 +240,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
             <div className="fixed left-3 right-3 top-[68px] sm:left-auto sm:right-6 sm:top-[68px] sm:w-96 bg-white rounded-2xl border border-slate-200/90 shadow-2xl py-3 z-50 animate-in fade-in slide-in-from-top-2">
               <div className="flex items-center justify-between px-4 pb-2.5 border-b border-slate-100">
                 <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  <Bell className="w-4 h-4 text-blue-600" />
                   <span className="text-xs font-bold text-slate-900">Notifikasi Terkini</span>
                 </div>
                 <button

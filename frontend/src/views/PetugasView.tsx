@@ -300,11 +300,8 @@ export const PetugasView: React.FC = () => {
                   <span>Tata Usaha & Keuangan SPP</span>
                 </div>
                 <h2 className="text-xl md:text-2xl font-extrabold tracking-tight">
-                  Layanan Keuangan & Administrasi SPP Siswa
+                  Layanan Keuangan & Administrasi SPP (Pembayaran Bisa Lewat QRIS)
                 </h2>
-                <p className="text-xs md:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">
-                  Pantau tagihan iuran sekolah dan lakukan pembayaran SPP bulanan mandiri via E-Wallet, Tunai di Loket TU, Virtual Account, atau QRIS.
-                </p>
               </div>
 
             </div>
@@ -382,14 +379,16 @@ export const PetugasView: React.FC = () => {
 
           {/* Riwayat Pembayaran SPP Siswa */}
           <Card className="border-slate-200/80">
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-purple-600" />
-                <CardTitle className="text-base font-bold text-slate-900">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                   Riwayat Pembayaran SPP & Kuitansi Digital
                 </CardTitle>
               </div>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
                 Arsip Resmi TU
               </Badge>
             </CardHeader>
@@ -541,13 +540,16 @@ export const PetugasView: React.FC = () => {
 
           {/* Riwayat Pembayaran SPP Masuk */}
           <Card className="border-slate-200/80">
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-base font-bold text-slate-900">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                   Riwayat Transaksi Pembayaran SPP Terbaru
                 </CardTitle>
               </div>
-              <Badge variant="primary" className="text-xs font-bold">
+              <Badge variant="primary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
                 {recentSPP.length} Transaksi
               </Badge>
             </CardHeader>

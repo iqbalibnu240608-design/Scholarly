@@ -46,7 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       to: '/app/siswa',
       label: activeRole === 'siswa' ? 'Akademik Siswa' : 'Portal Siswa',
       icon: GraduationCap,
-      allowedRoles: ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'bk'],
+      allowedRoles: ['admin', 'siswa', 'kepsek', 'petugas', 'bk'],
     },
     {
       to: '/app/kantin',
@@ -58,7 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       to: '/app/kopsis',
       label: 'Koperasi Sekolah',
       icon: ShoppingBag,
-      allowedRoles: ['admin', 'kopsis', 'koperasi', 'pengelola_koperasi', 'siswa', 'guru', 'petugas', 'perpustakaan'],
+      allowedRoles: ['admin', 'kopsis', 'koperasi', 'pengelola_koperasi', 'siswa', 'petugas', 'perpustakaan'],
     },
     {
       to: '/app/petugas',
@@ -70,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       to: '/app/perpus',
       label: 'Perpustakaan',
       icon: BookMarked,
-      allowedRoles: ['admin', 'perpustakaan', 'siswa', 'guru'],
+      allowedRoles: ['admin', 'perpustakaan', 'siswa'],
     },
     {
       to: '/app/guru',

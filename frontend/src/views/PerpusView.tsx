@@ -10,7 +10,6 @@ import {
   Search,
   BookMarked,
   RotateCcw,
-  Sparkles,
   Trash2,
   Info,
 } from 'lucide-react';
@@ -240,9 +239,6 @@ export const PerpusView: React.FC = () => {
                 <h2 className="text-xl md:text-2xl font-extrabold tracking-tight">
                   E-Library & Katalog Sirkulasi Buku
                 </h2>
-                <p className="text-xs md:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">
-                  Temukan ribuan koleksi buku pelajaran kejuruan, modul kurikulum merdeka, sastra, dan referensi akademik.
-                </p>
               </div>
 
               <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-3.5 rounded-2xl border border-white/10">
@@ -367,14 +363,16 @@ export const PerpusView: React.FC = () => {
 
             return (
               <Card className="border-slate-200/80">
-                <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-600" />
-                    <CardTitle className="text-base font-bold text-slate-900">
+                <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                      <BookOpen className="w-5 h-5" />
+                    </div>
+                    <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                       Buku yang Sedang Saya Pinjam ({myActiveLoans.length})
                     </CardTitle>
                   </div>
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
                     Batas Waktu: 7 Hari
                   </Badge>
                 </CardHeader>
@@ -566,13 +564,16 @@ export const PerpusView: React.FC = () => {
 
           {/* TABEL 1: SIRKULASI PEMINJAMAN BUKU AKTIF */}
           <Card className="border-slate-200/80">
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-base font-bold text-slate-900">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                  <BookmarkCheck className="w-5 h-5" />
+                </div>
+                <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                   Daftar Sirkulasi Peminjaman Buku Aktif
                 </CardTitle>
               </div>
-              <Badge variant="primary" className="text-xs font-bold">
+              <Badge variant="primary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
                 {data?.pinjaman_aktif.length ?? 0} Aktif
               </Badge>
             </CardHeader>
@@ -671,13 +672,16 @@ export const PerpusView: React.FC = () => {
 
           {/* TABEL 2: KATALOG INVENTARIS BUKU PERPUSTAKAAN */}
           <Card className="border-slate-200/80">
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-base font-bold text-slate-900">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <BookMarked className="w-5 h-5" />
+                </div>
+                <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                   Inventaris Koleksi Buku Perpustakaan
                 </CardTitle>
               </div>
-              <Badge variant="secondary" className="text-xs font-mono">
+              <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full font-mono">
                 {data?.katalog_buku.length || 0} Judul Buku
               </Badge>
             </CardHeader>
@@ -912,7 +916,7 @@ export const PerpusView: React.FC = () => {
             </div>
 
             <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-100 text-xs text-emerald-800 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+              <Info className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>Buku wajib dikembalikan tepat waktu sebelum tanggal jatuh tempo. Tarif denda keterlambatan: Rp 1.000 / hari.</span>
             </div>
 

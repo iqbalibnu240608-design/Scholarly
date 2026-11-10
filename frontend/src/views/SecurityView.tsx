@@ -281,19 +281,21 @@ export const SecurityView: React.FC = () => {
 
       {/* Form Check-In Gerbang Utama */}
       <Card className="border-slate-200/80">
-        <CardHeader className="pb-3 flex flex-row items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <ScanLine className="w-4 h-4 text-blue-600" />
-            <CardTitle className="text-base font-bold text-slate-900">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <ScanLine className="w-5 h-5" />
+            </div>
+            <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
               Pemindaian Kartu Gerbang (RFID / Input NISN)
             </CardTitle>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs font-bold">
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
               Batas Datang Pagi: 07:00 WIB
             </Badge>
-            <Badge variant="primary" className="text-xs font-semibold">
-              <SunMedium className="w-3 h-3 mr-1" />
+            <Badge variant="primary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
+              <SunMedium className="w-3.5 h-3.5 mr-1" />
               Cut-off Siang: 11:59 WIB
             </Badge>
           </div>
@@ -427,14 +429,16 @@ export const SecurityView: React.FC = () => {
 
       {/* Tabel Log Kedatangan & Kepulangan Gerbang Hari Ini */}
       <Card className="border-slate-200/80">
-        <CardHeader className="pb-3 flex flex-row items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <History className="w-4 h-4 text-blue-600" />
-            <CardTitle className="text-base font-bold text-slate-900">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <History className="w-5 h-5" />
+            </div>
+            <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
               Log Presensi Gerbang Hari Ini (Datang & Pulang)
             </CardTitle>
           </div>
-          <Badge variant="primary" className="text-xs font-mono">
+          <Badge variant="primary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full font-mono">
             {logs.length} Riwayat Presensi Hari Ini
           </Badge>
         </CardHeader>

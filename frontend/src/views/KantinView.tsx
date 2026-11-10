@@ -10,7 +10,6 @@ import {
   X,
   Banknote,
   Receipt,
-  Sparkles,
   QrCode,
   Store,
   Trash2,
@@ -302,7 +301,7 @@ export const KantinView: React.FC = () => {
               {lastReceipt.items && <div className="mt-1 text-xs">Pesanan: {lastReceipt.items}</div>}
               {lastReceipt.instructions && (
                 <div className="mt-2 font-semibold text-emerald-800 p-2 bg-emerald-100 rounded">
-                  <Sparkles size={14} className="inline mr-1 text-primary" /> {lastReceipt.instructions}
+                  <CheckCircle size={14} className="inline mr-1 text-emerald-700" /> {lastReceipt.instructions}
                 </div>
               )}
             </div>
@@ -330,11 +329,8 @@ export const KantinView: React.FC = () => {
             <div className="wallet-hero-left w-full sm:w-auto">
               <h3>
                 <UtensilsCrossed size={20} className="text-amber-400 shrink-0" />
-                <span>Pemesanan Makanan & Minuman Kantin</span>
+                <span>Pemesanan Makanan & Minuman (Pembayaran Bisa Lewat QRIS)</span>
               </h3>
-              <p>
-                Pesan makanan lezat dengan metode pembayaran langsung QRIS Instan atau Tunai di Stan.
-              </p>
             </div>
             
           </div>
@@ -402,56 +398,35 @@ export const KantinView: React.FC = () => {
             })}
           </div>
 
-          {/* Sticky Floating Cart Summary Bar */}
+          {/* Floating Cart Action Button (Squircle with Red Badge) */}
           {cart.length > 0 && (
-            <div className="cart-floating-bar">
-              <div className="cart-floating-info">
-                <div className="cart-count-badge">{cartTotalQty}</div>
-                <div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Total Pesanan Kantin:</div>
-                  <div className="cart-total-text">Rp {cartTotal.toLocaleString('id-ID')}</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowCartModal(true)}
-                  className="btn-secondary-action"
-                  style={{ background: '#1e293b', color: '#ffffff', borderColor: '#334155', padding: '8px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <ShoppingCart size={15} />
-                  <span>Lihat Keranjang ({cartTotalQty})</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={clearCart}
-                  className="btn-secondary-action"
-                  style={{ background: '#334155', color: '#ffffff', borderColor: '#475569', padding: '8px 12px' }}
-                  title="Kosongkan Keranjang"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowStudentCheckoutModal(true)}
-                  className="btn-success-action"
-                  style={{ padding: '8px 18px', fontSize: '13px' }}
-                >
-                  <span>Checkout (Rp {cartTotal.toLocaleString('id-ID')})</span>
-                </button>
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowCartModal(true)}
+              aria-label="Lihat Keranjang Pesanan Kantin"
+              className="fixed bottom-6 right-6 z-50 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#0F172A] shadow-2xl flex items-center justify-center border border-slate-700/60 hover:bg-[#1E293B] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer group"
+            >
+              <ShoppingCart className="w-7 h-7 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-2 -right-2 min-w-7 h-7 px-1.5 rounded-full bg-red-500 text-white text-xs sm:text-sm font-black flex items-center justify-center shadow-lg ring-2 ring-white animate-in zoom-in-75 duration-200">
+                {cartTotalQty}
+              </span>
+            </button>
           )}
 
           {/* Riwayat Pesanan Siswa */}
           <div className="overview-card mt-6">
-            <div className="card-header">
-              <h3>
-                <Sparkles size={18} className="inline mr-2 text-indigo-600" />
-                Riwayat Pesanan Kantin Saya
-              </h3>
-              <span className="badge-pill">Terkini</span>
+            <div className="card-header flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <ShoppingCart className="w-5 h-5" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug m-0">
+                  Riwayat Pesanan Kantin Saya
+                </h3>
+              </div>
+              <span className="badge-pill text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
+                Terkini
+              </span>
             </div>
             <div className="table-responsive">
               {recentOrders.length === 0 ? (
@@ -498,21 +473,20 @@ export const KantinView: React.FC = () => {
         <>
           <div className="view-header">
             <div>
-              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><UtensilsCrossed size={24} style={{ color: '#356df3' }} /> Portal Pengelola Stan Kantin</h2>
-              <p>Kelola menu makanan harian, pantau antrean pesanan masuk, dan atur QRIS stan Anda.</p>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><UtensilsCrossed size={24} style={{ color: '#356df3' }} /> Pengelola Stan Kantin</h2>
             </div>
-            <div className="card-header-actions">
+            <div className="card-header-actions flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={() => setShowQRISModal(true)}
-                className="btn-secondary-action"
+                className="btn-secondary-action w-full sm:w-auto justify-center"
                 title="Atur QRIS Stan Kantin"
               >
                 <QrCode size={16} /> Upload QRIS Stan
               </button>
-              <button onClick={() => setShowAddModal(true)} className="btn-secondary-action">
+              <button onClick={() => setShowAddModal(true)} className="btn-secondary-action w-full sm:w-auto justify-center">
                 <PlusCircle size={16} /> Tambah Menu Baru
               </button>
-              <button onClick={() => setShowPOSModal(true)} className="btn-primary-action">
+              <button onClick={() => setShowPOSModal(true)} className="btn-primary-action w-full sm:w-auto justify-center">
                 <ShoppingCart size={16} /> Buka Kasir POS Kantin
               </button>
             </div>
@@ -524,7 +498,6 @@ export const KantinView: React.FC = () => {
               <div className="card-top-icon text-cyan-600"><Coffee size={22} /></div>
               <h4>Status Layanan Kantin</h4>
               <div className="badge-status-paid">{data?.status_kantin}</div>
-              <p className="card-subtext">Jam istirahat aktif, melayani pemesanan cashless & tunai</p>
             </div>
 
             <div className="feature-card">
@@ -533,7 +506,6 @@ export const KantinView: React.FC = () => {
               <div className="amount-display">
                 Rp {(data?.omset_hari_ini ?? 0).toLocaleString('id-ID')}
               </div>
-              <p className="card-subtext">Akumulasi seluruh stan makanan & minuman</p>
             </div>
 
             <div className="feature-card">
@@ -546,12 +518,16 @@ export const KantinView: React.FC = () => {
 
           {/* TABEL 1: DAFTAR PESANAN MASUK & RIWAYAT PEMBELIAN DI KANTIN */}
           <div className="overview-card mt-6">
-            <div className="card-header">
-              <h3>
-                <Sparkles size={18} className="inline mr-2 text-indigo-600" />
-                Antrean Pesanan Masuk & Riwayat Pembelian Stan Kantin
-              </h3>
-              <span className="badge-pill bg-indigo-50 text-indigo-700 font-bold">
+            <div className="card-header flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <ShoppingCart className="w-5 h-5" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug m-0">
+                  Antrean Pesanan Masuk & Riwayat Pembelian Stan Kantin
+                </h3>
+              </div>
+              <span className="badge-pill bg-indigo-50 text-indigo-700 text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full border border-indigo-200/60">
                 {recentOrders.length} Pesanan Tercatat
               </span>
             </div>
@@ -612,9 +588,18 @@ export const KantinView: React.FC = () => {
 
           {/* TABEL 2: DAFTAR MENU STAN */}
           <div className="overview-card mt-6">
-            <div className="card-header">
-              <h3>Katalog Menu Stan Makanan & Minuman</h3>
-              <span className="badge-pill">{data?.daftar_menu.length || 0} Menu Terdaftar</span>
+            <div className="card-header flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                  <UtensilsCrossed className="w-5 h-5" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug m-0">
+                  Katalog Menu Stan Makanan & Minuman
+                </h3>
+              </div>
+              <span className="badge-pill text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
+                {data?.daftar_menu.length || 0} Menu Terdaftar
+              </span>
             </div>
             <div className="table-responsive">
               <table className="data-table">

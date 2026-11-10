@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, QrCode, Banknote, ShieldCheck, CheckCircle2, AlertCircle, ArrowRight, Sparkles } from 'lucide-react';
+import { X, QrCode, Banknote, ShieldCheck, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { getStoredQRIS, DEFAULT_QRIS_SVG, type QRISConfig } from '../../utils/qris';
@@ -211,9 +211,8 @@ export const UniversalTopupModal: React.FC<UniversalTopupModalProps> = ({
                   <QrCode className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white">
                     Scan QRIS
-                    <Sparkles className="w-3 h-3 text-amber-500" />
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
                     BCA, Mandiri, GoPay, Dana, OVO, ShopeePay

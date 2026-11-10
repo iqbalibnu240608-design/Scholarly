@@ -343,16 +343,21 @@ export const AdminView: React.FC = () => {
       {/* Users and Role Assignment Table (NexaAdmin Style) */}
       <Card className="border-slate-200/80">
         <CardHeader className="pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <CardTitle className="text-base font-bold text-slate-900">
-              Daftar Pengguna & Pemantauan Akun
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Pencarian cepat berdasarkan nama, NISN, atau peranan
-            </CardDescription>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                Daftar Pengguna & Pemantauan Akun
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Pencarian cepat berdasarkan nama, NISN, atau peranan
+              </CardDescription>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
             <div className="relative w-full sm:w-64">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <Input
@@ -363,7 +368,7 @@ export const AdminView: React.FC = () => {
                 className="pl-9 h-9 text-xs"
               />
             </div>
-            <Badge variant="secondary" className="text-xs shrink-0 font-bold">
+            <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
               {filteredUsers.length} Ditemukan
             </Badge>
           </div>

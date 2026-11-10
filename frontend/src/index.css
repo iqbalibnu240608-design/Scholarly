@@ -589,15 +589,41 @@ button svg {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .card-header {
+    flex-wrap: nowrap;
+  }
 }
 
 .card-header h3 {
-  font-size: 14.5px;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--navy-slate, #0f172a);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  line-height: 1.35;
+}
+
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
+  background: var(--bg-card, #f8fafc);
+  color: var(--text-muted, #64748b);
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
 /* --------------------------------------------------------------------------

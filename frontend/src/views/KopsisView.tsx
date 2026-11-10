@@ -10,7 +10,6 @@ import {
   X,
   Banknote,
   Receipt,
-  Sparkles,
   ShoppingBag,
   QrCode,
   Search,
@@ -332,7 +331,7 @@ export const KopsisView: React.FC = () => {
               {lastReceipt.items && <div className="mt-1 text-xs">Item: {lastReceipt.items}</div>}
               {lastReceipt.instructions && (
                 <div className="mt-2 font-semibold text-emerald-800 p-2 bg-emerald-100 rounded">
-                  <Sparkles size={14} className="inline mr-1 text-primary" /> {lastReceipt.instructions}
+                  <CheckCircle size={14} className="inline mr-1 text-emerald-700" /> {lastReceipt.instructions}
                 </div>
               )}
             </div>
@@ -360,11 +359,8 @@ export const KopsisView: React.FC = () => {
             <div className="wallet-hero-left w-full sm:w-auto">
               <h3>
                 <ShoppingBag size={20} className="text-orange-400 shrink-0" />
-                <span>Katalog Koperasi Siswa (Kopsis)</span>
+                <span>Katalog Koperasi Siswa (Pembayaran Bisa Lewat QRIS)</span>
               </h3>
-              <p>
-                Beli perlengkapan sekolah dengan pembayaran langsung QRIS Instan atau Tunai di Loket.
-              </p>
             </div>
           </div>
 
@@ -433,48 +429,33 @@ export const KopsisView: React.FC = () => {
             })}
           </div>
 
-          {/* Sticky Floating Cart Summary Bar */}
+          {/* Floating Cart Action Button (Squircle with Orange Badge) */}
           {cart.length > 0 && (
-            <div className="cart-floating-bar">
-              <div className="cart-floating-info">
-                <div className="cart-count-badge" style={{ backgroundColor: '#ea580c' }}>
-                  {cartTotalQty}
-                </div>
-                <div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Total Belanja Kopsis:</div>
-                  <div className="cart-total-text" style={{ color: '#fed7aa' }}>
-                    Rp {cartTotal.toLocaleString('id-ID')}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={clearCart}
-                  className="btn-secondary-action"
-                  style={{ background: '#334155', color: '#ffffff', borderColor: '#475569', padding: '8px 14px' }}
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={() => setShowStudentCheckoutModal(true)}
-                  className="btn-success-action"
-                  style={{ padding: '8px 20px', fontSize: '13px' }}
-                >
-                  <ShoppingCart size={16} /> Pilih Pembayaran & Checkout (Rp {cartTotal.toLocaleString('id-ID')})
-                </button>
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowStudentCheckoutModal(true)}
+              aria-label="Lihat Keranjang Belanja Kopsis"
+              className="fixed bottom-6 right-6 z-50 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#0F172A] shadow-2xl flex items-center justify-center border border-slate-700/60 hover:bg-[#1E293B] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer group"
+            >
+              <ShoppingBag className="w-7 h-7 text-white stroke-[2.2] group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-2 -right-2 min-w-7 h-7 px-1.5 rounded-full bg-orange-500 text-white text-xs sm:text-sm font-black flex items-center justify-center shadow-lg ring-2 ring-white animate-in zoom-in-75 duration-200">
+                {cartTotalQty}
+              </span>
+            </button>
           )}
 
           {/* Riwayat Belanja Kopsis Siswa */}
           <div className="overview-card mt-6">
-            <div className="card-header">
-              <h3>
-                <Sparkles size={18} className="inline mr-2 text-orange-500" />
-                Riwayat Pembelian Kopsis Saya
-              </h3>
-              <span className="badge-pill bg-orange-50 text-orange-700 font-bold">
+            <div className="card-header flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                  <ShoppingBag className="w-5 h-5" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug m-0">
+                  Riwayat Pembelian Kopsis Saya
+                </h3>
+              </div>
+              <span className="badge-pill bg-orange-50 text-orange-700 text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full border border-orange-200/60">
                 {recentTransactions.length} Transaksi Tercatat
               </span>
             </div>
@@ -552,17 +533,16 @@ export const KopsisView: React.FC = () => {
         <>
           <div className="view-header">
             <div>
-              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ShoppingBag size={24} style={{ color: '#356df3' }} /> Portal Koperasi Siswa (Kopsis)</h2>
-              <p>Kelola inventaris seragam, alat tulis sekolah, dan operasional kasir harian.</p>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ShoppingBag size={24} style={{ color: '#356df3' }} /> Koperasi Siswa (Kopsis)</h2>
             </div>
-            <div className="card-header-actions">
-              <button onClick={() => setShowQRISModal(true)} className="btn-secondary-action">
+            <div className="card-header-actions flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+              <button onClick={() => setShowQRISModal(true)} className="btn-secondary-action w-full sm:w-auto justify-center">
                 <QrCode size={16} /> Upload QRIS Kopsis
               </button>
-              <button onClick={() => setShowAddModal(true)} className="btn-secondary-action">
+              <button onClick={() => setShowAddModal(true)} className="btn-secondary-action w-full sm:w-auto justify-center">
                 <PlusCircle size={16} /> Tambah Barang Baru
               </button>
-              <button onClick={() => setShowPOSModal(true)} className="btn-primary-action">
+              <button onClick={() => setShowPOSModal(true)} className="btn-primary-action w-full sm:w-auto justify-center">
                 <ShoppingCart size={16} /> Buka Kasir POS Koperasi
               </button>
             </div>
@@ -596,9 +576,18 @@ export const KopsisView: React.FC = () => {
 
           {/* Tabel Inventaris Produk Kopsis */}
           <div className="overview-card mt-6">
-            <div className="card-header">
-              <h3>Inventaris Produk & Stok Koperasi</h3>
-              <span className="badge-pill">{data?.produk_populer?.length || 0} Barang Terdaftar</span>
+            <div className="card-header flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <ShoppingBag className="w-5 h-5" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug m-0">
+                  Inventaris Produk & Stok Koperasi
+                </h3>
+              </div>
+              <span className="badge-pill text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
+                {data?.produk_populer?.length || 0} Barang Terdaftar
+              </span>
             </div>
             <div className="table-responsive">
               <table className="data-table">

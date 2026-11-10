@@ -198,38 +198,32 @@ export const GuruView: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Header Halaman */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
-        <div className="flex items-start gap-3.5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
+        <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
             <BookOpen className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge variant="primary" className="text-xs">
-                Portal Pendidik
-              </Badge>
-              <Badge variant="secondary" className="text-xs font-mono">
+              <Badge variant="secondary" className="text-xs font-mono font-bold whitespace-nowrap shrink-0 px-2.5 py-0.5">
                 NIP: {data?.nip}
               </Badge>
             </div>
-            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Portal Guru & Tenaga Pendidik
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight leading-tight m-0">
+              Tenaga Pendidik
             </h2>
-            <p className="text-xs md:text-sm text-slate-500 mt-0.5">
-              Kelola jadwal mengajar, input evaluasi siswa ke buku nilai rapor, dan pantau rekap rombel.
-            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full sm:w-auto">
           {!isTeacher && (
-            <Badge variant="secondary" className="text-xs py-1.5 px-3 hidden sm:inline-flex">
+            <Badge variant="secondary" className="text-xs py-1.5 px-3 hidden sm:inline-flex whitespace-nowrap shrink-0">
               Supervisi Kepala Sekolah (Read-Only)
             </Badge>
           )}
           <Button
             onClick={() => handleOpenGradeModal('header')}
-            className={`shrink-0 transition-all duration-200 ${
+            className={`w-full sm:w-auto justify-center shrink-0 transition-all duration-200 ${
               !isTeacher
                 ? 'bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 border border-slate-300 hover:border-red-300 cursor-not-allowed shadow-none'
                 : ''
@@ -278,10 +272,10 @@ export const GuruView: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-slate-900 tracking-tight">
-              {(data?.rekap_kehadiran_siswa?.total_siswa_diajar || 0) || 0} Siswa
+              {data?.rekap_kehadiran_siswa?.total_siswa_diajar || 0} Siswa
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Rata-rata kehadiran: <strong>{(data?.rekap_kehadiran_siswa?.rata_rata_kehadiran || '95%') || '95%'}</strong>
+              Rata-rata kehadiran: <strong>{data?.rekap_kehadiran_siswa?.rata_rata_kehadiran || '95%'}</strong>
             </p>
           </CardContent>
         </Card>
@@ -312,14 +306,16 @@ export const GuruView: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Jadwal Pelajaran Guru (Col span 2) */}
         <Card className="lg:col-span-2 border-slate-200/80">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <CardTitle className="text-base font-bold text-slate-900">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                 Jadwal Mengajar Mingguan
               </CardTitle>
             </div>
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
               Tahun Ajaran 2026/2027
             </Badge>
           </CardHeader>
@@ -359,11 +355,16 @@ export const GuruView: React.FC = () => {
 
         {/* Menu Aksi Cepat Guru (Col span 1) */}
         <Card className="border-slate-200/80">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-bold text-slate-900">
-              Aksi Cepat Pendidik
-            </CardTitle>
-            <Badge variant="secondary" className="text-xs font-bold">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                Aksi Cepat Pendidik
+              </CardTitle>
+            </div>
+            <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
               Fitur Aktif
             </Badge>
           </CardHeader>
@@ -419,14 +420,16 @@ export const GuruView: React.FC = () => {
 
       {/* Tabel Histori Nilai Terkini yang Dimasukkan */}
       <Card className="border-slate-200/80">
-        <CardHeader className="pb-3 flex flex-row items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-blue-600" />
-            <CardTitle className="text-base font-bold text-slate-900">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
               Buku Rekap Penilaian Terkini
             </CardTitle>
           </div>
-          <Badge variant="primary" className="text-xs font-mono">
+          <Badge variant="primary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full font-mono">
             Tersimpan ke Database (grades)
           </Badge>
         </CardHeader>
