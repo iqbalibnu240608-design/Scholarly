@@ -287,6 +287,171 @@ export const LoginView: React.FC = () => {
 
   return (
     <div className="login-screen-root">
+      {/* Background SVG Pattern Bertema Alat Sekolah & Kertas Kotak Matematika (Khusus Desktop) */}
+      <div
+        className="absolute inset-0 pointer-events-none hidden md:block z-0 overflow-hidden"
+        aria-hidden="true"
+      >
+        <svg
+          className="w-full h-full"
+          width="100%"
+          height="100%"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            {/* Pattern 1: Grid Kertas Kotak Matematika (24px x 24px) */}
+            <pattern
+              id="login-math-grid"
+              width="24"
+              height="24"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 24 0 L 0 0 0 24"
+                fill="none"
+                stroke="#cbd5e1"
+                strokeWidth="0.8"
+                strokeOpacity="0.75"
+              />
+            </pattern>
+
+            {/* Pattern 2: Doodle Alat Sekolah Biru (240px x 240px Tile) */}
+            <pattern
+              id="login-school-doodles"
+              width="240"
+              height="240"
+              patternUnits="userSpaceOnUse"
+            >
+              <g stroke="#2563eb" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                {/* 1. Penggaris Segitiga Siku-Siku (Triangle Ruler) */}
+                <g transform="translate(18, 16) rotate(10)">
+                  <polygon points="0,0 48,0 0,48" strokeWidth="2" />
+                  <polygon points="8,8 30,8 8,30" strokeWidth="1.5" />
+                  <line x1="12" y1="0" x2="12" y2="4" strokeWidth="1.5" />
+                  <line x1="18" y1="0" x2="18" y2="4" strokeWidth="1.5" />
+                  <line x1="24" y1="0" x2="24" y2="4" strokeWidth="1.5" />
+                  <line x1="30" y1="0" x2="30" y2="4" strokeWidth="1.5" />
+                  <line x1="36" y1="0" x2="36" y2="4" strokeWidth="1.5" />
+                  <line x1="42" y1="0" x2="42" y2="4" strokeWidth="1.5" />
+                  <line x1="0" y1="12" x2="4" y2="12" strokeWidth="1.5" />
+                  <line x1="0" y1="18" x2="4" y2="18" strokeWidth="1.5" />
+                  <line x1="0" y1="24" x2="4" y2="24" strokeWidth="1.5" />
+                  <line x1="0" y1="30" x2="4" y2="30" strokeWidth="1.5" />
+                  <line x1="0" y1="36" x2="4" y2="36" strokeWidth="1.5" />
+                  <line x1="0" y1="42" x2="4" y2="42" strokeWidth="1.5" />
+                </g>
+
+                {/* 2. Pensil Kayu Klasik (Pencil) */}
+                <g transform="translate(138, 26) rotate(-36)">
+                  <polygon points="0,-14 5,0 -5,0" strokeWidth="2" />
+                  <polygon points="0,-14 2,-8 -2,-8" fill="#2563eb" stroke="#2563eb" strokeWidth="1" />
+                  <rect x="-5" y="0" width="10" height="34" strokeWidth="2" />
+                  <line x1="0" y1="0" x2="0" y2="34" strokeWidth="1.5" />
+                  <rect x="-5" y="34" width="10" height="4" strokeWidth="1.5" />
+                  <path d="M -5 38 C -5 44 5 44 5 38 Z" strokeWidth="2" />
+                </g>
+
+                {/* 3. Penghapus (Eraser) */}
+                <g transform="translate(180, 36) rotate(22)">
+                  <polygon points="3,9 18,2 29,7 14,14" strokeWidth="2" />
+                  <polygon points="3,9 14,14 14,20 3,15" strokeWidth="2" />
+                  <polygon points="14,14 29,7 29,13 14,20" strokeWidth="2" />
+                  <line x1="11" y1="5" x2="6" y2="11" strokeWidth="1.5" />
+                  <line x1="6" y1="11" x2="6" y2="17" strokeWidth="1.5" />
+                </g>
+
+                {/* 4. Bintang Nilai (Star) */}
+                <g transform="translate(26, 90) rotate(-6)">
+                  <polygon
+                    points="10,0 12.5,6.5 19,7.5 14,12 15.5,18.5 10,15 4.5,18.5 6,12 1,7.5 7.5,6.5"
+                    strokeWidth="2"
+                  />
+                </g>
+                <g transform="translate(176, 100) scale(0.65) rotate(18)">
+                  <polygon
+                    points="10,0 12.5,6.5 19,7.5 14,12 15.5,18.5 10,15 4.5,18.5 6,12 1,7.5 7.5,6.5"
+                    strokeWidth="2"
+                  />
+                </g>
+
+                {/* 5. Nilai Huruf 'A' (Grade A) */}
+                <g transform="translate(100, 86) rotate(12)">
+                  <path d="M 2 18 L 9 2 L 16 18" strokeWidth="2.5" />
+                  <line x1="5" y1="12" x2="13" y2="12" strokeWidth="2.5" />
+                </g>
+
+                {/* 6. Jangka Geometri (Drawing Compass) */}
+                <g transform="translate(64, 140) rotate(16)">
+                  <line x1="15" y1="-2" x2="15" y2="2" strokeWidth="2" />
+                  <circle cx="15" cy="4" r="2.5" strokeWidth="2" />
+                  <line x1="13" y1="6" x2="4" y2="36" strokeWidth="2" />
+                  <line x1="4" y1="36" x2="2" y2="42" strokeWidth="1.5" />
+                  <line x1="17" y1="6" x2="26" y2="30" strokeWidth="2" />
+                  <rect x="23" y="28" width="6" height="8" rx="1" strokeWidth="1.5" />
+                  <polygon points="26,41 23,38 29,38" fill="#2563eb" stroke="#2563eb" strokeWidth="1" />
+                  <path d="M 8 20 Q 15 24 22 20" strokeWidth="1.5" />
+                </g>
+
+                {/* 7. Klip Kertas (Paperclip) */}
+                <g transform="translate(132, 174) rotate(48)">
+                  <path
+                    d="M 3 6 L 3 20 C 3 24 10 24 10 20 L 10 5 C 10 1 0 1 0 5 L 0 21 C 0 27 13 27 13 21 L 13 8"
+                    strokeWidth="2"
+                  />
+                </g>
+
+                {/* 8. Tas Sekolah (School Bag / Satchel) */}
+                <g transform="translate(178, 142) rotate(-14)">
+                  <path d="M 10 0 C 10 -6 24 -6 24 0" strokeWidth="2" />
+                  <rect x="0" y="0" width="34" height="26" rx="4" strokeWidth="2" />
+                  <path d="M 0 10 L 12 17 L 22 17 L 34 10" strokeWidth="2" />
+                  <circle cx="17" cy="15" r="1.8" strokeWidth="2" />
+                  <line x1="0" y1="17" x2="5" y2="17" strokeWidth="1.5" />
+                  <line x1="29" y1="17" x2="34" y2="17" strokeWidth="1.5" />
+                </g>
+
+                {/* 9. Nilai Huruf 'B' (Grade B) */}
+                <g transform="translate(14, 180) rotate(-14)">
+                  <line x1="3" y1="2" x2="3" y2="17" strokeWidth="2.5" />
+                  <path d="M 3 2 C 9 2 9 9.5 3 9.5" strokeWidth="2.5" />
+                  <path d="M 3 9.5 C 10 9.5 10 17 3 17" strokeWidth="2.5" />
+                </g>
+
+                {/* 10. Penggaris Lurus Pendek (Ruler) */}
+                <g transform="translate(80, 210) rotate(-6)">
+                  <rect x="0" y="0" width="42" height="12" rx="2" strokeWidth="2" />
+                  <line x1="6" y1="0" x2="6" y2="4" strokeWidth="1.5" />
+                  <line x1="12" y1="0" x2="12" y2="6" strokeWidth="1.5" />
+                  <line x1="18" y1="0" x2="18" y2="4" strokeWidth="1.5" />
+                  <line x1="24" y1="0" x2="24" y2="6" strokeWidth="1.5" />
+                  <line x1="30" y1="0" x2="30" y2="4" strokeWidth="1.5" />
+                  <line x1="36" y1="0" x2="36" y2="6" strokeWidth="1.5" />
+                </g>
+
+                {/* 11. Titik Aksentuasi Doodle (Accent Dots) */}
+                <circle cx="108" cy="42" r="2" fill="#2563eb" stroke="none" />
+                <circle cx="60" cy="70" r="1.6" fill="#2563eb" stroke="none" />
+                <circle cx="214" cy="110" r="2" fill="#2563eb" stroke="none" />
+                <circle cx="148" cy="124" r="1.6" fill="#2563eb" stroke="none" />
+                <circle cx="44" cy="222" r="1.8" fill="#2563eb" stroke="none" />
+                <circle cx="228" cy="204" r="1.8" fill="#2563eb" stroke="none" />
+              </g>
+            </pattern>
+          </defs>
+
+          {/* Layer 1: Garis Kotak Kertas Matematika */}
+          <rect width="100%" height="100%" fill="url(#login-math-grid)" />
+
+          {/* Layer 2: Doodle Alat Sekolah Biru (Opasitas Proporsional ~28%) */}
+          <rect
+            width="100%"
+            height="100%"
+            fill="url(#login-school-doodles)"
+            opacity="0.28"
+          />
+        </svg>
+      </div>
+
       {/* Subtle Purple Aura in Top-Right Corner */}
       <div className="login-purple-aura" aria-hidden="true" />
 

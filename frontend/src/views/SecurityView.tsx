@@ -173,29 +173,26 @@ export const SecurityView: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Header Halaman */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
-        <div className="flex items-start gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100 shadow-2xs">
             <Shield className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <Badge variant="primary" className="text-xs">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <Badge variant="primary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
                 Keamanan & Presensi
               </Badge>
-              <Badge variant="success" className="text-xs font-bold">
+              <Badge variant="success" className="text-xs font-bold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
                 Pos Utama: Gerbang A
               </Badge>
-              <Badge variant="secondary" className="text-xs font-medium text-slate-600">
-                Pagi (Maks. 07:00) • Cut-off 11:59 Datang Siang
+              <Badge variant="secondary" className="text-xs font-medium text-slate-600 whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
+                Cut-off Siang: 11:59 WIB
               </Badge>
             </div>
-            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Portal Keamanan & Gate Presensi RFID
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight m-0">
+              Gate Presensi RFID
             </h2>
-            <p className="text-xs md:text-sm text-slate-500 mt-0.5">
-              Pencatatan ganda otomatis: Scan pertama Datang, Scan kedua Pulang. Melewati 11:59 otomatis masuk Sesi Datang Siang.
-            </p>
           </div>
         </div>
       </div>
@@ -305,28 +302,109 @@ export const SecurityView: React.FC = () => {
           {/* Alert Hasil Scan Terbaru (Datang vs Pulang) */}
           {checkinResult && (
             <div
-              className={`p-4 rounded-2xl flex items-start gap-3 border transition-all ${
+              className={`w-full max-w-md rounded-2xl border transition-all p-4 sm:p-5 overflow-hidden shadow-xs ${
                 checkinResult.type === 'pulang'
-                  ? 'bg-blue-50/90 border-blue-200 text-blue-950'
+                  ? 'bg-blue-50/80 border-blue-200/90 text-blue-950'
                   : checkinResult.status === 'hadir'
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                  : 'bg-amber-50 border-amber-200 text-amber-900'
+                  ? 'bg-emerald-50/80 border-emerald-200/90 text-emerald-950'
+                  : 'bg-amber-50/80 border-amber-200/90 text-amber-950'
               }`}
             >
-              {checkinResult.type === 'pulang' ? (
-                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <LogOut className="w-4 h-4" />
+              {/* Header: Ikon Status (Kiri) | Nama & Sub-teks (Tengah) | Close Button (Kanan) */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  {/* Lingkaran Ikon Status */}
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-xs ${
+                      checkinResult.type === 'pulang'
+                        ? 'bg-blue-600 text-white'
+                        : checkinResult.status === 'hadir'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-amber-600 text-white'
+                    }`}
+                  >
+                    {checkinResult.type === 'pulang' ? (
+                      <LogOut className="w-5 h-5" />
+                    ) : checkinResult.status === 'hadir' ? (
+                      <CheckCircle2 className="w-5 h-5" />
+                    ) : (
+                      <AlertTriangle className="w-5 h-5" />
+                    )}
+                  </div>
+
+                  {/* Nama Siswa & Sub-teks Status Terpadu */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-extrabold text-sm sm:text-base text-slate-900 truncate leading-snug">
+                      {checkinResult.studentName}
+                    </h4>
+                    <p
+                      className={`text-xs font-semibold mt-0.5 truncate flex items-center gap-1.5 ${
+                        checkinResult.type === 'pulang'
+                          ? 'text-blue-800'
+                          : checkinResult.status === 'hadir'
+                          ? 'text-emerald-800'
+                          : 'text-amber-800'
+                      }`}
+                    >
+                      <span>
+                        {checkinResult.type === 'pulang'
+                          ? 'Presensi Pulang'
+                          : checkinResult.status === 'hadir'
+                          ? 'Presensi Datang'
+                          : 'Presensi Terlambat'}
+                      </span>
+                      {checkinResult.session && (
+                        <>
+                          <span className="opacity-60">•</span>
+                          <span className="capitalize">Sesi {checkinResult.session}</span>
+                        </>
+                      )}
+                    </p>
+                  </div>
                 </div>
-              ) : checkinResult.status === 'hadir' ? (
-                <CheckCircle className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
-              ) : (
-                <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className="font-extrabold text-sm text-slate-900">
-                    {checkinResult.studentName}
-                  </h4>
+
+                {/* Tombol Tutup Silang (X) di Pojok Kanan Atas */}
+                <button
+                  type="button"
+                  onClick={() => setCheckinResult(null)}
+                  className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-black/5 flex items-center justify-center shrink-0 transition-colors cursor-pointer self-start -mr-1"
+                  aria-label="Tutup notifikasi presensi"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Garis Pemisah & Informasi Waktu + Status dalam 1 Baris Horizontal */}
+              <div
+                className={`mt-3 pt-3 border-t flex items-center justify-between gap-3 text-xs ${
+                  checkinResult.type === 'pulang'
+                    ? 'border-blue-200/60'
+                    : checkinResult.status === 'hadir'
+                    ? 'border-emerald-200/60'
+                    : 'border-amber-200/60'
+                }`}
+              >
+                {/* Sisi Kiri: Ikon Jam + Waktu WIB */}
+                <div className="flex items-center gap-1.5 font-medium text-slate-700 min-w-0 truncate">
+                  <Clock
+                    className={`w-4 h-4 shrink-0 ${
+                      checkinResult.type === 'pulang'
+                        ? 'text-blue-600'
+                        : checkinResult.status === 'hadir'
+                        ? 'text-emerald-600'
+                        : 'text-amber-600'
+                    }`}
+                  />
+                  <span className="font-mono font-bold text-slate-900 text-xs sm:text-[13px]">
+                    {checkinResult.type === 'pulang' && checkinResult.checkOutTime
+                      ? checkinResult.checkOutTime
+                      : checkinResult.checkInTime}
+                  </span>
+                  <span className="text-slate-500 font-semibold text-[11px]">WIB</span>
+                </div>
+
+                {/* Sisi Kanan: Satu Badge Status Hijau / Sesuai Status */}
+                <div className="shrink-0">
                   <Badge
                     variant={
                       checkinResult.type === 'pulang'
@@ -335,41 +413,12 @@ export const SecurityView: React.FC = () => {
                         ? 'success'
                         : 'warning'
                     }
-                    className="text-xs uppercase font-black"
+                    className="text-xs font-semibold whitespace-nowrap px-3 py-1 rounded-full shadow-2xs"
                   >
-                    {checkinResult.type === 'pulang'
-                      ? 'PRESENSI PULANG'
-                      : checkinResult.status === 'hadir'
-                      ? 'PRESENSI DATANG (TEPAT WAKTU)'
-                      : 'PRESENSI DATANG (TERLAMBAT)'}
+                    • {checkinResult.notes || (checkinResult.status === 'hadir' ? 'Hadir Tepat Waktu' : 'Terlambat')}
                   </Badge>
-                  {checkinResult.session && (
-                    <Badge variant="secondary" className="text-[11px] capitalize">
-                      Sesi {checkinResult.session}
-                    </Badge>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3 text-xs mt-1.5 flex-wrap">
-                  <span className="font-medium">
-                    Jam Kedatangan: <strong className="font-mono">{checkinResult.checkInTime}</strong>
-                  </span>
-                  {checkinResult.checkOutTime && (
-                    <span className="font-medium text-blue-700">
-                      • Jam Kepulangan: <strong className="font-mono">{checkinResult.checkOutTime}</strong>
-                    </span>
-                  )}
-                  <span className="text-slate-500">• {checkinResult.notes}</span>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setCheckinResult(null)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer p-1"
-                aria-label="Tutup notifikasi presensi"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
           )}
 
