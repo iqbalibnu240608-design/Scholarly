@@ -1,6 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { getStoredQRIS } from '../utils/qris';
+import React, { useEffect, useState } from 'react';
 import { apiClient, getCachedData } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
@@ -14,13 +12,6 @@ import {
   ClipboardList,
   FolderUp,
   MessageSquare,
-  Wallet,
-  PlusCircle,
-  UtensilsCrossed,
-  ShoppingBag,
-  Clock,
-  QrCode,
-  Banknote,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -63,17 +54,9 @@ interface SubmittedGrade {
 }
 
 export const GuruView: React.FC = () => {
-  const { user, activeRole } = useAuth();
-  const [walletBalance, setWalletBalance] = useState<number>(0);
-  const [showTopupModal, setShowTopupModal] = useState<boolean>(false);
-  const [topupAmount, setTopupAmount] = useState<number>(50000);
-  const [topupMethod, setTopupMethod] = useState<'cash' | 'qris'>('qris');
-  const [topupSubmitting, setTopupSubmitting] = useState<boolean>(false);
-  const [pendingTopups, setPendingTopups] = useState<any[]>([]);
-  const [qrisConfig, setQrisConfig] = useState(() => getStoredQRIS('tu'));
+  const { activeRole } = useAuth();
   const [data, setData] = useState<GuruData | null>(() => getCachedData('/school/guru')?.data || null);
   const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/guru'));
-
   // Modal State: Input Nilai
   const [showGradeModal, setShowGradeModal] = useState<boolean>(false);
   const [studentNisn, setStudentNisn] = useState<string>('0061234567');
@@ -104,61 +87,7 @@ export const GuruView: React.FC = () => {
     },
   ]);
 
-  const fetchWallet = useCallback(async () => {
-    try {
-      const [resWallet, resTrx] = await Promise.all([
-        apiClient.get('/wallet/balance').catch(() => ({ data: null })),
-        apiClient.get('/wallet/transactions').catch(() => ({ data: { transactions: [] } })),
-      ]);
-      if (resWallet.data?.wallet) {
-        const bal = Number(resWallet.data.wallet.balance ?? resWallet.data.wallet.balance_kopsis ?? 0);
-        setWalletBalance(bal);
-      }
-      if (resTrx.data?.transactions) {
-        const pending = resTrx.data.transactions.filter(
-          (t: any) => t.status === 'pending' && t.type?.startsWith('topup_')
-        );
-        setPendingTopups(pending);
-      }
-    } catch (err) {
-      console.error('Failed to fetch guru wallet', err);
-    }
-  }, []);
-
-  const handleTopup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user?.identifier_number) {
-      toast.error('NIP Anda tidak ditemukan pada profil sesi.');
-      return;
-    }
-    setTopupSubmitting(true);
-    try {
-      const res = await apiClient.post('/wallet/topup', {
-        identifier_number: user.identifier_number,
-        amount: topupAmount,
-        payment_method: topupMethod,
-        target_wallet: 'universal',
-        notes: `Top up saldo dewan guru (${topupMethod === 'qris' ? 'Scan QRIS' : 'Setor Tunai'})`,
-      });
-      await fetchWallet();
-      setShowTopupModal(false);
-      if (res.data?.status === 'pending') {
-        toast.success(
-          topupMethod === 'qris'
-            ? `Pengajuan top-up QRIS Rp ${topupAmount.toLocaleString('id-ID')} diajukan! Menunggu verifikasi loket TU.`
-            : `Pengajuan top-up tunai Rp ${topupAmount.toLocaleString('id-ID')} dicatat! Silakan setor ke loket TU / Kopsis.`
-        );
-      } else {
-        toast.success(`Saldo berhasil ditambahkan: Rp ${topupAmount.toLocaleString('id-ID')}`);
-      }
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Gagal mengajukan top-up');
-    } finally {
-      setTopupSubmitting(false);
-    }
-  };
   useEffect(() => {
-    fetchWallet();
     const fetchData = async () => {
       try {
         const [resGuru, resGrades] = await Promise.all([
@@ -285,72 +214,6 @@ export const GuruView: React.FC = () => {
             Supervisi Kepala Sekolah (Read-Only)
           </Badge>
         )}
-      </div>
-
-      {/* Kartu Saldo Digital Dewan Guru (Universal E-Wallet) */}
-      <div className="relative overflow-hidden p-6 rounded-3xl bg-gradient-to-br from-indigo-900 via-blue-900 to-slate-900 text-white shadow-xl border border-indigo-500/20">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
-                <Wallet className="w-3.5 h-3.5 text-indigo-300" />
-                Universal E-Wallet Dewan Guru
-              </span>
-              {pendingTopups.length > 0 && (
-                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/30 text-amber-200 border border-amber-400/30 animate-pulse">
-                  <Clock className="w-3 h-3 text-amber-300" />
-                  {pendingTopups.length} Top-Up Menunggu Verifikasi
-                </span>
-              )}
-            </div>
-            <div>
-              <div className="text-xs text-indigo-200 font-medium">Saldo Digital Aktif</div>
-              <div className="text-3xl md:text-4xl font-black tracking-tight text-white mt-1">
-                Rp {Math.round(Number(walletBalance || 0)).toLocaleString('id-ID')}
-              </div>
-            </div>
-            <p className="text-xs text-slate-300 max-w-xl">
-              Satu saldo terintegrasi untuk makan siang di Kantin Sehat, belanja perlengkapan mengajar di Koperasi Siswa, maupun transaksi digital sekolah.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            {activeRole === 'guru' && (
-              <Button
-                onClick={() => {
-                  setQrisConfig(getStoredQRIS('tu'));
-                  setShowTopupModal(true);
-                }}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 border-0 gap-2 h-11 px-5"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Isi Saldo Guru</span>
-              </Button>
-            )}
-            <Link to="/app/kopsis">
-              <Button
-                variant="outline"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20 rounded-2xl gap-2 h-11 px-4"
-              >
-                <ShoppingBag className="w-4 h-4 text-orange-300" />
-                <span>Belanja di Kopsis</span>
-              </Button>
-            </Link>
-            <Link to="/app/kantin">
-              <Button
-                variant="outline"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20 rounded-2xl gap-2 h-11 px-4"
-              >
-                <UtensilsCrossed className="w-4 h-4 text-emerald-300" />
-                <span>Pesan di Kantin</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Decorative background glow */}
-        <div className="absolute -right-16 -top-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
       </div>
 
       {/* Ringkasan Statistik */}
@@ -700,109 +563,6 @@ export const GuruView: React.FC = () => {
         </form>
       </Dialog>
 
-      {/* Modal Top Up Saldo Guru */}
-      <Dialog
-        open={showTopupModal}
-        onClose={() => setShowTopupModal(false)}
-        title="Isi Saldo E-Wallet Dewan Guru"
-        description="Pilih nominal dan metode pembayaran untuk menambah saldo e-wallet yang dapat digunakan di Kopsis dan Kantin."
-      >
-        <form onSubmit={handleTopup} className="space-y-4 mt-2">
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-2">Pilih Nominal Top-Up</label>
-            <div className="grid grid-cols-3 gap-2">
-              {[20000, 50000, 100000, 200000, 300000, 500000].map((amt) => (
-                <button
-                  key={amt}
-                  type="button"
-                  onClick={() => setTopupAmount(amt)}
-                  className={`p-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer ${
-                    topupAmount === amt
-                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-xs'
-                      : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300'
-                  }`}
-                >
-                  Rp {amt.toLocaleString('id-ID')}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">Metode Pembayaran</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setTopupMethod('qris')}
-                className={`p-3 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
-                  topupMethod === 'qris'
-                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-                }`}
-              >
-                <QrCode className="w-4 h-4 text-indigo-600" />
-                <span>Scan QRIS Resmi</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setTopupMethod('cash')}
-                className={`p-3 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
-                  topupMethod === 'cash'
-                    ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-                }`}
-              >
-                <Banknote className="w-4 h-4 text-emerald-600" />
-                <span>Tunai di Loket TU</span>
-              </button>
-            </div>
-          </div>
-
-          {topupMethod === 'qris' ? (
-            <div className="p-4 bg-indigo-50/70 text-indigo-900 rounded-2xl text-xs border border-indigo-200 text-center space-y-2">
-              <div className="w-36 h-36 mx-auto bg-white p-2 rounded-xl border border-indigo-200 shadow-xs flex items-center justify-center">
-                <img
-                  src={qrisConfig.imageUrl}
-                  alt="QRIS Sekolah"
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-              <div>
-                <p className="font-bold text-xs text-indigo-950">{qrisConfig.merchantName}</p>
-                <p className="font-mono text-[10px] text-indigo-600">NMID: {qrisConfig.nmid}</p>
-              </div>
-              <p className="text-[11px] text-slate-600">
-                Scan barcode di atas menggunakan aplikasi m-Banking atau dompet digital (GoPay, OVO, Dana, BCA, dll), lalu klik tombol Konfirmasi di bawah.
-              </p>
-            </div>
-          ) : (
-            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
-              <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold block">Setoran Tunai di Loket TU / Kopsis:</span>
-                <p className="text-amber-800 mt-0.5">
-                  Setelah mengajukan, mohon serahkan uang tunai sebesar <strong>Rp {topupAmount.toLocaleString('id-ID')}</strong> ke kasir loket TU atau kasir koperasi agar saldo segera diaktivasi.
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowTopupModal(false)}
-            >
-              Batal
-            </Button>
-            <Button type="submit" disabled={topupSubmitting}>
-              {topupSubmitting
-                ? 'Mengirim Pengajuan...'
-                : `Konfirmasi Top Up Rp ${topupAmount.toLocaleString('id-ID')}`}
-            </Button>
-          </div>
-        </form>
-      </Dialog>
     </div>
   );
 };

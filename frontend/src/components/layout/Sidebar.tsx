@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useEffect, useCallback, useRef, useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { apiClient } from '../../api/client';
@@ -14,7 +14,6 @@ import {
   Shield,
   BookMarked,
   LogOut,
-  Sparkles,
   X,
 } from 'lucide-react';
 
@@ -34,30 +33,6 @@ interface NavItemConfig {
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobile }) => {
   const { activeRole, logout } = useAuth();
   const isAdmin = activeRole === 'admin';
-
-  const [notifications, setNotifications] = useState<Record<string, number>>({});
-
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const res = await apiClient.get('/school/sidebar-notifications');
-      if (res.data?.success && res.data?.notifications) {
-        setNotifications(res.data.notifications);
-      }
-    } catch {
-      // Fallback silently if offline or token expired
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 25000);
-    const onTopupChange = () => fetchNotifications();
-    window.addEventListener('topup-status-changed', onTopupChange);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('topup-status-changed', onTopupChange);
-    };
-  }, [fetchNotifications]);
 
   const navigationItems: NavItemConfig[] = [
     {
@@ -179,28 +154,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
     };
   }, [visibleItems, prefetchRoute]);
 
-  const getBadgeCount = (to: string): number => {
-    if (to === '/app/petugas') {
-      return Number(notifications.petugas) || 0;
-    }
-    if (to === '/app/kopsis') {
-      return Number(notifications.kopsis) || 0;
-    }
-    if (to === '/app/perpus') {
-      return Number(notifications.perpus) || 0;
-    }
-    if (to === '/app/kepsek') {
-      return Number(notifications.kepsek) || 0;
-    }
-    if (to === '/app/siswa') {
-      return Number(notifications.siswa) || 0;
-    }
-    if (to === '/app/guru') {
-      return Number(notifications.guru) || 0;
-    }
-    return 0;
-  };
-
   return (
     <>
       {/* Mobile Backdrop Overlay */}
@@ -214,22 +167,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
       {/* Main Aside Navigation */}
       <aside
-        className={`w-[250px] bg-[#2857e6] shrink-0 text-white select-none overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden transition-transform duration-300 z-50 fixed inset-y-0 left-0 flex flex-col justify-between shadow-2xl md:static md:sticky md:top-0 md:h-screen md:shadow-none md:translate-x-0 ${
+        className={`w-[250px] bg-[#2857e6] shrink-0 text-white select-none overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden transition-transform duration-300 z-50 fixed inset-y-0 left-0 flex flex-col justify-between shadow-2xl md:relative md:top-0 md:h-screen md:shadow-none md:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand Header: Exactly h-16 (64px) for perfect symmetry with top Navbar */}
         <div className="h-16 shrink-0 flex items-center justify-between px-5 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs shrink-0">
-              <Sparkles className="w-4.5 h-4.5 text-white" />
+            <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center border border-white/30 shadow-xs shrink-0 overflow-hidden p-0.5">
+              <img
+                src="/stillschool-logo.png"
+                alt="StillSchool Logo"
+                className="w-full h-full object-cover rounded-lg"
+              />
             </div>
             <div>
               <h1 className="text-lg font-black tracking-tight leading-none text-white">
-                Smart
+                StillSchool
               </h1>
               <span className="text-[10px] font-bold text-white/75 block mt-0.5 tracking-wider uppercase">
-                SteelSchool
+                Smart Ecosystem
               </span>
             </div>
           </div>
@@ -284,8 +241,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
             {visibleItems.map((item) => {
               const Icon = item.icon;
-              const badgeCount = getBadgeCount(item.to);
-
               return (
                 <NavLink
                   key={item.to}
@@ -383,18 +338,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {item.label}
                         </span>
-                        {badgeCount > 0 && (
-                          <span
-                            className={`ml-auto mr-1 px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 tracking-tight transition-transform duration-200 animate-pulse ${
-                              isActive
-                                ? 'bg-amber-500 text-white shadow-xs'
-                                : 'bg-amber-400 text-slate-950 shadow-xs'
-                            }`}
-                            title={`${badgeCount} pembaruan menunggu`}
-                          >
-                            {badgeCount > 99 ? '99+' : badgeCount}
-                          </span>
-                        )}
+
                       </div>
                     </>
                   )}

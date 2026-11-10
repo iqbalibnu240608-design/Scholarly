@@ -14,9 +14,7 @@ import {
   X,
   Mail,
   CheckCircle2,
-  Wallet,
   Megaphone,
-  Plus,
 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -71,15 +69,11 @@ export const OverviewView: React.FC = () => {
   const [studentStats, setStudentStats] = useState<{
     kelas: string;
     waliKelas: string;
-    saldoKopsis: number;
-    saldoKantin: number;
     sppStatus: string;
     presensiGerbangJam: string;
   }>({
     kelas: 'XII RPL 1',
     waliKelas: 'Drs. Budi Santoso',
-    saldoKopsis: 75000,
-    saldoKantin: 45000,
     sppStatus: 'Lunas',
     presensiGerbangJam: '06:48 WIB',
   });
@@ -115,7 +109,7 @@ export const OverviewView: React.FC = () => {
       role: 'Wali Kelas • Pemrograman Web',
       initials: 'BS',
       phone: '+62 812-3456-7891',
-      email: 'budi.santoso@steelschool.sch.id',
+      email: 'budi.santoso@stillschool.sch.id',
       ruang: 'Ruang Guru Lt. 2',
     },
     {
@@ -123,7 +117,7 @@ export const OverviewView: React.FC = () => {
       role: 'Guru Pengampu • Basis Data',
       initials: 'SR',
       phone: '+62 813-9876-5432',
-      email: 'siti.rahmawati@steelschool.sch.id',
+      email: 'siti.rahmawati@stillschool.sch.id',
       ruang: 'Lab Komputer 1',
     },
     {
@@ -131,7 +125,7 @@ export const OverviewView: React.FC = () => {
       role: 'Guru Pengampu • Matematika',
       initials: 'HW',
       phone: '+62 821-1122-3344',
-      email: 'hendra.wijaya@steelschool.sch.id',
+      email: 'hendra.wijaya@stillschool.sch.id',
       ruang: 'Ruang Guru Lt. 1',
     },
   ];
@@ -156,7 +150,7 @@ export const OverviewView: React.FC = () => {
       title: 'Pekan Gelar Karya Kewirausahaan Siswa',
       desc: 'Bazar produk kreatif siswa, kerja sama kantin sehat dan koperasi sekolah digital.',
       time: '09:00 - 15:00 WIB',
-      location: 'Plaza Utama SteelSchool',
+      location: 'Plaza Utama StillSchool',
       category: 'Kesiswaan',
     },
     {
@@ -189,9 +183,8 @@ export const OverviewView: React.FC = () => {
   useEffect(() => {
     const fetchOverview = async () => {
       try {
-        const [resOverview, resWallet, resSiswa] = await Promise.all([
+        const [resOverview, resSiswa] = await Promise.all([
           apiClient.get('/school/overview').catch(() => null),
-          apiClient.get('/wallet/balance').catch(() => null),
           activeRole === 'siswa' ? apiClient.get('/school/siswa').catch(() => null) : Promise.resolve(null),
         ]);
 
@@ -200,13 +193,9 @@ export const OverviewView: React.FC = () => {
         }
 
         const siswaData = resSiswa?.data?.data;
-        const walletData = resWallet?.data?.wallet;
-
-        setStudentStats({
+                setStudentStats({
           kelas: siswaData?.kelas ?? 'XII RPL 1',
           waliKelas: siswaData?.wali_kelas ?? 'Drs. Budi Santoso',
-          saldoKopsis: Math.round(Number(walletData?.balance ?? walletData?.balance_kopsis ?? 75000)),
-          saldoKantin: Math.round(Number(walletData?.balance ?? walletData?.balance_kantin ?? 75000)),
           sppStatus: siswaData?.tagihan_spp?.status ?? 'Lunas',
           presensiGerbangJam: '06:48 WIB',
         });
@@ -308,46 +297,9 @@ export const OverviewView: React.FC = () => {
             </div>
           </div>
 
-          {/* 2. Kartu Saldo Digital Siswa (Universal E-Wallet) - 1 Baris Horizontal Simpel */}
-          <div
-            className="px-7 py-5 rounded-2xl border border-blue-200/80 bg-white shadow-2xs hover:border-blue-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 box-border"
-          >
-            {/* Kiri: Ikon dompet biru, label TOTAL SALDO AKTIF, nominal */}
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Wallet className="w-6 h-6" />
-              </div>
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                  TOTAL SALDO AKTIF
-                </span>
-                <span className="font-mono text-2xl sm:text-3xl font-black text-slate-900 tracking-tight block">
-                  Rp {Math.round(Number(studentStats.saldoKopsis || 0)).toLocaleString('id-ID')}
-                </span>
-              </div>
-            </div>
+          
 
-            {/* Kanan: 1 tombol biru '+ Isi Saldo Digital' (w-fit px-6 py-3 rounded-full) */}
-            <Link
-              to={
-                activeRole === 'guru'
-                  ? '/app/guru'
-                  : activeRole === 'perpustakaan'
-                  ? '/app/perpus'
-                  : activeRole === 'petugas'
-                  ? '/app/petugas'
-                  : activeRole === 'kopsis' || activeRole === 'koperasi' || activeRole === 'pengelola_koperasi'
-                  ? '/app/kopsis'
-                  : '/app/siswa'
-              }
-              className="inline-flex items-center justify-center gap-1.5 w-fit px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-xs hover:shadow-md hover:shadow-blue-500/25 active:scale-[0.97] transition-all duration-200 cursor-pointer shrink-0 self-start sm:self-auto"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>Isi Saldo Digital</span>
-            </Link>
-          </div>
-
-          {/* 3. Sub-Baris Bawah: 4 Modul Layanan & Akses Cepat */}
+          {/* 2. Sub-Baris Bawah: 4 Modul Layanan & Akses Cepat */}
           <div
             className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 box-border"
           >

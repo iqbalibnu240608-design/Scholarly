@@ -155,9 +155,9 @@ export const LandingPageView: React.FC = () => {
       <header className="lp-header">
         <div className="lp-container flex items-center justify-between w-full">
           <Link to="/" className="lp-nav-brand">
-            <img src="/steelschool-shield.png" alt="SteelSchool" className="lp-nav-brand-logo" />
+            <img src="/stillschool-logo.png" alt="StillSchool" className="lp-nav-brand-logo" />
             <div>
-              <div className="lp-nav-brand-title">SteelSchool</div>
+              <div className="lp-nav-brand-title">StillSchool</div>
               <div className="lp-nav-brand-tagline">Ekosistem Sekolah Terpadu</div>
             </div>
           </Link>
@@ -211,8 +211,8 @@ export const LandingPageView: React.FC = () => {
               <div className="lp-showcase-tablet">
                 <div className="lp-showcase-header">
                   <div className="lp-showcase-brand">
-                    <img src="/steelschool-shield.png" alt="Shield" className="w-6 h-6 object-contain" />
-                    <span className="text-xs font-bold text-slate-900">SteelSchool Operational Hub</span>
+                    <img src="/stillschool-logo.png" alt="Shield" className="w-6 h-6 object-contain" />
+                    <span className="text-xs font-bold text-slate-900">StillSchool Operational Hub</span>
                   </div>
                   <Badge variant="success" className="text-[10px] uppercase font-bold py-0.5 px-2.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-ping" />
@@ -247,7 +247,7 @@ export const LandingPageView: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                      <span>Belanja Kopsis & Kantin via Dual-Balance Wallet</span>
+                      <span>Belanja Kopsis & Kantin via QRIS Instan & Kasir Tunai</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -287,7 +287,7 @@ export const LandingPageView: React.FC = () => {
         <div className="lp-container">
           <div className="lp-section-header">
             <span className="lp-section-tag">Efisiensi Maksimal</span>
-            <h2 className="lp-section-title">Mengapa Memilih SteelSchool?</h2>
+            <h2 className="lp-section-title">Mengapa Memilih StillSchool?</h2>
             <p className="lp-section-desc">
               Dirancang untuk mengatasi friksi konvensional di sekolah, dari antrean kasir hingga rekapitulasi penilaian guru.
             </p>
@@ -424,7 +424,7 @@ export const LandingPageView: React.FC = () => {
         <div className="lp-container">
           <div className="lp-footer-grid">
             <div>
-              <div className="lp-footer-brand-title">SteelSchool</div>
+              <div className="lp-footer-brand-title">StillSchool</div>
               <p className="leading-relaxed max-w-xs text-slate-400">
                 Platform digitalisasi sekolah modern yang mengintegrasikan akademik, tata usaha, koperasi siswa, dan kantin sehat berstandar nasional.
               </p>
@@ -455,13 +455,13 @@ export const LandingPageView: React.FC = () => {
               <p className="leading-relaxed text-slate-400">
                 Jl. Pendidikan No. 45, Indonesia<br />
                 Telepon: (021) 8876-2026<br />
-                Email: info@steelschool.sch.id
+                Email: info@stillschool.sch.id
               </p>
             </div>
           </div>
 
           <div className="lp-footer-bottom">
-            <span>© 2026 SteelSchool Ekosistem Sekolah Terpadu. All rights reserved.</span>
+            <span>© 2026 StillSchool Ekosistem Sekolah Terpadu. All rights reserved.</span>
             <span>Dirancang khusus untuk Kompetisi Inovasi Teknologi Pendidikan 2026</span>
           </div>
         </div>

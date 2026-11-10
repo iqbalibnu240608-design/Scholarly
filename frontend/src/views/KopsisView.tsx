@@ -1,22 +1,18 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiClient, getCachedData } from '../api/client';
 import {
   DollarSign,
   PackageCheck,
   CheckCircle,
-  AlertCircle,
   PlusCircle,
   ShoppingCart,
   X,
-  CreditCard,
   Banknote,
   Receipt,
-  Wallet,
   Sparkles,
   ShoppingBag,
   QrCode,
-  Clock,
 } from 'lucide-react';
 import './EcosystemModals.css';
 import { QRISUploadModal } from '../components/common/QRISUploadModal';
@@ -37,23 +33,6 @@ interface CartItem {
   price: number;
   stock: number;
   quantity: number;
-}
-
-interface PendingTopup {
-  id: number;
-  reference_no: string;
-  user_id: number;
-  type: string;
-  amount: number;
-  payment_method: string;
-  status: string;
-  description?: string;
-  created_at: string;
-  user?: {
-    id: number;
-    name: string;
-    identifier_number: string;
-  };
 }
 
 interface RecentTransaction {
@@ -90,27 +69,17 @@ export const KopsisView: React.FC = () => {
   const normalizedRole = (activeRole || '').trim().toLowerCase();
   const isKopsisStaff = ['kopsis', 'koperasi', 'pengelola_koperasi', 'admin'].includes(normalizedRole);
   const isCustomerView = !isKopsisStaff;
-  const canManageTopups = ['kopsis', 'koperasi', 'pengelola_koperasi', 'admin', 'petugas'].includes(normalizedRole);
-
   const [data, setData] = useState<KopsisData | null>(() => getCachedData('/school/kopsis')?.data || null);
   const [recentTransactions, setRecentTransactions] = useState<RecentTransaction[]>([]);
   const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/kopsis'));
 
   // Student Wallet State
-  const [walletBalance, setWalletBalance] = useState<number>(0);
-  const [showTopupModal, setShowTopupModal] = useState<boolean>(false);
-  const [topupAmount, setTopupAmount] = useState<number>(50000);
-  const [topupSubmitting, setTopupSubmitting] = useState<boolean>(false);
-
-  // Cart & Ordering State
+    // Cart & Ordering State
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
   const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cash' | 'qris'>('qris');
   const [processingOrder, setProcessingOrder] = useState<boolean>(false);
-  const [pendingTopups, setPendingTopups] = useState<PendingTopup[]>([]);
-  const [processingTopupId, setProcessingTopupId] = useState<number | null>(null);
-
   // Modal State: Tambah Barang (Staff/Admin)
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [sku, setSku] = useState<string>('');
@@ -123,8 +92,6 @@ export const KopsisView: React.FC = () => {
   const [showPOSModal, setShowPOSModal] = useState<boolean>(false);
   const [showQRISModal, setShowQRISModal] = useState<boolean>(false);
   const [kopsisQris, setKopsisQris] = useState(() => getStoredQRIS('kopsis'));
-  const [topupPaymentMethod, setTopupPaymentMethod] = useState<'cash' | 'qris'>('cash');
-
   // Modal State: Konfirmasi Checkout Siswa
   const [showStudentCheckoutModal, setShowStudentCheckoutModal] = useState<boolean>(false);
 
@@ -138,47 +105,6 @@ export const KopsisView: React.FC = () => {
     items?: string;
     instructions?: string;
   } | null>(null);
-
-  const fetchPendingTopups = useCallback(async () => {
-    if (!canManageTopups) return;
-    try {
-      const res = await apiClient.get('/wallet/pending-topups');
-      setPendingTopups(res.data?.pending_topups || []);
-    } catch (err) {
-      console.error('Error fetching pending topups', err);
-    }
-  }, [canManageTopups]);
-
-  const handleApproveTopup = async (id: number) => {
-    setProcessingTopupId(id);
-    try {
-      const res = await apiClient.post(`/wallet/topup/${id}/approve`);
-      setSuccessMsg(res.data?.message || 'Top-up siswa berhasil disetujui!');
-      setTimeout(() => setSuccessMsg(null), 4000);
-      await Promise.all([fetchPendingTopups(), fetchKopsisData(), fetchRecentTransactions()]);
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menyetujui top-up');
-    } finally {
-      setProcessingTopupId(null);
-    }
-  };
-
-  const handleRejectTopup = async (id: number) => {
-    const reason = window.prompt('Masukkan alasan penolakan (opsional):', 'Uang tunai belum diserahkan di kasir');
-    if (reason === null) return;
-
-    setProcessingTopupId(id);
-    try {
-      const res = await apiClient.post(`/wallet/topup/${id}/reject`, { reason });
-      setSuccessMsg(res.data?.message || 'Permohonan top-up telah ditolak.');
-      setTimeout(() => setSuccessMsg(null), 4000);
-      await fetchPendingTopups();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menolak top-up');
-    } finally {
-      setProcessingTopupId(null);
-    }
-  };
 
   const fetchKopsisData = async () => {
     try {
@@ -201,29 +127,16 @@ export const KopsisView: React.FC = () => {
     }
   };
 
-  const fetchWalletBalance = useCallback(async () => {
-    try {
-      const res = await apiClient.get('/wallet/balance');
-      if (res.data?.wallet) {
-        setWalletBalance(Number(res.data.wallet.balance ?? res.data.wallet.balance_kopsis) || 0);
-      }
-    } catch (err) {
-      console.error('Error fetching wallet balance', err);
-    }
-  }, []);
-
-  useEffect(() => {
+    useEffect(() => {
     const init = async () => {
       setLoading(true);
-      const promises: Promise<any>[] = [fetchKopsisData(), fetchRecentTransactions(), fetchWalletBalance()];
-      if (canManageTopups) {
-        promises.push(fetchPendingTopups());
-      }
+      const promises: Promise<any>[] = [fetchKopsisData(), fetchRecentTransactions()];
+
       await Promise.all(promises);
       setLoading(false);
     };
     init();
-  }, [fetchWalletBalance, activeRole, canManageTopups, fetchPendingTopups]);
+  }, [activeRole]);
 
   // Keep NISN in sync when active user switches
   useEffect(() => {
@@ -280,50 +193,11 @@ export const KopsisView: React.FC = () => {
   const cartTotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const cartTotalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Top Up Handler
-  const handleTopup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user?.identifier_number) {
-      alert('Profil NISN Anda tidak ditemukan. Hubungi operator TU.');
-      return;
-    }
-    setTopupSubmitting(true);
-    try {
-      const res = await apiClient.post('/wallet/topup', {
-        identifier_number: user.identifier_number,
-        amount: topupAmount,
-        payment_method: topupPaymentMethod,
-        target_wallet: 'universal',
-        notes: `Top-up mandiri via simulasi e-wallet kopsis (${topupPaymentMethod === 'qris' ? 'Scan QRIS' : 'Setor Kasir'})`,
-      });
-      await fetchWalletBalance();
-      await fetchRecentTransactions();
-      setShowTopupModal(false);
-      if (res.data?.status === 'pending') {
-        setSuccessMsg(
-          res.data.message ||
-            `Pengajuan top-up Rp ${topupAmount.toLocaleString('id-ID')} diajukan. Menunggu persetujuan kasir di loket.`
-        );
-      } else {
-        setSuccessMsg(`Top-up sebesar Rp ${topupAmount.toLocaleString('id-ID')} berhasil ditambahkan ke Saldo Kopsis!`);
-      }
-      setTimeout(() => setSuccessMsg(null), 5000);
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal melakukan top-up');
-    } finally {
-      setTopupSubmitting(false);
-    }
-  };
-
   // Checkout Handler (Siswa & Kasir)
   const handleCheckout = async (isStudentSelfOrder: boolean = false) => {
     if (cart.length === 0) return;
 
-    // Validasi saldo hanya jika metode yang dipilih adalah wallet
-    if (paymentMethod === 'wallet' && walletBalance < cartTotal) {
-      alert('Saldo E-Wallet Siswa tidak mencukupi. Silakan lakukan Top Up atau gunakan opsi Bayar Tunai di Loket / QRIS.');
-      return;
-    }
+
 
     setProcessingOrder(true);
     try {
@@ -365,10 +239,8 @@ export const KopsisView: React.FC = () => {
       clearCart();
       setShowPOSModal(false);
       setShowStudentCheckoutModal(false);
-      const promises: Promise<any>[] = [fetchKopsisData(), fetchRecentTransactions(), fetchWalletBalance()];
-      if (canManageTopups) {
-        promises.push(fetchPendingTopups());
-      }
+      const promises: Promise<any>[] = [fetchKopsisData(), fetchRecentTransactions()];
+
       await Promise.all(promises);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Gagal memproses transaksi kopsis.');
@@ -462,28 +334,8 @@ export const KopsisView: React.FC = () => {
                 <span>Katalog Koperasi Siswa (Kopsis)</span>
               </h3>
               <p>
-                Beli perlengkapan sekolah dengan berbagai cara bayar: Saldo Kopsis, Tunai di Loket, atau QRIS.
+                Beli perlengkapan sekolah dengan pembayaran langsung QRIS Instan atau Tunai di Loket.
               </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
-              <div className="wallet-balance-box w-full sm:w-auto flex-1">
-                <Wallet size={20} className="text-amber-300 shrink-0" />
-                <div>
-                  <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>
-                    Saldo Kopsis Anda
-                  </div>
-                  <div className="wallet-amount-val" style={{ color: '#fb923c' }}>
-                    Rp {walletBalance.toLocaleString('id-ID')}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowTopupModal(true)}
-                className="btn-success-action w-full sm:w-auto justify-center"
-                style={{ padding: '10px 16px', fontSize: '13px' }}
-              >
-                <PlusCircle size={16} /> Isi Saldo
-              </button>
             </div>
           </div>
 
@@ -713,84 +565,6 @@ export const KopsisView: React.FC = () => {
             </div>
           </div>
 
-          {/* Antrean Verifikasi Top-Up Saldo Kopsis & Kantin */}
-          <div className="overview-card mt-6" style={{ borderColor: '#fde68a' }}>
-            <div className="card-header" style={{ backgroundColor: '#fffbeb', borderBottom: '1px solid #fef3c7' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Clock size={18} style={{ color: '#d97706' }} />
-                <h3 style={{ margin: 0, color: '#92400e' }}>Persetujuan & Verifikasi Top-Up Siswa</h3>
-              </div>
-              <span className="badge-pill" style={{ backgroundColor: pendingTopups.length > 0 ? '#fef3c7' : '#f1f5f9', color: pendingTopups.length > 0 ? '#b45309' : '#64748b', fontWeight: 'bold' }}>
-                {pendingTopups.length} Menunggu Verifikasi
-              </span>
-            </div>
-            <div className="table-responsive">
-              {pendingTopups.length === 0 ? (
-                <div className="p-6 text-center text-xs text-slate-400">
-                  <CheckCircle size={28} className="mx-auto text-emerald-500 mb-2 opacity-80" />
-                  Tidak ada permohonan top-up siswa yang menunggu verifikasi loket kasir saat ini.
-                </div>
-              ) : (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>No. Referensi</th>
-                      <th>Nama Siswa</th>
-                      <th>NISN</th>
-                      <th>Tujuan Dompet</th>
-                      <th>Nominal</th>
-                      <th>Waktu</th>
-                      <th style={{ textAlign: 'right' }}>Aksi Kasir</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pendingTopups.map((pt) => (
-                      <tr key={pt.id}>
-                        <td><code style={{ color: '#d97706', fontWeight: 'bold' }}>{pt.reference_no}</code></td>
-                        <td><strong>{pt.user?.name || 'Siswa'}</strong></td>
-                        <td><code style={{ fontSize: '11px', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{pt.user?.identifier_number || '-'}</code></td>
-                        <td>
-                          <span className="badge-pill text-xs" style={{ background: '#f8fafc', border: '1px solid #cbd5e1' }}>
-                            {pt.type === 'topup_wallet' ? 'Saldo Digital (Universal)' : pt.type === 'topup_kopsis' ? 'Koperasi Siswa' : 'Kantin Sehat'}
-                          </span>
-                        </td>
-                        <td><strong style={{ color: '#16a34a' }}>Rp {Number(pt.amount).toLocaleString('id-ID')}</strong></td>
-                        <td style={{ fontSize: '12px', color: '#64748b' }}>
-                          {new Date(pt.created_at).toLocaleString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <div style={{ display: 'inline-flex', gap: '6px' }}>
-                            <button
-                              onClick={() => handleApproveTopup(pt.id)}
-                              disabled={processingTopupId === pt.id}
-                              className="btn-success-action"
-                              style={{ padding: '4px 10px', fontSize: '11px' }}
-                            >
-                              <CheckCircle size={13} /> {processingTopupId === pt.id ? '...' : 'Setujui'}
-                            </button>
-                            <button
-                              onClick={() => handleRejectTopup(pt.id)}
-                              disabled={processingTopupId === pt.id}
-                              className="btn-secondary-action"
-                              style={{ padding: '4px 10px', fontSize: '11px', color: '#dc2626', borderColor: '#fca5a5' }}
-                            >
-                              <X size={13} /> Tolak
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-
           {/* Tabel Inventaris Produk Kopsis */}
           <div className="overview-card mt-6">
             <div className="card-header">
@@ -925,89 +699,6 @@ export const KopsisView: React.FC = () => {
       )}
 
       {/* ============================================================== */}
-      {/* MODAL: TOP-UP SALDO KOPSIS SISWA                               */}
-      {/* ============================================================== */}
-      {showTopupModal && (
-        <div className="eco-modal-backdrop" onClick={() => setShowTopupModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="eco-modal-header">
-              <h3><Wallet size={18} className="text-orange-500" /> Isi Saldo Digital E-Wallet</h3>
-              <button onClick={() => setShowTopupModal(false)} className="btn-close-modal"><X size={18} /></button>
-            </div>
-            <form onSubmit={handleTopup} className="eco-modal-form">
-              <div className="eco-modal-body">
-                <p className="text-xs text-slate-600">
-                  Pilih nominal saldo yang ingin Anda tambahkan ke Saldo Digital E-Wallet (dapat dipakai di Koperasi & Kantin):
-                </p>
-                <div className="topup-grid">
-                  {[20000, 50000, 100000, 150000, 200000, 300000].map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      onClick={() => setTopupAmount(amt)}
-                      className={`topup-btn ${topupAmount === amt ? 'selected' : ''}`}
-                    >
-                      Rp {amt.toLocaleString('id-ID')}
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-3">
-                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Pilih Metode Pembayaran Top-Up:</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setTopupPaymentMethod('cash')}
-                      className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
-                        topupPaymentMethod === 'cash'
-                          ? 'border-orange-500 bg-orange-50 text-orange-800'
-                          : 'border-slate-200 bg-white text-slate-600'
-                      }`}
-                    >
-                      <Banknote size={15} /> Tunai di Kasir
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTopupPaymentMethod('qris')}
-                      className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
-                        topupPaymentMethod === 'qris'
-                          ? 'border-indigo-600 bg-indigo-50 text-indigo-800'
-                          : 'border-slate-200 bg-white text-slate-600'
-                      }`}
-                    >
-                      <QrCode size={15} /> Scan QRIS Kopsis
-                    </button>
-                  </div>
-                </div>
-
-                {topupPaymentMethod === 'qris' ? (
-                  <div className="mt-3 p-3 bg-indigo-50/70 rounded-xl text-xs text-indigo-900 border border-indigo-200 text-center space-y-1.5">
-                    <div className="w-32 h-32 mx-auto bg-white p-2 rounded-lg border border-indigo-200 flex items-center justify-center shadow-xs">
-                      <img src={kopsisQris.imageUrl} alt="QRIS Kopsis" className="max-h-full max-w-full object-contain" />
-                    </div>
-                    <div className="font-bold text-xs">{kopsisQris.merchantName}</div>
-                    <div className="text-[10px] text-indigo-600 font-mono">NMID: {kopsisQris.nmid}</div>
-                    <p className="text-[11px] text-slate-600">Scan via m-Banking/E-Wallet, lalu klik Konfirmasi Top Up di bawah.</p>
-                  </div>
-                ) : (
-                  <div className="mt-3 p-3 bg-orange-50 rounded text-xs text-orange-800 border border-orange-200">
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={14} style={{ color: '#d97706' }} /> <strong>Pemberitahuan:</strong> Pengajuan top-up berstatus pending. Saldo akan otomatis bertambah setelah Anda menyetorkan uang tunai ke kasir Koperasi atau loket TU.</span>
-                  </div>
-                )}
-              </div>
-              <div className="eco-modal-footer">
-                <button type="button" onClick={() => setShowTopupModal(false)} className="btn-secondary-action">
-                  Batal
-                </button>
-                <button type="submit" disabled={topupSubmitting} className="btn-success-action">
-                  {topupSubmitting ? 'Memproses...' : `Konfirmasi Top Up Rp ${topupAmount.toLocaleString('id-ID')}`}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================== */}
       {/* MODAL: KONFIRMASI CHECKOUT SISWA KOPSIS (MULTI-PAYMENT)        */}
       {/* ============================================================== */}
       {showStudentCheckoutModal && (
@@ -1036,62 +727,11 @@ export const KopsisView: React.FC = () => {
               {/* Pilihan Metode Pembayaran */}
               <div className="eco-form-group">
                 <label className="eco-form-label font-bold">Pilih Cara Pembayaran:</label>
-                <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('wallet')}
-                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'wallet' ? 'selected' : ''}`}
-                  >
-                    <CreditCard size={20} className="mb-1 text-orange-600" />
-                    <span className="font-bold text-xs">Saldo Kopsis</span>
-                    <span className="text-xs text-slate-500 mt-1">Rp {walletBalance.toLocaleString('id-ID')}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('cash')}
-                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'cash' ? 'selected' : ''}`}
-                  >
-                    <Banknote size={20} className="mb-1 text-emerald-600" />
-                    <span className="font-bold text-xs">Bayar Tunai</span>
-                    <span className="text-xs text-slate-500 mt-1">Bayar di Loket</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('qris')}
-                    className={`payment-method-btn flex-col items-center justify-center p-3 text-center ${paymentMethod === 'qris' ? 'selected' : ''}`}
-                  >
-                    <QrCode size={20} className="mb-1 text-indigo-600" />
-                    <span className="font-bold text-xs">QRIS Instan</span>
-                    <span className="text-xs text-slate-500 mt-1">Scan QR Code</span>
-                  </button>
-                </div>
+                <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                  </div>
               </div>
 
               {/* Informasi Sesuai Metode */}
-              {paymentMethod === 'wallet' && (
-                <div className="p-3 rounded border border-slate-200 text-xs">
-                  <div className="flex justify-between">
-                    <span>Saldo Kopsis Anda:</span>
-                    <strong>Rp {walletBalance.toLocaleString('id-ID')}</strong>
-                  </div>
-                  <div className="flex justify-between mt-1">
-                    <span>Sisa Saldo Setelah Belanja:</span>
-                    <strong className={walletBalance >= cartTotal ? 'text-emerald-600' : 'text-red-500'}>
-                      Rp {(walletBalance - cartTotal).toLocaleString('id-ID')}
-                    </strong>
-                  </div>
-
-                  {walletBalance < cartTotal && (
-                    <div className="mt-3 p-2 bg-amber-50 text-amber-800 rounded border border-amber-200">
-                      <AlertCircle className="w-4 h-4 text-amber-600 inline mr-1.5" />
-                      Saldo kopsis Anda kurang. Anda bisa <strong>Isi Saldo</strong> atau cukup klik opsi <strong>Bayar Tunai di Loket</strong> di atas!
-                    </div>
-                  )}
-                </div>
-              )}
-
               {paymentMethod === 'cash' && (
                 <div className="p-3 bg-emerald-50 text-emerald-800 rounded text-xs border border-emerald-200">
                   <Banknote size={16} className="inline mr-1 text-primary" /> <strong>Bayar Tunai di Loket Kopsis:</strong> Nomor pesanan akan langsung dibuat. Siapkan uang tunai sebesar <strong>Rp {cartTotal.toLocaleString('id-ID')}</strong> saat mengambil barang di etalase koperasi.
@@ -1123,32 +763,17 @@ export const KopsisView: React.FC = () => {
                 Batal
               </button>
 
-              {paymentMethod === 'wallet' && walletBalance < cartTotal ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowStudentCheckoutModal(false);
-                    setShowTopupModal(true);
-                  }}
-                  className="btn-primary-action"
-                >
-                  Isi Saldo Cepat
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleCheckout(true)}
-                  disabled={processingOrder}
-                  className="btn-success-action"
-                >
-                  {processingOrder
-                    ? 'Memproses...'
-                    : paymentMethod === 'cash'
-                    ? 'Pesan Sekarang (Bayar Tunai)'
-                    : paymentMethod === 'qris'
-                    ? 'Bayar via QRIS'
-                    : 'Bayar via Saldo Kopsis'}
-                </button>
-              )}
+              <button
+                onClick={() => handleCheckout(true)}
+                disabled={processingOrder}
+                className="btn-success-action"
+              >
+                {processingOrder
+                  ? 'Memproses...'
+                  : paymentMethod === 'cash'
+                  ? 'Pesan Sekarang (Bayar Tunai)'
+                  : 'Konfirmasi Pembayaran QRIS'}
+              </button>
             </div>
           </div>
         </div>
@@ -1230,14 +855,7 @@ export const KopsisView: React.FC = () => {
               <div className="eco-form-group">
                 <label className="eco-form-label">Metode Pembayaran Kasir</label>
                 <div className="payment-method-selector">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('wallet')}
-                    className={`payment-method-btn ${paymentMethod === 'wallet' ? 'selected' : ''}`}
-                  >
-                    <CreditCard size={16} /> Saldo E-Wallet
-                  </button>
-                  <button
+<button
                     type="button"
                     onClick={() => setPaymentMethod('cash')}
                     className={`payment-method-btn ${paymentMethod === 'cash' ? 'selected' : ''}`}

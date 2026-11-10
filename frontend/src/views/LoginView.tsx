@@ -10,7 +10,6 @@ import {
   FiArrowLeft,
 } from 'react-icons/fi';
 import {
-  HiOutlineShieldCheck,
 } from 'react-icons/hi2';
 import {
   Clock,
@@ -326,10 +325,14 @@ export const LoginView: React.FC = () => {
           {/* Top Brand Logo */}
           <div className="login-brand-header">
             <Link to="/" className="login-brand-logo-link">
-              <div className="login-brand-icon-drop">
-                <HiOutlineShieldCheck className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 rounded-xl bg-white border border-slate-200/80 shadow-xs flex items-center justify-center p-0.5 overflow-hidden">
+                <img
+                  src="/stillschool-logo.png"
+                  alt="StillSchool Logo"
+                  className="w-full h-full object-cover rounded-lg"
+                />
               </div>
-              <span className="login-brand-name">SteelSchool</span>
+              <span className="login-brand-name">StillSchool</span>
             </Link>
           </div>
 

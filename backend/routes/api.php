@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', function () {
     return response()->json([
         'status' => 'OK',
-        'app' => 'SteelSchool API',
+        'app' => 'StillSchool API',
         'framework' => 'Laravel ' . app()->version(),
         'php' => phpversion(),
         'timestamp' => now()->toIso8601String(),

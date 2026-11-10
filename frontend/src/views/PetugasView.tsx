@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiClient, getCachedData } from '../api/client';
 import { toast } from 'sonner';
@@ -11,12 +11,9 @@ import {
   Banknote,
   Receipt,
   X,
-  PlusCircle,
-  Wallet,
   Building,
   QrCode,
   ClipboardList,
-  Clock,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -33,23 +30,6 @@ import {
 import { Dialog } from '../components/ui/dialog';
 import { QRISUploadModal } from '../components/common/QRISUploadModal';
 import { getStoredQRIS } from '../utils/qris';
-
-interface PendingTopup {
-  id: number;
-  reference_no: string;
-  user_id: number;
-  type: string;
-  amount: number;
-  payment_method: string;
-  status: string;
-  description?: string;
-  created_at: string;
-  user?: {
-    id: number;
-    name: string;
-    identifier_number: string;
-  };
-}
 
 interface PetugasData {
   administrasi_surat: {
@@ -88,12 +68,7 @@ export const PetugasView: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/petugas'));
 
   // Student State
-  const [walletBalance, setWalletBalance] = useState<number>(0);
-  const [studentSPPStatus, setStudentSPPStatus] = useState<string>('Lunas');
-  const [showTopupModal, setShowTopupModal] = useState<boolean>(false);
-  const [topupAmount, setTopupAmount] = useState<number>(100000);
-  const [topupSubmitting, setTopupSubmitting] = useState<boolean>(false);
-
+    const [studentSPPStatus, setStudentSPPStatus] = useState<string>('Lunas');
   // Modal State: Pembayaran SPP (Multi-payment options)
   const [showSPPModal, setShowSPPModal] = useState<boolean>(false);
   const [studentNisn, setStudentNisn] = useState<string>(user?.identifier_number || '0061234567');
@@ -104,8 +79,6 @@ export const PetugasView: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   // Pending Topup State (Loket TU & Staff Administrasi)
-  const [pendingTopups, setPendingTopups] = useState<PendingTopup[]>([]);
-  const [processingTopupId, setProcessingTopupId] = useState<number | null>(null);
   const [showQRISModal, setShowQRISModal] = useState<boolean>(false);
   const [tuQris, setTuQris] = useState(() => getStoredQRIS('tu'));
 
@@ -182,70 +155,18 @@ export const PetugasView: React.FC = () => {
     }
   };
 
-  const fetchWalletBalance = useCallback(async () => {
-    try {
-      const res = await apiClient.get('/wallet/balance');
-      if (res.data?.wallet) {
-        setWalletBalance(Number(res.data.wallet.balance ?? res.data.wallet.balance_kopsis) || 0);
-      }
-    } catch (err) {
-      console.error('Error fetching wallet balance', err);
-    }
-  }, []);
-
-  const fetchPendingTopups = useCallback(async () => {
-    try {
-      const res = await apiClient.get('/wallet/pending-topups');
-      setPendingTopups(res.data?.pending_topups || []);
-    } catch (err) {
-      console.error('Error fetching pending topups', err);
-    }
-  }, []);
-
-  const handleApproveTopup = async (id: number) => {
-    setProcessingTopupId(id);
-    try {
-      const res = await apiClient.post(`/wallet/topup/${id}/approve`);
-      toast.success(res.data.message || 'Pengajuan top-up berhasil disetujui dan saldo aktif.');
-      await Promise.all([fetchPendingTopups(), fetchPetugasData()]);
-      window.dispatchEvent(new CustomEvent('topup-status-changed'));
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Gagal menyetujui pengajuan top-up.');
-    } finally {
-      setProcessingTopupId(null);
-    }
-  };
-
-  const handleRejectTopup = async (id: number) => {
-    const reason = prompt('Masukkan alasan penolakan top-up (opsional):', 'Uang tunai tidak sesuai / Dibatalkan');
-    if (reason === null) return;
-    setProcessingTopupId(id);
-    try {
-      const res = await apiClient.post(`/wallet/topup/${id}/reject`, { reason });
-      toast.info(res.data.message || 'Pengajuan top-up telah ditolak.');
-      await Promise.all([fetchPendingTopups(), fetchPetugasData()]);
-      window.dispatchEvent(new CustomEvent('topup-status-changed'));
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Gagal menolak pengajuan top-up.');
-    } finally {
-      setProcessingTopupId(null);
-    }
-  };
-
-  useEffect(() => {
+    useEffect(() => {
     const init = async () => {
       setLoading(true);
       await Promise.all([
         fetchPetugasData(),
         fetchStudentData(),
-        fetchWalletBalance(),
         fetchSPPHistory(),
-        fetchPendingTopups(),
       ]);
       setLoading(false);
     };
     init();
-  }, [fetchWalletBalance, fetchPendingTopups, activeRole]);
+  }, [activeRole]);
 
   // Keep studentNisn synced with user
   useEffect(() => {
@@ -254,36 +175,9 @@ export const PetugasView: React.FC = () => {
     }
   }, [user]);
 
-  // Top Up Handler
-  const handleTopup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setTopupSubmitting(true);
-    try {
-      const targetNisn = user?.identifier_number || '0061234567';
-      await apiClient.post('/wallet/topup', {
-        identifier_number: targetNisn,
-        amount: topupAmount,
-        target_wallet: 'kopsis',
-        notes: 'Top-up saldo administrasi SPP siswa',
-      });
-      await fetchWalletBalance();
-      setShowTopupModal(false);
-      toast.success(`Top-up sebesar Rp ${topupAmount.toLocaleString('id-ID')} berhasil ditambahkan!`);
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Gagal melakukan top-up');
-    } finally {
-      setTopupSubmitting(false);
-    }
-  };
-
-  // Pay SPP Handler
+  // Handle SPP Payment
   const handlePaySPP = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (paymentMethod === 'wallet' && walletBalance < Number(sppAmount)) {
-      toast.error('Saldo E-Wallet Anda tidak mencukupi. Pilih opsi Virtual Account, Tunai, atau QRIS!');
-      return;
-    }
 
     setSubmitting(true);
     try {
@@ -300,9 +194,7 @@ export const PetugasView: React.FC = () => {
       });
 
       const methodLabel =
-        paymentMethod === 'wallet'
-          ? 'Saldo E-Wallet'
-          : paymentMethod === 'cash'
+        paymentMethod === 'cash'
           ? 'Tunai di Loket TU'
           : paymentMethod === 'transfer'
           ? 'Virtual Account / Transfer'
@@ -330,7 +222,7 @@ export const PetugasView: React.FC = () => {
       toast.success(res.data.message || 'Pembayaran SPP berhasil diproses.');
       setStudentSPPStatus('Lunas');
       setShowSPPModal(false);
-      await Promise.all([fetchPetugasData(), fetchWalletBalance()]);
+      await fetchPetugasData();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Gagal memproses pembayaran SPP');
     } finally {
@@ -390,25 +282,6 @@ export const PetugasView: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-3.5 rounded-2xl border border-white/10">
-                <Wallet className="w-6 h-6 text-purple-300" />
-                <div>
-                  <div className="text-[11px] text-slate-300 uppercase font-bold tracking-wider">
-                    Saldo Digital Anda
-                  </div>
-                  <div className="text-xl font-black text-purple-300">
-                    Rp {walletBalance.toLocaleString('id-ID')}
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => setShowTopupModal(true)}
-                  className="gap-1.5 ml-2 text-xs rounded-xl bg-purple-600 hover:bg-purple-700 text-white"
-                >
-                  <PlusCircle className="w-3.5 h-3.5" />
-                  <span>Isi Saldo</span>
-                </Button>
-              </div>
             </div>
           </div>
 
@@ -641,116 +514,6 @@ export const PetugasView: React.FC = () => {
             </Card>
           </div>
 
-          {/* Antrean Persetujuan Top-Up Saldo Siswa (Loket TU) */}
-          <Card className="border-amber-200/90 bg-white overflow-hidden shadow-xs">
-            <CardHeader className="bg-gradient-to-r from-amber-50/80 via-orange-50/40 to-white border-b border-amber-100 pb-3.5 flex flex-row items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shadow-xs">
-                  <Clock className="w-5 h-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <span>Antrean Persetujuan Top-Up Saldo Siswa</span>
-                    {pendingTopups.length > 0 && (
-                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                    )}
-                  </CardTitle>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Verifikasi setoran uang tunai siswa di loket TU dan setujui penambahan saldo e-wallet
-                  </p>
-                </div>
-              </div>
-              <Badge
-                variant={pendingTopups.length > 0 ? "warning" : "secondary"}
-                className="text-xs font-bold shrink-0"
-              >
-                {pendingTopups.length} Pengajuan Menunggu
-              </Badge>
-            </CardHeader>
-            <CardContent className="p-0">
-              {pendingTopups.length === 0 ? (
-                <div className="p-8 text-center text-xs text-slate-400">
-                  <CheckCircle className="w-8 h-8 text-emerald-400 mx-auto mb-2 opacity-80" />
-                  <p className="font-semibold text-slate-600">Semua pengajuan top-up telah diproses</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Tidak ada siswa yang menunggu verifikasi setoran saldo di loket TU saat ini.</p>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>No. Referensi</TableHead>
-                      <TableHead>Nama Pengaju</TableHead>
-                      <TableHead>NISN / NIP</TableHead>
-                      <TableHead>Metode</TableHead>
-                      <TableHead>Nominal Top-Up</TableHead>
-                      <TableHead>Waktu Pengajuan</TableHead>
-                      <TableHead className="text-right">Aksi Verifikasi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pendingTopups.map((pt) => (
-                      <TableRow key={pt.id} className="hover:bg-amber-50/30 transition-colors">
-                        <TableCell className="font-mono text-xs font-bold text-amber-700">
-                          {pt.reference_no}
-                        </TableCell>
-                        <TableCell className="font-bold text-slate-900">
-                          {pt.user?.name || 'Siswa / Guru'}
-                        </TableCell>
-                        <TableCell>
-                          <code className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                            {pt.user?.identifier_number || '-'}
-                          </code>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={pt.payment_method === 'qris' ? 'primary' : 'secondary'}
-                            className="text-[11px] gap-1"
-                          >
-                            {pt.payment_method === 'qris' ? 'QRIS' : 'Tunai'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-black text-emerald-700 font-mono text-sm">
-                          Rp {Number(pt.amount).toLocaleString('id-ID')}
-                        </TableCell>
-                        <TableCell className="text-xs text-slate-500">
-                          {new Date(pt.created_at).toLocaleString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="inline-flex items-center gap-1.5 justify-end">
-                            <Button
-                              size="sm"
-                              onClick={() => handleApproveTopup(pt.id)}
-                              disabled={processingTopupId === pt.id}
-                              className="h-8 gap-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs"
-                            >
-                              <CheckCircle className="w-3.5 h-3.5" />
-                              <span>{processingTopupId === pt.id ? 'Memproses...' : 'Setujui'}</span>
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleRejectTopup(pt.id)}
-                              disabled={processingTopupId === pt.id}
-                              className="h-8 gap-1 text-xs text-rose-600 border-rose-200 hover:bg-rose-50 hover:border-rose-300 rounded-xl"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                              <span>Tolak</span>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-
           {/* Riwayat Pembayaran SPP Masuk */}
           <Card className="border-slate-200/80">
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
@@ -813,48 +576,6 @@ export const PetugasView: React.FC = () => {
         </>
       )}
 
-      {/* Modal Top Up Saldo Digital (Shadcn Dialog) */}
-      <Dialog
-        open={showTopupModal}
-        onClose={() => setShowTopupModal(false)}
-        title="Isi Saldo Digital Siswa"
-        description="Pilih nominal saldo yang ingin Anda tambahkan untuk pembayaran SPP / administrasi sekolah."
-      >
-        <form onSubmit={handleTopup} className="space-y-4 mt-2">
-          <div className="grid grid-cols-3 gap-2">
-            {[50000, 100000, 200000, 350000, 500000, 700000].map((amt) => (
-              <button
-                key={amt}
-                type="button"
-                onClick={() => setTopupAmount(amt)}
-                className={`p-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer ${
-                  topupAmount === amt
-                    ? 'border-purple-600 bg-purple-50 text-purple-700 shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-purple-300'
-                }`}
-              >
-                Rp {amt.toLocaleString('id-ID')}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowTopupModal(false)}
-            >
-              Batal
-            </Button>
-            <Button type="submit" disabled={topupSubmitting}>
-              {topupSubmitting
-                ? 'Memproses...'
-                : `Konfirmasi Top Up Rp ${topupAmount.toLocaleString('id-ID')}`}
-            </Button>
-          </div>
-        </form>
-      </Dialog>
-
       {/* Modal Pembayaran SPP (Shadcn Dialog) */}
       <Dialog
         open={showSPPModal}
@@ -907,10 +628,7 @@ export const PetugasView: React.FC = () => {
               <div className="font-bold text-purple-900 text-sm">Data Siswa:</div>
               <div className="text-slate-700">Nama: <strong>{user?.name || 'Ahmad Pratama'}</strong></div>
               <div className="text-slate-700">NISN: <code>{user?.identifier_number || '0061234567'}</code></div>
-              <div className="mt-2 text-purple-800 font-bold">
-                Saldo E-Wallet Anda: Rp {walletBalance.toLocaleString('id-ID')}
-              </div>
-            </div>
+                          </div>
           )}
 
           <div className="grid grid-cols-2 gap-3">
@@ -949,18 +667,6 @@ export const PetugasView: React.FC = () => {
               Pilih Metode Pembayaran:
             </label>
             <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('wallet')}
-                className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
-                  paymentMethod === 'wallet'
-                    ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300'
-                }`}
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>Saldo E-Wallet</span>
-              </button>
               <button
                 type="button"
                 onClick={() => setPaymentMethod('cash')}

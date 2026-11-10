@@ -177,15 +177,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
 
       {/* Right Controls: Beranda + Role Switcher + Notif + Profil */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-        {/* Tombol ke Beranda SteelSchool - hidden on compact screens */}
+        {/* Tombol ke Beranda StillSchool - hidden on compact screens */}
         <Link
           to="/"
           className="hidden lg:inline-flex h-9 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-2xs items-center gap-2 leading-none shrink-0"
-          title="Buka Beranda Publik SteelSchool"
+          title="Buka Beranda Publik StillSchool"
         >
           <img
-            src="/steelschool-shield.png"
-            alt="SteelSchool Logo"
+            src="/stillschool-logo.png"
+            alt="StillSchool Logo"
             className="w-4 h-4 object-contain shrink-0 block"
           />
           <span className="leading-none">Beranda</span>

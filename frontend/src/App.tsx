@@ -25,7 +25,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return (
       <div className="loading-fullscreen">
         <div className="spinner"></div>
-        <p>Memuat SteelSchool...</p>
+        <p>Memuat StillSchool...</p>
       </div>
     );
   }
@@ -46,7 +46,7 @@ export const App: React.FC = () => {
           {/* Public Landing Page (School Promotion & Competition Showcase) */}
           <Route path="/" element={<LandingPageView />} />
 
-          {/* SteelSchool 16:9 Login Page */}
+          {/* StillSchool 16:9 Login Page */}
           <Route path="/login" element={<LoginView />} />
 
           {/* Protected School Ecosystem Dashboard Routes with Strict RBAC Isolation */}
