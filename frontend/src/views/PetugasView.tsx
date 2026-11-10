@@ -78,6 +78,31 @@ export const PetugasView: React.FC = () => {
   const [sppNotes, setSppNotes] = useState<string>('Pembayaran SPP Mandiri Siswa');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
+  // Auto-detection & auto-trigger when SPP QRIS is paid
+  useEffect(() => {
+    if (!showSPPModal || paymentMethod !== 'qris') return;
+
+    const timer = setTimeout(() => {
+      // Simulate form submit for SPP
+      const dummyEvent = { preventDefault: () => {} } as React.FormEvent;
+      handlePaySPP(dummyEvent);
+    }, 8500);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' || e.key === 'Enter') {
+        e.preventDefault();
+        const dummyEvent = { preventDefault: () => {} } as React.FormEvent;
+        handlePaySPP(dummyEvent);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showSPPModal, paymentMethod]);
+
   // Pending Topup State (Loket TU & Staff Administrasi)
   const [showQRISModal, setShowQRISModal] = useState<boolean>(false);
   const [tuQris, setTuQris] = useState(() => getStoredQRIS('tu'));
@@ -745,7 +770,7 @@ export const PetugasView: React.FC = () => {
                   <span className="bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-mono">Rp 1,-</span>
                 </div>
                 <p className="text-[10.5px] text-slate-500 pt-1 leading-snug">
-                  Buka aplikasi BCA / GoPay / OVO / Dana / ShopeePay, scan QRIS loket TU di atas dan selesaikan transfer <strong>Rp 1</strong>. Setelah berhasil, klik konfirmasi di bawah.
+                  Buka aplikasi BCA / GoPay / OVO / Dana / ShopeePay, scan QRIS loket TU di atas dan transfer <strong>Rp 1</strong>. Sistem akan mendeteksi mutasi dan otomatis melunasi tagihan SPP.
                 </p>
               </div>
             </div>
@@ -763,21 +788,33 @@ export const PetugasView: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowSPPModal(false)}
-            >
-              Batal
-            </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting
-                ? 'Memproses...'
-                : paymentMethod === 'qris'
-                ? 'Konfirmasi Bayar SPP (Verifikasi QRIS Rp 1)'
-                : `Konfirmasi Bayar Rp ${Number(sppAmount).toLocaleString('id-ID')}`}
-            </Button>
+          <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+            {paymentMethod === 'qris' ? (
+              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-700">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span>{submitting ? 'Pembayaran Masuk! Memproses...' : 'Menunggu transfer SPP Rp 1...'}</span>
+              </div>
+            ) : (
+              <div />
+            )}
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowSPPModal(false)}
+              >
+                Batal
+              </Button>
+              {paymentMethod !== 'qris' && (
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? 'Memproses...' : `Konfirmasi Bayar Rp ${Number(sppAmount).toLocaleString('id-ID')}`}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </Dialog>

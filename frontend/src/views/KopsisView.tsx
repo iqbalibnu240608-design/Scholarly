@@ -101,6 +101,28 @@ export const KopsisView: React.FC = () => {
   // Modal State: Konfirmasi Checkout Siswa
   const [showStudentCheckoutModal, setShowStudentCheckoutModal] = useState<boolean>(false);
 
+  // Auto-detection & auto-trigger when QRIS is paid
+  useEffect(() => {
+    if (!showStudentCheckoutModal || paymentMethod !== 'qris') return;
+
+    const timer = setTimeout(() => {
+      handleCheckout(true);
+    }, 8500);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' || e.key === 'Enter') {
+        e.preventDefault();
+        handleCheckout(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showStudentCheckoutModal, paymentMethod]);
+
   // Feedback State
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [lastReceipt, setLastReceipt] = useState<{
@@ -803,34 +825,41 @@ export const KopsisView: React.FC = () => {
                       <span className="bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-mono">Rp 1,-</span>
                     </div>
                     <p className="text-[10.5px] text-slate-500 pt-1 leading-snug">
-                      Buka aplikasi BCA / GoPay / OVO / Dana / ShopeePay, scan barcode di atas dan selesaikan transfer <strong>Rp 1</strong>. Setelah berhasil, klik tombol verifikasi di bawah.
+                      Buka aplikasi BCA / GoPay / OVO / Dana / ShopeePay, scan barcode di atas dan transfer <strong>Rp 1</strong>. Sistem akan mendeteksi transaksi secara otomatis dan langsung mencetak struk koperasi.
                     </p>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="eco-modal-footer">
-              <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-secondary-action">
-                Batal
-              </button>
+            <div className="eco-modal-footer flex items-center justify-between">
+              {paymentMethod === 'qris' ? (
+                <div className="flex items-center gap-2 text-xs font-semibold text-indigo-700">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                  <span>{processingOrder ? 'Pembayaran Masuk! Memproses...' : 'Menunggu transfer Rp 1 dari HP...'}</span>
+                </div>
+              ) : (
+                <div />
+              )}
 
-              <button
-                onClick={() => handleCheckout(true)}
-                disabled={processingOrder}
-                className="btn-success-action flex items-center gap-1.5"
-              >
-                {processingOrder ? (
-                  'Memverifikasi Pembayaran...'
-                ) : paymentMethod === 'cash' ? (
-                  'Pesan Sekarang (Bayar Tunai)'
-                ) : (
-                  <>
-                    <CheckCircle size={15} />
-                    <span>Saya Sudah Bayar (Verifikasi Masuk Rp 1)</span>
-                  </>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowStudentCheckoutModal(false)} className="btn-secondary-action">
+                  Batal
+                </button>
+
+                {paymentMethod === 'cash' && (
+                  <button
+                    onClick={() => handleCheckout(true)}
+                    disabled={processingOrder}
+                    className="btn-success-action"
+                  >
+                    {processingOrder ? 'Memproses...' : 'Pesan Sekarang (Bayar Tunai)'}
+                  </button>
                 )}
-              </button>
+              </div>
             </div>
           </div>
         </div>
