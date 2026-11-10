@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { QRISUploadModal } from '../components/common/QRISUploadModal';
-import { getStoredQRIS } from '../utils/qris';
+import { getStoredQRIS, getQRISDisplaySource } from '../utils/qris';
 import './EcosystemModals.css';
 
 interface KantinMenu {
@@ -836,21 +836,39 @@ export const KantinView: React.FC = () => {
               )}
 
               {paymentMethod === 'qris' && (
-                <div className="p-3.5 bg-indigo-50/80 text-indigo-900 rounded-2xl text-xs border border-indigo-200 text-center space-y-2">
+                <div className="p-3.5 bg-indigo-50/80 text-indigo-900 rounded-2xl text-xs border border-indigo-200 text-center space-y-2.5">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="font-bold text-[11px] text-indigo-800">QRIS Stan Kantin (Terpisah)</span>
+                    <span className="text-[10px] font-extrabold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full border border-blue-200">
+                      Uji Transaksi Riil: Rp 1,-
+                    </span>
+                  </div>
+
                   <div className="w-40 h-40 mx-auto bg-white p-2 rounded-xl border border-indigo-200 shadow-xs flex items-center justify-center">
                     <img
-                      src={kantinQris.imageUrl}
+                      src={getQRISDisplaySource(kantinQris, 1).imageSrc}
                       alt="QRIS Kantin Sekolah"
-                      className="max-h-full max-w-full object-contain"
+                      className="max-h-full max-w-full object-contain rounded-lg"
                     />
                   </div>
                   <div>
                     <p className="font-bold text-sm text-indigo-950">{kantinQris.merchantName}</p>
                     <p className="font-mono text-[11px] text-indigo-600 mt-0.5">NMID: {kantinQris.nmid}</p>
                   </div>
-                  <p className="text-xs text-slate-600">
-                    Scan via mobile banking atau dompet digital (GoPay, OVO, Dana, ShopeePay, BCA, dll).
-                  </p>
+
+                  <div className="p-2.5 bg-white/90 rounded-xl border border-indigo-100 text-left space-y-1">
+                    <div className="flex justify-between font-semibold text-slate-700 text-xs">
+                      <span>Total Pesanan Asli:</span>
+                      <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div className="flex justify-between font-extrabold text-blue-700 text-xs">
+                      <span>Nominal Bayar Uji Coba:</span>
+                      <span className="bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-mono">Rp 1,-</span>
+                    </div>
+                    <p className="text-[10.5px] text-slate-500 pt-1 leading-snug">
+                      Buka aplikasi BCA / GoPay / OVO / Dana / ShopeePay, scan barcode di atas dan selesaikan transfer <strong>Rp 1</strong>. Setelah berhasil, klik tombol verifikasi di bawah.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -863,13 +881,18 @@ export const KantinView: React.FC = () => {
               <button
                 onClick={() => handleCheckout(true)}
                 disabled={processingOrder}
-                className="btn-success-action text-xs font-bold px-4 py-2"
+                className="btn-success-action text-xs font-bold px-4 py-2 flex items-center gap-1.5"
               >
-                {processingOrder
-                  ? 'Memproses...'
-                  : paymentMethod === 'cash'
-                  ? 'Pesan Sekarang (Bayar Tunai)'
-                  : 'Konfirmasi Pembayaran QRIS'}
+                {processingOrder ? (
+                  'Memverifikasi Pembayaran...'
+                ) : paymentMethod === 'cash' ? (
+                  'Pesan Sekarang (Bayar Tunai)'
+                ) : (
+                  <>
+                    <CheckCircle size={15} />
+                    <span>Saya Sudah Bayar (Verifikasi Masuk Rp 1)</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -1107,6 +1130,27 @@ export const KantinView: React.FC = () => {
                         )}
                       </div>
                     )}
+                    {/* Jika QRIS: Preview QRIS Stan Kasir & Panduan Rp 1 */}
+                    {paymentMethod === 'qris' && cartTotal > 0 && (
+                      <div className="p-3 bg-indigo-50/90 rounded-xl border border-indigo-200 text-xs space-y-2 text-center">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-indigo-950 text-[11px] truncate max-w-[170px]">{kantinQris.merchantName}</span>
+                          <span className="text-[10px] font-extrabold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+                            Uji Transaksi: Rp 1,-
+                          </span>
+                        </div>
+                        <div className="w-28 h-28 mx-auto bg-white p-1.5 rounded-xl border border-indigo-200 shadow-2xs flex items-center justify-center">
+                          <img
+                            src={getQRISDisplaySource(kantinQris, 1).imageSrc}
+                            alt="QRIS Kantin"
+                            className="max-h-full max-w-full object-contain rounded"
+                          />
+                        </div>
+                        <p className="text-[10px] text-slate-500">
+                          Arahkan pembeli scan barcode ini. Bayar <strong>Rp 1</strong> via BCA / GoPay / Dana dll.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Tombol Eksekusi Transaksi POS */}
@@ -1116,7 +1160,11 @@ export const KantinView: React.FC = () => {
                     disabled={processingOrder || cart.length === 0}
                     className="w-full btn-success-action py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"
                   >
-                    {processingOrder ? 'Memproses...' : `Selesaikan Transaksi (Rp ${cartTotal.toLocaleString('id-ID')})`}
+                    {processingOrder
+                      ? 'Memproses...'
+                      : paymentMethod === 'qris'
+                      ? 'Selesaikan Transaksi QRIS (Rp 1 Masuk)'
+                      : `Selesaikan Transaksi (Rp ${cartTotal.toLocaleString('id-ID')})`}
                   </button>
                 </div>
               </div>

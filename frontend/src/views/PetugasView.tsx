@@ -29,7 +29,7 @@ import {
 } from '../components/ui/table';
 import { Dialog } from '../components/ui/dialog';
 import { QRISUploadModal } from '../components/common/QRISUploadModal';
-import { getStoredQRIS } from '../utils/qris';
+import { getStoredQRIS, getQRISDisplaySource } from '../utils/qris';
 
 interface PetugasData {
   administrasi_surat: {
@@ -187,7 +187,7 @@ export const PetugasView: React.FC = () => {
 
       const res = await apiClient.post('/petugas/spp-payment', {
         student_identifier: targetIdentifier,
-        amount: Number(sppAmount),
+        amount: paymentMethod === 'qris' ? 1 : Number(sppAmount),
         month: sppMonth,
         payment_method: paymentMethod,
         notes: sppNotes || undefined,
@@ -715,21 +715,39 @@ export const PetugasView: React.FC = () => {
           )}
 
           {paymentMethod === 'qris' && (
-            <div className="p-4 bg-indigo-50/70 text-indigo-900 rounded-2xl text-xs border border-indigo-200 text-center space-y-2.5">
-              <div className="w-36 h-36 mx-auto bg-white p-2 rounded-xl border border-indigo-200 shadow-xs flex items-center justify-center">
+            <div className="p-4 bg-indigo-50/70 text-indigo-900 rounded-2xl text-xs border border-indigo-200 text-center space-y-3">
+              <div className="flex items-center justify-between px-1">
+                <span className="font-bold text-[11px] text-indigo-800">QRIS Loket TU & Keuangan (Terpisah)</span>
+                <span className="text-[10px] font-extrabold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full border border-blue-200">
+                  Uji Transaksi Riil: Rp 1,-
+                </span>
+              </div>
+
+              <div className="w-40 h-40 mx-auto bg-white p-2.5 rounded-2xl border border-indigo-200 shadow-xs flex items-center justify-center">
                 <img
-                  src={tuQris.imageUrl}
+                  src={getQRISDisplaySource(tuQris, 1).imageSrc}
                   alt="QRIS SPP Sekolah"
-                  className="max-h-full max-w-full object-contain"
+                  className="max-h-full max-w-full object-contain rounded-lg"
                 />
               </div>
               <div>
                 <p className="font-bold text-xs text-indigo-950">{tuQris.merchantName}</p>
                 <p className="font-mono text-[10px] text-indigo-600">NMID: {tuQris.nmid}</p>
               </div>
-              <p className="text-[11px] text-slate-600">
-                Scan barcode di atas dengan aplikasi m-Banking atau dompet digital (GoPay, OVO, Dana, BCA, dll).
-              </p>
+
+              <div className="p-2.5 bg-white/90 rounded-xl border border-indigo-100 text-left space-y-1">
+                <div className="flex justify-between font-semibold text-slate-700 text-xs">
+                  <span>Tagihan SPP Asli:</span>
+                  <span>Rp {Number(sppAmount).toLocaleString('id-ID')}</span>
+                </div>
+                <div className="flex justify-between font-extrabold text-blue-700 text-xs">
+                  <span>Nominal Bayar Uji Coba:</span>
+                  <span className="bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-mono">Rp 1,-</span>
+                </div>
+                <p className="text-[10.5px] text-slate-500 pt-1 leading-snug">
+                  Buka aplikasi BCA / GoPay / OVO / Dana / ShopeePay, scan QRIS loket TU di atas dan selesaikan transfer <strong>Rp 1</strong>. Setelah berhasil, klik konfirmasi di bawah.
+                </p>
+              </div>
             </div>
           )}
 
@@ -756,6 +774,8 @@ export const PetugasView: React.FC = () => {
             <Button type="submit" disabled={submitting}>
               {submitting
                 ? 'Memproses...'
+                : paymentMethod === 'qris'
+                ? 'Konfirmasi Bayar SPP (Verifikasi QRIS Rp 1)'
                 : `Konfirmasi Bayar Rp ${Number(sppAmount).toLocaleString('id-ID')}`}
             </Button>
           </div>

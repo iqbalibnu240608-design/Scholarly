@@ -574,7 +574,7 @@ class SchoolEcosystemController extends Controller
     {
         $validated = $request->validate([
             'student_identifier' => 'required|string',
-            'amount' => 'required|numeric|min:10000',
+            'amount' => 'required|numeric|min:1',
             'month' => 'required|string',
             'payment_method' => 'required|in:cash,wallet,transfer,qris',
             'notes' => 'nullable|string',

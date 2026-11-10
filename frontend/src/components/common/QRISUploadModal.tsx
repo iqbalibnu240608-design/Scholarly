@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Dialog } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Upload, CheckCircle2, Image as ImageIcon } from 'lucide-react';
+import { Badge } from '../ui/badge';
+import { Upload, CheckCircle2, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { getStoredQRIS, saveStoredQRIS, DEFAULT_QRIS_SVG } from '../../utils/qris';
 import { toast } from 'sonner';
 
@@ -23,6 +24,7 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
 }) => {
   const [merchantName, setMerchantName] = useState<string>('');
   const [nmid, setNmid] = useState<string>('');
+  const [rawString, setRawString] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string>('');
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
@@ -31,7 +33,8 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
       const config = getStoredQRIS(type);
       setMerchantName(config.merchantName);
       setNmid(config.nmid);
-      setImageUrl(config.imageUrl === DEFAULT_QRIS_SVG ? '' : config.imageUrl);
+      setRawString(config.rawString || '');
+      setImageUrl(config.imageUrl.startsWith('data:image/svg+xml') ? '' : config.imageUrl);
       setPreviewUrl(config.imageUrl);
     }
   }, [open, type]);
@@ -55,9 +58,24 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
         const reader = new FileReader();
         reader.onload = (event) => {
           const img = new Image();
-          img.onload = () => {
+          img.onload = async () => {
+            // Coba deteksi barcode string dengan BarcodeDetector jika didukung browser
+            if ('BarcodeDetector' in window) {
+              try {
+                const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
+                const barcodes = await detector.detect(img);
+                if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                  const detectedStr = barcodes[0].rawValue;
+                  setRawString(detectedStr);
+                  toast.success('String payload QRIS berhasil dipindai otomatis dari barcode!');
+                }
+              } catch (detErr) {
+                console.log('BarcodeDetector scan fallback', detErr);
+              }
+            }
+
             const canvas = document.createElement('canvas');
-            const maxDim = 400;
+            const maxDim = 450;
             let width = img.width;
             let height = img.height;
             if (width > height) {
@@ -81,7 +99,7 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', 0.85));
+            resolve(canvas.toDataURL('image/jpeg', 0.88));
           };
           img.onerror = () => reject(new Error('Gagal memproses gambar'));
           img.src = event.target?.result as string;
@@ -101,8 +119,8 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     const finalImage = imageUrl.trim() || previewUrl || DEFAULT_QRIS_SVG;
-    saveStoredQRIS(type, finalImage, merchantName, nmid);
-    toast.success(`Pengaturan QRIS ${type.toUpperCase()} berhasil disimpan!`);
+    saveStoredQRIS(type, finalImage, merchantName, nmid, rawString.trim() || undefined);
+    toast.success(`Pengaturan QRIS khusus ${type.toUpperCase()} berhasil disimpan (Terisolasi)!`);
     onSaved?.();
     onClose();
   };
@@ -115,12 +133,12 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
 
   const getDescription = () => {
     if (type === 'kantin') {
-      return 'Upload barcode QRIS resmi stan kantin sekolah. Siswa dapat langsung memindai QRIS ini saat memesan makanan tanpa tunai.';
+      return 'Konfigurasi QRIS khusus Stan Kantin. Terpisah penuh dan tidak mempengaruhi QRIS TU maupun Koperasi.';
     }
     if (type === 'kopsis') {
-      return 'Upload barcode QRIS resmi koperasi sekolah untuk pembayaran instan perlengkapan dan seragam siswa.';
+      return 'Konfigurasi QRIS khusus Koperasi Sekolah. Terpisah penuh dan tidak mempengaruhi QRIS TU maupun Kantin.';
     }
-    return 'Upload barcode QRIS resmi sekolah untuk pembayaran SPP dan tagihan administrasi.';
+    return 'Konfigurasi QRIS khusus Loket Tata Usaha (SPP & Administrasi). Terpisah penuh dari unit lainnya.';
   };
 
   return (
@@ -131,6 +149,15 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
       description={getDescription()}
     >
       <form onSubmit={handleSave} className="space-y-4 pt-1">
+        <div className="flex items-center gap-2 p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900">
+          <Badge variant="primary" className="text-[10px] font-bold uppercase shrink-0">
+            Terisolasi
+          </Badge>
+          <span>
+            QRIS ini khusus untuk unit <strong>{type.toUpperCase()}</strong>. Modul lain memiliki QRIS masing-masing.
+          </span>
+        </div>
+
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-slate-700">
             {type === 'kantin' ? 'Nama Stan / Merchant Kantin' : type === 'kopsis' ? 'Nama Toko / Koperasi' : 'Nama Merchant QRIS'}
@@ -176,23 +203,29 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-500">Atau Masukkan URL Gambar QRIS:</label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>String Payload QRIS (Opsional / Otomatis)</span>
+            </label>
+            <span className="text-[10px] text-slate-400">Untuk nominal otomatis Rp 1</span>
+          </div>
           <Input
-            type="url"
-            value={imageUrl.startsWith('data:') ? '' : imageUrl}
-            onChange={(e) => {
-              setImageUrl(e.target.value);
-              setPreviewUrl(e.target.value || DEFAULT_QRIS_SVG);
-            }}
-            placeholder="https://... (opsional jika sudah upload berkas)"
-            className="text-xs"
+            type="text"
+            value={rawString}
+            onChange={(e) => setRawString(e.target.value)}
+            placeholder="000201010211... (terdeteksi otomatis saat upload gambar, atau paste string QRIS di sini)"
+            className="text-xs font-mono"
           />
+          <p className="text-[10.5px] text-slate-500">
+            Jika string QRIS diisi, sistem dapat membuat barcode dinamis nominal Rp 1 yang langsung terkunci saat di-scan perbankan.
+          </p>
         </div>
 
         {/* Live Preview Container */}
         <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center">
           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-            Preview QRIS yang Dilihat Siswa & Pelanggan
+            Preview QRIS yang Dilihat Siswa & Pelanggan ({type.toUpperCase()})
           </div>
           <div className="inline-block p-3 bg-white rounded-xl border border-slate-200 shadow-xs">
             {previewUrl ? (
@@ -221,10 +254,12 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
           </Button>
           <Button type="submit" className="gap-1.5 bg-blue-600 hover:bg-blue-700 font-bold text-xs">
             <CheckCircle2 className="w-4 h-4" />
-            <span>Simpan Barcode QRIS</span>
+            <span>Simpan Barcode QRIS {type.toUpperCase()}</span>
           </Button>
         </div>
       </form>
     </Dialog>
   );
 };
+
+export default QRISUploadModal;
