@@ -113,6 +113,26 @@ class DatabaseSeeder extends Seeder
             Permission::updateOrCreate(['name' => $perm['name']], $perm);
         }
 
+        // Map Permissions to Roles
+        $allPermissions = Permission::all();
+        $rolePermissionMap = [
+            'admin' => $allPermissions->pluck('id')->toArray(),
+            'kepsek' => Permission::whereIn('name', ['view_executive_reports', 'approve_budget', 'view_grades', 'manage_attendance', 'view_audit_log'])->pluck('id')->toArray(),
+            'guru' => Permission::whereIn('name', ['input_grades', 'view_grades', 'manage_attendance', 'manage_curriculum'])->pluck('id')->toArray(),
+            'siswa' => Permission::whereIn('name', ['view_grades'])->pluck('id')->toArray(),
+            'petugas' => Permission::whereIn('name', ['manage_student_registry', 'manage_tu_fees', 'manage_correspondence'])->pluck('id')->toArray(),
+            'kopsis' => Permission::whereIn('name', ['manage_kopsis_inventory', 'kopsis_pos_checkout'])->pluck('id')->toArray(),
+            'kantin' => Permission::whereIn('name', ['manage_canteen_menu', 'process_canteen_orders'])->pluck('id')->toArray(),
+            'security' => Permission::whereIn('name', ['manage_gate_attendance', 'verify_exit_permit'])->pluck('id')->toArray(),
+            'bk' => Permission::whereIn('name', ['manage_attendance'])->pluck('id')->toArray(),
+        ];
+
+        foreach ($rolePermissionMap as $roleName => $permIds) {
+            if (isset($roles[$roleName])) {
+                $roles[$roleName]->permissions()->sync($permIds);
+            }
+        }
+
         // 3. Academic Classes Seed
         $classesData = [
             ['name' => 'X RPL 1', 'grade' => '10', 'major' => 'Rekayasa Perangkat Lunak'],
