@@ -1195,8 +1195,8 @@ export const KopsisView: React.FC = () => {
                         onClick={() => setCategory(cat)}
                         className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all text-center ${
                           category === cat
-                            ? 'bg-orange-600 text-white border-orange-600 shadow-xs'
-                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                            ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                            : 'bg-white text-slate-600 border-slate-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200'
                         }`}
                       >
                         {cat}

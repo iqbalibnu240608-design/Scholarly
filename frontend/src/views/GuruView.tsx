@@ -434,7 +434,7 @@ export const GuruView: React.FC = () => {
           </Badge>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
+          <Table className="min-w-[760px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Nama Siswa</TableHead>
