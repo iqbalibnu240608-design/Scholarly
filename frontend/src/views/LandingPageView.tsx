@@ -90,10 +90,10 @@ export const LandingPageView: React.FC = () => {
     petugas: {
       title: 'Tata Usaha & Administrasi Modern',
       roleBadge: 'Administrasi TU',
-      desc: 'Otomatisasi buku induk siswa, penerbitan tanda bukti pembayaran SPP, dan pengisian saldo dompet digital siswa secara instan.',
+      desc: 'Otomatisasi buku induk siswa dan penerbitan tanda bukti pembayaran SPP secara instan.',
       features: [
         'Pencatatan pelunasan SPP digital dengan struk kuitansi instan',
-        'Loket top-up dompet digital siswa (alokasi Kopsis & Kantin)',
+        'Pembayaran SPP langsung via QRIS, tunai, atau transfer',
         'Sinkronisasi data pokok siswa dan rombongan belajar',
       ],
       demoUser: 'Rina Wulandari, S.AP',
@@ -101,7 +101,7 @@ export const LandingPageView: React.FC = () => {
       widgetRows: [
         { label: 'Penerimaan SPP Bulan Ini', value: 'Rp 63.000.000' },
         { label: 'Siswa Lunas', value: '312 dari 348 Siswa' },
-        { label: 'Top-up E-Wallet Hari Ini', value: 'Rp 4.250.000' },
+        { label: 'Metode Pembayaran', value: 'QRIS & Tunai' },
         { label: 'Status Rekonsiliasi', value: 'Seimbang (Balance)' },
       ],
     },
@@ -110,7 +110,7 @@ export const LandingPageView: React.FC = () => {
       roleBadge: 'Unit Usaha Edukasi',
       desc: 'Kasir Point of Sale modern untuk pembelian alat tulis, seragam, dan buku cetak secara cashless dengan pengurangan stok real-time.',
       features: [
-        'Checkout instan via scan kartu/input NISN saldo Kopsis',
+        'Checkout instan via input NISN dengan QRIS atau tunai',
         'Manajemen stok produk otomatis dengan concurrency protection',
         'Rekap transaksi kasir dan mutasi inventaris harian',
       ],
@@ -120,7 +120,7 @@ export const LandingPageView: React.FC = () => {
         { label: 'Katalog Produk Aktif', value: '28 Item Barang' },
         { label: 'Transaksi Hari Ini', value: '47 Transaksi' },
         { label: 'Total Penjualan Hari Ini', value: 'Rp 1.420.000' },
-        { label: 'Metode Terbanyak', value: 'E-Wallet Siswa (82%)' },
+        { label: 'Metode Terbanyak', value: 'QRIS (82%)' },
       ],
     },
     kantin: {
@@ -128,7 +128,7 @@ export const LandingPageView: React.FC = () => {
       roleBadge: 'Unit Usaha Sehat',
       desc: 'Sistem pemesanan makanan dan minuman sehat siswa tanpa uang tunai fisik, menjaga kebersihan makanan dan mencegah kehilangan uang.',
       features: [
-        'Pembayaran makanan via Saldo Kantin siswa secara cepat',
+        'Pembayaran makanan langsung via QRIS atau tunai di kasir',
         'Manajemen menu makanan/minuman sehat per stand kantin',
         'Bebas antrean panjang dan risiko uang palsu/kembalian',
       ],
@@ -137,7 +137,7 @@ export const LandingPageView: React.FC = () => {
       widgetRows: [
         { label: 'Menu Makanan & Minuman', value: '19 Menu Tersedia' },
         { label: 'Pesanan Hari Ini', value: '124 Porsi' },
-        { label: 'Perputaran Saldo Kantin', value: 'Rp 2.180.000' },
+        { label: 'Penjualan Hari Ini', value: 'Rp 2.180.000' },
         { label: 'Stand Kantin Terdaftar', value: '3 Stand Aktif' },
       ],
     },
@@ -312,9 +312,9 @@ export const LandingPageView: React.FC = () => {
 
             <div className="lp-highlight-card">
               <div className="lp-highlight-metric text-purple-600">100%</div>
-              <div className="lp-highlight-title">Cashless Dual-Balance</div>
+              <div className="lp-highlight-title">Bayar Langsung di Kasir</div>
               <p className="lp-highlight-text">
-                Pemisahan ketat saldo belanja Kopsis dan jajan Kantin agar uang saku edukasi siswa terarah.
+                Belanja Kopsis dan Kantin dicatat langsung lewat QRIS atau tunai, tanpa saldo dompet di akun siswa.
               </p>
             </div>
 

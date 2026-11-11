@@ -15,6 +15,7 @@ import {
   SunMedium,
   CheckCircle2,
 } from 'lucide-react';
+import { StudentDirectoryPicker } from '../components/academic/StudentDirectoryPicker';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
@@ -91,7 +92,7 @@ export const SecurityView: React.FC = () => {
   });
 
   // Form State
-  const [studentNisn, setStudentNisn] = useState<string>('0061234567');
+  const [studentNisn, setStudentNisn] = useState<string>('');
   const [scanning, setScanning] = useState<boolean>(false);
   const [checkinResult, setCheckinResult] = useState<{
     success: boolean;
@@ -422,56 +423,33 @@ export const SecurityView: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleCheckin} className="space-y-3">
-            <label className="text-xs font-bold text-slate-700 block">
-              Tempelkan Kartu RFID Siswa atau Masukkan NISN:
-            </label>
-            <div className="flex flex-wrap gap-3">
-              <Input
-                type="text"
-                required
-                placeholder="Contoh: 0061234567"
-                value={studentNisn}
-                onChange={(e) => setStudentNisn(e.target.value)}
-                className="font-mono text-sm flex-1 min-w-[180px]"
-              />
-              <Button
-                type="submit"
-                disabled={scanning}
-                className="shrink-0 h-10 px-6 gap-2 text-xs font-bold tracking-wide"
-              >
-                <ScanLine className="w-4 h-4 shrink-0" />
-                <span>
-                  {scanning ? 'Memeriksa...' : 'Catat Presensi Gerbang'}
-                </span>
-              </Button>
+          <form onSubmit={handleCheckin} className="space-y-4">
+            <div className="space-y-1.5">
+              <label htmlFor="gate-student-nisn" className="text-xs font-bold text-slate-700 block">
+                Scan kartu RFID atau masukkan NISN
+              </label>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                <Input
+                  id="gate-student-nisn"
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  placeholder="Contoh: 0061234567"
+                  value={studentNisn}
+                  onChange={(e) => setStudentNisn(e.target.value)}
+                  className="min-h-11 text-base font-mono sm:text-sm"
+                />
+                <Button
+                  type="submit"
+                  disabled={scanning}
+                  className="min-h-11 w-full gap-2 text-xs font-bold tracking-wide sm:w-auto"
+                >
+                  <ScanLine className="w-4 h-4 shrink-0" />
+                  <span>{scanning ? 'Memeriksa...' : 'Catat presensi'}</span>
+                </Button>
+              </div>
             </div>
-
-            <div className="flex items-center gap-1.5 pt-1 flex-wrap">
-              <span className="text-[11px] text-slate-400 font-semibold">Pilih Cepat Siswa Demo:</span>
-              <button
-                type="button"
-                onClick={() => setStudentNisn('0061234567')}
-                className={`px-4 py-1.5 rounded-full border text-xs cursor-pointer transition-colors ${
-                  studentNisn === '0061234567'
-                    ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
-                    : 'bg-white border-slate-200 text-slate-600'
-                }`}
-              >
-                Ahmad Pratama (0061234567)
-              </button>
-              <button
-                type="button"
-                onClick={() => setStudentNisn('0089876543')}
-                className={`px-4 py-1.5 rounded-full border text-xs cursor-pointer transition-colors ${
-                  studentNisn === '0089876543'
-                    ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
-                    : 'bg-white border-slate-200 text-slate-600'
-                }`}
-              >
-                Siti Rahmawati (0089876543)
-              </button>
-            </div>
+            <StudentDirectoryPicker value={studentNisn} onChange={setStudentNisn} />
           </form>
         </CardContent>
       </Card>

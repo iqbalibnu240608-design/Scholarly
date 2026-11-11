@@ -78,6 +78,12 @@ export const PetugasView: React.FC = () => {
   const [sppNotes, setSppNotes] = useState<string>('Pembayaran SPP Mandiri Siswa');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (isStudentView && paymentMethod === 'transfer') {
+      setPaymentMethod('qris');
+    }
+  }, [isStudentView, paymentMethod]);
+
   // Auto-detection & auto-trigger when SPP QRIS is paid
   useEffect(() => {
     if (!showSPPModal || paymentMethod !== 'qris') return;
@@ -114,7 +120,7 @@ export const PetugasView: React.FC = () => {
       nisn: user?.identifier_number || '0061234567',
       month: 'November 2026',
       amount: 350000,
-      method: 'Saldo Digital',
+      method: 'Tunai di Loket',
       time: 'Hari ini, 08:30 WIB',
     },
   ]);
@@ -203,6 +209,11 @@ export const PetugasView: React.FC = () => {
   // Handle SPP Payment
   const handlePaySPP = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isStudentView && paymentMethod === 'transfer') {
+      setPaymentMethod('qris');
+      toast.info('Virtual Account tidak tersedia untuk pembayaran mandiri. Pilih QRIS atau tunai di loket TU.');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -361,7 +372,9 @@ export const PetugasView: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-xs text-slate-500 mb-3">
-                  Pilih cara pembayaran: E-Wallet, VA Bank, Tunai, atau QRIS
+                  {isStudentView
+                    ? 'Pilih cara pembayaran: QRIS atau tunai di loket TU'
+                    : 'Pilih cara pembayaran: QRIS, tunai, atau Virtual Account'}
                 </p>
                 <Button
                   onClick={() => {
@@ -611,64 +624,71 @@ export const PetugasView: React.FC = () => {
         onClose={() => setShowSPPModal(false)}
         title={isStudentView ? 'Pembayaran SPP Mandiri' : 'Loket Pembayaran SPP Siswa'}
         description="Pilih metode pembayaran dan konfirmasi data tagihan SPP."
+        className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden p-4 sm:p-6"
+        bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
       >
-        <form onSubmit={handlePaySPP} className="space-y-4 mt-2">
-          {!isStudentView ? (
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Identitas Siswa (NISN) *
-              </label>
-              <Input
-                type="text"
-                value={studentNisn}
-                onChange={(e) => setStudentNisn(e.target.value)}
-                placeholder="Masukkan NISN Siswa..."
-                required
-                className="font-mono"
-              />
-              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                <span className="text-[11px] text-slate-400 font-semibold">Pilih Cepat:</span>
-                <button
-                  type="button"
-                  onClick={() => setStudentNisn('0061234567')}
-                  className={`px-2 py-0.5 rounded-lg border text-xs cursor-pointer ${
-                    studentNisn === '0061234567'
-                      ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
-                      : 'bg-white border-slate-200 text-slate-600'
-                  }`}
-                >
-                  Ahmad Pratama (0061234567)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStudentNisn('0089876543')}
-                  className={`px-2 py-0.5 rounded-lg border text-xs cursor-pointer ${
-                    studentNisn === '0089876543'
-                      ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
-                      : 'bg-white border-slate-200 text-slate-600'
-                  }`}
-                >
-                  Siti Rahmawati (0089876543)
-                </button>
+        <form onSubmit={handlePaySPP} className="mt-1 flex min-h-0 flex-1 flex-col overflow-hidden sm:mt-2">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-1 pb-4">
+            {!isStudentView ? (
+              <div>
+                <label htmlFor="spp-student-nisn" className="text-xs font-bold text-slate-700 block mb-1">
+                  Identitas Siswa (NISN) *
+                </label>
+                <Input
+                  id="spp-student-nisn"
+                  type="text"
+                  value={studentNisn}
+                  onChange={(e) => setStudentNisn(e.target.value)}
+                  placeholder="Masukkan NISN Siswa..."
+                  required
+                  className="min-h-11 text-base font-mono sm:text-sm"
+                />
+                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                  <span className="w-full text-[11px] text-slate-500 font-semibold sm:w-auto">Pilih siswa:</span>
+                  <button
+                    type="button"
+                    aria-pressed={studentNisn === '0061234567'}
+                    onClick={() => setStudentNisn('0061234567')}
+                    className={`min-h-10 rounded-lg border px-3 py-1 text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                      studentNisn === '0061234567'
+                        ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
+                        : 'bg-white border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    Ahmad Pratama (0061234567)
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={studentNisn === '0089876543'}
+                    onClick={() => setStudentNisn('0089876543')}
+                    className={`min-h-10 rounded-lg border px-3 py-1 text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                      studentNisn === '0089876543'
+                        ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
+                        : 'bg-white border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    Siti Rahmawati (0089876543)
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200 text-xs space-y-1">
-              <div className="font-bold text-purple-900 text-sm">Data Siswa:</div>
-              <div className="text-slate-700">Nama: <strong>{user?.name || 'Ahmad Pratama'}</strong></div>
-              <div className="text-slate-700">NISN: <code>{user?.identifier_number || '0061234567'}</code></div>
-                          </div>
-          )}
+            ) : (
+              <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-3 text-xs leading-relaxed">
+                <div className="mb-1 font-bold text-blue-900">Data siswa</div>
+                <div className="text-slate-700">Nama: <strong>{user?.name || 'Ahmad Pratama'}</strong></div>
+                <div className="text-slate-700">NISN: <strong className="font-mono">{user?.identifier_number || '0061234567'}</strong></div>
+              </div>
+            )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label htmlFor="spp-month" className="text-xs font-bold text-slate-700 block mb-1.5">
                 Bulan Periode SPP
               </label>
               <select
+                id="spp-month"
                 value={sppMonth}
                 onChange={(e) => setSppMonth(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full min-h-11 px-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="November 2026">November 2026</option>
                 <option value="Desember 2026">Desember 2026</option>
@@ -677,29 +697,32 @@ export const PetugasView: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label htmlFor="spp-amount" className="text-xs font-bold text-slate-700 block mb-1.5">
                 Nominal (Rp) *
               </label>
               <Input
+                id="spp-amount"
                 type="number"
+                inputMode="numeric"
                 value={sppAmount}
                 onChange={(e) => setSppAmount(e.target.value)}
                 placeholder="Contoh: 350000"
                 required
-                className="font-mono font-bold"
+                className="min-h-11 text-base font-mono font-bold sm:text-sm"
               />
             </div>
           </div>
 
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-2">
-              Pilih Metode Pembayaran:
-            </label>
+          <fieldset>
+            <legend className="text-xs font-bold text-slate-700 mb-2">
+              Metode pembayaran
+            </legend>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
+                aria-pressed={paymentMethod === 'cash'}
                 onClick={() => setPaymentMethod('cash')}
-                className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
+                className={`min-h-12 min-w-0 p-3 rounded-xl border text-xs font-bold flex items-center gap-2 text-left cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                   paymentMethod === 'cash'
                     ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300'
@@ -708,22 +731,26 @@ export const PetugasView: React.FC = () => {
                 <Banknote className="w-4 h-4" />
                 <span>Tunai di Loket TU</span>
               </button>
+              {!isStudentView && (
+                <button
+                  type="button"
+                  aria-pressed={paymentMethod === 'transfer'}
+                  onClick={() => setPaymentMethod('transfer')}
+                  className={`min-h-12 min-w-0 p-3 rounded-xl border text-xs font-bold flex items-center gap-2 text-left cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                    paymentMethod === 'transfer'
+                      ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300'
+                  }`}
+                >
+                  <Building className="w-4 h-4" />
+                  <span>Virtual Account</span>
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => setPaymentMethod('transfer')}
-                className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
-                  paymentMethod === 'transfer'
-                    ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300'
-                }`}
-              >
-                <Building className="w-4 h-4" />
-                <span>Virtual Account</span>
-              </button>
-              <button
-                type="button"
+                aria-pressed={paymentMethod === 'qris'}
                 onClick={() => setPaymentMethod('qris')}
-                className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
+                className={`min-h-12 min-w-0 p-3 rounded-xl border text-xs font-bold flex items-center gap-2 text-left cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                   paymentMethod === 'qris'
                     ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300'
@@ -733,10 +760,10 @@ export const PetugasView: React.FC = () => {
                 <span>QRIS Pendidikan</span>
               </button>
             </div>
-          </div>
+          </fieldset>
 
-          {paymentMethod === 'transfer' && (
-            <div className="p-3 bg-blue-50 text-blue-800 rounded-xl text-xs border border-blue-200">
+          {!isStudentView && paymentMethod === 'transfer' && (
+            <div className="break-words p-3 bg-blue-50 text-blue-800 rounded-xl text-xs border border-blue-200">
               <Building className="w-4 h-4 inline mr-1 text-blue-600" />{' '}
               <strong>Nomor Virtual Account:</strong>{' '}
               <code>88001{user?.identifier_number || '0061234567'}</code> (Bank BNI / Mandiri / BRI).
@@ -744,15 +771,15 @@ export const PetugasView: React.FC = () => {
           )}
 
           {paymentMethod === 'qris' && (
-            <div className="p-4 bg-indigo-50/70 text-indigo-900 rounded-2xl text-xs border border-indigo-200 text-center space-y-3">
-              <div className="flex items-center justify-between px-1">
-                <span className="font-bold text-[11px] text-indigo-800">QRIS Loket TU & Keuangan (Terpisah)</span>
-                <span className="text-[10px] font-extrabold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full border border-blue-200">
-                  Uji Transaksi Riil: Rp 1,-
+            <div className="space-y-3 rounded-2xl border border-blue-200 bg-blue-50/60 p-3 text-center text-xs text-slate-800 sm:p-4">
+              <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
+                <span className="font-bold text-[11px] text-blue-900">QRIS Loket TU</span>
+                <span className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-[10px] font-bold text-blue-800">
+                  Uji transaksi riil: Rp1
                 </span>
               </div>
 
-              <div className="w-40 h-40 mx-auto bg-white p-2.5 rounded-2xl border border-indigo-200 shadow-xs flex items-center justify-center">
+              <div className="mx-auto flex h-36 w-36 items-center justify-center rounded-xl border border-blue-100 bg-white p-2 sm:h-40 sm:w-40">
                 <img
                   src={getQRISDisplaySource(tuQris, 1).imageSrc}
                   alt="QRIS SPP Sekolah"
@@ -760,61 +787,65 @@ export const PetugasView: React.FC = () => {
                 />
               </div>
               <div>
-                <p className="font-bold text-xs text-indigo-950">{tuQris.merchantName}</p>
-                <p className="font-mono text-[10px] text-indigo-600">NMID: {tuQris.nmid}</p>
+                <p className="break-words font-bold text-xs text-slate-900">{tuQris.merchantName}</p>
+                <p className="break-all font-mono text-[10px] text-slate-600">NMID: {tuQris.nmid}</p>
               </div>
 
-              <div className="p-2.5 bg-white/90 rounded-xl border border-indigo-100 text-left space-y-1">
-                <div className="flex justify-between font-semibold text-slate-700 text-xs">
+              <div className="space-y-2 rounded-xl border border-blue-100 bg-white p-3 text-left">
+                <div className="flex flex-wrap justify-between gap-1 font-semibold text-slate-700 text-xs">
                   <span>Tagihan SPP Asli:</span>
                   <span>Rp {Number(sppAmount).toLocaleString('id-ID')}</span>
                 </div>
-                <div className="flex justify-between font-extrabold text-blue-700 text-xs">
-                  <span>Nominal Bayar Uji Coba:</span>
-                  <span className="bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-mono">Rp 1,-</span>
+                <div className="flex flex-wrap justify-between gap-1 font-extrabold text-blue-800 text-xs">
+                  <span>Nominal pembayaran:</span>
+                  <span className="font-mono">Rp1</span>
                 </div>
-                <p className="text-[10.5px] text-slate-500 pt-1 leading-snug">
-                  Buka aplikasi BCA / GoPay / OVO / Dana / ShopeePay, scan QRIS loket TU di atas dan transfer <strong>Rp 1</strong>. Sistem akan mendeteksi mutasi dan otomatis melunasi tagihan SPP.
+                <p className="pt-1 text-[11px] leading-relaxed text-slate-600">
+                  Scan QRIS melalui aplikasi pembayaran dan transfer <strong>Rp1</strong>. Sistem mendeteksi mutasi dan otomatis melunasi tagihan SPP.
                 </p>
               </div>
             </div>
           )}
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">
-              Catatan Tambahan (Opsional)
+            <label htmlFor="spp-notes" className="text-xs font-bold text-slate-700 block mb-1.5">
+              Catatan (opsional)
             </label>
             <Input
+              id="spp-notes"
               type="text"
               value={sppNotes}
               onChange={(e) => setSppNotes(e.target.value)}
               placeholder="Catatan..."
+              className="min-h-11 text-base sm:text-sm"
             />
           </div>
+          </div>
 
-          <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+          <div className="flex shrink-0 flex-col gap-3 border-t border-slate-100 bg-white pt-3 sm:flex-row sm:items-center sm:justify-between">
             {paymentMethod === 'qris' ? (
-              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-700">
+              <div className="flex items-center gap-2 text-xs font-semibold text-blue-800">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span>{submitting ? 'Pembayaran Masuk! Memproses...' : 'Menunggu transfer SPP Rp 1...'}</span>
+                <span>{submitting ? 'Pembayaran masuk, memproses...' : 'Menunggu transfer SPP Rp1...'}</span>
               </div>
             ) : (
               <div />
             )}
 
-            <div className="flex items-center gap-2">
+            <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setShowSPPModal(false)}
+                className="min-h-11 w-full sm:w-auto"
               >
                 Batal
               </Button>
               {paymentMethod !== 'qris' && (
-                <Button type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting} className="min-h-11 w-full sm:w-auto">
                   {submitting ? 'Memproses...' : `Konfirmasi Bayar Rp ${Number(sppAmount).toLocaleString('id-ID')}`}
                 </Button>
               )}

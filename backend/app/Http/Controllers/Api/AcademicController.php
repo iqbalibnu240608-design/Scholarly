@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademicClass;
 use App\Models\Grade;
 use App\Models\Schedule;
 use App\Models\User;
@@ -11,6 +12,46 @@ use Illuminate\Http\Request;
 
 class AcademicController extends Controller
 {
+    /**
+     * Directory used by teachers and gate staff to find students by class.
+     */
+    public function getStudentDirectory(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:100',
+            'class_id' => 'nullable|integer|exists:academic_classes,id',
+        ]);
+
+        $query = User::with('academicClass:id,name,grade')
+            ->where('role_name', 'siswa')
+            ->whereNotNull('identifier_number')
+            ->select(['name', 'identifier_number', 'academic_class_id'])
+            ->orderBy('name');
+
+        if (!empty($validated['class_id'])) {
+            $query->where('academic_class_id', $validated['class_id']);
+        }
+
+        if (!empty($validated['search'])) {
+            $search = $validated['search'];
+            $query->where(function ($studentQuery) use ($search) {
+                $studentQuery->where('name', 'like', "%{$search}%")
+                    ->orWhere('identifier_number', 'like', "%{$search}%");
+            });
+        }
+
+        $hasStudentFilter = !empty($validated['class_id']) || !empty($validated['search']);
+
+        return response()->json([
+            'success' => true,
+            'students' => $hasStudentFilter ? $query->limit(100)->get() : [],
+            'classes' => AcademicClass::query()
+                ->orderBy('grade')
+                ->orderBy('name')
+                ->get(['id', 'name', 'grade']),
+        ]);
+    }
+
     /**
      * Guru: Input Nilai Akademik Siswa (Sesuai Flowchart Input Nilai)
      */
@@ -93,15 +134,17 @@ class AcademicController extends Controller
     }
 
     /**
-     * Dapatkan Jadwal Pelajaran (Berdasarkan Kelas Siswa atau Seluruh Kelas)
+     * Return schedules scoped to the current student's class or teacher.
      */
     public function getSchedules(Request $request): JsonResponse
     {
         $user = $request->user();
         $query = Schedule::with('academicClass:id,name,grade', 'teacher:id,name');
 
-        if ($user->role_name === 'siswa' && $user->academic_class_id) {
+        if ($user->role_name === 'siswa') {
             $query->where('academic_class_id', $user->academic_class_id);
+        } elseif ($user->role_name === 'guru') {
+            $query->where('teacher_id', $user->id);
         }
 
         $schedules = $query->orderBy('day')->get()->groupBy('day');

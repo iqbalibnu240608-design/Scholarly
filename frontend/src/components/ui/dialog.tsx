@@ -9,6 +9,7 @@ export interface DialogProps {
   description?: string
   children: React.ReactNode
   className?: string
+  bodyClassName?: string
 }
 
 export const Dialog: React.FC<DialogProps> = ({
@@ -18,6 +19,7 @@ export const Dialog: React.FC<DialogProps> = ({
   description,
   children,
   className,
+  bodyClassName,
 }) => {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -62,7 +64,7 @@ export const Dialog: React.FC<DialogProps> = ({
         </button>
 
         {title && (
-          <div className="mb-4 pr-8">
+          <div className="mb-4 shrink-0 pr-12">
             <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
               {title}
             </h3>
@@ -72,7 +74,7 @@ export const Dialog: React.FC<DialogProps> = ({
           </div>
         )}
 
-        <div>{children}</div>
+        <div className={cn(bodyClassName)}>{children}</div>
       </div>
     </div>
   )

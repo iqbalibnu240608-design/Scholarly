@@ -62,7 +62,9 @@ class WalletController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        if ($request->filled('type')) {
+        $query->where('type', 'not like', 'topup%');
+
+        if ($request->filled('type') && !str_starts_with((string) $request->query('type'), 'topup')) {
             $query->where('type', $request->query('type'));
         }
 

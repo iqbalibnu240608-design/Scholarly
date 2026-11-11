@@ -87,6 +87,133 @@
   flex-shrink: 0;
 }
 
+.eco-modal-body--entry {
+  gap: 16px;
+}
+
+.eco-modal-backdrop--entry .eco-form-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 16px;
+  line-height: 1.4;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.eco-modal-backdrop--entry .eco-form-input::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+.eco-modal-backdrop--entry .eco-form-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
+.eco-modal-backdrop--entry .eco-form-input:disabled {
+  cursor: not-allowed;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.eco-modal-backdrop--entry .btn-close-modal {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.eco-modal-card--pos {
+  width: 100%;
+  max-width: 880px;
+  max-height: calc(100dvh - 32px);
+  min-width: 0;
+}
+
+.eco-modal-body--pos {
+  min-width: 0;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.eco-modal-backdrop--pos .eco-form-input {
+  display: block;
+  box-sizing: border-box;
+  min-width: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #0f172a;
+  line-height: 1.4;
+}
+
+.eco-modal-backdrop--pos .eco-form-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
+.eco-modal-card--pos .pos-checkout-button {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal !important;
+  line-height: 1.35 !important;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .eco-modal-backdrop--pos {
+    align-items: center;
+    padding: 8px;
+  }
+
+  .eco-modal-card--pos {
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+
+  .eco-modal-header--pos {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .eco-modal-header--pos h3 {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .eco-modal-header--pos p {
+    display: none;
+  }
+
+  .eco-modal-backdrop--pos .btn-close-modal {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .eco-modal-backdrop--entry {
+    align-items: center;
+    padding: 12px;
+  }
+
+  .eco-modal-card--entry {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+
+  .eco-modal-footer--entry {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    gap: 8px;
+  }
+}
+
 /* Quick Student Selector Pills */
 .quick-preset-container {
   display: flex;

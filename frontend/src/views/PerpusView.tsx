@@ -87,6 +87,7 @@ export const PerpusView: React.FC = () => {
   const [category, setCategory] = useState<string>('Pelajaran');
   const [stock, setStock] = useState<string>('5');
   const [shelfLocation, setShelfLocation] = useState<string>('Rak A-1');
+  const [savingBook, setSavingBook] = useState<boolean>(false);
 
   // Modal State: Pinjam Buku (Siswa / Petugas)
   const [showBorrowModal, setShowBorrowModal] = useState<boolean>(false);
@@ -124,6 +125,8 @@ export const PerpusView: React.FC = () => {
   // Handle Tambah Buku
   const handleAddBook = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (savingBook) return;
+    setSavingBook(true);
     try {
       await apiClient.post('/library/books', {
         isbn,
@@ -145,6 +148,8 @@ export const PerpusView: React.FC = () => {
       await fetchLibraryData();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Gagal menambahkan buku');
+    } finally {
+      setSavingBook(false);
     }
   };
 
@@ -743,118 +748,128 @@ export const PerpusView: React.FC = () => {
       {/* Modal: Tambah Buku Baru (Shadcn Dialog) */}
       <Dialog
         open={showAddBookModal}
-        onClose={() => setShowAddBookModal(false)}
+        onClose={() => !savingBook && setShowAddBookModal(false)}
         title="Tambah Koleksi Buku Perpustakaan"
-        description="Masukkan metadata buku baru ke dalam inventaris katalog perpustakaan."
+        description="Lengkapi informasi buku dan lokasi penyimpanannya."
+        className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden p-4 sm:p-6"
+        bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
       >
-        <form onSubmit={handleAddBook} className="space-y-4 mt-2">
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">
-              Nomor ISBN *
-            </label>
-            <Input
-              type="text"
-              value={isbn}
-              onChange={(e) => setIsbn(e.target.value)}
-              placeholder="Contoh: 978-602-123-456-7"
-              required
-              className="font-mono"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">
-              Judul Buku *
-            </label>
-            <Input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Contoh: Algoritma & Pemrograman Lanjutan"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Nama Pengarang *
-              </label>
+        <form onSubmit={handleAddBook} className="mt-1 flex min-h-0 flex-1 flex-col overflow-hidden sm:mt-2">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-1 pb-4">
+            <div className="space-y-1.5">
+              <label htmlFor="library-isbn" className="text-xs font-bold text-slate-700">ISBN *</label>
               <Input
+                id="library-isbn"
                 type="text"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Penulis..."
+                value={isbn}
+                onChange={(e) => setIsbn(e.target.value)}
+                placeholder="Contoh: 978-602-123-456-7"
                 required
+                className="min-h-11 text-base font-mono sm:text-sm"
               />
             </div>
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Penerbit
-              </label>
+
+            <div className="space-y-1.5">
+              <label htmlFor="library-title" className="text-xs font-bold text-slate-700">Judul buku *</label>
               <Input
+                id="library-title"
                 type="text"
-                value={publisher}
-                onChange={(e) => setPublisher(e.target.value)}
-                placeholder="Penerbit..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Masukkan judul buku"
+                required
+                className="min-h-11 text-base sm:text-sm"
               />
             </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="library-author" className="text-xs font-bold text-slate-700">Pengarang *</label>
+                <Input
+                  id="library-author"
+                  type="text"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                  placeholder="Nama pengarang"
+                  required
+                  className="min-h-11 text-base sm:text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="library-publisher" className="text-xs font-bold text-slate-700">
+                  Penerbit <span className="font-medium text-slate-600">(opsional)</span>
+                </label>
+                <Input
+                  id="library-publisher"
+                  type="text"
+                  value={publisher}
+                  onChange={(e) => setPublisher(e.target.value)}
+                  placeholder="Nama penerbit"
+                  className="min-h-11 text-base sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <fieldset className="space-y-3 rounded-xl border border-slate-200 p-3 sm:p-4">
+              <legend className="px-1 text-xs font-bold text-slate-800">Pengelompokan dan inventaris</legend>
+              <div className="space-y-1.5">
+                <label htmlFor="library-category" className="text-xs font-semibold text-slate-700">Kategori buku</label>
+                <select
+                  id="library-category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 focus-visible:outline-none focus-visible:border-blue-600 focus-visible:ring-3 focus-visible:ring-blue-500/15"
+                >
+                  <option value="Pelajaran">Pelajaran</option>
+                  <option value="Teknologi">Teknologi</option>
+                  <option value="Fiksi">Fiksi</option>
+                  <option value="Sastra">Sastra</option>
+                  <option value="Komik">Komik</option>
+                  <option value="Referensi">Referensi</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label htmlFor="library-stock" className="text-xs font-semibold text-slate-700">Jumlah eksemplar *</label>
+                  <Input
+                    id="library-stock"
+                    type="number"
+                    inputMode="numeric"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    min="1"
+                    required
+                    className="min-h-11 text-base sm:text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="library-shelf" className="text-xs font-semibold text-slate-700">Lokasi rak *</label>
+                  <Input
+                    id="library-shelf"
+                    type="text"
+                    value={shelfLocation}
+                    onChange={(e) => setShelfLocation(e.target.value)}
+                    placeholder="Contoh: Rak A-1"
+                    required
+                    className="min-h-11 text-base sm:text-sm"
+                  />
+                </div>
+              </div>
+            </fieldset>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Kategori
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              >
-                <option value="Pelajaran">Pelajaran</option>
-                <option value="Teknologi">Teknologi</option>
-                <option value="Fiksi">Fiksi</option>
-                <option value="Sastra">Sastra</option>
-                <option value="Komik">Komik</option>
-                <option value="Referensi">Referensi</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Stok Eksemplar
-              </label>
-              <Input
-                type="number"
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-                min="1"
-                required
-              />
-            </div>
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Lokasi Rak
-              </label>
-              <Input
-                type="text"
-                value={shelfLocation}
-                onChange={(e) => setShelfLocation(e.target.value)}
-                placeholder="Rak A-1"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-slate-100 bg-white pt-3 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
-              onClick={() => setShowAddBookModal(false)}
+              onClick={() => !savingBook && setShowAddBookModal(false)}
+              disabled={savingBook}
+              className="min-h-11 w-full sm:w-auto"
             >
               Batal
             </Button>
-            <Button type="submit">
-              Simpan Buku ke Katalog
+            <Button type="submit" disabled={savingBook} className="min-h-11 w-full sm:w-auto">
+              {savingBook ? 'Menyimpan...' : 'Simpan buku'}
             </Button>
           </div>
         </form>

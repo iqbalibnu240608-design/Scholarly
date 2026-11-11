@@ -1,12 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ROLE_LABELS, ROLE_HOME_ROUTES } from '../../types/auth';
-import { toast } from 'sonner';
+import { ROLE_LABELS } from '../../types/auth';
 import {
   LogOut,
-  Loader2,
-  UserCheck,
   Search,
   Bell,
   Menu,
@@ -19,9 +16,8 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
-  const { user, activeRole, switchRolePreview, logout } = useAuth();
+  const { user, activeRole, logout } = useAuth();
   const navigate = useNavigate();
-  const [switching, setSwitching] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
   const [hasUnread, setHasUnread] = useState<boolean>(true);
@@ -61,35 +57,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const allRoles = [
-    'admin',
-    'kepsek',
-    'guru',
-    'siswa',
-    'petugas',
-    'kopsis',
-    'kantin',
-    'security',
-    'perpustakaan',
-  ];
-
-  const handleRoleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedRole = e.target.value;
-    if (selectedRole === activeRole) return;
-    setSwitching(true);
-    const toastId = toast.loading(`Beralih ke peran ${ROLE_LABELS[selectedRole] || selectedRole}...`);
-    try {
-      await switchRolePreview(selectedRole);
-      const targetRoute = ROLE_HOME_ROUTES[selectedRole] || '/app';
-      navigate(targetRoute);
-      toast.success(`Berhasil beralih ke peran ${ROLE_LABELS[selectedRole] || selectedRole}`, { id: toastId });
-    } catch {
-      toast.error('Gagal beralih peran', { id: toastId });
-    } finally {
-      setSwitching(false);
-    }
-  };
 
   const getInitials = (name?: string) => {
     if (!name) return 'SS';
@@ -174,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
         </form>
       </div>
 
-      {/* Right Controls: Beranda + Role Switcher + Notif + Profil */}
+      {/* Right Controls: Beranda + Notif + Profil */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         {/* Tombol ke Beranda StillSchool - hidden on compact screens */}
         <Link
@@ -189,30 +156,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu }) => {
           />
           <span className="leading-none">Beranda</span>
         </Link>
-
-        {/* Role Switcher Pill */}
-        <div className="h-9.5 px-2 sm:px-3 bg-slate-50 hover:bg-blue-50/40 border border-slate-200/90 hover:border-blue-200/90 rounded-xl inline-flex items-center gap-1 sm:gap-1.5 shrink-0 transition-all shadow-2xs">
-          <span className="inline-flex items-center gap-1.5 text-slate-500 font-semibold text-[11px] leading-none shrink-0 select-none">
-            {switching ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600 shrink-0" />
-            ) : (
-              <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-            )}
-            <span className="hidden xl:inline leading-none">Peran:</span>
-          </span>
-          <select
-            className="border-none bg-transparent text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer outline-none pl-0.5 sm:pl-1 pr-1 leading-none m-0 max-w-[55px] xs:max-w-[70px] sm:max-w-none truncate transition-colors"
-            value={activeRole}
-            onChange={handleRoleChange}
-            disabled={switching}
-          >
-            {allRoles.map((r) => (
-              <option key={r} value={r}>
-                {ROLE_LABELS[r] || r.toUpperCase()}
-              </option>
-            ))}
-          </select>
-        </div>
 
         {/* Notification Bell with Dropdown Popover */}
         <div className="relative inline-flex items-center justify-center" ref={notifRef}>

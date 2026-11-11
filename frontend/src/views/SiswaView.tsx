@@ -4,8 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { apiClient, getCachedData } from '../api/client';
 import { toast } from 'sonner';
 import {
-  Calendar,
-  Clock,
   CreditCard,
   CheckCircle2,
   BookOpen,
@@ -25,6 +23,7 @@ import {
   TableHead,
   TableCell,
 } from '../components/ui/table';
+import { WeeklySchedule, type WeeklyScheduleEntry } from '../components/academic/WeeklySchedule';
 interface SiswaData {
   kelas: string;
   wali_kelas: string;
@@ -71,6 +70,9 @@ export const SiswaView: React.FC = () => {
   const [grades, setGrades] = useState<GradeRecord[]>([]);
   const [averageScore, setAverageScore] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/siswa'));
+  const [weeklySchedule, setWeeklySchedule] = useState<WeeklyScheduleEntry[]>([]);
+  const [scheduleLoading, setScheduleLoading] = useState(true);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
 
   // Top Up Modal State
   const fetchData = useCallback(async () => {
@@ -85,9 +87,27 @@ export const SiswaView: React.FC = () => {
       setGrades(resGrades.data.grades || []);
       setAverageScore(resGrades.data.average_score || 0);
 
-          } catch (err) {
+      setScheduleLoading(true);
+      setScheduleError(null);
+      try {
+        const scheduleResponse = await apiClient.get<{
+          schedules: Record<string, Omit<WeeklyScheduleEntry, 'day'>[]>;
+        }>('/school/schedules', { skipCache: true });
+        const entries = Object.entries(scheduleResponse.data.schedules || {}).flatMap(([day, dayEntries]) =>
+          dayEntries.map((entry) => ({ ...entry, day }))
+        );
+        setWeeklySchedule(entries);
+      } catch (scheduleRequestError) {
+        console.error('Error fetching student weekly schedule', scheduleRequestError);
+        setScheduleError('Jadwal mingguan belum dapat dimuat. Coba muat ulang halaman.');
+      } finally {
+        setScheduleLoading(false);
+      }
+    } catch (err) {
       console.error('Error fetching siswa data', err);
       toast.error('Gagal mengambil data siswa');
+      setScheduleError('Data siswa belum dapat dimuat. Coba muat ulang halaman.');
+      setScheduleLoading(false);
     }
   }, []);
 
@@ -239,49 +259,7 @@ export const SiswaView: React.FC = () => {
         </Card>
       </div>
 
-      {/* Jadwal Pelajaran Hari Ini (Full-Width Card) */}
-      <Card className="border-slate-200/80 bg-white shadow-2xs">
-        <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-              <Clock className="w-5 h-5" />
-            </div>
-            <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
-              Jadwal Pelajaran Hari Ini
-            </CardTitle>
-          </div>
-          <Badge variant="secondary" className="hidden md:inline-flex text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
-            {(data?.jadwal_hari_ini?.length || 0) || 0} Pertemuan
-          </Badge>
-        </CardHeader>
-        <CardContent>
-          {(data?.jadwal_hari_ini || []).length === 0 ? (
-            <div className="p-6 text-center text-xs text-slate-400 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-              Tidak ada jadwal pelajaran untuk hari ini.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {(data?.jadwal_hari_ini || []).map((j, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:shadow-xs transition-all"
-                >
-                  <div className="px-2.5 py-1 rounded-xl bg-blue-100/80 text-blue-700 text-xs font-bold font-mono shrink-0">
-                    <Calendar className="w-3 h-3 inline mr-1" />
-                    {j.jam}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-slate-900 truncate">{j.mapel}</h4>
-                    <div className="text-xs text-slate-500 mt-0.5 truncate">
-                      <span>Pengajar: {j.guru}</span> • <span>Ruang: {j.ruang}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <WeeklySchedule entries={weeklySchedule} audience="student" loading={scheduleLoading} error={scheduleError} />
 
       {/* Rekap Nilai Akademik Siswa */}
       <Card className="border-slate-200/80">

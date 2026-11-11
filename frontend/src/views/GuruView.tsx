@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import {
   BookOpen,
   Users,
-  Calendar,
   Award,
   FileText,
   CheckCircle2,
@@ -27,17 +26,13 @@ import {
   TableCell,
 } from '../components/ui/table';
 import { Dialog } from '../components/ui/dialog';
+import { StudentDirectoryPicker } from '../components/academic/StudentDirectoryPicker';
+import { WeeklySchedule, type WeeklyScheduleEntry } from '../components/academic/WeeklySchedule';
 
 interface GuruData {
   nip: string;
   mata_pelajaran: string;
   kelas_diajar: string[];
-  jadwal_mengajar: Array<{
-    hari: string;
-    kelas: string;
-    jam: string;
-    ruang: string;
-  }>;
   rekap_kehadiran_siswa: {
     total_siswa_diajar: number;
     rata_rata_kehadiran: string;
@@ -60,13 +55,17 @@ export const GuruView: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(() => !getCachedData('/school/guru'));
   // Modal State: Input Nilai
   const [showGradeModal, setShowGradeModal] = useState<boolean>(false);
-  const [studentNisn, setStudentNisn] = useState<string>('0061234567');
+  const [studentNisn, setStudentNisn] = useState<string>('');
+  const [selectedStudentName, setSelectedStudentName] = useState<string>('');
   const [subjectName, setSubjectName] = useState<string>('Pemrograman Web & Backend Laravel');
   const [gradeType, setGradeType] = useState<string>('tugas');
   const [score, setScore] = useState<string>('90');
   const [feedback, setFeedback] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [shakingBtn, setShakingBtn] = useState<'header' | 'quick' | null>(null);
+  const [weeklySchedule, setWeeklySchedule] = useState<WeeklyScheduleEntry[]>([]);
+  const [scheduleLoading, setScheduleLoading] = useState(true);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
 
   const isTeacher = activeRole === 'guru' || activeRole === 'admin' || activeRole === 'kepsek';
 
@@ -79,6 +78,8 @@ export const GuruView: React.FC = () => {
       );
       return;
     }
+    setStudentNisn('');
+    setSelectedStudentName('');
     setShowGradeModal(true);
   };
 
@@ -104,6 +105,7 @@ export const GuruView: React.FC = () => {
   ]);
 
   useEffect(() => {
+    let active = true;
     const fetchData = async () => {
       try {
         const [resGuru, resGrades] = await Promise.all([
@@ -137,7 +139,32 @@ export const GuruView: React.FC = () => {
         setLoading(false);
       }
     };
-    fetchData();
+
+    const fetchSchedule = async () => {
+      setScheduleLoading(true);
+      setScheduleError(null);
+      try {
+        const response = await apiClient.get<{
+          schedules: Record<string, Omit<WeeklyScheduleEntry, 'day'>[]>;
+        }>('/school/schedules', { skipCache: true });
+        if (!active) return;
+        const entries = Object.entries(response.data.schedules || {}).flatMap(([day, dayEntries]) =>
+          dayEntries.map((entry) => ({ ...entry, day }))
+        );
+        setWeeklySchedule(entries);
+      } catch (error) {
+        console.error('Error fetching teacher weekly schedule', error);
+        if (active) setScheduleError('Jadwal mingguan belum dapat dimuat. Coba muat ulang halaman.');
+      } finally {
+        if (active) setScheduleLoading(false);
+      }
+    };
+
+    void fetchData();
+    void fetchSchedule();
+    return () => {
+      active = false;
+    };
   }, [activeRole]);
 
   const handleSubmitGrade = async (e: React.FormEvent) => {
@@ -159,11 +186,12 @@ export const GuruView: React.FC = () => {
       toast.success(res.data.message || 'Nilai siswa berhasil disimpan!');
 
       const studentLabel =
-        studentNisn === '0061234567'
+        selectedStudentName ||
+        (studentNisn === '0061234567'
           ? 'Ahmad Pratama'
           : studentNisn === '0089876543'
           ? 'Siti Rahmawati'
-          : `Siswa (${studentNisn})`;
+          : `Siswa (${studentNisn})`);
 
       setRecentGrades((prev) => [
         {
@@ -305,53 +333,9 @@ export const GuruView: React.FC = () => {
       {/* Kolom Jadwal & Aksi Cepat Guru */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Jadwal Pelajaran Guru (Col span 2) */}
-        <Card className="lg:col-span-2 border-slate-200/80">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                <Calendar className="w-5 h-5" />
-              </div>
-              <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
-                Jadwal Mengajar Mingguan
-              </CardTitle>
-            </div>
-            <Badge variant="secondary" className="text-xs font-semibold whitespace-nowrap shrink-0 px-3 py-1 rounded-full">
-              Tahun Ajaran 2026/2027
-            </Badge>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Hari</TableHead>
-                  <TableHead>Kelas</TableHead>
-                  <TableHead>Jam Pelajaran</TableHead>
-                  <TableHead>Ruangan</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(data?.jadwal_mengajar || []).map((item, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="font-bold text-slate-900">
-                      {item.hari}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="primary" className="text-xs">
-                        {item.kelas}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-mono text-xs text-slate-600">
-                      {item.jam}
-                    </TableCell>
-                    <TableCell className="text-xs text-slate-600">
-                      {item.ruang}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <div className="lg:col-span-2">
+          <WeeklySchedule entries={weeklySchedule} audience="teacher" loading={scheduleLoading} error={scheduleError} />
+        </div>
 
         {/* Menu Aksi Cepat Guru (Col span 1) */}
         <Card className="border-slate-200/80">
@@ -484,121 +468,117 @@ export const GuruView: React.FC = () => {
         open={showGradeModal}
         onClose={() => setShowGradeModal(false)}
         title="Input Nilai Akademik Siswa"
-        description="Masukkan evaluasi nilai tugas, ulangan harian, PTS, atau karakter siswa ke buku rapor."
+        description="Pilih murid, lalu isi penilaian dan skornya."
+        className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden p-4 sm:p-6"
+        bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
       >
-        <form onSubmit={handleSubmitGrade} className="space-y-4 mt-2">
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">
-              Nomor Identitas (NISN Siswa) *
-            </label>
-            <Input
-              type="text"
-              required
-              placeholder="Contoh: 0061234567"
+        <form onSubmit={handleSubmitGrade} className="mt-1 flex min-h-0 flex-1 flex-col overflow-hidden sm:mt-2">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-1 pb-4">
+            <StudentDirectoryPicker
               value={studentNisn}
-              onChange={(e) => setStudentNisn(e.target.value)}
-              className="font-mono"
+              onChange={setStudentNisn}
+              onSelectStudent={(student) => setSelectedStudentName(student.name)}
             />
-            <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-              <span className="text-[11px] text-slate-400 font-semibold">Pilih Cepat:</span>
-              <button
-                type="button"
-                onClick={() => setStudentNisn('0061234567')}
-                className={`px-2 py-0.5 rounded-lg border text-xs cursor-pointer transition-colors ${
-                  studentNisn === '0061234567'
-                    ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
-                    : 'bg-white border-slate-200 text-slate-600'
-                }`}
-              >
-                Ahmad Pratama (0061234567)
-              </button>
-              <button
-                type="button"
-                onClick={() => setStudentNisn('0089876543')}
-                className={`px-2 py-0.5 rounded-lg border text-xs cursor-pointer transition-colors ${
-                  studentNisn === '0089876543'
-                    ? 'bg-blue-50 border-blue-400 text-blue-700 font-bold'
-                    : 'bg-white border-slate-200 text-slate-600'
-                }`}
-              >
-                Siti Rahmawati (0089876543)
-              </button>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Mata Pelajaran *
+            <div className="space-y-1.5">
+              <label htmlFor="grade-student-nisn" className="text-xs font-bold text-slate-700">
+                NISN murid *
               </label>
-              <select
-                value={subjectName}
-                onChange={(e) => setSubjectName(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              >
-                <option value="Pemrograman Web & Backend Laravel">Pemrograman Web & Backend Laravel</option>
-                <option value="Basis Data MySQL & Arsitektur">Basis Data MySQL & Arsitektur</option>
-                <option value="Pemodelan Perangkat Lunak">Pemodelan Perangkat Lunak</option>
-                <option value="Pemrograman Berorientasi Objek">Pemrograman Berorientasi Objek</option>
-                <option value="Bahasa Inggris Kejuruan">Bahasa Inggris Kejuruan</option>
-              </select>
+              <Input
+                id="grade-student-nisn"
+                type="text"
+                inputMode="numeric"
+                required
+                placeholder="Masukkan NISN atau pilih dari daftar"
+                value={studentNisn}
+                onChange={(event) => {
+                  setStudentNisn(event.target.value);
+                  setSelectedStudentName('');
+                }}
+                className="min-h-11 text-base font-mono sm:text-sm"
+              />
             </div>
 
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Jenis Penilaian *
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="grade-subject" className="text-xs font-bold text-slate-700">
+                  Mata Pelajaran *
+                </label>
+                <select
+                  id="grade-subject"
+                  value={subjectName}
+                  onChange={(e) => setSubjectName(e.target.value)}
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 focus-visible:outline-none focus-visible:border-blue-600 focus-visible:ring-3 focus-visible:ring-blue-500/15"
+                >
+                  <option value="Pemrograman Web & Backend Laravel">Pemrograman Web & Backend Laravel</option>
+                  <option value="Basis Data MySQL & Arsitektur">Basis Data MySQL & Arsitektur</option>
+                  <option value="Pemodelan Perangkat Lunak">Pemodelan Perangkat Lunak</option>
+                  <option value="Pemrograman Berorientasi Objek">Pemrograman Berorientasi Objek</option>
+                  <option value="Bahasa Inggris Kejuruan">Bahasa Inggris Kejuruan</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="grade-type" className="text-xs font-bold text-slate-700">
+                  Jenis Penilaian *
+                </label>
+                <select
+                  id="grade-type"
+                  value={gradeType}
+                  onChange={(e) => setGradeType(e.target.value)}
+                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 focus-visible:outline-none focus-visible:border-blue-600 focus-visible:ring-3 focus-visible:ring-blue-500/15"
+                >
+                  <option value="tugas">Tugas Terstruktur</option>
+                  <option value="uh">Ulangan Harian (UH)</option>
+                  <option value="pts">Penilaian Tengah Semester (PTS)</option>
+                  <option value="pas">Penilaian Akhir Semester (PAS)</option>
+                  <option value="sikap">Penilaian Karakter / Sikap</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="grade-score" className="text-xs font-bold text-slate-700">
+                Nilai angka <span className="font-medium text-slate-600">(0–100)</span> *
               </label>
-              <select
-                value={gradeType}
-                onChange={(e) => setGradeType(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              >
-                <option value="tugas">Tugas Terstruktur</option>
-                <option value="uh">Ulangan Harian (UH)</option>
-                <option value="pts">Penilaian Tengah Semester (PTS)</option>
-                <option value="pas">Penilaian Akhir Semester (PAS)</option>
-                <option value="sikap">Penilaian Karakter / Sikap</option>
-              </select>
+              <Input
+                id="grade-score"
+                type="number"
+                inputMode="decimal"
+                min="0"
+                max="100"
+                required
+                value={score}
+                onChange={(e) => setScore(e.target.value)}
+                className="min-h-11 text-base font-bold text-blue-700 font-mono sm:text-sm"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="grade-feedback" className="text-xs font-bold text-slate-700">
+                Catatan untuk murid <span className="font-medium text-slate-600">(opsional)</span>
+              </label>
+              <textarea
+                id="grade-feedback"
+                rows={3}
+                placeholder="Tulis masukan singkat..."
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                className="w-full min-h-24 resize-y rounded-xl border border-slate-300 bg-white p-3 text-base text-slate-800 placeholder:text-slate-500 focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-500/15 sm:text-sm"
+              />
             </div>
           </div>
 
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">
-              Nilai Angka (Skor 0 - 100) *
-            </label>
-            <Input
-              type="number"
-              min="0"
-              max="100"
-              required
-              value={score}
-              onChange={(e) => setScore(e.target.value)}
-              className="font-bold text-blue-600 font-mono"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">
-              Catatan & Masukan untuk Siswa (Opsional)
-            </label>
-            <textarea
-              rows={2}
-              placeholder="Contoh: Sangat baik dalam mendesain skema basis data dan penanganan relasi tabel."
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-slate-100 bg-white pt-3 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
               onClick={() => setShowGradeModal(false)}
+              className="min-h-11 w-full sm:w-auto"
             >
               Batal
             </Button>
-            <Button type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting} className="min-h-11 w-full sm:w-auto">
               {submitting ? 'Menyimpan...' : 'Simpan Nilai Siswa'}
             </Button>
           </div>

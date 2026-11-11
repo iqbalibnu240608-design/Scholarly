@@ -79,6 +79,7 @@ export const KantinView: React.FC = () => {
   const [category, setCategory] = useState<string>('Makanan');
   const [price, setPrice] = useState<string>('');
   const [stallName, setStallName] = useState<string>('Stand 1 Bu Titin');
+  const [savingMenu, setSavingMenu] = useState<boolean>(false);
 
   const [showQRISModal, setShowQRISModal] = useState<boolean>(false);
   const [kantinQris, setKantinQris] = useState(() => getStoredQRIS('kantin'));
@@ -259,6 +260,7 @@ export const KantinView: React.FC = () => {
   // Tambah Menu Handler (Staff Kantin / Admin)
   const handleCreateMenu = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSavingMenu(true);
     try {
       await apiClient.post('/school/kantin/menus', {
         name,
@@ -274,6 +276,8 @@ export const KantinView: React.FC = () => {
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Gagal menambahkan menu');
+    } finally {
+      setSavingMenu(false);
     }
   };
 
@@ -917,43 +921,44 @@ export const KantinView: React.FC = () => {
       {/* MODAL: KASIR POS STAN KANTIN (STAFF / OPERATOR)                 */}
       {/* ============================================================== */}
       {showPOSModal && (
-        <div className="eco-modal-backdrop" onClick={() => setShowPOSModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '880px', width: '95%' }} onClick={(e) => e.stopPropagation()}>
-            <div className="eco-modal-header bg-slate-50 border-b border-slate-200">
-              <div className="flex items-center gap-2.5">
+        <div className="eco-modal-backdrop eco-modal-backdrop--pos" onClick={() => setShowPOSModal(false)}>
+          <div className="eco-modal-card eco-modal-card--pos" onClick={(e) => e.stopPropagation()}>
+            <div className="eco-modal-header eco-modal-header--pos bg-slate-50 border-b border-slate-200">
+              <div className="flex min-w-0 items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
                   <ShoppingCart size={18} />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-base font-bold text-slate-900 leading-tight">Mesin Kasir POS Stan Kantin</h3>
                   <p className="text-xs text-slate-500">Layanan pesanan langsung dengan Tunai atau QRIS</p>
                 </div>
               </div>
-              <button onClick={() => setShowPOSModal(false)} className="btn-close-modal"><X size={18} /></button>
+              <button type="button" onClick={() => setShowPOSModal(false)} className="btn-close-modal" aria-label="Tutup kasir POS"><X size={18} /></button>
             </div>
 
-            <div className="eco-modal-body p-4 sm:p-5 overflow-y-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div className="eco-modal-body eco-modal-body--pos p-3 sm:p-4 lg:p-5">
+              <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5">
                 {/* Kolom Kiri 7/12: Katalog Menu POS */}
-                <div className="lg:col-span-7 space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="relative flex-1">
+                <div className="min-w-0 space-y-3 lg:col-span-7">
+                  <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+                    <div className="relative w-full min-w-0 sm:flex-1">
                       <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="text"
                         placeholder="Cari menu kantin..."
                         value={posSearch}
                         onChange={(e) => setPosSearch(e.target.value)}
-                        className="eco-form-input text-xs pl-8 h-8"
+                        className="eco-form-input min-h-11 w-full pl-9 text-base sm:text-sm"
                       />
                     </div>
-                    <div className="flex gap-1">
+                    <div className="grid w-full min-w-0 grid-cols-2 gap-1 sm:flex sm:w-auto sm:flex-wrap sm:justify-end" role="group" aria-label="Filter kategori menu">
                       {['Semua', 'Makanan', 'Minuman', 'Snack'].map((cat) => (
                         <button
                           key={cat}
                           type="button"
+                          aria-pressed={posCategory === cat}
                           onClick={() => setPosCategory(cat)}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                          className={`min-h-10 min-w-0 rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${
                             posCategory === cat
                               ? 'bg-indigo-600 text-white shadow-2xs'
                               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -966,7 +971,7 @@ export const KantinView: React.FC = () => {
                   </div>
 
                   {/* Grid Menu POS */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
+                  <div className="grid min-w-0 max-h-[360px] grid-cols-2 gap-2.5 overflow-y-auto pr-1 sm:grid-cols-3">
                     {(data?.daftar_menu || [])
                       .filter((m) => {
                         const matchCat = posCategory === 'Semua' || m.category.toLowerCase() === posCategory.toLowerCase();
@@ -978,13 +983,13 @@ export const KantinView: React.FC = () => {
                           key={menu.id}
                           type="button"
                           onClick={() => addToCart(menu)}
-                          className="p-2.5 border border-slate-200 rounded-xl text-left bg-white hover:border-indigo-400 hover:shadow-xs transition-all flex flex-col justify-between group cursor-pointer"
+                          className="group flex min-w-0 cursor-pointer flex-col justify-between rounded-xl border border-slate-200 bg-white p-2.5 text-left transition-all hover:border-indigo-400 hover:shadow-xs"
                         >
-                          <div>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight block">
+                          <div className="min-w-0">
+                            <span className="block break-words text-[10px] font-bold uppercase tracking-tight text-slate-500">
                               {menu.category}
                             </span>
-                            <div className="font-bold text-xs text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2">
+                            <div className="line-clamp-2 break-words text-xs font-bold text-slate-900 transition-colors group-hover:text-indigo-600">
                               {menu.name}
                             </div>
                           </div>
@@ -1002,50 +1007,52 @@ export const KantinView: React.FC = () => {
                 </div>
 
                 {/* Kolom Kanan 5/12: Struk Kasir & Pembayaran */}
-                <div className="lg:col-span-5 flex flex-col justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex min-w-0 flex-col justify-between space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4 lg:col-span-5">
                   <div className="space-y-3">
                     {/* Input NISN Pelanggan */}
                     <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-700">NISN / Nama Pelanggan</label>
+                      <label htmlFor="kantin-pos-customer" className="text-[11px] font-bold text-slate-700">NISN / Nama Pelanggan</label>
                       <input
+                        id="kantin-pos-customer"
                         type="text"
                         value={studentNisn}
                         onChange={(e) => setStudentNisn(e.target.value)}
                         placeholder="Contoh: 0061234567"
-                        className="eco-form-input text-xs font-mono h-8 bg-white"
+                        className="eco-form-input min-h-11 w-full bg-white text-base font-mono sm:text-sm"
                       />
                     </div>
 
                     {/* Rincian Pesanan Aktif */}
                     <div className="space-y-1.5">
-                      <div className="text-[11px] font-bold text-slate-500 uppercase flex justify-between">
+                      <div className="text-[11px] font-bold text-slate-500 uppercase flex items-center justify-between gap-2">
                         <span>Item Pesanan ({cartTotalQty})</span>
                         {cart.length > 0 && (
-                          <button type="button" onClick={clearCart} className="text-rose-600 hover:underline">
+                          <button type="button" onClick={clearCart} className="min-h-10 shrink-0 px-2 text-rose-600 hover:underline">
                             Reset
                           </button>
                         )}
                       </div>
 
-                      <div className="max-h-[160px] overflow-y-auto space-y-1 pr-1 bg-white p-2 rounded-xl border border-slate-200">
+                      <div className="max-h-[160px] space-y-1 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
                         {cart.length === 0 ? (
                           <div className="text-center py-6 text-xs text-slate-400">
                             Pilih menu di samping untuk menambahkan ke struk
                           </div>
                         ) : (
                           cart.map((item) => (
-                            <div key={item.menu_id} className="flex items-center justify-between py-1 text-xs border-b border-slate-100 last:border-0">
+                            <div key={item.menu_id} className="flex min-w-0 flex-col gap-1 border-b border-slate-100 py-2 text-xs last:border-0 sm:flex-row sm:items-center sm:justify-between">
                               <div className="flex-1 min-w-0 pr-2">
                                 <div className="font-semibold text-slate-800 truncate">{item.name}</div>
                                 <div className="text-[10px] text-slate-500 font-mono">
                                   Rp {item.price.toLocaleString('id-ID')}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-1.5 shrink-0">
+                              <div className="flex min-w-0 items-center justify-between gap-1 sm:shrink-0 sm:justify-end sm:gap-1.5">
                                 <button
                                   type="button"
                                   onClick={() => updateQuantity(item.menu_id, -1)}
-                                  className="w-5 h-5 rounded bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs"
+                                  aria-label={`Kurangi ${item.name}`}
+                                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-700 sm:h-8 sm:w-8"
                                 >
                                   -
                                 </button>
@@ -1053,11 +1060,12 @@ export const KantinView: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => updateQuantity(item.menu_id, 1)}
-                                  className="w-5 h-5 rounded bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs"
+                                  aria-label={`Tambah ${item.name}`}
+                                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-700 sm:h-8 sm:w-8"
                                 >
                                   +
                                 </button>
-                                <span className="font-bold text-xs text-indigo-700 ml-1">
+                                <span className="min-w-0 break-all text-right font-bold text-xs text-indigo-700 sm:ml-1">
                                   Rp {(item.price * item.quantity).toLocaleString('id-ID')}
                                 </span>
                               </div>
@@ -1068,9 +1076,11 @@ export const KantinView: React.FC = () => {
                     </div>
 
                     {/* Total Tagihan */}
-                    <div className="p-2.5 bg-indigo-900 text-white rounded-xl flex items-center justify-between">
-                      <span className="text-xs font-semibold text-indigo-200">Total Tagihan:</span>
-                      <span className="text-lg font-black tracking-tight">Rp {cartTotal.toLocaleString('id-ID')}</span>
+                    <div className="flex min-w-0 flex-col items-start gap-1 rounded-xl border border-blue-200 bg-white p-3">
+                      <span className="text-xs font-semibold text-slate-600">Total tagihan</span>
+                      <span className="w-full break-words text-left text-xl font-extrabold leading-tight tracking-tight text-blue-700 sm:text-2xl">
+                        Rp {cartTotal.toLocaleString('id-ID')}
+                      </span>
                     </div>
 
                     {/* Pilihan Metode Bayar Kasir */}
@@ -1080,7 +1090,7 @@ export const KantinView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setPaymentMethod('cash')}
-                          className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                          className={`min-h-11 min-w-0 rounded-xl border px-2 py-1.5 text-xs font-bold transition-all flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ${
                             paymentMethod === 'cash'
                               ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
                               : 'bg-white text-slate-700 border-slate-200'
@@ -1091,7 +1101,7 @@ export const KantinView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setPaymentMethod('qris')}
-                          className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                          className={`min-h-11 min-w-0 rounded-xl border px-2 py-1.5 text-xs font-bold transition-all flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${
                             paymentMethod === 'qris'
                               ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
                               : 'bg-white text-slate-700 border-slate-200'
@@ -1105,21 +1115,22 @@ export const KantinView: React.FC = () => {
                     {/* Jika Tunai: Quick Money & Hitung Kembalian */}
                     {paymentMethod === 'cash' && cartTotal > 0 && (
                       <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1.5 text-xs">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                           <span className="font-bold text-slate-700">Uang Diterima:</span>
                           <input
                             type="number"
+                            inputMode="numeric"
                             value={cashTendered || ''}
                             onChange={(e) => setCashTendered(Number(e.target.value))}
                             placeholder={String(cartTotal)}
-                            className="eco-form-input text-xs font-mono h-7 w-28 text-right bg-slate-50"
+                            className="eco-form-input min-w-0 flex-1 bg-slate-50 text-right text-xs font-mono sm:flex-none sm:w-28"
                           />
                         </div>
-                        <div className="flex gap-1 pt-1 flex-wrap">
+                        <div className="flex flex-wrap gap-1.5 pt-1">
                           <button
                             type="button"
                             onClick={() => setCashTendered(cartTotal)}
-                            className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700"
+                            className="min-h-10 rounded-lg bg-slate-100 px-3 text-[11px] font-bold text-slate-700 hover:bg-slate-200"
                           >
                             Uang Pas
                           </button>
@@ -1128,7 +1139,7 @@ export const KantinView: React.FC = () => {
                               key={amt}
                               type="button"
                               onClick={() => setCashTendered(amt)}
-                              className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700"
+                              className="min-h-10 rounded-lg bg-slate-100 px-3 text-[11px] font-bold text-slate-700 hover:bg-slate-200"
                             >
                               {amt >= 1000 ? `${amt / 1000}rb` : amt}
                             </button>
@@ -1147,9 +1158,9 @@ export const KantinView: React.FC = () => {
                     {/* Jika QRIS: Preview QRIS Stan Kasir & Panduan Rp 1 */}
                     {paymentMethod === 'qris' && cartTotal > 0 && (
                       <div className="p-3 bg-indigo-50/90 rounded-xl border border-indigo-200 text-xs space-y-2 text-center">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-indigo-950 text-[11px] truncate max-w-[170px]">{kantinQris.merchantName}</span>
-                          <span className="text-[10px] font-extrabold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+                        <div className="flex min-w-0 items-center justify-between gap-2">
+                          <span className="min-w-0 truncate font-bold text-indigo-950 text-[11px]">{kantinQris.merchantName}</span>
+                          <span className="shrink-0 text-[10px] font-extrabold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
                             Uji Transaksi: Rp 1,-
                           </span>
                         </div>
@@ -1172,7 +1183,7 @@ export const KantinView: React.FC = () => {
                     type="button"
                     onClick={() => handleCheckout(false)}
                     disabled={processingOrder || cart.length === 0}
-                    className="w-full btn-success-action py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"
+                    className="pos-checkout-button w-full btn-success-action px-3 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"
                   >
                     {processingOrder
                       ? 'Memproses...'
@@ -1191,43 +1202,44 @@ export const KantinView: React.FC = () => {
       {/* MODAL: TAMBAH MENU BARU (STAFF/ADMIN)                           */}
       {/* ============================================================== */}
       {showAddModal && (
-        <div className="eco-modal-backdrop" onClick={() => setShowAddModal(false)}>
-          <div className="eco-modal-card" style={{ maxWidth: '460px' }} onClick={(e) => e.stopPropagation()}>
+        <div className="eco-modal-backdrop eco-modal-backdrop--entry" onClick={() => !savingMenu && setShowAddModal(false)}>
+          <div className="eco-modal-card eco-modal-card--entry" style={{ maxWidth: '460px' }} onClick={(e) => e.stopPropagation()}>
             <div className="eco-modal-header bg-slate-50 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
                   <PlusCircle size={18} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 leading-tight">Tambah Menu Stan Kantin</h3>
-                  <p className="text-xs text-slate-500">Daftarkan menu makanan, minuman, atau camilan baru</p>
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">Tambah menu</h3>
                 </div>
               </div>
-              <button onClick={() => setShowAddModal(false)} className="btn-close-modal"><X size={18} /></button>
+              <button type="button" onClick={() => setShowAddModal(false)} disabled={savingMenu} className="btn-close-modal" aria-label="Tutup form tambah menu"><X size={18} /></button>
             </div>
             <form onSubmit={handleCreateMenu} className="eco-modal-form">
-              <div className="eco-modal-body p-5 space-y-4">
+              <div className="eco-modal-body eco-modal-body--entry p-4 sm:p-5">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Nama Menu Makanan / Minuman</label>
+                  <label htmlFor="kantin-menu-name" className="text-xs font-bold text-slate-700">Nama menu</label>
                   <input
+                    id="kantin-menu-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Contoh: Nasi Ayam Bakar Sambal Matah"
+                    placeholder="Contoh: Nasi ayam bakar"
                     required
-                    className="eco-form-input text-xs"
+                    className="eco-form-input min-h-11 text-base sm:text-sm"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Kategori Menu</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="text-xs font-bold text-slate-700">Kategori</div>
+                  <div role="group" aria-label="Kategori menu" className="grid grid-cols-3 gap-2">
                     {['Makanan', 'Minuman', 'Snack'].map((cat) => (
                       <button
                         key={cat}
                         type="button"
+                        aria-pressed={category === cat}
                         onClick={() => setCategory(cat)}
-                        className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                        className={`min-h-11 rounded-xl border px-3 py-2 text-xs font-bold text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                           category === cat
                             ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
                             : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
@@ -1241,7 +1253,7 @@ export const KantinView: React.FC = () => {
 
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
-                    <label className="text-xs font-bold text-slate-700">Harga Satuan (Rp)</label>
+                    <label htmlFor="kantin-menu-price" className="text-xs font-bold text-slate-700">Harga (Rp)</label>
                     {price && Number(price) > 0 && (
                       <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                         Rp {Number(price).toLocaleString('id-ID')}
@@ -1249,35 +1261,38 @@ export const KantinView: React.FC = () => {
                     )}
                   </div>
                   <input
+                    id="kantin-menu-price"
                     type="number"
+                    inputMode="numeric"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder="Contoh: 12000"
                     required
                     min="500"
                     step="500"
-                    className="eco-form-input text-xs font-mono"
+                    className="eco-form-input min-h-11 text-base sm:text-sm"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Stan Penjual / Penyedia</label>
+                  <label htmlFor="kantin-menu-stall" className="text-xs font-bold text-slate-700">Nama stan</label>
                   <input
+                    id="kantin-menu-stall"
                     type="text"
                     value={stallName}
                     onChange={(e) => setStallName(e.target.value)}
                     placeholder="Contoh: Stand 1 Bu Titin"
                     required
-                    className="eco-form-input text-xs"
+                    className="eco-form-input min-h-11 text-base sm:text-sm"
                   />
                 </div>
               </div>
-              <div className="eco-modal-footer p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowAddModal(false)} className="btn-secondary-action text-xs">
+              <div className="eco-modal-footer eco-modal-footer--entry p-4 bg-slate-50 border-t border-slate-200 flex flex-col-reverse sm:flex-row justify-end gap-2">
+                <button type="button" onClick={() => setShowAddModal(false)} disabled={savingMenu} className="btn-secondary-action min-h-11 w-full text-xs sm:w-auto">
                   Batal
                 </button>
-                <button type="submit" className="btn-primary-action text-xs font-bold px-4 py-2">
-                  Simpan Menu
+                <button type="submit" disabled={savingMenu} className="btn-primary-action min-h-11 w-full text-xs font-bold px-4 py-2 sm:w-auto">
+                  {savingMenu ? 'Menyimpan...' : 'Simpan menu'}
                 </button>
               </div>
             </form>

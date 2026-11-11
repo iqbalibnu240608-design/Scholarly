@@ -87,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/guru/my-grades', [AcademicController::class, 'getTeacherGrades'])->middleware('role:guru,admin,kepsek');
     Route::get('/siswa/my-grades', [AcademicController::class, 'getMyGrades']);
     Route::get('/school/schedules', [AcademicController::class, 'getSchedules']);
+    Route::get('/school/students', [AcademicController::class, 'getStudentDirectory'])->middleware('role:guru,admin,kepsek,security');
 
     // Modul Perpustakaan Sekolah (E-Library)
     Route::get('/school/library', [LibraryController::class, 'getLibraryData']);

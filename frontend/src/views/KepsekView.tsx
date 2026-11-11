@@ -63,23 +63,23 @@ export const KepsekView: React.FC = () => {
     <div className="space-y-8">
       {/* Header Halaman */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
-        <div className="flex items-start gap-3.5">
+        <div className="flex min-w-0 items-start gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
             <School className="w-6 h-6" />
           </div>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
               <Badge variant="primary" className="text-xs">
                 Pimpinan Eksekutif
               </Badge>
-              <Badge variant="success" className="text-xs font-bold">
+              <Badge variant="success" className="max-w-full whitespace-normal break-words text-left text-xs font-bold">
                 Akreditasi: {(data?.ringkasan_eksekutif?.status_akreditasi || 'A (Unggul)') || 'A (Unggul)'}
               </Badge>
             </div>
-            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="break-words text-xl font-extrabold tracking-tight text-slate-900 md:text-2xl">
               Monitoring Kepala Sekolah
             </h2>
-            <p className="text-xs md:text-sm text-slate-500 mt-0.5">
+            <p className="mt-0.5 break-words text-xs text-slate-500 md:text-sm">
               Pemantauan KPI sekolah, pengawasan integritas akademik, keuangan unit kopsis & kantin.
             </p>
           </div>
@@ -98,7 +98,7 @@ export const KepsekView: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-black text-indigo-700 tracking-tight">
+            <div className="break-words text-xl font-black tracking-tight text-indigo-700 sm:text-2xl">
               {(data?.ringkasan_eksekutif?.kehadiran_guru_hari_ini || '100%') || '100%'}
             </div>
             <p className="text-xs text-slate-500 mt-1">
@@ -117,7 +117,7 @@ export const KepsekView: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-black text-emerald-700 tracking-tight">
+            <div className="break-words text-xl font-black tracking-tight text-emerald-700 sm:text-2xl">
               {(data?.ringkasan_eksekutif?.kehadiran_siswa_hari_ini || '96.8%') || '96.8%'}
             </div>
             <p className="text-xs text-slate-500 mt-1">
@@ -136,7 +136,7 @@ export const KepsekView: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-black text-amber-700 tracking-tight">
+            <div className="break-words text-xl font-black tracking-tight text-amber-700 sm:text-2xl">
               Rp {(data?.ringkasan_eksekutif?.total_pendapatan_kopsis_bulan_ini ?? 0).toLocaleString('id-ID')}
             </div>
             <p className="text-xs text-slate-500 mt-1">
@@ -155,7 +155,7 @@ export const KepsekView: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-black text-blue-700 tracking-tight">
+            <div className="break-words text-xl font-black tracking-tight text-blue-700 sm:text-2xl">
               Rp {(data?.ringkasan_eksekutif?.total_transaksi_kantin_hari_ini ?? 0).toLocaleString('id-ID')}
             </div>
             <p className="text-xs text-slate-500 mt-1">
@@ -169,11 +169,11 @@ export const KepsekView: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 border-slate-200/80">
           <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                 <Award className="w-5 h-5" />
               </div>
-              <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+              <CardTitle className="break-words text-base font-bold leading-snug text-slate-900 sm:text-lg">
                 Laporan Strategis & Kebijakan Sekolah
               </CardTitle>
             </div>
@@ -185,15 +185,15 @@ export const KepsekView: React.FC = () => {
             {(data?.laporan_strategis || []).map((item, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 hover:bg-white hover:shadow-xs flex items-center justify-between transition-all"
+                className="flex flex-col items-start gap-2 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 transition-all hover:bg-white hover:shadow-xs sm:flex-row sm:items-center sm:justify-between"
               >
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm">{item.judul}</h4>
+                <div className="min-w-0 w-full">
+                  <h4 className="break-words text-sm font-bold text-slate-900">{item.judul}</h4>
                   <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 block">
                     {item.kategori}
                   </span>
                 </div>
-                <Badge variant="primary" className="text-xs font-semibold">
+                <Badge variant="primary" className="max-w-full whitespace-normal break-words text-left text-xs font-semibold">
                   {item.status}
                 </Badge>
               </div>
@@ -203,11 +203,11 @@ export const KepsekView: React.FC = () => {
 
         <Card className="border-slate-200/80">
           <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                 <CheckCircle className="w-5 h-5" />
               </div>
-              <CardTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+              <CardTitle className="break-words text-base font-bold leading-snug text-slate-900 sm:text-lg">
                 Persetujuan & Disposisi
               </CardTitle>
             </div>
@@ -219,34 +219,34 @@ export const KepsekView: React.FC = () => {
             <Button
               variant="outline"
               onClick={() => toast.success('Pengesahan rapor semester siswa berhasil diproses secara digital.')}
-              className="w-full justify-start gap-2.5 text-xs h-11 rounded-xl"
+              className="h-auto min-h-11 w-full justify-start gap-2.5 whitespace-normal rounded-xl py-3 text-left text-xs leading-snug"
             >
               <FileCheck className="w-4 h-4 text-emerald-600" />
-              <span>Pengesahan Rapor Semester Siswa</span>
+              <span className="min-w-0 break-words text-left">Pengesahan Rapor Semester Siswa</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => toast.success('Tanda tangan digital SK berhasil disematkan.')}
-              className="w-full justify-start gap-2.5 text-xs h-11 rounded-xl"
+              className="h-auto min-h-11 w-full justify-start gap-2.5 whitespace-normal rounded-xl py-3 text-left text-xs leading-snug"
             >
               <FileText className="w-4 h-4 text-blue-600" />
-              <span>Tanda Tangan Digital SK</span>
+              <span className="min-w-0 break-words text-left">Tanda Tangan Digital SK</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => toast.info('Laporan tahunan diekspor ke PDF/Excel.')}
-              className="w-full justify-start gap-2.5 text-xs h-11 rounded-xl"
+              className="h-auto min-h-11 w-full justify-start gap-2.5 whitespace-normal rounded-xl py-3 text-left text-xs leading-snug"
             >
               <BarChart3 className="w-4 h-4 text-indigo-600" />
-              <span>Ekspor Laporan Tahunan</span>
+              <span className="min-w-0 break-words text-left">Ekspor Laporan Tahunan</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => toast.info('Modul audit neraca keuangan kopsis dan kantin terbuka.')}
-              className="w-full justify-start gap-2.5 text-xs h-11 rounded-xl"
+              className="h-auto min-h-11 w-full justify-start gap-2.5 whitespace-normal rounded-xl py-3 text-left text-xs leading-snug"
             >
               <ShieldAlert className="w-4 h-4 text-amber-600" />
-              <span>Audit Keuangan Kopsis & Kantin</span>
+              <span className="min-w-0 break-words text-left">Audit Keuangan Kopsis & Kantin</span>
             </Button>
           </CardContent>
         </Card>

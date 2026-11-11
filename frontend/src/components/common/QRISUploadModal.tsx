@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { Dialog } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
-import { Upload, CheckCircle2, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Upload, CheckCircle2, Image as ImageIcon } from 'lucide-react';
 import { getStoredQRIS, saveStoredQRIS, DEFAULT_QRIS_SVG } from '../../utils/qris';
 import { toast } from 'sonner';
 
@@ -27,6 +26,10 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
   const [rawString, setRawString] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string>('');
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const merchantNameId = useId();
+  const nmidId = useId();
+  const rawStringId = useId();
+  const unitLabel = type === 'tu' ? 'TU' : type === 'kopsis' ? 'Koperasi' : 'Kantin';
 
   useEffect(() => {
     if (open) {
@@ -40,8 +43,10 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
   }, [open, type]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const input = e.currentTarget;
+    const file = input.files?.[0];
     if (!file) return;
+    input.value = '';
 
     if (!file.type.startsWith('image/')) {
       toast.error('File harus berupa gambar (PNG, JPG, JPEG, WEBP).');
@@ -125,136 +130,107 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
     onClose();
   };
 
-  const getTitle = () => {
-    if (type === 'kantin') return 'Upload Barcode QRIS Stan Kantin';
-    if (type === 'kopsis') return 'Upload Barcode QRIS Koperasi Sekolah';
-    return 'Upload Barcode QRIS Loket TU & SPP';
-  };
-
-  const getDescription = () => {
-    if (type === 'kantin') {
-      return 'Konfigurasi QRIS khusus Stan Kantin. Terpisah penuh dan tidak mempengaruhi QRIS TU maupun Koperasi.';
-    }
-    if (type === 'kopsis') {
-      return 'Konfigurasi QRIS khusus Koperasi Sekolah. Terpisah penuh dan tidak mempengaruhi QRIS TU maupun Kantin.';
-    }
-    return 'Konfigurasi QRIS khusus Loket Tata Usaha (SPP & Administrasi). Terpisah penuh dari unit lainnya.';
-  };
-
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      title={getTitle()}
-      description={getDescription()}
+      title={`Atur QRIS ${unitLabel}`}
+      className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden p-4 sm:p-6"
+      bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <form onSubmit={handleSave} className="space-y-4 pt-1">
-        <div className="flex items-center gap-2 p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900">
-          <Badge variant="primary" className="text-[10px] font-bold uppercase shrink-0">
-            Terisolasi
-          </Badge>
-          <span>
-            QRIS ini khusus untuk unit <strong>{type.toUpperCase()}</strong>. Modul lain memiliki QRIS masing-masing.
-          </span>
-        </div>
+      <form onSubmit={handleSave} className="flex min-h-0 flex-1 flex-col pt-1">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-1 pb-4">
+          <div className="space-y-1.5">
+            <label htmlFor={merchantNameId} className="text-xs font-bold text-slate-700">
+              {type === 'kantin' ? 'Nama stan' : type === 'kopsis' ? 'Nama toko' : 'Nama merchant'}
+            </label>
+            <Input
+              id={merchantNameId}
+              type="text"
+              required
+              value={merchantName}
+              onChange={(e) => setMerchantName(e.target.value)}
+              placeholder={type === 'kantin' ? 'Contoh: Kantin Sehat' : type === 'kopsis' ? 'Contoh: Koperasi Sekolah' : 'Nama merchant'}
+              className="text-xs"
+            />
+          </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700">
-            {type === 'kantin' ? 'Nama Stan / Merchant Kantin' : type === 'kopsis' ? 'Nama Toko / Koperasi' : 'Nama Merchant QRIS'}
-          </label>
-          <Input
-            type="text"
-            required
-            value={merchantName}
-            onChange={(e) => setMerchantName(e.target.value)}
-            placeholder={type === 'kantin' ? 'Contoh: KANTIN SEHAT BU TITIN - STAND 1' : 'Contoh: KOPERASI SISWA STILLSCHOOL'}
-            className="text-xs"
-          />
-        </div>
+          <div className="space-y-1.5">
+            <label htmlFor={nmidId} className="text-xs font-bold text-slate-700">NMID</label>
+            <Input
+              id={nmidId}
+              type="text"
+              required
+              value={nmid}
+              onChange={(e) => setNmid(e.target.value)}
+              placeholder="Contoh: ID2026889955441"
+              className="text-xs font-mono"
+            />
+          </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700">Nomor National Merchant ID (NMID)</label>
-          <Input
-            type="text"
-            required
-            value={nmid}
-            onChange={(e) => setNmid(e.target.value)}
-            placeholder="Contoh: ID2026889955441"
-            className="text-xs font-mono"
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700">Upload Berkas Gambar QRIS (PNG / JPG)</label>
-          <div className="flex items-center gap-2">
-            <label className="flex-1 cursor-pointer">
-              <div className="flex items-center justify-center gap-2 p-3 border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl bg-slate-50 hover:bg-blue-50/50 transition-all text-xs font-bold text-slate-600 hover:text-blue-700">
-                <Upload className="w-4 h-4" />
-                <span>Pilih Gambar QRIS dari Perangkat</span>
-              </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-700">Gambar QRIS</label>
+            <label className="group flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-3 text-center text-xs font-bold leading-snug text-slate-600 transition-all hover:border-blue-500 hover:bg-blue-50/50 hover:text-blue-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2">
+              <Upload className="h-4 w-4 shrink-0" />
+              <span>{imageUrl ? 'Ganti gambar' : 'Pilih gambar QRIS'}</span>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleFileUpload}
-                className="hidden"
+                className="sr-only"
               />
             </label>
+            <p className="text-[11px] text-slate-500">Format gambar · maks. 5 MB</p>
           </div>
-        </div>
 
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>String Payload QRIS (Opsional / Otomatis)</span>
+          <div className="space-y-1.5">
+            <label htmlFor={rawStringId} className="text-xs font-semibold text-slate-700">
+              Kode QRIS (opsional)
             </label>
-            <span className="text-[10px] text-slate-400">Untuk nominal otomatis Rp 1</span>
+            <Input
+              id={rawStringId}
+              type="text"
+              value={rawString}
+              onChange={(e) => setRawString(e.target.value)}
+              placeholder="Tempel kode QRIS jika belum terbaca"
+              className="text-xs font-mono"
+            />
+            <p className="text-[11px] text-slate-500">
+              Untuk membuat QR dengan nominal otomatis Rp1.
+            </p>
           </div>
-          <Input
-            type="text"
-            value={rawString}
-            onChange={(e) => setRawString(e.target.value)}
-            placeholder="000201010211... (terdeteksi otomatis saat upload gambar, atau paste string QRIS di sini)"
-            className="text-xs font-mono"
-          />
-          <p className="text-[10.5px] text-slate-500">
-            Jika string QRIS diisi, sistem dapat membuat barcode dinamis nominal Rp 1 yang langsung terkunci saat di-scan perbankan.
-          </p>
-        </div>
 
-        {/* Live Preview Container */}
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-            Preview QRIS yang Dilihat Siswa & Pelanggan ({type.toUpperCase()})
-          </div>
-          <div className="inline-block p-3 bg-white rounded-xl border border-slate-200 shadow-xs">
-            {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="Barcode QRIS Preview"
-                className="w-36 h-36 object-contain mx-auto rounded-lg"
-              />
-            ) : (
-              <div className="w-36 h-36 flex items-center justify-center bg-slate-100 rounded-lg text-slate-400">
-                <ImageIcon className="w-10 h-10 opacity-40" />
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center sm:p-4">
+            <div className="mb-2 text-xs font-bold text-slate-600">Pratinjau</div>
+            <div className="inline-block rounded-xl bg-white p-2 shadow-xs sm:p-3">
+              {previewUrl ? (
+                <img
+                  src={previewUrl}
+                  alt={`Pratinjau QRIS ${unitLabel}`}
+                  className="mx-auto h-32 w-32 rounded-lg object-contain sm:h-36 sm:w-36"
+                />
+              ) : (
+                <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-slate-100 text-slate-400 sm:h-36 sm:w-36">
+                  <ImageIcon className="h-10 w-10 opacity-40" />
+                </div>
+              )}
+              <div className="mt-2 text-xs font-extrabold text-slate-900 truncate max-w-[200px]">
+                {merchantName || 'NAMA MERCHANT'}
               </div>
-            )}
-            <div className="mt-2 text-xs font-extrabold text-slate-900 truncate max-w-[200px]">
-              {merchantName || 'NAMA MERCHANT'}
-            </div>
-            <div className="text-[10px] font-mono text-slate-500">
-              NMID: {nmid || 'ID1029384756910'}
+              <div className="break-all text-[10px] font-mono text-slate-500">
+                NMID: {nmid || 'ID1029384756910'}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-          <Button type="button" variant="outline" onClick={onClose}>
+        <div className="flex shrink-0 flex-col-reverse items-stretch gap-2 border-t border-slate-100 bg-white pt-3 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
             Batal
           </Button>
-          <Button type="submit" className="gap-1.5 bg-blue-600 hover:bg-blue-700 font-bold text-xs">
+          <Button type="submit" className="h-auto min-h-10 w-full gap-1.5 whitespace-normal px-3 py-2 text-center text-xs font-bold leading-snug sm:w-auto">
             <CheckCircle2 className="w-4 h-4" />
-            <span>Simpan Barcode QRIS {type.toUpperCase()}</span>
+            <span>Simpan QRIS</span>
           </Button>
         </div>
       </form>
