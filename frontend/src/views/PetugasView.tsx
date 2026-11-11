@@ -84,34 +84,11 @@ export const PetugasView: React.FC = () => {
     }
   }, [isStudentView, paymentMethod]);
 
-  // Auto-detection & auto-trigger when SPP QRIS is paid
-  useEffect(() => {
-    if (!showSPPModal || paymentMethod !== 'qris') return;
-
-    const timer = setTimeout(() => {
-      // Simulate form submit for SPP
-      const dummyEvent = { preventDefault: () => {} } as React.FormEvent;
-      handlePaySPP(dummyEvent);
-    }, 8500);
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' || e.key === 'Enter') {
-        e.preventDefault();
-        const dummyEvent = { preventDefault: () => {} } as React.FormEvent;
-        handlePaySPP(dummyEvent);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showSPPModal, paymentMethod]);
-
   // Pending Topup State (Loket TU & Staff Administrasi)
   const [showQRISModal, setShowQRISModal] = useState<boolean>(false);
   const [tuQris, setTuQris] = useState(() => getStoredQRIS('tu'));
+  const sppAmountValue = Math.max(0, Math.trunc(Number(sppAmount) || 0));
+  const tuQrisDisplay = getQRISDisplaySource(tuQris, sppAmountValue);
 
   const [recentSPP, setRecentSPP] = useState<RecentSPP[]>([
     {
@@ -209,6 +186,10 @@ export const PetugasView: React.FC = () => {
   // Handle SPP Payment
   const handlePaySPP = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!Number.isSafeInteger(Number(sppAmount)) || Number(sppAmount) < 1) {
+      toast.error('Masukkan nominal SPP yang valid.');
+      return;
+    }
     if (isStudentView && paymentMethod === 'transfer') {
       setPaymentMethod('qris');
       toast.info('Virtual Account tidak tersedia untuk pembayaran mandiri. Pilih QRIS atau tunai di loket TU.');
@@ -223,7 +204,7 @@ export const PetugasView: React.FC = () => {
 
       const res = await apiClient.post('/petugas/spp-payment', {
         student_identifier: targetIdentifier,
-        amount: paymentMethod === 'qris' ? 1 : Number(sppAmount),
+        amount: Number(sppAmount),
         month: sppMonth,
         payment_method: paymentMethod,
         notes: sppNotes || undefined,
@@ -704,6 +685,8 @@ export const PetugasView: React.FC = () => {
                 id="spp-amount"
                 type="number"
                 inputMode="numeric"
+                min={1}
+                step={1}
                 value={sppAmount}
                 onChange={(e) => setSppAmount(e.target.value)}
                 placeholder="Contoh: 350000"
@@ -775,13 +758,13 @@ export const PetugasView: React.FC = () => {
               <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
                 <span className="font-bold text-[11px] text-blue-900">QRIS Loket TU</span>
                 <span className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-[10px] font-bold text-blue-800">
-                  Uji transaksi riil: Rp1
+                  {tuQrisDisplay.isDynamic ? 'QRIS dinamis' : 'QRIS statis'}
                 </span>
               </div>
 
               <div className="mx-auto flex h-36 w-36 items-center justify-center rounded-xl border border-blue-100 bg-white p-2 sm:h-40 sm:w-40">
                 <img
-                  src={getQRISDisplaySource(tuQris, 1).imageSrc}
+                  src={tuQrisDisplay.imageSrc}
                   alt="QRIS SPP Sekolah"
                   className="max-h-full max-w-full object-contain rounded-lg"
                 />
@@ -794,14 +777,18 @@ export const PetugasView: React.FC = () => {
               <div className="space-y-2 rounded-xl border border-blue-100 bg-white p-3 text-left">
                 <div className="flex flex-wrap justify-between gap-1 font-semibold text-slate-700 text-xs">
                   <span>Tagihan SPP Asli:</span>
-                  <span>Rp {Number(sppAmount).toLocaleString('id-ID')}</span>
+                  <span>Rp {sppAmountValue.toLocaleString('id-ID')}</span>
                 </div>
                 <div className="flex flex-wrap justify-between gap-1 font-extrabold text-blue-800 text-xs">
                   <span>Nominal pembayaran:</span>
-                  <span className="font-mono">Rp1</span>
+                  <span className="font-mono">Rp {sppAmountValue.toLocaleString('id-ID')}</span>
                 </div>
                 <p className="pt-1 text-[11px] leading-relaxed text-slate-600">
-                  Scan QRIS melalui aplikasi pembayaran dan transfer <strong>Rp1</strong>. Sistem mendeteksi mutasi dan otomatis melunasi tagihan SPP.
+                  {tuQrisDisplay.isDynamic ? (
+                    <>Scan QRIS dan bayar tepat <strong>Rp {sppAmountValue.toLocaleString('id-ID')}</strong>. Setelah transfer berhasil, konfirmasikan pembayaran di bawah.</>
+                  ) : (
+                    <>QRIS ini bersifat statis. Scan lalu masukkan nominal <strong>Rp {sppAmountValue.toLocaleString('id-ID')}</strong> di aplikasi pembayaran. Setelah transfer berhasil, konfirmasikan pembayaran di bawah.</>
+                  )}
                 </p>
               </div>
             </div>
@@ -829,7 +816,7 @@ export const PetugasView: React.FC = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span>{submitting ? 'Pembayaran masuk, memproses...' : 'Menunggu transfer SPP Rp1...'}</span>
+                <span>{submitting ? 'Mencatat pembayaran...' : `Menunggu transfer SPP Rp ${sppAmountValue.toLocaleString('id-ID')}...`}</span>
               </div>
             ) : (
               <div />
@@ -844,7 +831,11 @@ export const PetugasView: React.FC = () => {
               >
                 Batal
               </Button>
-              {paymentMethod !== 'qris' && (
+              {paymentMethod === 'qris' ? (
+                <Button type="submit" disabled={submitting} className="min-h-11 w-full sm:w-auto">
+                  {submitting ? 'Memproses...' : `Saya sudah transfer Rp ${sppAmountValue.toLocaleString('id-ID')}`}
+                </Button>
+              ) : (
                 <Button type="submit" disabled={submitting} className="min-h-11 w-full sm:w-auto">
                   {submitting ? 'Memproses...' : `Konfirmasi Bayar Rp ${Number(sppAmount).toLocaleString('id-ID')}`}
                 </Button>

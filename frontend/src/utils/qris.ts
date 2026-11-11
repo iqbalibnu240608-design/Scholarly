@@ -185,7 +185,7 @@ export function getQRISDisplaySource(config: QRISConfig, amount: number = 1): {
   isDynamic: boolean;
   dynamicPayload?: string;
 } {
-  if (config.rawString && config.rawString.startsWith('000201')) {
+  if (config.rawString?.trim().startsWith('000201')) {
     const dynamicPayload = createDynamicQRIS(config.rawString, amount);
     // Menggunakan QuickChart QR API terverifikasi untuk merender matriks QR beresolusi tinggi
     const qrApiUrl = `https://quickchart.io/qr?text=${encodeURIComponent(dynamicPayload)}&size=300&margin=1`;

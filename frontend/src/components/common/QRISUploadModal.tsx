@@ -196,7 +196,7 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
               className="text-xs font-mono"
             />
             <p className="text-[11px] text-slate-500">
-              Untuk membuat QR dengan nominal otomatis Rp1.
+              Kode ini memungkinkan aplikasi membuat QR dinamis dengan nominal transaksi. Jika hanya mengunggah gambar, nominal perlu dimasukkan saat pembayaran.
             </p>
           </div>
 
