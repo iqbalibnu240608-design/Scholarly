@@ -56,7 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/school/siswa', [SchoolEcosystemController::class, 'getSiswaData']);
     Route::get('/school/guru', [SchoolEcosystemController::class, 'getGuruData'])->middleware('role:guru,kepsek,admin');
     Route::get('/school/kepsek', [SchoolEcosystemController::class, 'getKepsekData'])->middleware('role:kepsek,admin');
-    Route::get('/school/petugas', [SchoolEcosystemController::class, 'getPetugasData'])->middleware('role:petugas,admin');
+    Route::get('/school/petugas', [SchoolEcosystemController::class, 'getPetugasData'])->middleware('role:petugas,admin,kepsek');
     
     // Kopsis Endpoints
     Route::get('/school/kopsis', [SchoolEcosystemController::class, 'getKopsisData']);

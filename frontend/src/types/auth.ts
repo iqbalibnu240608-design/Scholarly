@@ -67,7 +67,7 @@ export const ROLE_BADGE_COLORS: Record<string, { bg: string; text: string; borde
 
 export const ROLE_HOME_ROUTES: Record<string, string> = {
   admin: '/app/admin',
-  siswa: '/app/siswa',
+  siswa: '/app',
   guru: '/app/guru',
   kepsek: '/app/kepsek',
   petugas: '/app/petugas',
@@ -75,18 +75,18 @@ export const ROLE_HOME_ROUTES: Record<string, string> = {
   kantin: '/app/kantin',
   perpustakaan: '/app/perpus',
   security: '/app/security',
-  bk: '/app',
+  bk: '/app/guru',
 };
 
 export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
-  '/app': ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'kopsis', 'kantin', 'perpustakaan', 'security', 'bk'],
-  '/app/siswa': ['admin', 'siswa', 'guru', 'kepsek', 'petugas', 'bk'],
+  '/app': ['admin', 'siswa', 'guru'],
+  '/app/siswa': ['admin', 'siswa', 'guru', 'bk'],
   '/app/guru': ['admin', 'guru', 'kepsek'],
   '/app/kepsek': ['admin', 'kepsek'],
-  '/app/petugas': ['admin', 'petugas', 'siswa'],
-  '/app/kopsis': ['admin', 'kopsis', 'siswa', 'guru'],
-  '/app/kantin': ['admin', 'kantin', 'siswa', 'guru'],
-  '/app/perpus': ['admin', 'perpustakaan', 'siswa', 'guru'],
-  '/app/security': ['admin', 'security'],
+  '/app/petugas': ['admin', 'petugas', 'siswa', 'kepsek'],
+  '/app/kopsis': ['admin', 'kopsis', 'koperasi', 'pengelola_koperasi', 'siswa', 'guru', 'petugas', 'perpustakaan', 'kepsek'],
+  '/app/kantin': ['admin', 'kantin', 'siswa', 'guru', 'perpustakaan', 'petugas', 'kepsek'],
+  '/app/perpus': ['admin', 'perpustakaan', 'siswa', 'guru', 'kepsek'],
+  '/app/security': ['admin', 'security', 'kepsek'],
   '/app/admin': ['admin'],
 };

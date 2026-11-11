@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/layout/Layout';
 import { RoleProtectedRoute } from './components/auth/RoleProtectedRoute';
+import { ROLE_HOME_ROUTES } from './types/auth';
 import { LandingPageView } from './views/LandingPageView';
 import { LoginView } from './views/LoginView';
 import { OverviewView } from './views/OverviewView';
@@ -37,6 +38,17 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
+// Index route guard: Only 'admin', 'siswa', and 'guru' have access to the Dashboard overview.
+// Other roles (kepsek, petugas, kopsis, kantin, security, perpustakaan) are automatically redirected to their dedicated workspace.
+const DashboardIndexRoute: React.FC = () => {
+  const { activeRole } = useAuth();
+  if (activeRole !== 'admin' && activeRole !== 'siswa' && activeRole !== 'guru') {
+    const target = ROLE_HOME_ROUTES[activeRole] || '/login';
+    return <Navigate to={target} replace />;
+  }
+  return <OverviewView />;
+};
+
 export const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -58,13 +70,13 @@ export const App: React.FC = () => {
               </ProtectedRoute>
             }
           >
-            <Route index element={<OverviewView />} />
+            <Route index element={<DashboardIndexRoute />} />
             
             {/* Portal Siswa (Akademik & Presensi) */}
             <Route
               path="siswa"
               element={
-                <RoleProtectedRoute allowedRoles={['siswa', 'guru', 'kepsek', 'petugas', 'bk']}>
+                <RoleProtectedRoute allowedRoles={['siswa', 'guru', 'bk']}>
                   <SiswaView />
                 </RoleProtectedRoute>
               }
@@ -90,21 +102,21 @@ export const App: React.FC = () => {
               }
             />
 
-            {/* Layanan TU & SPP: Staff mengelola buku induk/verifikasi, Siswa membayar SPP mandiri */}
+            {/* Layanan TU & SPP: Staff mengelola buku induk/verifikasi, Siswa membayar SPP mandiri, Kepsek monitoring */}
             <Route
               path="petugas"
               element={
-                <RoleProtectedRoute allowedRoles={['petugas', 'siswa']}>
+                <RoleProtectedRoute allowedRoles={['petugas', 'siswa', 'kepsek']}>
                   <PetugasView />
                 </RoleProtectedRoute>
               }
             />
 
-            {/* Koperasi Siswa: Staff mengelola kasir & inventaris, Siswa & Guru berbelanja ATK/seragam */}
+            {/* Koperasi Siswa: Staff mengelola kasir & inventaris, Siswa & Guru berbelanja ATK/seragam, Kepsek monitoring */}
             <Route
               path="kopsis"
               element={
-                <RoleProtectedRoute allowedRoles={['kopsis', 'koperasi', 'pengelola_koperasi', 'siswa', 'guru', 'admin', 'petugas', 'perpustakaan']}>
+                <RoleProtectedRoute allowedRoles={['kopsis', 'koperasi', 'pengelola_koperasi', 'siswa', 'guru', 'admin', 'petugas', 'perpustakaan', 'kepsek']}>
                   <KopsisView />
                 </RoleProtectedRoute>
               }
@@ -113,31 +125,31 @@ export const App: React.FC = () => {
             {/* Alias rute Koperasi */}
             <Route path="koperasi" element={<Navigate to="/app/kopsis" replace />} />
 
-            {/* Kantin Sekolah: Staff kasir & stand makanan, Siswa & Guru memesan makanan online */}
+            {/* Kantin Sekolah: Staff kasir & stand makanan, Siswa & Guru memesan makanan online, Kepsek monitoring */}
             <Route
               path="kantin"
               element={
-                <RoleProtectedRoute allowedRoles={['kantin', 'siswa', 'guru', 'admin', 'perpustakaan', 'petugas']}>
+                <RoleProtectedRoute allowedRoles={['kantin', 'siswa', 'guru', 'admin', 'perpustakaan', 'petugas', 'kepsek']}>
                   <KantinView />
                 </RoleProtectedRoute>
               }
             />
 
-            {/* Perpustakaan Sekolah (E-Library): Petugas mengelola katalog & sirkulasi, Siswa & Guru meminjam buku */}
+            {/* Perpustakaan Sekolah (E-Library): Petugas mengelola katalog & sirkulasi, Siswa & Guru meminjam buku, Kepsek monitoring */}
             <Route
               path="perpus"
               element={
-                <RoleProtectedRoute allowedRoles={['perpustakaan', 'siswa', 'guru', 'admin']}>
+                <RoleProtectedRoute allowedRoles={['perpustakaan', 'siswa', 'guru', 'admin', 'kepsek']}>
                   <PerpusView />
                 </RoleProtectedRoute>
               }
             />
 
-            {/* Gate Keamanan & Presensi Satpam (Khusus Satpam) */}
+            {/* Gate Keamanan & Presensi Satpam (Satpam & Kepsek Monitoring) */}
             <Route
               path="security"
               element={
-                <RoleProtectedRoute allowedRoles={['security']}>
+                <RoleProtectedRoute allowedRoles={['security', 'kepsek']}>
                   <SecurityView />
                 </RoleProtectedRoute>
               }
