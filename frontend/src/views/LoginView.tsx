@@ -32,108 +32,6 @@ interface HistoryAccount {
   initials?: string;
 }
 
-const DEFAULT_HISTORY: HistoryAccount[] = [
-  {
-    name: 'Super Administrator',
-    role: 'admin',
-    roleLabel: 'Administrator Sistem',
-    identifier: 'admin',
-    password: 'admin123',
-    lastLoginTime: 'Pernah Masuk di Perangkat Ini',
-    avatarBg: '#F5F3FF',
-    avatarColor: '#7C3AED',
-    initials: 'AD',
-  },
-  {
-    name: 'Dr. H. Soekarno, M.Pd',
-    role: 'kepsek',
-    roleLabel: 'Kepala Sekolah (Pimpinan)',
-    identifier: '197001011995031001',
-    password: 'password123',
-    lastLoginTime: 'Pernah Masuk di Perangkat Ini',
-    avatarBg: '#FEF3C7',
-    avatarColor: '#92400E',
-    initials: 'SK',
-  },
-  {
-    name: 'Budi Santoso, S.Pd',
-    role: 'guru',
-    roleLabel: 'Dewan Guru Pengampu',
-    identifier: '198503152010011002',
-    password: 'password123',
-    lastLoginTime: 'Pernah Masuk di Perangkat Ini',
-    avatarBg: '#ECFDF5',
-    avatarColor: '#059669',
-    initials: 'BS',
-  },
-  {
-    name: 'Ahmad Pratama',
-    role: 'siswa',
-    roleLabel: 'Siswa / Murid (NISN)',
-    identifier: '0061234567',
-    password: 'password123',
-    lastLoginTime: 'Pernah Masuk di Perangkat Ini',
-    avatarBg: '#EFF6FF',
-    avatarColor: '#2563EB',
-    initials: 'AP',
-  },
-  {
-    name: 'Siti Aminah, S.AP',
-    role: 'petugas',
-    roleLabel: 'Petugas TU & Administrasi',
-    identifier: '199008202015022003',
-    password: 'password123',
-    lastLoginTime: 'Pernah Masuk di Perangkat Ini',
-    avatarBg: '#F3E8FF',
-    avatarColor: '#6B21A8',
-    initials: 'SA',
-  },
-  {
-    name: 'Rudi Hermawan (Kopsis)',
-    role: 'kopsis',
-    roleLabel: 'Pengelola Koperasi Siswa',
-    identifier: '199407152020011001',
-    password: 'password123',
-    lastLoginTime: 'Pernah Masuk di Perangkat Ini',
-    avatarBg: '#FFEDD5',
-    avatarColor: '#EA580C',
-    initials: 'RH',
-  },
-  {
-    name: 'Ibu Titin (Kantin)',
-    role: 'kantin',
-    roleLabel: 'Pengelola Kantin Sekolah',
-    identifier: '198611202021022001',
-    password: 'password123',
-    lastLoginTime: 'Pernah Masuk di Perangkat Ini',
-    avatarBg: '#CFFAFE',
-    avatarColor: '#0891B2',
-    initials: 'IT',
-  },
-  {
-    name: 'Joko Widodo (Satpam)',
-    role: 'security',
-    roleLabel: 'Petugas Keamanan Gerbang',
-    identifier: '198805102019031001',
-    password: 'password123',
-    lastLoginTime: 'Pernah Masuk di Perangkat Ini',
-    avatarBg: '#F1F5F9',
-    avatarColor: '#334155',
-    initials: 'JW',
-  },
-  {
-    name: 'Dewi Lestari (Perpus)',
-    role: 'perpustakaan',
-    roleLabel: 'Pustakawan Sekolah',
-    identifier: '199204122018012001',
-    password: 'password123',
-    lastLoginTime: 'Pernah Masuk di Perangkat Ini',
-    avatarBg: '#FEF9C3',
-    avatarColor: '#854D0E',
-    initials: 'DL',
-  },
-];
-
 export const LoginView: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -150,22 +48,32 @@ export const LoginView: React.FC = () => {
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const historyRef = useRef<HTMLDivElement>(null);
 
-  // Muat riwayat akun dari localStorage saat pertama kali render
+  // Tampilkan hanya akun yang benar-benar pernah berhasil login di perangkat ini.
   useEffect(() => {
     try {
       const raw = localStorage.getItem('school_login_history');
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setSavedAccounts(parsed);
-          return;
+        if (Array.isArray(parsed)) {
+          const actualHistory = parsed.filter(
+            (account): account is HistoryAccount =>
+              account &&
+              typeof account.identifier === 'string' &&
+              account.lastLoginTime !== 'Pernah Masuk di Perangkat Ini'
+          );
+          setSavedAccounts(actualHistory);
+          if (actualHistory.length !== parsed.length) {
+            if (actualHistory.length > 0) {
+              localStorage.setItem('school_login_history', JSON.stringify(actualHistory));
+            } else {
+              localStorage.removeItem('school_login_history');
+            }
+          }
         }
       }
     } catch {
-      // fallback jika ada error parsing
+      localStorage.removeItem('school_login_history');
     }
-    setSavedAccounts(DEFAULT_HISTORY);
-    localStorage.setItem('school_login_history', JSON.stringify(DEFAULT_HISTORY));
   }, []);
 
   // Tutup panel riwayat jika pengguna mengklik di luar area input / popover
