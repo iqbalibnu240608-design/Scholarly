@@ -208,7 +208,7 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>String Payload QRIS (Opsional / Otomatis)</span>
             </label>
-            <span className="text-[10px] text-slate-400">Untuk nominal otomatis Rp 1</span>
+            <span className="text-[10px] text-slate-400">Untuk nominal otomatis</span>
           </div>
           <Input
             type="text"
@@ -218,7 +218,7 @@ export const QRISUploadModal: React.FC<QRISUploadModalProps> = ({
             className="text-xs font-mono"
           />
           <p className="text-[10.5px] text-slate-500">
-            Jika string QRIS diisi, sistem dapat membuat barcode dinamis nominal Rp 1 yang langsung terkunci saat di-scan perbankan.
+            Kode ini memungkinkan aplikasi membuat QR dinamis dengan nominal transaksi. Jika hanya mengunggah gambar, nominal perlu dimasukkan saat pembayaran.
           </p>
         </div>
 
