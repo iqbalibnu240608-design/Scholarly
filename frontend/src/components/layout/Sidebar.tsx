@@ -46,7 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       to: '/app/siswa',
       label: activeRole === 'siswa' ? 'Akademik Siswa' : 'Portal Siswa',
       icon: GraduationCap,
-      allowedRoles: ['admin', 'siswa', 'guru'],
+      allowedRoles: ['admin', 'siswa'],
     },
     {
       to: '/app/kepsek',

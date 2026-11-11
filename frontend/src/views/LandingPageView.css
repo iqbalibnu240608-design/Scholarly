@@ -867,6 +867,31 @@
 }
 
 @media (max-width: 768px) {
+  .lp-header {
+    height: 64px;
+  }
+  .lp-header .lp-container {
+    padding: 0 20px;
+  }
+  .lp-nav-brand {
+    gap: 8px;
+  }
+  .lp-nav-brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+  .lp-nav-brand-title {
+    font-size: 17px;
+  }
+  .lp-nav-brand-tagline {
+    font-size: 8px;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .lp-nav-pill-cta {
+    display: none !important;
+  }
   .lp-hero-title {
     font-size: 36px;
   }
