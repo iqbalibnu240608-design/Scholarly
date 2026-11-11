@@ -447,14 +447,16 @@ export const PetugasView: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Badge variant="primary" className="text-xs">
-                    Tata Usaha & Administrasi
+                    {activeRole === 'kepsek' ? 'Supervisi Eksekutif TU' : 'Tata Usaha & Administrasi'}
                   </Badge>
                 </div>
                 <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
-                  Portal Petugas TU & Administrasi
+                  {activeRole === 'kepsek' ? 'Monitoring Tata Usaha & SPP' : 'Portal Petugas TU & Administrasi'}
                 </h2>
                 <p className="text-xs md:text-sm text-slate-500 mt-0.5">
-                  Kelola persuratan, verifikasi pembayaran SPP sekolah, dan inventaris sarana prasarana.
+                  {activeRole === 'kepsek'
+                    ? 'Pemantauan persuratan dinas, rekap penerimaan SPP siswa, dan inventaris sarpras sekolah.'
+                    : 'Kelola persuratan, verifikasi pembayaran SPP sekolah, dan inventaris sarana prasarana.'}
                 </p>
               </div>
             </div>

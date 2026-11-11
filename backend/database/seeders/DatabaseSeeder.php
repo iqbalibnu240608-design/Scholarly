@@ -212,7 +212,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Rudi Hermawan (Kopsis)',
                 'email' => 'kopsis@sekolah.test',
                 'role_name' => 'kopsis',
-                'identifier_number' => 'KOP-2026',
+                'identifier_number' => '199407152020011001',
                 'password' => 'password123',
                 'phone' => '081234567895',
                 'gender' => 'L',
@@ -222,7 +222,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Ibu Titin (Kantin)',
                 'email' => 'kantin@sekolah.test',
                 'role_name' => 'kantin',
-                'identifier_number' => 'KTN-01',
+                'identifier_number' => '198611202021022001',
                 'password' => 'password123',
                 'phone' => '081234567896',
                 'gender' => 'P',
@@ -232,7 +232,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Joko Widodo (Satpam Gerbang)',
                 'email' => 'satpam@sekolah.test',
                 'role_name' => 'security',
-                'identifier_number' => 'SEC-01',
+                'identifier_number' => '198805102019031001',
                 'password' => 'password123',
                 'phone' => '081234567897',
                 'gender' => 'L',
@@ -242,7 +242,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Dewi Lestari (Perpus)',
                 'email' => 'perpus@sekolah.test',
                 'role_name' => 'perpustakaan',
-                'identifier_number' => 'LIB-01',
+                'identifier_number' => '199204122018012001',
                 'password' => 'password123',
                 'phone' => '081234567898',
                 'gender' => 'P',
@@ -256,7 +256,7 @@ class DatabaseSeeder extends Seeder
             $classId = isset($u['class']) && isset($classes[$u['class']]) ? $classes[$u['class']]->id : null;
 
             $users[$u['role_name']] = User::updateOrCreate(
-                ['identifier_number' => $u['identifier_number']],
+                ['email' => $u['email']],
                 [
                     'name' => $u['name'],
                     'email' => $u['email'] ?? null,

@@ -48,7 +48,7 @@ class POSController extends Controller
         };
 
         // Keamanan Otorisasi: Pembayaran tunai fisik wajib diverifikasi oleh staf kasir
-        if ($paymentMethod === 'cash' && !in_array($normalizedRole, ['kopsis', 'admin', 'petugas'], true)) {
+        if ($paymentMethod === 'cash' && !in_array($normalizedRole, ['kopsis', 'admin', 'petugas', 'kepsek'], true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Pembayaran tunai wajib disetorkan langsung di kasir Koperasi. Silakan pilih opsi QRIS untuk pemesanan digital mandiri.',
@@ -163,7 +163,7 @@ class POSController extends Controller
         $rawRole = strtolower(trim($currentUser->role_name ?? ''));
 
         // Keamanan Otorisasi: Pembayaran tunai fisik wajib diverifikasi oleh staf pengelola kantin
-        if ($paymentMethod === 'cash' && !in_array($rawRole, ['kantin', 'admin', 'petugas'], true)) {
+        if ($paymentMethod === 'cash' && !in_array($rawRole, ['kantin', 'admin', 'petugas', 'kepsek'], true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Pembayaran tunai wajib disetorkan langsung di kasir stan Kantin. Silakan pilih opsi QRIS untuk pemesanan digital mandiri.',

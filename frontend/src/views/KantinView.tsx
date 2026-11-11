@@ -60,7 +60,7 @@ interface KantinData {
 
 export const KantinView: React.FC = () => {
   const { user, activeRole } = useAuth();
-  const isCustomerView = activeRole === 'siswa' || activeRole === 'guru';
+  const isCustomerView = activeRole === 'siswa' || activeRole === 'guru' || activeRole === 'kepsek';
 
   const [data, setData] = useState<KantinData | null>(() => getCachedData('/school/kantin')?.data || null);
   const [recentOrders, setRecentOrders] = useState<RecentTransaction[]>([]);

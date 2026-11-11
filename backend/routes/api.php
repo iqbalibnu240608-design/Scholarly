@@ -79,24 +79,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/kantin/checkout', [POSController::class, 'checkoutKantin']);
 
     // Presensi Gerbang Satpam (Gate Attendance RFID / NISN)
-    Route::post('/security/gate-checkin', [SecurityController::class, 'gateCheckin'])->middleware('role:security,admin');
+    Route::post('/security/gate-checkin', [SecurityController::class, 'gateCheckin'])->middleware('role:security,admin,kepsek');
     Route::get('/security/today-logs', [SecurityController::class, 'getTodayLogs'])->middleware('role:security,kepsek,admin');
 
     // Modul Akademik (Guru & Siswa)
-    Route::post('/guru/grades', [AcademicController::class, 'inputGrade'])->middleware('role:guru,admin');
-    Route::get('/guru/my-grades', [AcademicController::class, 'getTeacherGrades'])->middleware('role:guru,admin');
+    Route::post('/guru/grades', [AcademicController::class, 'inputGrade'])->middleware('role:guru,admin,kepsek');
+    Route::get('/guru/my-grades', [AcademicController::class, 'getTeacherGrades'])->middleware('role:guru,admin,kepsek');
     Route::get('/siswa/my-grades', [AcademicController::class, 'getMyGrades']);
     Route::get('/school/schedules', [AcademicController::class, 'getSchedules']);
 
     // Modul Perpustakaan Sekolah (E-Library)
     Route::get('/school/library', [LibraryController::class, 'getLibraryData']);
-    Route::post('/library/books', [LibraryController::class, 'addBook'])->middleware('role:perpustakaan,admin');
+    Route::post('/library/books', [LibraryController::class, 'addBook'])->middleware('role:perpustakaan,admin,kepsek');
     Route::post('/library/borrow', [LibraryController::class, 'borrowBook']);
     Route::post('/library/return', [LibraryController::class, 'returnBook']);
-    Route::delete('/library/loans/{id}', [LibraryController::class, 'deleteLoan'])->middleware('role:perpustakaan,admin');
+    Route::delete('/library/loans/{id}', [LibraryController::class, 'deleteLoan'])->middleware('role:perpustakaan,admin,kepsek');
 
     // Modul Petugas TU (SPP)
-    Route::post('/petugas/spp-payment', [SchoolEcosystemController::class, 'paySPP'])->middleware('role:petugas,admin,siswa');
+    Route::post('/petugas/spp-payment', [SchoolEcosystemController::class, 'paySPP'])->middleware('role:petugas,admin,siswa,kepsek');
     Route::get('/petugas/spp-history', [SchoolEcosystemController::class, 'getSPPHistory']);
 
     // Admin Endpoints (Wewenang Khusus Admin)

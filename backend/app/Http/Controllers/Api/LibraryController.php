@@ -21,7 +21,7 @@ class LibraryController extends Controller
     {
         $user = $request->user();
         $rawRole = strtolower(trim($user->role_name ?? ''));
-        $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin'], true);
+        $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin', 'kepsek'], true);
 
         $books = Book::latest()->get();
         $totalBooks = $books->count();
@@ -192,7 +192,7 @@ class LibraryController extends Controller
 
             $currentUser = $request->user();
             $rawRole = strtolower(trim($currentUser->role_name ?? ''));
-            $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin'], true);
+            $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin', 'kepsek'], true);
 
             $bookTitle = $loan->book?->title ?? 'Buku';
 
@@ -244,7 +244,7 @@ class LibraryController extends Controller
     {
         $currentUser = $request->user();
         $rawRole = strtolower(trim($currentUser->role_name ?? ''));
-        $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin'], true);
+        $isLibrarianOrAdmin = in_array($rawRole, ['perpustakaan', 'admin', 'kepsek'], true);
 
         if (!$isLibrarianOrAdmin) {
             return response()->json([

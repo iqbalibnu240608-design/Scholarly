@@ -43,16 +43,16 @@ class AuthController extends Controller
                       ->orWhere('role_name', strtolower($loginId));
 
                 $lowId = strtolower($loginId);
-                if (in_array($lowId, ['kopsis', 'koperasi', 'pengelola_koperasi', 'pengelola koperasi', 'pengelola koperasi siswa'], true)) {
+                if (in_array($lowId, ['kopsis', 'kop-2026', 'koperasi', 'pengelola_koperasi', 'pengelola koperasi', 'pengelola koperasi siswa'], true)) {
                     $query->orWhere('role_name', 'kopsis');
                 }
-                if (in_array($lowId, ['kantin', 'pengelola_kantin', 'pengelola kantin'], true)) {
+                if (in_array($lowId, ['kantin', 'ktn-01', 'pengelola_kantin', 'pengelola kantin'], true)) {
                     $query->orWhere('role_name', 'kantin');
                 }
-                if (in_array($lowId, ['satpam', 'security', 'keamanan'], true)) {
+                if (in_array($lowId, ['satpam', 'sec-01', 'security', 'keamanan'], true)) {
                     $query->orWhere('role_name', 'security');
                 }
-                if (in_array($lowId, ['perpus', 'perpustakaan'], true)) {
+                if (in_array($lowId, ['perpus', 'lib-01', 'perpustakaan'], true)) {
                     $query->orWhere('role_name', 'perpustakaan');
                 }
                 if (in_array($lowId, ['petugas', 'tu', 'administrasi'], true)) {

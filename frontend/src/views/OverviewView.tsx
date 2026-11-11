@@ -15,6 +15,7 @@ import {
   Mail,
   CheckCircle2,
   Megaphone,
+  BookMarked,
 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -370,20 +371,20 @@ export const OverviewView: React.FC = () => {
               </div>
             </Link>
 
-            {/* Modul 4: Presensi & Kartu RFID */}
+            {/* Modul 4: Perpustakaan Digital */}
             <Link
-              to="/app/security"
+              to="/app/perpus"
               className="p-5 sm:px-6 sm:py-5 rounded-2xl border border-slate-200/80 bg-white hover:border-blue-400 shadow-2xs hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 group cursor-pointer"
             >
               {/* Bagian Kiri: Lingkaran Ikon */}
               <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-7 h-7" />
+                <BookMarked className="w-7 h-7" />
               </div>
 
               {/* Bagian Tengah: Judul Modul */}
               <div className="flex-1 min-w-0">
                 <h4 className="text-lg font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
-                  Presensi & Kartu RFID
+                  Perpustakaan Digital
                 </h4>
               </div>
 
@@ -541,11 +542,11 @@ export const OverviewView: React.FC = () => {
             </span>
           </div>
 
-          {/* Blok 1: Presensi Gerbang RFID */}
+          {/* Blok 1: Presensi Gerbang / Pendidik RFID */}
           <div className="py-3.5 border-b border-slate-100">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Presensi Gerbang RFID
+                {activeRole === 'guru' ? 'Presensi Pendidik RFID' : 'Presensi Gerbang RFID'}
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                 <CheckCircle2 className="w-3 h-3" />
@@ -554,31 +555,33 @@ export const OverviewView: React.FC = () => {
             </div>
             <div className="flex items-baseline justify-between">
               <span className="font-mono text-2xl font-black text-slate-900">
-                {studentStats.presensiGerbangJam}
+                {activeRole === 'guru' ? '06:45 WIB' : studentStats.presensiGerbangJam}
               </span>
               <span className="text-[11px] font-semibold text-slate-500">Gate 1 • Gerbang Utama</span>
             </div>
           </div>
 
-          {/* Blok 2: Status SPP */}
+          {/* Blok 2: Beban Mengajar (Guru) / Status SPP (Siswa) */}
           <div className="pt-3.5">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Status Pembayaran SPP
+                {activeRole === 'guru' ? 'Beban Mengajar & Sertifikasi' : 'Status Pembayaran SPP'}
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                <span>Lunas (Bulan Berjalan)</span>
+                <span>{activeRole === 'guru' ? '24 JTM Terpenuhi' : 'Lunas (Bulan Berjalan)'}</span>
               </span>
             </div>
             <div className="flex items-baseline justify-between">
               <div>
                 <span className="font-bold text-sm text-emerald-600 block">
-                  Periode November 2026
+                  {activeRole === 'guru' ? 'SK Mengajar: T.A. 2026/2027' : 'Periode November 2026'}
                 </span>
-                <span className="text-[11px] text-slate-400">Bebas Tunggakan Administrasi</span>
+                <span className="text-[11px] text-slate-400">
+                  {activeRole === 'guru' ? 'Guru Produktif Rekayasa Perangkat Lunak' : 'Bebas Tunggakan Administrasi'}
+                </span>
               </div>
               <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                Next: 10 Des 2026
+                {activeRole === 'guru' ? 'Sertifikasi A' : 'Next: 10 Des 2026'}
               </span>
             </div>
           </div>

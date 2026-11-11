@@ -68,7 +68,7 @@ export const GuruView: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [shakingBtn, setShakingBtn] = useState<'header' | 'quick' | null>(null);
 
-  const isTeacher = activeRole === 'guru' || activeRole === 'admin';
+  const isTeacher = activeRole === 'guru' || activeRole === 'admin' || activeRole === 'kepsek';
 
   const handleOpenGradeModal = (source: 'header' | 'quick') => {
     if (!isTeacher) {
